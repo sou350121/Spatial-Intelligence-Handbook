@@ -1,8 +1,28 @@
-# NVIDIA Cosmos World Foundation Models — Dissection
+# NVIDIA Cosmos 解构 (NVIDIA Cosmos World Foundation Models — Dissection)
 
-**Status:** v0.1 — opinionated draft. All throughput / sim2real-gap deltas marked `UNVERIFIED`.
+> **发布时间**: CES 2025 announcement (NVIDIA)
+> **论文 / 模型**: Cosmos World Foundation Model Platform — Cosmos-Predict / Cosmos-Transfer / Cosmos-Reason
+> **核心定位**: a **conditional video synthesis stack** tuned for robot-rollout aesthetics — value lives in the **data factory**, not in rollouts-as-planner.
+
+Cosmos is not a physics simulator dressed in a transformer. It is a video-generation pipeline with a sim2real-bridging story attached, and the only question that matters is whether VLAs trained on a Cosmos-augmented mix beat ones trained without — on a falsifiable benchmark.
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. All throughput / sim2real-gap deltas marked `UNVERIFIED`.
 **Wedge tier:** W2 · 🔧 [WorldModel] 🛰️
 **TL;DR:** Cosmos is not a world model in the "simulator of physics" sense — it's a **conditional video synthesis stack tuned to look physics-plausible enough that a VLA trained on its rollouts doesn't immediately collapse on real hardware**. The value is in the data factory, not in the rollouts as a planner. The 2027 question is whether a Cosmos-augmented training mix measurably narrows the sim2real gap on a single, falsifiable manipulation benchmark.
+
+### X-Ray (non-expert friendly)
+
+(a) Robot data is the bottleneck — real teleop costs ~$10–50 / episode `UNVERIFIED`, classical sim is cheap but visually wrong. (b) Cosmos turns Isaac-sim depth/seg into photoreal RGB video and filters physics-violating clips with a VLM critic, producing a **VLA training-data factory**, not a planner. (c) For spatial AI engineers: treat Cosmos as one data source in an ablation table — closes the appearance gap, **not** the dynamics gap; useless for contact-rich precision tasks.
+
+### 📍 Research Landscape Timeline
+
+```
+Isaac Sim 2018 ─► DriveDreamer / GAIA-1 2023 ─► Sora 2024 ─► ★ Cosmos CES 2025 ─► Cosmos v2 + 3D-aware critic 2026? ─► ?
+                                                                  │
+                                                                  └── peer: Genie (action-conditional planner)
+```
+
+Cosmos is the first **embodied-AI-targeted** video foundation stack with an explicit Predict/Transfer/Reason factoring. Open downstream: action-conditioning fidelity, contact dynamics, learned-material grounding.
 
 ---
 
@@ -15,6 +35,8 @@ Cosmos sits in `foundations/world-model/` because the data-pipeline use case is 
 ---
 
 ## 2 · Model family architecture
+
+> 📌 **Napkin Formula**: `VLA_data ≈ Cosmos-Transfer(Isaac depth/seg) → Cosmos-Predict(extend) → Cosmos-Reason(filter)` — three video models in series, **not one physics simulator**.
 
 NVIDIA announced Cosmos at CES 2025 as a "World Foundation Model Platform" with three sub-families (exact spec numbers `UNVERIFIED` outside NVIDIA marketing):
 
@@ -35,6 +57,20 @@ Pipeline view for VLA training data:
 ```
 
 The architectural commitment: **Cosmos does not simulate physics. It learns the statistics of plausible video** and uses Cosmos-Reason as a discriminator. This caps what Cosmos can ever do — contact-rich dynamics, deformables, and OOD physics will leak through whenever Cosmos-Reason's training distribution didn't see them.
+
+> ⚡ **Eureka Moment**: **Generator + Critic ≠ Simulator**, but for a VLA training mix it can be *enough*. Cosmos-Reason is the load-bearing piece — without a learned discriminator filtering physics-violating clips, free-generation Cosmos-Predict actively poisons VLA supervision faster than it helps.
+
+### 2.5 · Worked example — Isaac peg-in-hole augmentation
+
+100-episode Isaac peg-in-hole dataset (wrist cam, 256×256, depth + seg available):
+
+- **Transfer**: `(depth, seg)` → photoreal RGB; ~1–3 s/frame on A100 `UNVERIFIED`.
+- **Predict**: extends each clip by 10–20 frames of camera jitter.
+- **Reason**: rejects ~20–40% of clips for object permanence / hand-object intersection `UNVERIFIED`.
+- **Mix**: 60/30/10 (Isaac / real / Cosmos) training.
+- **Expected real-rig delta** on contact-rich peg-in-hole: **near zero** (pixel gap isn't the bottleneck). Same pipeline on cluttered tabletop pick: plausible +3–8% `UNVERIFIED`.
+
+Appearance-bottlenecked tasks gain; contact-rich tasks don't — §6 in miniature.
 
 ---
 
@@ -63,6 +99,20 @@ Documented failure modes (from public demos + community reports, severity `UNVER
 - **Action-conditioning fidelity** — rendered hand doesn't track an explicit end-effector trajectory precisely. This is the gap to Genie.
 
 Mental model: **Cosmos-Predict is a video model with a robot-domain prior, not a robot model with video output**. Cosmos-Reason exists *because* the generator alone is not trustworthy.
+
+### 4.x · Hidden Assumptions
+
+Upstream commitments whose violation makes Cosmos actively harmful:
+
+- **Sim2real gap is appearance-dominated** — true on tabletop pick / pour, false on contact-rich assembly.
+- **Cosmos-Reason's training distribution covers your physics regime** — false for deformables, granular, fluids beyond its seen mix.
+- **You have an Isaac (or similar) source pipeline** — Cosmos-Transfer needs depth + seg input; pure RGB capture doesn't unlock it.
+- **You can afford a domain finetune on your wrist-cam distribution** — out-of-the-box Cosmos is generic and degrades on novel cameras.
+- **Your VLA can tolerate ≤20% noisy supervision** — Cosmos-Reason catches gross violations, not subtle finger-clipping; a brittle policy magnifies it.
+
+If any one is violated, expect **silent failure** — Cosmos rollouts look fine to humans and poison policy training invisibly.
+
+**Interview Tip**: when asked about Cosmos, answer "data factory, not planner — and only for appearance-bottlenecked tasks; the dynamics gap is unchanged." That distinction separates engineers who've read past the marketing from those who haven't.
 
 ---
 

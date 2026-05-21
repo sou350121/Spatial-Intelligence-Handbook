@@ -1,7 +1,38 @@
-# NVIDIA Cosmos — World Foundation Models as a GPU-Revenue Play
+# NVIDIA Cosmos — 世界基础模型作为 GPU 营收战略 (NVIDIA Cosmos — World Foundation Models as a GPU-Revenue Play)
 
-**Status:** v1 — opinionated draft. Roadmap claims marked `UNVERIFIED`. Internal numbers marked `UNVERIFIED — no public source`.
+> **发布时间**: GTC 2025 / CES 2025（持续发布中）
+> **公司 / 产品名**: NVIDIA Cosmos · Omniverse · Isaac Lab · GR00T
+> **覆盖范围 / 公司类型**: 跨域物理 AI 基础模型 + 仿真栈；芯片厂商纵向整合
+> **核心定位**: 一句话回答 — Cosmos 表面是"物理世界的 GPT-3"，本质是把 Omniverse → Cosmos → Isaac Lab 串成三级 GPU 消耗漏斗的中段。
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Roadmap claims marked `UNVERIFIED`. Internal numbers marked `UNVERIFIED — no public source`.
 **TL;DR:** Cosmos is positioned as "GPT-3 for the physical world" but its function inside NVIDIA is to make Omniverse + Isaac Lab + Cosmos a three-stage funnel that consumes GPUs at every stage. Read the announcement as a *revenue architecture* first and a robotics breakthrough second; the robotics part is real, but it's the smaller story.
+
+### X-Ray（非专家友好开场）
+
+（a）机器人公司被"训练数据稀缺"卡住 — 真实数据贵、仿真不够真。（b）Cosmos 把视频世界模型作为"合成数据基座"开源，让客户先用 Omniverse 造场景、再用 Cosmos 跑 rollout、最后 Isaac Lab 训策略，每步跑 NVIDIA GPU。（c）对 spatial / 具身 AI 工程师：Cosmos 是真模型，但商业理由是把"物理 AI 工作流"变成 NVIDIA 销售漏斗 — 技术阅读必须穿过这层。
+
+### 📍 Cosmos / NVIDIA 物理 AI 产品演进时间线
+
+```
+2018 Isaac Sim ─► 2020 Omniverse ─► 2023 Isaac Lab ─► 2024 GR00T ─► ★ 2025 Cosmos-1.0 (GTC) ─► Cosmos-1.x? ─► Cosmos-Reasoning? 2026+
+                                                          │                 │
+                                                          │                 └── 视频 WFM + tokenizer + guardrails 开源
+                                                          └── 人形基础模型（与 Cosmos 双向整合中）
+```
+
+NVIDIA 用了 7 年把"造场景→训策略"的全栈搭起来，Cosmos 是 2025 补上的中段世界模型。
+
+### ⚡ Eureka Moment
+
+**Cosmos 的产品定义不是"更好的世界模型"，而是"GPU 漏斗的中段"。** Omniverse、Cosmos、Isaac Lab 各自是真技术，但三者串联把"任何物理 AI 应用"的 GPU 小时数提升 3–10×（合成数据 + 基础模型微调 + 策略训练 + 边缘推理）。技术评价应与商业架构分开读。
+
+### 📌 Napkin Formula
+
+```
+NVIDIA 物理 AI 营收 ≈ ∑(Omniverse GPU-hours) + ∑(Cosmos fine-tune GPU-hours) + ∑(Isaac Lab GPU-hours) + ∑(Jetson 边缘出货)
+                                          ─ 每一段都是独立 SKU + 独立收入线 ─
+```
 
 ---
 
@@ -89,9 +120,43 @@ The shipping list is real and substantial. The roadmap list is the part to track
 
 ---
 
+## 5.5 · Worked example — 一家机器人初创如何被漏斗"吸进去"
+
+设仓储抓取初创 X，原本 RGB + 自采 5 万 demo 训策略。接入 Cosmos：
+
+1. **Omniverse 场景** 500 变体 → 几千 GPU-hours。
+2. **Cosmos 合成扩量** 50 万条 rollout → 数万 GPU-hours。
+3. **Isaac Lab 策略训练** → 数万 GPU-hours。
+4. **Jetson Thor 边缘** → 硬件出货。
+5. **账单** 从 ~5K → ~50K-100K GPU-hours，策略略好（OOD），但成本 10–20×。
+
+漏斗精明在**每段都给真价值**（场景多样、合成扩量、policy infra）—客户不觉被坑，NVIDIA 的营收账面清晰。
+
+---
+
 ## 6 · How to read Cosmos benchmarks
 
 When NVIDIA-published numbers compare Cosmos to other video models: **physical-realism metrics** favor Cosmos's filtered training data and are often the only ones where Cosmos clearly wins; **general video quality (FVD, etc.)** — Sora / closed competitors win `UNVERIFIED`; **downstream policy success rate** — the metric that would matter is rarely published with rigor. Independent reproduction is the safer signal — academic fine-tunes on niche embodied datasets are the cleaner readout.
+
+---
+
+## 6.5 · Hidden Assumptions
+
+战略叙事下的隐含假设，违反任一条都会动摇结论：
+
+- **跨域合成数据可替代真实数据** — 学界证据混合，下游策略成功率公开数字稀少 `UNVERIFIED`。
+- **GPU 主导未来 10 年物理 AI 算力** — ASIC / 边缘芯片崛起会绕过漏斗。
+- **开源 WFM 不反噬** — AMD ROCm + Hugging Face 追赶会削弱护城河。
+- **机器人客户接受 vendor lock-in** — 2027 后若有等效开源替代，迁移成本下降。
+- **Blackwell → Rubin 节奏不断** — 供应链危机延后芯片即延后 Cosmos。
+- **WFM 对具身策略真有用** — Sora 路线 vs 物理仿真路线尚未分出胜负。
+- **不出 safety 大事** — 一次合成数据训练策略事故会监管化整个叙事。
+
+---
+
+## 6.6 · Interview Tip
+
+被问"NVIDIA Cosmos 真正想做什么" — 给两层答案：**表层**是开源视频世界模型，做物理 AI 基础模型；**深层**是把 Omniverse + Cosmos + Isaac Lab 串成 GPU 营收漏斗，让任何机器人工程团队的算力账单上升 3–10×。最后补一句：模型本身是真工程，路线图（Cosmos-Reasoning、GR00T 整合）的兑付节奏才是观察重点，NVIDIA 软件栈历史上交付时间表常 slip。
 
 ---
 
@@ -126,4 +191,4 @@ NVIDIA has assembled the most credible end-to-end physical-AI stack. Whether it 
 
 ---
 
-*Last opinion update: 2026-05-21.*
+*Last opinion update: 2026-05-21. v1.1 — backfilled to AGENTS.md 14-item template.*

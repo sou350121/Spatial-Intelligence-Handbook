@@ -1,8 +1,28 @@
-# OpenScene: 3D Scene Understanding with Open Vocabularies
+# OpenScene 解构 (OpenScene: 3D Scene Understanding with Open Vocabularies — Dissection)
 
-**Status:** v1 — opinionated draft. Latency / memory numbers marked `UNVERIFIED`.
+> **发布时间**: CVPR 2023 (Peng, Genova, Jiang, Tagliasacchi, Tombari, Guibas — Google + ETH + Stanford)
+> **论文 / 模型**: OpenScene, [arXiv:2211.15654](https://arxiv.org/abs/2211.15654)
+> **核心定位**: open-vocabulary 3D segmentation **without per-scene training** — project 2D CLIP into 3D points, aggregate across views. Robotics-deployable; loses to closed-set on labeled benchmarks.
+
+OpenScene is the deployable counterpart to LERF: instead of training a new field per scene, it trains a **reusable 3D backbone once** and projects 2D CLIP features into any new scene in one pass. The dumb-and-correct move turns out to be what robotics teams need.
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item template 2026-05-21. Latency / memory numbers marked `UNVERIFIED`.
 **Wedge tier:** W2 · `foundations/semantic-3d/` anchor #2
-**TL;DR:** OpenScene made open-vocabulary 3D segmentation work *without per-scene training*. It does the dumb-and-correct thing — project 2D CLIP features into 3D points/voxels and average over views — and the dumb-and-correct thing is exactly what robotics teams need. Loses to closed-set baselines on labeled benchmarks; wins everywhere else.
+**TL;DR:** OpenScene makes open-vocabulary 3D segmentation work *without per-scene training* — project 2D CLIP into 3D points/voxels, average across views. Dumb-and-correct = what robotics needs. Loses to closed-set on labeled benchmarks; wins everywhere else.
+
+### X-Ray (non-expert friendly)
+
+(a) Before OpenScene, robots needing 3D language grounding had two bad options: closed-set segmentation (fixed classes) or per-scene field training (LERF, minutes/room). (b) OpenScene extracts dense per-pixel CLIP from posed RGB(-D), projects onto 3D points/voxels, averages across views — every point carries a CLIP feature; queries become dot products. (c) For engineers: **the deployable semantic-3D pattern** — streaming, geometry-decoupled, no scene training. Cite when shipping; cite LERF only for paradigm.
+
+### 📍 Research Landscape Timeline
+
+```
+CLIP 2021 ─► OpenSeg / LSeg 2022 ─► ★ OpenScene CVPR 2023 ─► ConceptGraphs ICRA 2024 ─► SAM-CLIP / DINOv2-CLIP 2025+
+                                            │
+                                            └── peer: LERF ICCV 2023 (feature field — elegant, undeployable)
+```
+
+OpenScene-lineage = deployed approach; LERF-lineage = elegant approach. The "published" vs "deployed" gap is the lane's key story.
 
 ---
 
@@ -33,6 +53,10 @@ The result: a 3D scene that answers arbitrary text queries — `chair`, `somethi
 
 ---
 
+> 📌 **Napkin Formula**: `feat(p ∈ ℝ³) = avg_views{ CLIP_dense(image_v)[π_v(p)] · visibility(p, v) }` — every 3D point's feature is the **view-weighted average of projected dense 2D CLIP features**. Inference query: `relevancy(text, p) = ⟨CLIP_text(text), feat(p)⟩`. No field training, no NeRF; just project-and-average.
+
+> ⚡ **Eureka Moment**: **CLIP-aligned 2D features are already 3D-consistent enough that *projection alone* closes most of the gap** to specialized closed-set 3D segmenters. The 3D backbone (MinkowskiNet) is a refinement, not the core contribution — the projection insight is what unlocks deployment.
+
 ## 2 · Why this works without per-scene training
 
 OpenScene's contribution is *not* architectural novelty. It is the observation that CLIP-aligned 2D features are already 3D-consistent enough to *aggregate by projection*, and that aggregation alone closes most of the gap to specialized closed-set 3D segmenters. Once per-point features exist, open-vocab segmentation reduces to text-feature dot products — no scene-specific optimization, no NeRF training, no second model.
@@ -57,6 +81,18 @@ The honest part of the paper: on closed-set 3D semantic segmentation benchmarks 
 
 **For robotics this is the right trade.** A house robot encounters objects no benchmark labeled. A factory robot needs free-form instructions. Zero-shot floor matters more than closed-set ceiling.
 
+### 3.5 · Worked example — streaming semantic map for a mobile manipulator
+
+Mobile robot with RGB-D + ORB-SLAM3 walks a kitchen, 5 cm voxel map (~30k voxels).
+
+- **Per frame (10–30 Hz)**: OpenSeg dense forward → per-pixel CLIP feats (512-D).
+- **Per newly-visible voxel**: project to frame, sample feature, running-average with visibility weighting.
+- **Memory**: ~30k × 512 × 4 B ≈ 60 MB `UNVERIFIED` — fits on Orin.
+- **Query `the kitchen utensils`**: text-encode → dot product across voxels → top-K. Latency: O(N), milliseconds.
+- **Fail case**: stainless knife seen from one specular angle → single-view voxel, noisy feature, wrong cluster.
+
+The streaming-vs-LERF win: same room, same query, **no per-scene training**, fits a 30 Hz loop.
+
 ---
 
 ## 4 · Why robotics teams cite OpenScene more than LERF
@@ -78,11 +114,24 @@ Successor papers that matter (ConceptGraphs, OVIR-3D, CLIP-Fields w/ online upda
 - **No multi-scale by construction.** Per-point features are object-scale by default. Scene-level queries need downstream clustering or a scene-graph layer.
 - **No update-in-place.** Moving objects and re-arrangements require re-projection. One-shot fusion, not temporal.
 
+### 5.x · Hidden Assumptions
+
+- **You have geometry from elsewhere** — RGB-D / mesh / SLAM voxel grid; OpenScene does not produce geometry.
+- **2D dense CLIP backbone caps quality** — OpenSeg / LSeg smear; SAM-CLIP / DINOv2-CLIP raises the floor.
+- **Sufficient per-point view count** — single-view points are noisy.
+- **Static scene during mapping** — no entity tracking; moving objects average inconsistent features.
+- **CLIP vocabulary covers your queries** — industrial / domain jargon is weak.
+- **SLAM-grade poses** — projection error propagates into feature mis-aggregation.
+
+Violations show as **silent label confidence on subtly-wrong cells**.
+
 ---
 
 ## 6 · Falsifiable prediction
 
 By 2027, the dominant semantic-3D pattern in shipped robot stacks will be OpenScene-lineage projection (SAM-CLIP / DINOv2-CLIP dense backbone) feeding a ConceptGraphs-style object layer on top — *not* feature fields. LERF-lineage will remain the default in research papers because it looks prettier in figures, but the "published" vs "deployed" gap will widen, not narrow.
+
+**Interview Tip**: when asked about OpenScene vs LERF, answer "OpenScene projects + averages — no per-scene training, geometry decoupled, streaming-friendly. LERF is paradigm; OpenScene is shipping." Bonus credit for citing ConceptGraphs as the natural object-layer successor.
 
 ---
 

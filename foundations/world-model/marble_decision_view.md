@@ -1,8 +1,28 @@
-# World Labs / Marble — Decision-Useful Slice Only
+# World Labs / Marble 决策视角 (World Labs / Marble — Decision-Useful Slice Only)
 
-**Status:** v0.1 — opinionated draft. Most product-side specs from blog / demo posts, marked `UNVERIFIED`.
+> **发布时间**: World Labs / Marble launch — late 2024 (product blog; no peer-reviewed technical report as of 2026-05)
+> **论文 / 模型**: Marble — World Labs (Fei-Fei Li / Justin Johnson / Christoph Lassner / Ben Mildenhall)
+> **核心定位**: a **consumer 3D scene generator** with research lineage from the NeRF / 3DGS founders — robot-relevant only insofar as its underlying single-image-to-3D pipeline could feed a policy.
+
+This file is deliberately a **decision-useful slice**, not a full dissection. ~90% of Marble's surface (creative tooling, VR authoring, interactive UX) is out of scope per the project PRD. We document why the remaining 10% does not yet justify a robotics integration — and what would change that.
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Most product-side specs from blog / demo posts, marked `UNVERIFIED`.
 **Wedge tier:** W3 · 📖 [WorldModel]
 **TL;DR:** Marble (World Labs, 2024) is a **consumer-facing 3D scene generator**. ~90% of its surface area — interactive 3D content authoring, VR scene gen, creative tooling — is **explicitly out of scope** for this handbook. The narrow slice we keep: the underlying **single-image / sparse-view to 3D scene representation** pipeline, which overlaps with feed-forward 3D and could plausibly become a **policy augmentation** source (novel-view supervision, depth from a single wrist-camera frame). We dissect that slice only, and flag clearly what we are not covering.
+
+### X-Ray (non-expert friendly)
+
+(a) Marble is a consumer 3D-scene generator from the team that wrote NeRF / 3DGS; it produces navigable 3D worlds from prompts or images. (b) For embodied AI, only the underlying **single/sparse-image → 3D pipeline** matters — and even that is closed, unpublished, and unbenchmarked against ScanNet++ / TUM-RGBD. (c) For spatial AI engineers: **use VGGT or DUSt3R today, watch World Labs's research-arm publications, not the product page**.
+
+### 📍 Research Landscape Timeline
+
+```
+NeRF 2020 ─► Mip-NeRF 2021 ─► 3DGS SIGGRAPH 2023 ─► DUSt3R 2024 ─► VGGT CVPR 2025
+                                                                       │
+                                                ★ World Labs / Marble (consumer 3D, closed) 2024 ─► API or paper 2026? ─► ?
+```
+
+Marble's positioning is **adjacent** to feed-forward 3D — same founders, same lineage — but the artifact is shipped as a consumer product instead of a benchmarked model. Open vs closed is the decisive axis here.
 
 ---
 
@@ -22,6 +42,10 @@ What we *do* cover, and only briefly because it sits in shadow of better-documen
 If a maintainer wants to read the full creative-tooling story, that belongs in a media-AI survey, not here.
 
 ---
+
+> 📌 **Napkin Formula**: `robot-relevance(Marble) = openness × benchmark_coverage × distribution_match` — currently all three terms are near zero, so use VGGT / DUSt3R.
+
+> ⚡ **Eureka Moment**: The same founders who *open-sourced* NeRF and 3DGS chose to ship Marble as a **closed consumer product**. That choice — not any architectural difference — is why it's a footnote here while VGGT is a flagship. Robotics impact follows open weights + standard benchmarks, not impressive demos.
 
 ## 2 · The decision-relevant slice in one paragraph
 
@@ -44,12 +68,43 @@ Read the table as: **Marble is structurally adjacent to robot-useful capability,
 
 ---
 
+### 3.5 · Worked example — should I switch from VGGT to Marble?
+
+Scenario: a manipulation team has a working VGGT-based wrist-camera novel-view pipeline; they read a Marble launch post and ask whether to switch.
+
+Decision checklist (today):
+
+| Check | VGGT | Marble |
+|---|---|---|
+| Open weights | ✅ | ❌ |
+| Benchmark on ScanNet++ / TUM-RGBD | ✅ | ❌ no published numbers |
+| API / batch inference | ✅ via HuggingFace | ❌ consumer-product only |
+| Training distribution = robot wrist-cam-ish | ⚠️ indoor scenes ok | ❌ consumer-aesthetic, mis-distributed |
+| Metric scale | ❌ (both) | ❌ (both) |
+| Distillable to Orin | ⚠️ in progress | ❌ no path |
+
+**Recommendation**: keep VGGT, revisit when World Labs ships an API or a paper. Switching today buys nothing measurable and loses reproducibility.
+
 ## 4 · Where it doesn't help (and why we say so explicitly)
 
 - **No published policy-loop evaluation.** Marble has not been measured in a real robot pipeline. Without that, calling it a "world model for robots" is marketing, not engineering.
 - **No metric scale guarantee.** Same blind spot as monocular feed-forward 3D; no robot integration story without IMU / stereo fusion.
 - **No physics.** Marble is a *visual* 3D model. Contact, friction, mass — absent. PhysGaussian in `foundations/physics/` is the comparison if you want physics-aware rendering.
 - **Closed weights.** As of 2026-05 there's no published checkpoint to dissect at the level we dissect VGGT or 3DGS.
+
+### 4.x · Hidden Assumptions
+
+Implicit commitments any "Marble for robots" pitch makes — and that we don't currently believe:
+
+- **The underlying pipeline is robot-distribution-compatible** — consumer 3D scenes are over-aesthetic and skewed away from cluttered tabletops / industrial settings.
+- **An API or weight release is forthcoming** — no public roadmap as of 2026-05.
+- **Consumer-aesthetic scenes have any signal for policy training** — possible but cheap to falsify with existing open systems first.
+- **Visual realism translates to policy gain** — same fallacy as the Cosmos case; appearance ≠ dynamics.
+- **The product team would prioritize robotics use cases over consumer monetization** — incentive misalignment.
+
+If even one fails, the robotics-relevance story collapses to "watch the research-arm publications."
+
+**Interview Tip**: when asked about Marble, answer "consumer 3D — out of scope for embodied AI until either an API or a benchmarked research artifact lands. Use VGGT / DUSt3R / Depth Anything v2 today; track World Labs's papers, not their product page." That keeps you out of the hype lane.
 
 ---
 

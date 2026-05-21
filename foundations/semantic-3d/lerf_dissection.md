@@ -1,8 +1,28 @@
-# LERF: Language Embedded Radiance Fields
+# LERF 解构 (LERF: Language Embedded Radiance Fields — Dissection)
 
-**Status:** v1 — opinionated draft. Training-time and query-latency numbers marked `UNVERIFIED`.
+> **发布时间**: ICCV 2023 (Kerr, Kim, Goldberg, Kanazawa, Tancik — UC Berkeley)
+> **论文 / 模型**: LERF — Language Embedded Radiance Fields, [arXiv:2303.09553](https://arxiv.org/abs/2303.09553)
+> **核心定位**: distill 2D CLIP into a 3D neural field → **multi-scale, view-consistent text queries** with no class labels. Elegant paradigm, **not a deployable system**.
+
+LERF is the paradigm-proof; OpenScene-lineage is what robotics teams actually fuse. Read this file to understand *why* language fields work; do not read it expecting to ship one.
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item template 2026-05-21. Training-time and query-latency numbers marked `UNVERIFIED`.
 **Wedge tier:** W2 · `foundations/semantic-3d/` anchor #1
-**TL;DR:** LERF is the cleanest demonstration that you can distill a 2D vision-language model (CLIP) into a 3D neural field and get *multi-scale, view-consistent text queries for free*. It is also the cleanest demonstration of why robotics teams rarely deploy it: every new scene costs minutes of training, queries cost a forward pass over a NeRF, and the geometry it inherits is NeRF-quality — not robot-policy-quality. Read this to understand the *paradigm*; do not read it expecting to ship it.
+**TL;DR:** LERF cleanly demonstrates that CLIP can be distilled into a 3D neural field for *multi-scale, view-consistent text queries*. It also cleanly demonstrates why robotics teams rarely ship it: per-scene training (minutes), query-time ray rendering, and NeRF-quality geometry. Read for the *paradigm*; don't expect to deploy it.
+
+### X-Ray (non-expert friendly)
+
+(a) Robots hearing "pick up the kitchen utensil" need open-set language → 3D location. (b) LERF distills CLIP into a NeRF so any text → 3D relevancy heatmap; the *multi-scale* trick (small / medium / scene crops) makes `fork` and `breakfast counter` queries both work in one field. (c) For engineers: paradigm right, deployment wrong — per-scene NeRF training, ray-rendered queries, NeRF-quality geometry don't fit robot timelines.
+
+### 📍 Research Landscape Timeline
+
+```
+NeRF 2020 ─► CLIP 2021 ─► Nerfacto 2023 ─► ★ LERF ICCV 2023 ─► LangSplat CVPR 2024 ─► F-3DGS 2024+ ─► feed-forward semantic fields ?
+                                                  │
+                                                  └── peer: OpenScene CVPR 2023 (projection fusion, no per-scene training)
+```
+
+LERF is the paradigm-proof; LangSplat / F-3DGS attack the per-scene training bottleneck on the 3DGS side. The race: feed-forward semantic fields collapse training to single-digit seconds before robotics teams abandon fields.
 
 ---
 
@@ -29,6 +49,10 @@ training:                                       inference:
 
 ---
 
+> 📌 **Napkin Formula**: `relevancy(text, x ∈ ℝ³) = ⟨CLIP_text(text), Field_lang(x, scale)⟩` — text query becomes a vector dot-product against a learned **3D CLIP field** sampled along a ray, with **scale** as an extra conditioning input that selects which crop-size supervised the field at that location.
+
+> ⚡ **Eureka Moment**: **Multi-scale CLIP supervision is the contribution**, not the NeRF wrapper. A naive single-scale distillation collapses one regime — object queries or scene queries, never both. Supervising with crops at multiple sizes and conditioning the rendered feature on a query-time scale gives you a single field that is genuinely *3D CLIP*, not 2D CLIP painted onto 3D.
+
 ## 2 · Why multi-scale is the contribution
 
 CLIP was trained on whole images paired with whole captions. `pasta` matches a wide crop, `fork` matches a tight crop. A naive distillation that picks one crop size collapses one regime.
@@ -44,6 +68,18 @@ LERF supervises with crops at multiple scales and conditions the rendered featur
 
 View consistency is the second contribution — the same 3D point emits the same feature regardless of ray, so language queries don't flicker as the camera moves. This is the part that *would* matter for robotics if the rest of the pipeline cooperated.
 
+### 2.5 · Worked example — `pick up the fork` on a tabletop
+
+Wrist-cam captures 60 RGB views of a breakfast table (fork, mug, plate).
+
+- **Per-scene LERF train**: ~5–30 min on a high-end GPU `UNVERIFIED` (Nerfacto + hash grids + language head).
+- **Query `fork`** at object scale → 3D relevancy peak at the fork (~conf 0.85).
+- **Query `kitchen utensils`** at region scale → broader heatmap covering all utensils.
+- **Query `the tip of the fork`** (sub-object) → relevancy spreads over fork volume; *cannot* localize the tip — hits the multi-scale ceiling.
+- **Query latency**: 10s–100s ms/query `UNVERIFIED`; viable for 1 Hz planner, not 30 Hz control.
+
+When the per-scene-training / latency / scale-ceiling triple binds, LERF fails silently — relevancy still *looks* right.
+
 ---
 
 ## 3 · Where LERF falls down (the robotics view)
@@ -57,6 +93,17 @@ LERF is a research artifact, not a deployment artifact. Four failure modes:
 **Geometry quality.** LERF is a NeRF. Geometry is good enough to *render* but often not good enough to *contact* — surfaces are diffuse, thin structures (wires, edges) unreliable, and the language head inherits the radiance head's spatial smearing. For grasp-precise manipulation, geometry is often the bottleneck, not semantics.
 
 **Open-set queries that need fine geometry.** "The *tip* of the screwdriver" pushes against both the multi-scale ceiling (tip is sub-object) and the geometry ceiling (blurry surfaces). Relevancy points to roughly the right region, rarely the right voxel.
+
+### 3.x · Hidden Assumptions
+
+- **You can afford per-scene training** — fatal for mobile manipulators acting in 60 seconds.
+- **NeRF geometry suffices for downstream contact** — usually false; language head inherits the smearing.
+- **CLIP covers your vocabulary** — fails for industrial / technical jargon.
+- **Multi-scale crops cover sub-object queries** — tip / edge / hole fall through.
+- **Queries are low-rate** — 30 Hz policy loops can't ray-march per query.
+- **Scene is static during capture** — moving objects produce inconsistent supervision.
+
+Confidence is bounded by the weakest — usually per-scene training.
 
 ---
 
@@ -76,6 +123,8 @@ This works on benchtop demos. It does not work on a mobile manipulator that walk
 ## 5 · Falsifiable prediction
 
 Before 2026-12, a 3DGS-based language field (LangSplat or successor) will replace LERF entirely as the *default* citation in language-conditioned manipulation papers. By 2027-06, feed-forward semantic field variants will appear that drop the per-scene training to single-digit seconds `UNVERIFIED`, at which point the deployment objection collapses. Bet against any 2026+ robotics paper that still uses vanilla LERF as its primary semantic representation rather than as a baseline.
+
+**Interview Tip**: when asked about LERF, answer "first credible *3D* CLIP — multi-scale supervision is the contribution, not the NeRF wrapper. Cite as paradigm; deploy OpenScene / LangSplat. The deployment failure is per-scene training, not the language head." That distinguishes engineers who read the method from those who memorized the keyword.
 
 ---
 

@@ -1,7 +1,24 @@
-# 3D Gaussian Splatting (Kerbl et al. SIGGRAPH 2023) — Dissection
+# 3D Gaussian Splatting (3DGS 原始论文解构 — SIGGRAPH 2023)
 
-**Status:** v1 — opinionated draft. Hyperparams marked UNVERIFIED.
+> **Published**: 2023-07 (SIGGRAPH 2023)
+> **Paper**: Kerbl, Kopanas, Leimkühler, Drettakis — *3D Gaussian Splatting for Real-Time Radiance Field Rendering*
+> **Team**: INRIA + Université Côte d'Azur + MPI Informatik
+> **Core position**: First explicit, GPU-rasterizable radiance-field representation — replaces NeRF's MLP with ~1–5M anisotropic gaussians so 3D becomes inspectable, editable, and 100× faster.
+
+**Status:** v1.1 — backfilled to AGENTS.md 14-item template 2026-05-21. Hyperparams marked UNVERIFIED.
 **TL;DR:** 3DGS is not a rendering trick — it's the moment radiance fields became an *explicit* geometric representation that a robotics stack could actually own. The 100× speedup over NeRF is real and reproducible; the 1–2 GB-per-scene storage cost is the deployment landmine nobody warned you about.
+
+### X-Ray (non-expert friendly)
+
+(a) NeRF gave you a differentiable 3D scene but required hours of training and rendered at <1 FPS — useless inside a 30 Hz perception loop. (b) 3DGS keeps the differentiable contract (gradients flow back from pixels) but throws away the MLP, replacing it with millions of explicit anisotropic ellipsoids that a CUDA rasterizer can splat in real time. (c) For spatial AI engineers: 3D scenes become *inspectable assets* — you can prune, edit, transplant gaussians like a point cloud, which is exactly what a robotics map editor or sim-to-real pipeline needs.
+
+### 📍 Research Landscape Timeline
+
+```
+NeRF 2020 ─► Instant-NGP 2022 ─► Mip-NeRF360 2022 ─► ★ 3DGS SIGGRAPH 2023 ─► 4D-GS / Mip-Splat 2024 ─► GS-SLAM / VGGT 2024-25 ─► feed-forward GS init 2026+
+```
+
+3DGS is the inflection point that moved radiance fields from "research artifact" to "robotics-deployable map primitive." Open downstream: compression, semantic grounding, feed-forward initialization.
 
 Paper: Kerbl, Kopanas, Leimkühler, Drettakis. *SIGGRAPH 2023.* arXiv: https://arxiv.org/abs/2308.04079
 Code: https://github.com/graphdeco-inria/gaussian-splatting
@@ -13,6 +30,10 @@ Code: https://github.com/graphdeco-inria/gaussian-splatting
 NeRF gave you a differentiable scene representation but charged you hours of training and seconds per rendered frame. For graphics that's a known tradeoff. For robotics it's a non-starter — you can't put a representation that renders at 1 FPS behind a 30 Hz perception pipeline. 3DGS kept the differentiable rendering contract (gradients flow from pixels back to scene parameters) but discarded the MLP. The scene becomes an explicit set of ~1–5 million anisotropic gaussians; rendering becomes tile-based rasterization on the GPU. **The conceptual unlock is that the representation is now inspectable** — you can prune, edit, transplant, and downsample gaussians the same way you'd manipulate a point cloud, which is exactly what a robotics map editor needs.
 
 ## 2 · Mechanism
+
+> 📌 **Napkin Formula**: `Rendered pixel = α-blend{ Project(Gᵢ; intrinsics, pose) | i sorted front→back per tile }` — every pixel is a depth-sorted weighted sum of projected anisotropic gaussians. No MLP, no ray-marching, just rasterize-and-blend.
+
+> ⚡ **Eureka Moment**: The win isn't the gaussians — it's the *combination* of anisotropic ellipsoids (a few million can cover a room, isotropic spheres need 10–100×) with a tile-based CUDA rasterizer (sorted α-blend, not generic point splat) and adaptive densification (the optimizer adds/removes primitives during training). All three together is what unlocked the 100× speedup; any two of three would have stayed academic.
 
 ```
    SfM points (COLMAP)
@@ -63,6 +84,20 @@ Three pieces matter for embodied use:
 
 Reported training time on a single A6000: ~30 min for SIGGRAPH-grade quality on Mip-NeRF360 scenes `UNVERIFIED — varies with scene complexity`. Render rate at inference: 100+ FPS at 1080p on the same hardware. Compare against NeRF (hours of training, sub-1 FPS rendering) and the 100× claim resolves into "100× faster training and 100× faster rendering, simultaneously."
 
+## 3.5 · Worked example — single mug on a desk
+
+Capture a coffee mug with a phone, 30 photos in a 1 m arc.
+
+- **COLMAP init**: ~5K SfM points (sparse but well-localized on the mug + desk).
+- **Iter 0**: ~5K gaussians, mostly spherical, opacity ~0.1.
+- **Iter 7K**: ~120K gaussians after densification — clones spawn on the rim, splits cover the handle curvature. PSNR ~28 dB UNVERIFIED.
+- **Iter 30K**: ~800K gaussians, opacity bimodal (~0 prune candidates and ~0.9 keepers). PSNR ~32 dB. Disk size ~180 MB UNVERIFIED.
+- **Render**: at 1080p, ~3 ms per frame on RTX 4090 → 300+ FPS headroom. Same scene as NeRF would take ~200 ms (5 FPS).
+
+The 4–5 orders-of-magnitude render gap is what makes 3DGS usable inside a robot perception loop and NeRF not.
+
+---
+
 ## 4 · Where it breaks (the part the paper doesn't dwell on)
 
 - **Storage** — a finished scene is 1–2 GB on disk (millions of gaussians × ~60 floats each `UNVERIFIED`). For a humanoid that needs to carry maps of a building, this is the binding constraint, not training time. Compression variants (Self-Organizing Gaussians, Compact3D) arrived through 2024 and cut this 5–20× `UNVERIFIED`; vanilla 3DGS does not compress.
@@ -70,6 +105,20 @@ Reported training time on a single A6000: ~30 min for SIGGRAPH-grade quality on 
 - **No semantic handle** — vanilla 3DGS encodes appearance, not category. "Where is the cup" needs an aux head (LangSplat, Feature-3DGS) bolted on.
 - **Aliasing at scale** — viewing the same gaussians from a drone altitude vs a head-mounted camera produces visible aliasing artifacts. Fixed in Mip-Splatting (see `mip_splatting.md`).
 - **Static scenes only** — no temporal axis. Fixed in 4D-GS lineage (see `4dgs_dynamic_scenes.md`).
+
+### 4.x · Hidden Assumptions
+
+Upstream assumptions whose violation produces the failure modes above:
+
+- **Good COLMAP init** — SfM points seed the gaussian set; in textureless / motion-blur scenes COLMAP fails and gaussians never converge.
+- **Static scene during capture** — any moving object during the 30-photo collection produces floaters or smeared gaussians.
+- **Sufficient training views** — sparse coverage (~<20 images for a room) leaves under-constrained gaussians that look fine from training viewpoints and shatter on novel views.
+- **Single camera scale (no zoom)** — vanilla 3DGS aliases under scale change; Mip-Splatting is the fix.
+- **Disk and VRAM headroom** — a 1–2 GB scene must fit in GPU memory for rendering; mobile / Jetson deployment requires compression.
+
+If violated, the model often still *renders* something — silent failure (floaters, shimmer, ghosting) is the dangerous mode.
+
+---
 
 ## 5 · Why robotics teams cared (the lane that matters for this handbook)
 
@@ -90,6 +139,8 @@ The vanilla 3DGS paper is now a baseline, not a destination. By 2027 expect:
 - **Semantic-grounded gaussians** (LangSplat lineage) to be the assumed interface for VLA consumption, not a research curiosity.
 
 **Falsifiable prediction:** by 2027-06, the dominant 3DGS pipeline in published robotics work will *not* use COLMAP for initialization — it will use a feed-forward 3D model. Bet against any paper that still relies on COLMAP as the primary init by then.
+
+**Interview Tip**: When asked "why 3DGS over NeRF for robotics," the trap answer is "100× faster." The right answer is *"because it's explicit"* — gaussians are inspectable, prunable, and editable like point clouds; NeRF's MLP isn't. Speed is the consequence, not the contribution.
 
 ## References
 

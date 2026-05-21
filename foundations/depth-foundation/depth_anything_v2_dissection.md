@@ -1,8 +1,25 @@
-# Depth Anything v2
+# Depth Anything v2 (Depth Anything v2 解构 — NeurIPS 2024)
 
-**Status:** v1 — opinionated draft. Hyperparams marked UNVERIFIED.
+> **Published**: 2024-06 (arXiv) / NeurIPS 2024
+> **Paper**: Yang et al. — *Depth Anything V2*
+> **Team**: HKU + TikTok
+> **Core position**: Strongest relative monocular depth foundation model in 2024–2026. Wins via data recipe (62M unlabeled distilled atop 595K high-quality synthetic), not architecture. **Output is affine-invariant** — never deploy for grasp pose.
+
+**Status:** v1.1 — backfilled to AGENTS.md 14-item template 2026-05-21. Hyperparams marked UNVERIFIED.
 **Wedge tier:** W1 · relative-depth foundation
 **TL;DR:** Depth Anything v2 (Yang et al. 2024, arXiv 2406.09414) is the strongest *relative* monocular depth model shipping in 2024–2026 — and the most-mistaken-for-metric model on the shelf. Its win isn't architecture, it's **62M unlabeled images distilled through a teacher-student loop on top of 595K high-quality labeled samples** `UNVERIFIED counts`. Use it for visualization, semantic depth, and as a pretrain. Do **not** use it for grasp pose. The output is up to an unknown affine — multiply by a robot-side scale estimate or you'll drop the cup.
+
+### X-Ray (non-expert friendly)
+
+(a) Earlier monocular depth models (MiDaS, DPT, Depth Anything v1) generalized OK but were brittle — real labels are noisy (LiDAR shadows, kinect speckle), capping the achievable accuracy. (b) v2's contribution is *data*: train a teacher on 595K *synthetic* clean labels, distill onto 62M unlabeled real images, ship the student. The architecture (DINOv2 + DPT) is unchanged. (c) For spatial AI engineers: this is the best relative-depth pretrain available, but the affine-invariant output makes it *useless* for any task that needs meters — that's a separate track (Metric3D).
+
+### 📍 Research Landscape Timeline
+
+```
+MiDaS 2020 ─► DPT 2021 ─► Depth Anything v1 2024 ─► ★ Depth Anything v2 NeurIPS 2024 ─► Metric3D / canonical-camera track 2024+ ─► VGGT subsumes 2025
+```
+
+v2 is the peak of the relative-depth foundation lineage. The next move is either (a) metric-aware fine-tune (track convergence with Metric3D) or (b) subsumption by multi-view feed-forward (VGGT).
 
 ---
 
@@ -14,7 +31,12 @@ The lesson generalizes beyond depth — it's the same recipe that worked for SAM
 
 ---
 
+> ⚡ **Eureka Moment**: Real labels are *worse than synthetic* once your label budget is large enough — LiDAR shadow holes, kinect IR speckle, photometric stereo artifacts all leak noise into supervision. Train teacher on clean synthetic, then *distill onto 62M unlabeled real images* to bridge the synthetic→real domain gap. **The data recipe IS the contribution**; the architecture is unchanged from v1.
+
 ## 2 · Architecture & training recipe
+
+> 📌 **Napkin Formula**: `Teacher(synthetic 595K) → pseudo-labels for unlabeled 62M → Student(real+pseudo) = final model`. Loss is affine-invariant disparity (MiDaS-style) — predicts disparity up to scale **and shift**, not a metric depth.
+
 
 | Component | Choice | Why it matters |
 |---|---|---|
@@ -54,6 +76,18 @@ The architecture matrix between Depth Anything v1 and v2 is almost identical. **
 
 ---
 
+## 3.5 · Worked example — phone photo of a desk
+
+Take a phone photo of a coffee mug on a desk, run Depth Anything v2-L:
+
+- **Output**: `H×W` disparity, values ~0.1–0.9 (no units, affine-invariant).
+- **"Fit scale once"**: measure mug at 0.5 m with tape, fit `s, b` so `s/output + b ≈ 0.5 m`.
+- **Reuse same `s, b` on a second photo, same camera**: model says 0.7 m, tape says 0.5 m → **40% scale error**.
+
+v2's affine `(s, b)` is content-dependent, not camera-dependent — the fit doesn't transfer. Use a per-frame metric anchor or switch to Metric3D.
+
+---
+
 ## 4 · Where it breaks
 
 - **Transparent / specular surfaces** — glass, water, mirrors. Inherited from every DPT-lineage model. No principled fix exists at the monocular-RGB level.
@@ -61,6 +95,19 @@ The architecture matrix between Depth Anything v1 and v2 is almost identical. **
 - **Tiny isolated objects** — wires, thin railings, hanging cables. Depth bleed from background. Critical for drone obstacle avoidance, less so for tabletop.
 - **Cross-domain artifacts when the unlabeled corpus didn't see the domain** — endoscopy, marine, underwater. The 62M unlabeled corpus is mostly internet daylight imagery `UNVERIFIED breakdown`.
 - **Fine geometry around occlusion boundaries** — better than v1 but still soft. Use a stereo model if you need crisp object silhouettes.
+
+### 4.x · Hidden Assumptions
+
+Upstream assumptions whose violation produces the failures above:
+
+- **Affine-invariant output is acceptable** — any metric task violates this; no recovery path.
+- **In-distribution test domain** — internet daylight dominates; endoscopy / underwater silently degrade.
+- **Near-Lambertian surfaces** — glass / water / mirror break DPT-lineage predictions.
+- **Standard FOV (~50–90°)** — fisheye introduces untrained distortion.
+- **Depth range ~0.3–30 m** — affine-invariant loss compresses tail; >30 m unreliable.
+- **Pseudo-labels reliable enough** — teacher bias propagates; OOD images get confident wrong depths.
+
+If violated, the model still produces a clean-looking depth map — silent failure is the dangerous mode for any deployed downstream system.
 
 ---
 
@@ -79,6 +126,8 @@ For metric monocular see [`metric3d_dissection.md`](./metric3d_dissection.md); f
 The relative-depth foundation track will keep winning on generalization benchmarks because the data trick scales further (Depth Anything v3 will probably claim 200M+ unlabeled images `UNVERIFIED`). **But the metric track is where robotics money flows**, because no manipulation or aerial product can ship on relative depth. Expect the two tracks to converge by 2027 via a "metric-aware fine-tune" recipe — train relative on 62M, then fine-tune metric on a small labeled set with camera intrinsics fed in.
 
 **Falsifiable prediction:** before 2027-06 there will be a public "Depth Anything v3 metric" or equivalent variant from the same lab, with a Metric3D-style canonical-camera input. If only relative variants ship through 2027 the prediction misses.
+
+**Interview Tip**: When asked "Depth Anything v2 vs Metric3D, which to use," the trap answer is "whichever is more accurate." The right answer: *"different output contracts"* — v2 is affine-invariant (no meters, no metric tasks), Metric3D outputs meters (with calibrated intrinsics). Match the contract to the downstream consumer; never substitute one for the other.
 
 ---
 

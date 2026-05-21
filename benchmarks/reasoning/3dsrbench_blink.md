@@ -1,7 +1,38 @@
-# 3DSRBench vs BLINK — What "Spatial Reasoning" Actually Means in VLM Benchmarks
+# 3DSRBench vs BLINK — What "Spatial Reasoning" Actually Means in VLM Benchmarks (VLM 空间推理双基准对比)
 
-**Status:** v1 — opinionated draft. Saturation claims `UNVERIFIED` where based on leaderboard skim.
+> **发布时间**: 3DSRBench arXiv 2024 / BLINK ECCV 2024
+> **基准名**: 3DSRBench · BLINK
+> **核心定位**: 一句话回答 VLM 空间推理两个分开的问题 — 3DSRBench 测显式 3D 关系理解，BLINK 测一组视觉感知能力；两者不可互换。
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Saturation claims `UNVERIFIED` where based on leaderboard skim.
 **TL;DR:** 3DSRBench measures whether a VLM understands explicit 3D relations (depth ordering, orientation, size); BLINK measures whether a VLM can perform a grab-bag of *visual* perception tasks under a chat interface. Conflating them is the most common methodological mistake in 2025–2026 multimodal papers.
+
+### X-Ray (non-expert friendly)
+
+(a) Multimodal LLM (VLM) papers freely claim "spatial reasoning" — but the term means two different things: 3D-grounded relation understanding (behind / facing / depth-order) vs general visual perception (counting, matching, jigsaw). (b) 3DSRBench probes the first cleanly, BLINK probes the second across 14 sub-tasks. (c) For VLM evaluators: reporting only one is overclaiming; reporting BLINK *average* without sub-task breakdown is the most common 2026 mistake.
+
+### 📍 Benchmark Evolution Timeline
+
+```
+VQAv2 2017 ─► GQA 2019 ─► MMMU 2023 ─► ★ BLINK ECCV 2024 ─► ★ 3DSRBench 2024 ─► metric-3D-VQA? 2027?
+                              │                │                  │
+                              │                │                  └── explicit 3D relations
+                              │                └── 14 perception sub-tasks
+                              └── text-heavy multimodal (where VLMs win)
+```
+
+BLINK + 3DSRBench together exposed that VLMs near-human on text-heavy MMMU drop below specialist CV models on perception + 3D; the community is now learning to read both.
+
+### ⚡ Eureka Moment
+
+**"Spatial reasoning" is two questions, not one.** A VLM can excel at *image-plane visual perception* (BLINK average) while failing at *3D-grounded relation understanding* (3DSRBench depth ordering). The benchmark that proves one is silent about the other; conflating them is the methodological tell of 2025–2026 multimodal papers.
+
+### 📌 Napkin Formula
+
+```
+VLM spatial-reasoning claim valid ⇔ (3DSRBench per-category) ∧ (BLINK relative-depth + spatial-relations sub-tasks)
+                                                      ─ average alone is insufficient ─
+```
 
 ---
 
@@ -87,9 +118,44 @@ Conversely, a paper that gains only on 3DSRBench but not on BLINK perception sub
 
 ---
 
+## 5.5 · Worked example — auditing a "spatial reasoning" VLM paper
+
+Paper claims "+5 on BLINK, strong spatial reasoning":
+
+1. **3DSRBench with per-category** — absent? "spatial reasoning" likely = "BLINK average up".
+2. **BLINK sub-task drill-down** — +5 on relative-depth + spatial-relations, or diluted across counting / forensic / art-style?
+3. **Metric-3D probes** (NYUv2 / DIODE)? — grounds claim in 3D, not VQA framing.
+4. **RGB-only vs depth/pointmap-ingest** — if 3D-grounded variant doesn't beat own RGB-only on 3DSRBench, 3D ingestion isn't doing work.
+5. **Embodied transfer** (manipulation / nav SR) — neither benchmark guarantees; see `bridge-to-vla/`.
+
+Five minutes; most 2025–2026 "spatial reasoning" claims fail steps 1 or 2.
+
+---
+
 ## 6 · What's missing from both
 
 Neither benchmark tests **ego-centric / embodied** 3D reasoning ("which way should I move to face the chair"), **video / temporal** reasoning (object permanence, causal scene dynamics), **metric scale** (both predict answer classes, not "depth in meters"), or **action-conditioned** spatial reasoning (reachability given affordances). A 3DSRBench + BLINK winner is *not* guaranteed to be a useful embodied spatial reasoner. See `bridge-to-vla/` for that side of the contract.
+
+---
+
+## 6.5 · Hidden Assumptions
+
+Assumptions that, when violated, make scores misleading:
+
+- **MCQ format** — free-response would drop scores 10–20% `UNVERIFIED` and reorder leaderboards.
+- **Camera-centric framing** — embodied robots use ego-centric, different conventions.
+- **Static single-image** — video / temporal / object permanence untested.
+- **Web photography bias** — industrial, medical, aerial, AR-VR underrepresented.
+- **Ordinal answer classes** — neither asks "depth in meters".
+- **Single-step reasoning** — multi-hop spatial reasoning absent.
+- **No action conditioning** — affordance / reachability untested.
+- **English-only** — multilingual spatial conventions untested.
+
+---
+
+## 6.6 · Interview Tip
+
+When asked "is my VLM spatially intelligent?" — give a two-sentence answer: "3DSRBench (with per-category breakdown) for 3D-relation grounding + BLINK *specific sub-tasks* (relative-depth, spatial-relations — not the average) for visual perception. The single-number claim is what reviewers are starting to reject in 2026." Bonus: note that neither benchmark guarantees embodied transfer (manipulation / nav success); call them necessary-but-not-sufficient.
 
 ---
 
@@ -122,4 +188,4 @@ This doc compares two benchmarks at the protocol + saturation level. Per-VLM sco
 
 ---
 
-*Last opinion update: 2026-05-21.*
+*Last opinion update: 2026-05-21. v1.1 — backfilled to AGENTS.md 14-item template.*

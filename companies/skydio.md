@@ -1,7 +1,38 @@
-# Skydio — Aerial Autonomy as the Cleanest Production Spatial-AI Stack
+# Skydio — 量产空中自主性是最干净的产品级 spatial-AI 栈样本 (Skydio — Aerial Autonomy as the Cleanest Production Spatial-AI Stack)
 
-**Status:** v1 — opinionated draft. Internal numbers `UNVERIFIED — no public source`. Stack details reverse-engineered from public blog posts + papers.
+> **发布时间**: Skydio 2 (2019) / X2 (2020) / X10 (2023) / 2024 消费业务退出 + 国防转向
+> **公司 / 产品名**: Skydio · Skydio 2 / X2 / X10 · Skydio Autonomy
+> **覆盖范围 / 公司类型**: 空中自主无人机；消费级 → 国防级转型
+> **核心定位**: 一句话回答 — Skydio 公开栈是研究室外能反推"量产空间智能系统真实长相"的最干净窗口；2024 国防转向把消费当跑道、国防当变现。
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Internal numbers `UNVERIFIED — no public source`. Stack details reverse-engineered from public blog posts + papers.
 **TL;DR:** Skydio's autonomy stack — active stereo + IMU + onboard NN — is the closest public window into what a productionized spatial-AI system actually looks like outside a research lab. The 2024 pivot to defense reframes the story: consumer was the proving ground, defense is where the spatial-AI moat finally cashes out.
+
+### X-Ray（非专家友好开场）
+
+（a）大部分 spatial-AI 研究停留在论文 / benchmark 层；Skydio 是少数能从公开工程内容反推"消费级 → 国防级量产到底要什么"的公司。（b）答案出乎学界意料：是 sensor coverage + 校准 + 可靠性工程，而不是最新算法。（c）对 spatial-AI 工程师：如果你的方法不能塞进 Jetson + 10ms 控制环 + 全天候校准漂移容忍，它就不是空中级方案 — Skydio 的栈是这条底线的最佳教材。
+
+### 📍 Skydio 产品 / 战略演进时间线
+
+```
+2014 创立 ─► 2018 Skydio R1 (消费首代) ─► 2019 Skydio 2 (跟拍爆款) ─► 2020 X2 (企业/国防起步) ─► 2023 X10 (旗舰)
+                                                                                                │
+                                                                              2024 退出消费市场 ─┴─► 国防 / 工业为主
+                                                                              （Shield AI / Anduril 同赛道收敛）
+```
+
+10 年走完"消费跑道 → 数据飞轮 → 国防变现"的剧本，是后续 spatial-AI 硬件公司参考模板。
+
+### ⚡ Eureka Moment
+
+**校准才是产品，不是估计器。** 学界把 VIO 写成"更聪明的 estimator"问题；Skydio 公开博客的工程重量集中在多相机校准、出厂 + 现场再校准、覆盖率冗余 — 这些是 obstacle-map 准确性的真实瓶颈，远超算法选择。**算法没有英雄主义，可靠性才有。**
+
+### 📌 Napkin Formula
+
+```
+量产空中自主性 ≈ (360° 多相机覆盖 + 高频 IMU) × 出厂/现场校准纪律 × Jetson 算力上限 × 经典 state estimation 骨架 × 学习型感知边缘
+                                          ─ 缺任一项都飞不出实验室 ─
+```
 
 ---
 
@@ -55,6 +86,20 @@ Five lessons:
 
 ---
 
+## 5.5 · Worked example — Jetson 上跑得起来的"5 项预算"
+
+设 X10-级无人机户外 8 m/s 飞行 + 避障，反推可行栈：
+
+1. **延迟** — 16 m/s 时 1 米决策距离 ~62 ms；扣控制+通信 ~30 ms，感知必须 < 30 ms。
+2. **算力** — Jetson Orin AGX ~275 TOPS INT8；分给 detection / depth / VIO 每项 < ~90 TOPS。
+3. **VGGT 测试** — Orin 蒸馏后 ~5 Hz N=4，**不满足高频 VIO** → 不能做主估计器。
+4. **可行栈** — 经典 stereo VIO 50–100 Hz + 学习型 detection 25–30 Hz + obstacle map ~10 Hz；VGGT 仅作离线 relocalization。
+5. **校准** — 360° 6 相机出厂 + 现场 < 1 px reproj error，工程量超过算法本身。
+
+结论：**VGGT 进入空中的路径是 relocalizer，不是主估计器**（见 `crossing/slam-vio-migration/vggt_vs_drone_vio.md`）。
+
+---
+
 ## 6 · Competitive map
 
 | Company | Stack pattern | Differentiation |
@@ -66,6 +111,26 @@ Five lessons:
 | UZH RPG (research) | Cam + event + IMU + learned controller | Racing; not productized |
 
 Skydio's bet — heavy multi-cam + no LiDAR + on-device + classical scaffold — is the most-copied template. Whether competitors out-execute on defense margins is the open question.
+
+---
+
+## 6.5 · Hidden Assumptions
+
+战略叙事下的隐含假设，违反任一条都会动摇结论：
+
+- **国防 ASP 持续溢价** — DoD 预算压缩 / ITAR 反转会削弱。
+- **camera-only 应对全天候** — 雾 / 雨 / 沙尘 / 夜视极端环境可能必须加 LiDAR 或事件相机。
+- **Shield AI / Anduril 不出降维方案** — 系统级整合（雷达 / 卫星）可能压缩单机叙事。
+- **Jetson 持续 SWaP-C 优势** — Qualcomm / 昇腾低功耗追赶会部分替代。
+- **BOM 去中国化可行** — 任一关键元器件卡住会推迟订单。
+- **消费数据飞轮够用** — 退出消费后新场景（极地、海面）需重新积累。
+- **国防版本可观察** — 外部难独立验证国防 / 消费版本差异，部分"国防级"宣传可能是 marketing。
+
+---
+
+## 6.6 · Interview Tip
+
+被问"Skydio 给空中 spatial-AI 工程的最大启示" — 给三句答案：（1）**校准是真产品**，不是估计器或大模型；（2）**经典骨架 + 学习型边缘**是当前唯一量产路径，纯端到端不是 2026 的部署答案；（3）**SWaP-C 决定算法可行性** — 不能塞 Jetson + 10ms 的方法在空中不存在。最后补一句：feed-forward 3D (VGGT-class) 进无人机的路径是 relocalizer，不是 estimator，见 `crossing/slam-vio-migration/vggt_vs_drone_vio.md`。
 
 ---
 
@@ -100,4 +165,4 @@ Stack architecture stable through 2027. Feed-forward 3D (VGGT-class) enters as r
 
 ---
 
-*Last opinion update: 2026-05-21.*
+*Last opinion update: 2026-05-21. v1.1 — backfilled to AGENTS.md 14-item template.*

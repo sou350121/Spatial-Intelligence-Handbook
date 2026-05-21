@@ -1,8 +1,28 @@
-# Genie / Genie 2 (DeepMind) — Dissection
+# Genie / Genie 2 解构 (Genie / Genie 2 — DeepMind, Dissection)
 
-**Status:** v0.1 — opinionated draft. Latent-action dimensionality and horizon claims marked `UNVERIFIED`.
+> **发布时间**: Genie 1 — ICML 2024 (Bruce et al.); Genie 2 — DeepMind blog, December 2024
+> **论文 / 模型**: Genie — DeepMind action-conditional world model family
+> **核心定位**: a **playable** image-space world model with a **learned latent action vocabulary** — candidate **inference-time planner** for a VLA, not a training-data factory.
+
+Genie is structurally different from Cosmos: it gives you a callable `next_frame = model(frame, action)` function. That makes it the right primitive for MPC-style planning inside a policy loop — provided you can solve the unsolved part: mapping VLA actions to Genie's learned latent vocabulary.
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Latent-action dimensionality and horizon claims marked `UNVERIFIED`.
 **Wedge tier:** W2 · ⚡ [WorldModel] 🛰️
 **TL;DR:** Genie's contribution isn't "another text-to-video model." It's the **first credible move toward an action-conditional world model with a controllable latent action space** — which positions it as a candidate **inference-time planner / rollout engine for a VLA**, not as a training-data factory. The catch: the latent action space is learned from video without grounded labels, so the mapping from VLA action vocabulary to Genie latent actions is the integration problem nobody has cleanly solved. Multi-step horizon and fine geometry are the two failure modes that gate real use.
+
+### X-Ray (non-expert friendly)
+
+(a) Existing video models (Cosmos, Sora) render plausible video but are not *playable* — you cannot ask "what happens if I take action a?" (b) Genie learns a discrete latent action vocabulary from unlabeled video, then trains a dynamics model that predicts the next frame given the current frame + chosen latent action — call it like a function. (c) For spatial AI engineers: Genie is the first plausible **online MPC rollout engine** for VLAs, but unusable today because (i) latent actions don't ground to robot end-effector commands, (ii) rollouts drift after 2–4 s, (iii) weights are closed.
+
+### 📍 Research Landscape Timeline
+
+```
+World Models 2018 ─► DreamerV3 2023 ─► UniSim ICLR 2024 ─► ★ Genie ICML 2024 ─► Genie 2 Dec 2024 ─► grounded-LAM 2026? ─► ?
+                                            │
+                                            └── peer: Cosmos (data factory, not planner)
+```
+
+Genie 2 is the first to claim minute-scale 3D-scene rollouts; weights stay closed, so practical robotics work runs on UniSim-style open clones.
 
 ---
 
@@ -17,6 +37,8 @@ That's why Genie matters to a VLA team in a way Cosmos does not. A Cosmos rollou
 ---
 
 ## 2 · Architecture in one diagram
+
+> 📌 **Napkin Formula**: `frame_{t+1} = Dynamics(frame_t, a_t)`, where `a_t ∈ {1..K}` is a **learned latent action** inferred self-supervised from unlabeled video. The whole model is just "frame + latent action → next frame", and the playable part is the conditioning on `a_t`.
 
 DeepMind's Genie (Bruce et al. 2024) and Genie 2 (DeepMind blog, late 2024) share the same skeleton:
 
@@ -39,6 +61,19 @@ Three components:
 Genie 1: mostly 2D platformer / robotics video; K ≈ 8 `UNVERIFIED`. Genie 2: 3D scenes, longer horizons (~1 minute stable rollout in cherry-picked demos), more diverse action vocabulary — exact K not disclosed.
 
 The architectural fact that matters most: **the latent action space is learned, not labeled**. No guaranteed mapping from "Genie latent action #3" to "VLA end-effector +5 cm in x." That's the integration headache.
+
+> ⚡ **Eureka Moment**: A **learned discrete latent action vocabulary** (K ≈ 8 in Genie 1) is what makes the model *playable*. Video models without it generate plausibly but unconditionally; Genie generates plausibly **conditioned on a chosen action token**, which is the exact primitive an MPC loop needs.
+
+### 2.5 · Worked example — toy MPC planning step
+
+VLA controlling a desktop manipulator. State = current wrist-cam frame.
+
+- **Sample** 5 candidate (Δx, Δy, Δz, Δθ) actions from VLA top-K.
+- **Action → latent** (open problem): nearest-neighbor in a learned embedding → 5 tokens `a ∈ {1..8}` `UNVERIFIED`.
+- **Genie rolls** 8 frames per branch at ~10–30 ms/frame `UNVERIFIED` (well below current Genie 2 latency).
+- **VLM critic** scores each branch; execute best Δ.
+
+Killers today: (i) 5 distinct VLA actions can collapse to the **same** K=8 token; (ii) rollouts drift after ~4 s; (iii) Genie 2 step latency `UNVERIFIED` >> 50 ms — too slow for 10–30 Hz control without distillation.
 
 ---
 
@@ -74,6 +109,19 @@ Why hard: continuous VLA actions → discrete K-way latent vocabulary loses prec
 | **Closed weights** | Hard blocker | Neither Genie 1 nor Genie 2 weights public as of 2026-05; reproducibility for robotics work is gated. |
 
 Genie 2's announced 1-minute rollouts come with cherry-picking caveats and were never claimed policy-loop-ready.
+
+### 4.x · Hidden Assumptions
+
+- **Latent actions map to your action space** — no guarantee; LAM trained on internet video, not teleop.
+- **Useful horizon ≤ 5–10 frames** `UNVERIFIED`; anything longer drifts.
+- **Static or near-static scene** — moving objects tokenized as appearance, not entities.
+- **Pixel-space critic acceptable** — or you need a fast pixel→state encoder.
+- **You have weights** — Genie 1 & 2 closed (2026-05); UniSim-clones are the only practical substrate.
+- **Near-Lambertian internet-video-like scenes** — robot-lab geometry is OOD.
+
+Violating any turns the planner into noise — no calibrated uncertainty flag.
+
+**Interview Tip**: answer "playable world model, but latent-action grounding is unsolved — today it's offline dream-based pretraining (Dreamer-style), not live MPC. Watch UniSim clones, not the Genie brand."
 
 ---
 

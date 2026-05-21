@@ -1,8 +1,25 @@
-# Metric3D (v1 + v2)
+# Metric3D v1 + v2 (Metric3D 度量单目深度解构 — ICCV 2023 + 2024)
 
-**Status:** v1 — opinionated draft. Hyperparams marked UNVERIFIED.
+> **Published**: 2023-07 (v1, ICCV 2023) / 2024-04 (v2)
+> **Paper**: Yin et al. (v1) — *Metric3D: Towards Zero-shot Metric 3D Prediction*; Hu et al. (v2) — *Metric3D v2: A Versatile Monocular Geometric Foundation Model*
+> **Team**: HKUST + ANT Group + JD Explore
+> **Core position**: First monocular depth model to output **meters** across arbitrary cameras via a canonical-camera transformation — every input is geometrically rectified to a fixed virtual focal length, so the depth head learns "one camera" metric depth.
+
+**Status:** v1.1 — backfilled to AGENTS.md 14-item template 2026-05-21. Hyperparams marked UNVERIFIED.
 **Wedge tier:** W1 · metric-depth foundation
 **TL;DR:** Metric3D (Yin et al. *ICCV 2023*, arXiv 2307.10984 `UNVERIFIED ICCV vs preprint date`) is the first monocular depth model that **outputs meters across arbitrary cameras** without per-camera fine-tuning. The trick is a **canonical-camera transformation** — every input image is geometrically rectified to a fixed virtual focal length before prediction, so the depth head only has to learn "metric depth on one camera." v2 (2024) extends this to surface normals and adds a stronger backbone. **If your robot needs meters from a single RGB camera, this is the first model to look at.** It's the load-bearing answer to the relative-vs-metric trap that kills Depth Anything v2 for grasp pose.
+
+### X-Ray (non-expert friendly)
+
+(a) Monocular depth is fundamentally ambiguous (`s = f·w/Z` has two unknowns per pixel) — MiDaS/Depth Anything dodge by predicting relative depth, useless for "stop at 5 m." (b) Metric3D makes camera intrinsics *explicit*: resize every input to a canonical focal length `f_canon`, predict in canonical frame, then rescale `D_real = D_canon · (f_real / f_canon)`. (c) For spatial AI engineers: if your robot has a calibrated wrist cam, this gives meters from a single RGB input without LiDAR — but pass wrong intrinsics and the output is silently wrong by the ratio.
+
+### 📍 Research Landscape Timeline
+
+```
+ZoeDepth 2023 ─► ★ Metric3D v1 ICCV 2023 ─► Metric3D v2 2024 ─► UniDepth (intrinsics-free) CVPR 2024 ─► VGGT-class multi-view 2025 ─► fused with stereo 2026+
+```
+
+Metric3D is the canonical-camera anchor of the metric monocular lineage. UniDepth removes the intrinsics requirement; VGGT subsumes single-view into multi-view feed-forward.
 
 ---
 
@@ -14,7 +31,12 @@ What you actually need for metric depth from a single RGB is **a prior linking `
 
 ---
 
+> ⚡ **Eureka Moment**: Make the camera prior an **explicit network input**, not a hidden data assumption. By resampling every image to a single canonical focal length, the depth head sees one intrinsics distribution at train time and one at inference — the scale ambiguity that kills MiDaS-lineage models simply disappears. Same trick (in spirit) as positional encoding in NeRF: surface the geometry, don't hide it.
+
 ## 2 · The canonical-camera transformation
+
+> 📌 **Napkin Formula**: `Resize(image; f_real → f_canon) → DepthHead → D_canon → D_real = D_canon · (f_real / f_canon)`. Metric depth is equivariant to focal-length scaling; the canonical resize exploits that equivariance to collapse all cameras into one training distribution.
+
 
 | Step | What happens |
 |---|---|
@@ -48,6 +70,21 @@ v1 (ICCV 2023) lands the canonical-camera contribution with a ConvNeXt / ViT bac
 
 ---
 
+## 3.5 · Worked example — wrist cam grasp pose
+
+A manipulator wrist cam, calibrated `fx = fy = 750 px`, looking at a mug 0.5 m away.
+
+- **Canonical** (`f_canon = 1000 px` UNVERIFIED): resize 1.33×, predict `D_canon = 0.667 m`.
+- **Inverse**: `D_real = 0.667 × 750/1000 = 0.500 m`. ✅
+
+Pass wrong intrinsics (`fx = 1050` for a 50 mm, actual 28 mm with `750`):
+- Resize 0.952×, different image content → different `D_canon`.
+- Effective depth wrong by ~1.4× — gripper plunges past the mug. **Silent failure.**
+
+Calibrate twice.
+
+---
+
 ## 4 · Where it matters
 
 Ship it for: manipulation grasp pose with calibrated wrist cam, tabletop bin picking, drone slow-flight obstacle distance (expect degradation past 30 m). Overkill for AR occlusion (Depth Anything v2 cheaper). Fails for underwater (texture breaks) and endoscopy (domain shift, needs fine-tune).
@@ -63,6 +100,19 @@ Ship it for: manipulation grasp pose with calibrated wrist cam, tabletop bin pic
 - **Unbounded outdoor depth past ~30 m** — same fundamental issue as Depth Anything; metric or not, learned monocular depth tail is unreliable.
 - **Reflective / transparent surfaces** — same DPT-lineage failure mode.
 - **Domain shift to medical / underwater / synthetic** — needs fine-tune.
+
+### 5.x · Hidden Assumptions
+
+Upstream assumptions whose violation produces silent metric errors:
+
+- **Accurate intrinsics** — canonical resize depends on `K`; wrong `K` → silent scale error.
+- **Pinhole model** — fisheye breaks canonical resize; pre-undistort first.
+- **In-distribution domain** — daylight dominates; underwater / medical need fine-tune.
+- **Near-Lambertian surfaces** — specular / transparent → DPT-lineage failures.
+- **Depth ≤ ~30 m** — metric tail unreliable past ~30 m, same monocular issue as Depth Anything.
+- **Static scene** — rolling shutter under motion introduces geometric inconsistency.
+
+If violated, the output remains a plausible-looking metric depth map — calibration errors are the dominant silent failure mode in deployment.
 
 ---
 
@@ -87,6 +137,8 @@ Ship it for: manipulation grasp pose with calibrated wrist cam, tabletop bin pic
 The metric-monocular track is the one that gets deployed on robots. Expect intrinsics-free variants (UniDepth-lineage) to win on wild imagery, the canonical-camera trick to become a standard ingredient, and fusion with stereo + IMU to converge into VGGT-lineage feed-forward backbones.
 
 **Falsifiable prediction:** by 2027-06 a major manipulation product (Figure, 1X, Apptronik, or similar) will publicly disclose a Metric3D-lineage model in its perception stack. If all stay on RGB-D (RealSense / structured light) the prediction misses.
+
+**Interview Tip**: When asked "how do you get metric depth from a single RGB camera," the trap answer is "you can't." The right answer: *"Metric3D's canonical-camera transformation — surface the intrinsics as a network input, exploit focal-length equivariance."* Pair with a note that you need calibrated `K` and the result is silently wrong if `K` is wrong.
 
 ---
 

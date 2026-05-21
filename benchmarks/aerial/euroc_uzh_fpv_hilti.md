@@ -1,7 +1,38 @@
-# EuRoC vs UZH-FPV vs Hilti — Three Aerial VIO Benchmarks, Three Different Stories
+# EuRoC vs UZH-FPV vs Hilti — Three Aerial VIO Benchmarks, Three Different Stories (三大空中 VIO 基准)
 
-**Status:** v1 — opinionated draft. Saturation claims `UNVERIFIED` where based on leaderboard skim.
+> **发布时间**: EuRoC IJRR 2016 / UZH-FPV ICRA 2019 / Hilti 2021–
+> **基准名**: EuRoC MAV · UZH-FPV Drone Racing · Hilti SLAM Challenge
+> **核心定位**: 一句话回答三个不同的 VIO 失败模式 — EuRoC 测室内基线、UZH-FPV 测高动态、Hilti 测工地真实部署；缺一即缺一条 deployment claim。
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Saturation claims `UNVERIFIED` where based on leaderboard skim.
 **TL;DR:** EuRoC is fully saturated by 2026 and tells you nothing about deployment; UZH-FPV stresses the *dynamics* envelope (high-speed racing); Hilti stresses the *appearance + scale* envelope (construction-site outdoor). A VIO paper that reports only EuRoC is hiding either dynamics weakness, scale weakness, or both.
+
+### X-Ray (non-expert friendly)
+
+(a) Aerial visual-inertial odometry (VIO) lets a drone know where it is from cameras + IMU; three orthogonal failure modes (slow indoor / aggressive dynamics / outdoor real-site) each have a canonical benchmark. (b) EuRoC saturated by 2026, UZH-FPV stresses 15 m/s racing dynamics, Hilti stresses construction-grade lighting + texture-poor scale. (c) For aerial spatial-AI engineers: pick benchmarks by failure mode you claim to solve — reporting only EuRoC in 2026 is a methods-paper signal, not a deployment claim.
+
+### 📍 Benchmark Evolution Timeline
+
+```
+KITTI 2012 ─► EuRoC 2016 ─► TUM-VI 2018 ─► ★ UZH-FPV 2019 ─► ★ Hilti 2021 ─► event-camera successor 2027?
+   │            │                              │                  │
+   │            └── indoor lab (saturated 2026) │                  └── construction-grade deployment GT
+   │                                            └── racing dynamics (open)
+   └── outdoor automotive — different envelope
+```
+
+EuRoC anchored the field for a decade; UZH-FPV and Hilti opened the dynamics / deployment axes that EuRoC can't measure.
+
+### ⚡ Eureka Moment
+
+**No single benchmark covers aerial VIO's three orthogonal failure modes.** Indoor-lab + racing-dynamics + construction-deployment are not interchangeable axes — a method can saturate EuRoC and *fail to initialize* on UZH-FPV. The diagnostic isn't which one a paper reports; it's which two it omits.
+
+### 📌 Napkin Formula
+
+```
+Aerial VIO deployment-readiness ⇔ (EuRoC sub-10cm ATE) ∧ (UZH-FPV init-without-tuning) ∧ (Hilti lighting-transition survival)
+                                                      ─ all three required, not OR ─
+```
 
 ---
 
@@ -71,6 +102,20 @@ See `crossing/slam-vio-migration/vggt_vs_drone_vio.md` for the broader argument 
 
 ---
 
+## 5.5 · Worked example — auditing a VIO paper in 3 minutes
+
+You see a 2026 VIO paper claiming "robust deployment-ready aerial autonomy":
+
+1. **EuRoC** — sub-10 cm ATE on all 11 seqs? table-stakes; absent or per-seq-tuned = flag.
+2. **UZH-FPV** — present without per-seq tuning? robust dynamics grounded; absent = "robust to fast motion" is rhetoric.
+3. **Hilti** — present with texture-poor + lighting-transition seqs? real deployment paper; absent + "deployment-ready" = overclaim.
+4. **Outdoor GNSS-denied** — none of the three test it; most papers paper over.
+5. **Feed-forward 3D claims** — need rate / latency vs `crossing/slam-vio-migration/vggt_vs_drone_vio.md`.
+
+Three minutes; the omissions tell the story.
+
+---
+
 ## 6 · When a paper reports only EuRoC, what's hidden
 
 The diagnostic that earns this doc its place:
@@ -91,6 +136,26 @@ If a paper makes any of those claims while reporting only EuRoC, demand UZH-FPV 
 - **High-dynamics claim** → UZH-FPV mandatory
 - **Deployment / construction-grade claim** → Hilti mandatory
 - **Feed-forward 3D as VIO** → all three + cross-ref `crossing/slam-vio-migration/vggt_vs_drone_vio.md` for the rate / latency gap
+
+---
+
+## 7.5 · Hidden Assumptions
+
+Assumptions that, when violated, make numbers misleading:
+
+- **GT noise floor below methods** — fine on EuRoC, debatable on UZH-FPV Leica at racing speed.
+- **Camera+IMU sync perfect** — small temporal offsets dominate sub-cm ATE; calibration drift invisible.
+- **Single rig per benchmark** — cross-rig generalization rarely measured.
+- **Static environment** — none stress dynamic agents (people, vehicles).
+- **Daylight / repeatable lighting** — Hilti has lighting transitions but daylight-anchored.
+- **No wind / no payload swing** — published flights only; gusts untested.
+- **Western environments** — all European; dust / monsoon / snow / tropical absent.
+
+---
+
+## 7.6 · Interview Tip
+
+When asked "what's the right benchmark for aerial VIO in 2026" — name **all three** and explain the failure mode each addresses (indoor saturated baseline / racing dynamics / construction deployment). Then point out that the *omissions* are the diagnostic — a paper reporting only EuRoC in 2026 cannot make any dynamics, outdoor, or multi-sensor claim. Bonus: mention that feed-forward 3D (VGGT-class) doesn't yet fit the latency budget any of these benchmarks implicitly assume (see `crossing/slam-vio-migration/vggt_vs_drone_vio.md`).
 
 ---
 
@@ -126,4 +191,4 @@ This doc compares three benchmarks at the protocol level. Per-method results (ho
 
 ---
 
-*Last opinion update: 2026-05-21.*
+*Last opinion update: 2026-05-21. v1.1 — backfilled to AGENTS.md 14-item template.*

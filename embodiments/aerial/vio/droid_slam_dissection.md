@@ -1,9 +1,27 @@
-# DROID-SLAM Dissection
+# DROID-SLAM 解构 (DROID-SLAM Dissection)
 
-**Status:** v1 — opinionated draft. Latency / mem numbers marked `UNVERIFIED` unless re-measured.
+> **发布时间**：2021（NeurIPS）
+> **论文 / 模型**：DROID-SLAM — Teed & Deng（Princeton）
+> **核心定位**：第一个在多种 trajectory 上真正全面跑赢经典 SLAM（ORB-SLAM3 / VINS-Fusion）的学习派 SLAM——靠"把 dense BA 做成可微 + 用 RAFT 风格 GRU 迭代预测 flow"。
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Latency / mem numbers marked `UNVERIFIED` unless re-measured.
 **Paper:** Teed & Deng — *DROID-SLAM: Deep Visual SLAM for Monocular, Stereo, and RGB-D Cameras*, NeurIPS 2021. arXiv [2108.10869](https://arxiv.org/abs/2108.10869). Princeton.
 **Code:** [princeton-vl/DROID-SLAM](https://github.com/princeton-vl/DROID-SLAM). MIT.
 **TL;DR:** DROID-SLAM is the first learned SLAM that genuinely beats classical (ORB-SLAM3, VINS-Fusion) on accuracy across diverse trajectories — by reformulating dense bundle adjustment as a recurrent network update over optical-flow predictions. The catch is operational: ~5 Hz on Jetson Orin `UNVERIFIED`, no first-class IMU coupling, 6+ GB GPU memory. **It wins where classical loses (low texture, motion blur, low light) and loses where aerial demands (200 Hz state, sub-10 ms latency).** The bridge to the VGGT question is direct: DROID's recurrent-update-on-flow is the lineage VGGT collapses into a feed-forward pass.
+
+### X-Ray 开场（非专家友好）
+
+(a) 2021 年前学界共识："学习派 SLAM 跑不赢经典 SLAM"——DeepVO / VINet 一票方法都在 EuRoC 上输给 ORB-SLAM3。 (b) DROID-SLAM 反共识：**不替换 BA，把 BA 的 update step 学出来**——RAFT 风格 GRU 反复预测 flow + flow uncertainty，喂给可微 dense BA 层。 (c) 对 spatial 工程师：它定义了"学习派 SLAM 的精度上限"，并直接连到 VGGT 谱系（DROID 有 BA 循环 / VGGT 无），是理解 feed-forward 3D 的必经一站。
+
+### 📍 研究全景时间线
+
+```
+ORB-SLAM3 2020 ─► ★ DROID-SLAM NeurIPS 2021 ─► DPVO 2022 (sparse 变体) ─► DUSt3R 2024 ─► VGGT CVPR 2025 ─► π³ streaming 2025+
+       │                  │                                                    │
+       └ 经典 BA 巅峰        └─ 学习派首次全面赢经典                                └─ 进一步抽掉迭代 → 单 forward 多视
+```
+
+DROID-SLAM 是"经典 BA → 可微 BA → feed-forward 3D"演进链中关键的中间节点。后续 DUSt3R / VGGT 不断抽掉迭代结构。
 
 ---
 
@@ -14,6 +32,8 @@ Classical SLAM stacks (ORB-SLAM3, VINS-Fusion) are good at well-textured scenes 
 DROID-SLAM's insight: **don't replace bundle adjustment, learn the update step inside it.** Use a RAFT-style recurrent network (Teed & Deng's prior work) to predict per-pixel optical flow + flow uncertainty, then feed those into a differentiable dense bundle-adjustment layer that solves for camera poses and per-pixel depth. The whole thing is end-to-end differentiable, trained on TartanAir, generalizes to EuRoC / TUM / ETH3D without fine-tuning. It is the cleanest "learned geometry" SLAM result the field has produced.
 
 ## 2 · Architecture
+
+> 📌 **Napkin Formula**：`(poses, depth) = argmin Σ‖π(pose, depth) − flow_pred‖² · w_pred`，其中 `(flow_pred, w_pred)` 由 GRU 反复迭代输出，整个 BA 层对 `flow` 可微 → loss 能从 pose / depth 误差反传到 GRU 权重。**经典 BA 假设 flow 是 ground truth，DROID 让 GRU 学如何"修正"flow 使 BA 输出更好。**
 
 ```
   Frame t-1 ──┐
@@ -41,6 +61,19 @@ DROID-SLAM's insight: **don't replace bundle adjustment, learn the update step i
 | Per-pixel inverse depth | Depth at ~1/8 resolution per frame | Dense enough for mapping, tractable for BA |
 | End-to-end training | Loss on pose + depth, backprop through DBA | Teaches the network what flow BA actually needs |
 | Multi-modal (mono / stereo / RGB-D) | Same network, different input mode | Generality, no retraining per sensor |
+
+> ⚡ **Eureka Moment**：**把 dense BA 做成可微层是把"几何归纳偏置"喂给网络的最干净方式**。RAFT 早就学得动 flow，但 flow 单独训没学到"flow 是用来做 BA 的"；把 BA 接上、loss 算在 pose / depth、梯度穿过 BA 回传——GRU 自动学会预测"BA 能用的 flow + 该信任多少"。**让网络学 update 而不是学输出**，是后来 DUSt3R / VGGT 的雏形。
+
+## 2.5 · 玩具例子（Worked Example）— 8 帧序列一次 DBA 迭代
+
+8 帧 384×512 RGB（飞机绕室内一圈），单目模式：
+
+- **特征**：8 帧 × 1/8 res ≈ 24,576 pixel tracks。
+- **GRU I/O**：4D correlation volume → 每 pixel `Δf` + 置信权重 `w ∈ [0,1]`。
+- **DBA**：稀疏 Gauss-Newton；48 pose DoF + 24,576 depth DoF ≈ 24,624 维系统。
+- **迭代**：12 步 GRU + DBA，每步 ~80 ms `UNVERIFIED` on A100，全序列 ~1 s。
+
+直觉检查：把 `w` 全设 1 重跑——动态物体 / 反光面把 BA 拉偏，pose drift 立刻显现。`w` 是 DROID 区别于经典稠密 BA 的关键。
 
 ## 3 · Where it wins
 
@@ -83,6 +116,20 @@ The realistic aerial deployment pattern for DROID-class methods in 2026: not as 
 ## 6 · Why it earned the dissection slot anyway
 
 Two reasons it's in `embodiments/aerial/vio/` despite not shipping on aerial: **(1)** it defines the upper bound of accuracy any aerial stack can aim for in benign conditions, **(2)** it is the bridge to the feed-forward 3D future — a reader who understands DROID-SLAM will understand VGGT in 10 minutes.
+
+### 6.x · 隐含假设（Hidden Assumptions）
+
+- **训练分布覆盖目标场景**：TartanAir 主导；强 OOD（水下 / 烟雾 / 雪地）flow 崩。
+- **静态场景占主导**：`w` 通道压低动态像素，但动态不能占大头。
+- **GPU 内存够放 4D correlation volume**：8 帧已 6+ GB，长序列必须滑窗。
+- **训练有 GT pose / depth**：TartanAir 仿真；真实场景需蒸馏 / self-sup。
+- **无强 rolling shutter / 大畸变**：BA 仍是 pinhole + 全局快门。
+- **不要求 metric scale**：单目 DROID up-to-scale，需外部 anchor。
+- **5 Hz 够用**：控制环要 ≥100 Hz——DROID 必须搭配经典前端。
+
+任一项违背时输出仍"看起来"合理，但 pose drift 几秒内显现——这是 DROID 至今未上无人机主估计的根因。
+
+**Interview Tip**：被问 "DROID-SLAM 跟 VGGT 啥关系" 答 **"DROID 是可微 BA 的迭代版，VGGT 是把迭代抽掉的 feed-forward 版；两者都把 update 学出来，区别是迭代步数"**。能讲出"DROID 仍有几何归纳偏置（BA 层），VGGT 完全靠 transformer 学几何"加分。
 
 ## References
 

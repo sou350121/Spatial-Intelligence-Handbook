@@ -1,13 +1,35 @@
-# Event Cameras for Aerial — UZH RPG Line Dissection
+# 无人机事件相机解构 — UZH RPG 谱系 (Event Cameras for Aerial — UZH RPG Line Dissection)
 
-**Status:** v1 — opinionated draft. Sensor / latency numbers marked `UNVERIFIED` unless cited from vendor datasheets or re-measured.
+> **发布时间**：2008（DVS 首发论文）/ 2023（Nature racing 里程碑）
+> **论文 / 模型**：UZH RPG 谱系（EVO / Ultimate-SLAM / ESVO / Swift Racing）— Scaramuzza lab
+> **核心定位**：事件相机是无人机高速 / 低光 / HDR 场景的"物理 hedge"，UZH 用十年时间证明它能赢 FPV 冠军；但 2026 仍未在主流商用无人机栈落地，原因是成本和工具链而非算法。
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Sensor / latency numbers marked `UNVERIFIED` unless cited from vendor datasheets or re-measured.
 **Lab:** Davide Scaramuzza's Robotics and Perception Group (RPG), University of Zurich. Two decades of event-camera-for-aerial work.
 **Champion-level reference:** Kaufmann, Bauersfeld, Loquercio, Müller, Koltun, Scaramuzza — *Champion-level drone racing using deep reinforcement learning*, *Nature* 2023. [DOI 10.1038/s41586-023-06419-4](https://www.nature.com/articles/s41586-023-06419-4).
 **TL;DR:** Event cameras (DVS / DAVIS / Prophesee) report per-pixel brightness changes asynchronously at microsecond latency instead of frame-rate samples. The physics solves three problems classical cameras can't: **high-speed motion blur, low light, and HDR.** The aerial value proposition is real (UZH won FPV-class races with event-cam state estimation), but the sensors have not shipped in mainstream aerial autonomy because **(1)** sensor cost is 10–50× a global-shutter RGB rig `UNVERIFIED`, **(2)** the algorithm ecosystem is research-grade not productized, and **(3)** the toolchain doesn't fit standard ROS / OpenCV pipelines. The 2026 read: event cameras are the right hedge for the racing / fast-FPV envelope and the wrong default for general inspection drones.
 
+### X-Ray 开场（非专家友好）
+
+(a) 普通相机每 33 ms 整帧采样一次，高速运动 / 强光 / 暗光全要么糊要么黑。 (b) 事件相机每个像素独立异步发火：log-intensity 跨 ~0.15 阈值就报 `(x, y, t, polarity)`——微秒延迟、120+ dB 动态范围、零运动模糊。 (c) 对 spatial / 无人机工程师：它把无人机的"高速 / HDR / 低光"硬限制从传感器层面拆掉，但工程代价高到 2026 还没普及——读懂它就懂 racing drone 圈为什么走这条路。
+
+### 📍 研究全景时间线
+
+```
+DVS 2008 (Lichtsteiner) ─► DAVIS 2014 (frame + event 混合) ─► EVO RA-L 2017 ─► Ultimate-SLAM RA-L 2018 ─► ESVO T-RO 2021 ─► ★ Swift Nature 2023 (RL+event) ─► ?
+                                                                          │
+                                                                          └─ UZH RPG 谱系：racing 应用 + open-source 算法
+```
+
+事件相机十五年从"学界玩具"到"FPV 冠军"，但商用无人机栈（Skydio / DJI）至今没换——这是技术成熟 vs 工程落地经典 gap。
+
 ---
 
 ## 1 · DVS sensor mechanics — what the pixel actually does
+
+> 📌 **Napkin Formula**：`event = (x, y, t, ±1)`，触发条件 `|log I(x, y, t) − log I(x, y, t_last)| > C`，C ≈ 0.15–0.2 log-units `UNVERIFIED`。**每像素独立、异步、亚毫秒延迟**——没有 exposure time、没有 frame boundary，本质是一个事件流而非一张图。
+
+
 
 A standard CMOS frame camera integrates photons over an exposure window and emits a 2D array of intensities at frame boundaries (30 / 60 / 120 Hz). A Dynamic Vision Sensor (DVS) pixel works differently:
 
@@ -27,6 +49,20 @@ The consequences:
 | Output is | image | sparse stream |
 
 Last row is the punchline. Event streams are sparse async spike trains, not images. **Every visual algorithm you know was written for frames; almost none of it ports.**
+
+> ⚡ **Eureka Moment**：**事件相机不是"更快的相机"，而是"另一种感知模态"**——把"采样"从时间维度移到强度维度（log-intensity 变化触发）。这意味着所有为帧设计的算法（OpenCV / KLT / ORB / 一切 ViT）几乎不能直接用——重写算法栈的成本远大于换 sensor 的成本，**这才是 15 年没普及的根因**。
+
+## 2.5 · 玩具例子（Worked Example）— 10 ms 窗口的事件 surface
+
+无人机 5 m/s 平飞，看到一根高对比栅栏柱：
+
+- **窗口**：10 ms 内柱子扫过 ~30 像素列。
+- **事件**：跨阈值发火 → ~1,400 events / 10 ms。
+- **事件 surface**：按 `(x, y)` 排"最近事件时间戳"图 → 沿运动方向时间梯度。
+- **flow 估计**：拟合局部平面，法向给 optical flow。
+- **数据率**：栅栏场景 ~140 K ev/s；白墙近 0；树叶飞舞可冲 100+ M ev/s。
+
+直觉检查：静止悬停——理论 0 events，但 IMU 抖动 + 像素噪声仍有 ~100 K ev/s "flicker noise"，是事件 VIO 不可忽略的 outlier 源。
 
 ## 2 · Where event cameras win for aerial
 
@@ -85,6 +121,20 @@ What would change the picture by 2028 `UNVERIFIED`:
 - **Calibration is harder.** Joint event + frame + IMU extrinsic calibration is research-grade (UZH's `kalibr` extension).
 - **Resolution.** Event sensors are lower-res than RGB (640×480 Prophesee Gen4 vs 1920×1080 RGB) — affects long-range observability.
 - **Vibration.** Per-pixel async firing makes prop vibration *more* visible — mechanical isolation matters as much as on RGB rigs.
+
+### 6.x · 隐含假设（Hidden Assumptions）
+
+- **场景有充足 contrast edges**：白墙 / 雾 / 烟下事件率近 0，event-only VIO 静默饿死。
+- **运动 + 静态混合**：完全静止无事件，需 IMU 续航或 RGB 兜底。
+- **contrast threshold C 已校准**：vendor 出厂值未必匹配现场光照。
+- **time-sync 子毫秒**：μs 级事件 sync error 直接进 flow。
+- **vendor SDK 可靠**：Metavision / iniVation 长跑 24h 偶 burst / lockup。
+- **下游算法 event-native**：聚成图喂 OpenCV 等于丢回延迟优势。
+- **分辨率够长距**：640×480 vs 1920×1080 RGB，长距 observability 减半。
+
+最隐蔽失败：**静态悬停 + IMU 漂移**——事件率近 0、IMU 无绝对位置，VIO 静默漂离。
+
+**Interview Tip**：被问"事件相机为什么没在大疆 / Skydio 上跑"——答 **"算法生态没准备好 + sensor BOM 太贵 + 多数任务 RGB 已够"**。能加一句 "racing / 极速 FPV 是它的甜区，inspection drone 不是"，再补 "工具链不接 ROS / OpenCV 是隐性最大成本" 满分。
 
 ## References
 

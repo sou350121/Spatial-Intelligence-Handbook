@@ -1,7 +1,36 @@
-# ScanNet++ vs ETH3D — The Two Indoor Geometry Benchmarks Everyone Cites Wrong
+# ScanNet++ vs ETH3D — The Two Indoor Geometry Benchmarks Everyone Cites Wrong (室内几何双基准对比)
 
-**Status:** v1 — opinionated draft. Saturation claims marked `UNVERIFIED` where based on leaderboard skim, not full rerun.
+> **发布时间**: ScanNet++ ICCV 2023 / ETH3D CVPR 2017
+> **基准名**: ScanNet++ · ETH3D
+> **核心定位**: 一句话回答两个不同的室内几何问题 — ScanNet++ 量"渲染像不像"，ETH3D 量"位姿对不对"；混用即误用。
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Saturation claims marked `UNVERIFIED` where based on leaderboard skim, not full rerun.
 **TL;DR:** ScanNet++ is the *novel-view synthesis* benchmark people accidentally use as a SLAM benchmark; ETH3D is the *SLAM / MVS* benchmark people accidentally use as a NVS benchmark. They are not interchangeable, and a paper that reports one but not the other is usually hiding a weakness.
+
+### X-Ray (non-expert friendly)
+
+(a) Indoor 3D research splits into "make it look right" (novel-view synthesis) and "make the pose / depth correct" (SLAM / MVS) — and the community quietly uses two different benchmarks for each. (b) ScanNet++ rewards photometric fidelity with sub-mm laser GT + DSLR images; ETH3D rewards trajectory + reconstruction accuracy on staged real motion. (c) For spatial-AI engineers: a paper reporting only one is almost always hiding a weakness on the axis it omitted; reading the two side-by-side is the cleanest diagnostic.
+
+### 📍 Benchmark Evolution Timeline
+
+```
+ScanNet 2017 ─► ETH3D 2017 ─► Replica 2019 ─► ARKitScenes 2021 ─► ★ ScanNet++ 2023 ─► ScanNet++ v2? 2027?
+                  │                                                     │
+                  └── canonical indoor SLAM/MVS ─────────────────────────┴── canonical indoor NVS (saturating)
+```
+
+ETH3D anchored SLAM/MVS at lab-trajectory scale since 2017; ScanNet++ took the indoor-NVS crown in 2023 with sub-mm laser GT + DSLR. Both face 2026 saturation; successors are TBD.
+
+### ⚡ Eureka Moment
+
+**One benchmark cannot serve two questions.** Photometric quality (NVS) and metric trajectory accuracy (SLAM) require structurally different ground-truth pipelines — laser-static scans for photoreal pixels vs synchronized stereo + lighting variation for trajectory survival. Any "spatial intelligence" claim that uses one benchmark to argue both is mixing categories.
+
+### 📌 Napkin Formula
+
+```
+Indoor-3D claim valid ⇔ (Photometric: ScanNet++ PSNR/SSIM/LPIPS) ∧ (Geometric: ETH3D ATE + completeness)
+                                          ─ never one without the other ─
+```
 
 ---
 
@@ -66,6 +95,20 @@ By 2026 every 3DGS / feed-forward 3D paper reports PSNR / SSIM / LPIPS on ScanNe
 
 ---
 
+## 3.5 · Worked example — picking the benchmark from the claim
+
+You read a paper claiming "feed-forward indoor 3D reconstruction, photoreal + accurate":
+
+1. **PSNR/SSIM/LPIPS on ScanNet++ Image track** — present? photometric claim grounded; absent? "photoreal" is rhetorical.
+2. **ATE / mesh accuracy on ETH3D** — present? geometric claim grounded; absent? "accurate" likely means "looks accurate".
+3. **Both + same backbone** — strong dual claim; check ETH3D-subset cherry-picking.
+4. **Only one** — single-axis paper, not "spatial intelligence".
+5. **Only Replica / NYUv2** — pre-2023 baseline regime; historical not SOTA.
+
+60-second audit; the *absence* of one is the diagnostic.
+
+---
+
 ## 4 · Side-by-side: what each one secretly measures
 
 | Question | Ask ScanNet++ | Ask ETH3D |
@@ -87,6 +130,26 @@ The diagnostic: if a 3DGS paper reports only ScanNet++, they're claiming an *app
 - **MVS dense reconstruction** → ETH3D (high-res multi-view track) + Tanks & Temples
 - **Open-vocabulary 3D semantic** → ScanNet++ (its labels are the moat)
 - **Cross-method comparison spanning appearance + geometry** → both, side-by-side
+
+---
+
+## 5.5 · Hidden Assumptions
+
+Assumptions that, when violated, make leaderboard scores misleading:
+
+- **Static scene** — dynamic indoor (humans, pets, moving furniture) is OOD.
+- **Camera-rig matching** — DSLR/iPhone tuning doesn't transfer to fisheye / event / global-shutter rigs.
+- **Indoor only** — outdoor unbounded depth + sun-shadow not measured.
+- **Quasi-static motion** — high-speed blur / rolling-shutter aliasing untested.
+- **Lambertian surfaces** — mirrors / glass degrade both heads, not sampled.
+- **GT noise floor not zero** — top-5 may fall inside GT envelope, ordering becomes noise.
+- **Train/test separation** — ScanNet++ rumored fragment-leakage `UNVERIFIED`; sub-0.5 dB PSNR diffs may not be real.
+
+---
+
+## 5.6 · Interview Tip
+
+When asked "which indoor benchmark would you use to evaluate your indoor 3D reconstruction system?" — the right answer is "depends what claim I'm making". If pushed for one, name **both** and explain: ScanNet++ for photometric, ETH3D for geometric, and a paper that reports only one is hiding the other axis. Bonus: mention saturation status (ScanNet++ top-5 ≤1 dB apart, ETH3D ATE sub-cm) — shows you read leaderboards, not just abstracts.
 
 ---
 
@@ -119,4 +182,4 @@ This doc compares two benchmarks at the protocol level. Per-method deep dives (h
 
 ---
 
-*Last opinion update: 2026-05-21. Saturation claims to be reverified at next leaderboard refresh.*
+*Last opinion update: 2026-05-21. v1.1 — backfilled to AGENTS.md 14-item template. Saturation claims to be reverified at next leaderboard refresh.*

@@ -1,7 +1,42 @@
-# Wayve GAIA — A World-Model Bet on AD, Read at the Company Level
+# Wayve GAIA — 在自动驾驶上的世界模型公司级押注 (Wayve GAIA — A World-Model Bet on AD, Read at the Company Level)
 
-**Status:** v1 — opinionated draft. Internal numbers `UNVERIFIED`. Capability claims sourced to public papers / blog posts; production-readiness claims explicitly flagged.
+> **发布时间**: GAIA-1 (2023) / GAIA-2 (2024) / Wayve 创立 2017
+> **公司 / 产品名**: Wayve · GAIA-1 · GAIA-2 · LINGO-1/2 · PRISM-1
+> **覆盖范围 / 公司类型**: 自动驾驶；端到端学习派 + 世界模型路线
+> **核心定位**: 一句话回答 — Wayve 押注"学习型视频世界模型替代 LiDAR + HD-map"，是 2026 最激进的自动驾驶赌局；GAIA 是这一论点的公开门面，但模型是否真正进入部署栈是另一个问题。
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Internal numbers `UNVERIFIED`. Capability claims sourced to public papers / blog posts; production-readiness claims explicitly flagged.
 **TL;DR:** Wayve's strategic thesis — that learned video world models will solve autonomous driving where LiDAR + HD-map stacks cannot — is the most aggressive AD bet on the table in 2026. GAIA-1 and GAIA-2 are the public face of that thesis; the question isn't whether the world models are impressive (they are), it's whether *anything Wayve has shown publicly is actually in a deployed driving stack yet*.
+
+### X-Ray（非专家友好开场）
+
+（a）大部分 AD 公司依赖 LiDAR + HD-map；Wayve 2017 起押"端到端学习 + 摄像头主导"。（b）GAIA-1/2 用自家 UK 数据训生成式视频世界模型做策略训练 + 评估仿真器。（c）对 spatial-AI / AD 工程师：GAIA 是 2023–2024 最有趣研究 artifact，但是否在量产栈里公开未知 — 当存在性证明，不要当部署证据。
+
+### 📍 Wayve / GAIA 产品演进时间线
+
+```
+2017 Wayve 创立 ─► 2018 学习型驾驶 demo ─► 2023 GAIA-1 (9B VTQ AR) ─► 2024 GAIA-2 (多相机) ─► 2024 $1B Series C
+                                                       │                 │
+                                                       │                 └── LINGO-1/2 (VLM 解说) + PRISM-1 (4D 重建)
+                                                       └── 论文 + blog，未开源权重；Asda 合作上路
+                                                                                                  │
+                                                                                                  ▼
+                                                                                          2027 GAIA-3? + 多区域?
+```
+
+7 年从纯学习派研究公司走到 $1B 估值 + 部分上路；下一步是证明世界模型评估能加速策略改进。
+
+### ⚡ Eureka Moment
+
+**世界模型的产品定义不是"更好的仿真器"，而是"评估加速器"。** 若 GAIA 真完成 closed-loop policy evaluation，策略迭代杠杆 = 数据飞轮 × 模型可信度。**评估循环是真产品，rollout demo 是 marketing**；公开论文未显示评估证据，是 Wayve 叙事最大未知。
+
+### 📌 Napkin Formula
+
+```
+Wayve 论点是否成立 ⇔ ∃ 数字 N，使得  P(deployment-safe | trained-with-GAIA-eval) − P(deployment-safe | real-only) ≥ N
+                                          ─ N 必须由 Wayve 在路演或论文中给出 ─
+                                          ─ 2026 仍未公开 ⇒ 论点未被验证 ─
+```
 
 ---
 
@@ -61,6 +96,20 @@ The critical distinction for any company-level read.
 
 ---
 
+## 4.5 · Worked example — 审计"世界模型加速 AD"的尽调材料
+
+LP 跟进 Wayve C 轮，20 分钟审计：
+
+1. **closed-loop 数字** — "GAIA 评估的策略比真实数据评估安全度高 Y%"？没有 → 论点未验证；有 → 看 X 是否 cherry-pick。
+2. **部署使用度** — Asda 中 GAIA 在线 vs 离线？模糊答案 = 没在线。
+3. **数据规模** — Wayve UK 小时数 < 10% Waymo；是否有"小数据+好模型"的非线性证据？
+4. **跨域** — UK 训 + US 测的 degradation 数字？通常隐去。
+5. **vs Cosmos** — "为什么不接 Cosmos 当基座"，答案揭示数据 / 算法独立性。
+
+1–4 拿不到具体数字 → C 轮定价主要是"团队 + 数据飞轮 + 押注"，不是"已证明的工程价值"。
+
+---
+
 ## 5 · Company + funding context
 
 Founded 2017 in London by Alex Kendall + Amar Shah (ex-Cambridge ML). 2024 $1B+ Series C led by SoftBank with NVIDIA + Microsoft `UNVERIFIED — exact split`. Partnerships: Asda (UK grocery), Microsoft (Azure compute), NVIDIA (compute). UK primary; US testing announced. Series C valuation puts Wayve in the Waymo / Mobileye conversation for capital intensity but with a dramatically smaller deployed fleet — the bet is data efficiency closes the gap. NVIDIA participation is dual-signal: real partnership *and* strategic interest in validating the WFM thesis (see `companies/nvidia_cosmos.md`).
@@ -79,6 +128,26 @@ Founded 2017 in London by Alex Kendall + Amar Shah (ex-Cambridge ML). 2024 $1B+ 
 | Risk | Single domain | Many domains, no deep beachhead |
 
 Wayve's tight loop is a strength if the AD thesis pans out; Cosmos's breadth hedges across domains. Not directly competing in 2026.
+
+---
+
+## 6.5 · Hidden Assumptions
+
+战略叙事下的隐含假设，违反任一条都会动摇结论：
+
+- **GAIA hallucination 可控** — 公开样本仍有显著 hallucination，会反向带偏策略训练。
+- **UK 数据泛化全球** — US / 中国 / 印度 是数据 + 法规双重 re-do。
+- **端到端学习能闭合 long-tail safety case** — Waymo 选 LiDAR + HD-map 因 safety case 须可解释；Wayve 须给等价答案。
+- **NVIDIA 不变对手** — Cosmos 加 driving fine-tune 即可覆盖 GAIA 价值。
+- **监管接受 camera-only + WFM-eval** — EU 强制 LiDAR 冗余会迫使路线大改。
+- **closed-loop eval 真能预测路面行为** — 学界未定论；证伪即 marketing surface。
+- **数据飞轮速度 > 开源追赶速度** — Hugging Face WFM 在追，护城河窗口必须维持。
+
+---
+
+## 6.6 · Interview Tip
+
+被问"Wayve 真的会成功吗" — 给两层答案：**论点层**，世界模型 + 端到端学习是当前最自洽的 camera-only AD 押注，论点是数据飞轮 × 模型评估速度 → 安全策略；**验证层**，关键数字（closed-loop policy improvement %）2026 还没公开过，没有这数字一切都是 marketing。最后补一句：**GAIA 的学术价值与 Wayve 的商业价值是两件事**，前者已成立，后者待 2027 路演证据。
 
 ---
 
@@ -116,4 +185,4 @@ Wayve's tight loop is a strength if the AD thesis pans out; Cosmos's breadth hed
 
 ---
 
-*Last opinion update: 2026-05-21.*
+*Last opinion update: 2026-05-21. v1.1 — backfilled to AGENTS.md 14-item template.*
