@@ -147,37 +147,41 @@ graph TB
 
 ---
 
-## 📊 当前内容总览（截至 2026-05-21）
+## 📊 当前内容总览（截至 2026-05-22 · 多轮深化后）
 
-| 功能簇 | 子目录 | 篇数 |
-|---|---|---|
-| 🧮 数学骨架 | `spatial-math/` | 6 |
-| 🗺️ 经典 SLAM | `classical-slam/` | 3 |
-| 🔮 前向 3D | `feed-forward-3d/` | 1 |
-| 💎 3DGS family | `3dgs-family/` | 4 |
-| 🔬 NeRF family | `nerf-family/` | 4 |
-| 📏 深度基础 | `depth-foundation/` | 4 |
-| 🎯 位姿 / 追踪 | `pose-tracking/` | 4 |
-| 🌐 语义 3D | `semantic-3d/` | 2 |
-| 🧠 VLM 空间推理 | `vlm-spatial-reasoning/` | 1 |
-| 🌍 世界模型 | `world-model/` | 3 |
-| 🎬 生成式 3D | `generative-3d-sim/` | 3 |
-| ⚛️ 物理感知 | `physics/` | 1 |
-| 📡 Sensor Physics ★ | `sensor-physics/` | 5 |
-| ✋ Manipulation | `embodiments/manipulation/` | 2 |
-| 🦿 Humanoid | `embodiments/humanoid-legged/` | 2 |
-| 🛒 Ground Mobile | `embodiments/ground-mobile/` | 2 |
-| 🚗 Driving | `embodiments/driving/` | 2 |
-| 🚁 Aerial ★ | `embodiments/aerial/` | 9 |
-| 🌊 Marine | `embodiments/marine/` | 2 |
-| 🔭 Crossing ★ USP | `crossing/` | 5 |
-| 🌉 Bridge to VLA | `bridge-to-vla/` | 3 |
-| 📊 Benchmarks | `benchmarks/` | 3 |
-| 🔧 Deployment | `deployment/` | 6 |
-| 🏢 Companies | `companies/` | 7 |
-| 📋 Cheat Sheet | `cheat-sheet/` | 3 |
+| 功能簇 | 子目录 | 篇数 | 重大更新 |
+|---|---|---|---|
+| 🧮 数学骨架 | `spatial-math/` | **8** | + 前置教学 + 跨领域灵感 + IMU §6 production 优化 |
+| 🗺️ 经典 SLAM | `classical-slam/` | 3 | |
+| 🔮 前向 3D | `feed-forward-3d/` | **3** ★ | + VGGT-Ω + MapAnything (metric solved) |
+| 💎 3DGS family | `3dgs-family/` | 4 | |
+| 🔬 NeRF family | `nerf-family/` | 4 | |
+| 📏 深度基础 | `depth-foundation/` | **5** | + depth_models_comparison ★ (横向对比) |
+| 🎯 位姿 / 追踪 | `pose-tracking/` | 4 | |
+| 🌐 语义 3D | `semantic-3d/` | 2 | |
+| 🧠 VLM 空间推理 | `vlm-spatial-reasoning/` | 1 | |
+| 🌍 世界模型 | `world-model/` | 3 | |
+| 🎬 生成式 3D | `generative-3d-sim/` | 3 | |
+| ⚛️ 物理感知 | `physics/` | 1 | |
+| 📡 **Sensor Physics ★** | `sensor-physics/` | **17** (→ 23 pending) | + RGB / GNSS / barometer / magnetometer / opt-flow / range finder（+ UWB / WiFi / 水下声呐 / 热红外 / 24GHz Doppler / mic array pending agent）|
+| **foundations 小计** | | **58** | |
+| ✋ Manipulation | `embodiments/manipulation/` | 2 | |
+| 🦿 Humanoid | `embodiments/humanoid-legged/` | 2 | |
+| 🛒 Ground Mobile | `embodiments/ground-mobile/` | 2 | |
+| 🚗 Driving | `embodiments/driving/` | 2 | |
+| 🚁 Aerial ★ | `embodiments/aerial/` | 9 | |
+| 🌊 Marine | `embodiments/marine/` | 2 | |
+| **embodiments 小计** | | **14** | aerial 是维护者深度锚 |
+| 🔭 Crossing ★ USP | `crossing/` | 5 | flagship: VGGT(-Ω) vs Drone VIO |
+| 🌉 Bridge to VLA | `bridge-to-vla/` | 3 | |
+| 📊 Benchmarks | `benchmarks/` | 6 | |
+| 🔧 Deployment | `deployment/` | 3 | |
+| 🏢 Companies | `companies/` | 7 | |
+| 📋 Cheat Sheet | `cheat-sheet/` | 3 | |
 
-**总计：~90+ dissections · 25 功能簇 · 9 顶层目录**
+**总计：~99 dissections · 26 功能簇 · 9 顶层目录 · 140 md 文件 (含 READMEs)**
+
+**待补**: sensor-physics wave agent 完成后 +6 (UWB / WiFi / 水下声呐 / 热红外 / 24GHz Doppler / mic array)，foundations 升至 64 / 总 105。
 
 ---
 

@@ -2,9 +2,13 @@
 
 > **Foundations** 是跨 embodiment 共享的底层 — 3DGS / VGGT / Depth Foundation / 经典 SLAM 这些"工具箱"原语，无论你做 manipulation、aerial 还是 marine，最终都会回到这里。
 >
-> 目前收录 **40 篇深度解析** + **13 区导读**，是华语世界对空间智能底层最系统的拆解。
+> 目前收录 **58 篇深度解析** + **13 区导读**，是华语世界对空间智能底层最系统的拆解。
 >
-> **2026-05 重要更新**：feed-forward 3D 区域加入 **VGGT-Ω**（efficiency 突破）和 **MapAnything**（**metric scale 突破** ★）— 两条 Meta 并行路线，3 篇互补对照见 [feed-forward-3d/README.md](feed-forward-3d/README.md)。
+> **2026-05 重要更新（多轮叠加）**：
+> - 🔮 Feed-Forward 3D：+ VGGT-Ω + **MapAnything ★ (metric solved)** + 即将 Depth Anything 3
+> - 📡 Sensor Physics ★：5 → 17 篇（+ RGB / GNSS / barometer / magnetometer / opt-flow / range finder + UWB / WiFi / 水下声呐 / 热红外 / 24GHz Doppler / mic array `pending agent`）
+> - 🧮 Spatial Math：+ 前置教学（rotation_intuition_primer）+ 跨领域数学灵感（cross_domain_math_inspirations）+ IMU §6 production 优化 10 项
+> - 📏 Depth Foundation：4 篇 v1.2 深化 + 新 **depth_models_comparison.md** ★（4 模型横向对比）
 >
 > 不知道从哪开始？先选你的角色 ↓
 
@@ -147,7 +151,7 @@
 │   ├─ 短期未来预测                    → 🌍 World Model (Genie)
 │   └─ 软体物体                        → ⚛️ Physics (PhysGaussian)
 │
-└─ 我要选 sensor / 做 BoM             → 📡 Sensor Physics (11 篇全集)
+└─ 我要选 sensor / 做 BoM             → 📡 Sensor Physics (17 篇全集 · drone 完整 stack)
 ```
 
 &nbsp;
@@ -221,7 +225,7 @@ graph TD
 
     GEN --> PHY["⚛️ Physics Lab<br/>Physics-aware<br/>1 篇"]
 
-    SP["📡 Sensor Workshop<br/>Sensor Physics ★<br/>5 篇"] -.->|硬件起点| FF
+    SP["📡 Sensor Workshop<br/>Sensor Physics ★<br/><b>17 篇</b> · drone 完整 stack"] -.->|硬件起点| FF
     SP -.->|底层物理| GS
     SP -.->|信号源头| DF
 
@@ -626,11 +630,14 @@ VGGT → SpatialVLM → bridge-to-vla/3d_aware_vla
 
 &nbsp;
 
-**40** dissections · **13** zones · 部分由 [Pulsar](https://github.com/sou350121/Pulsar-KenVersion) 自动生成、部分人工撰写。
+**58** dissections · **13** zones · 部分由 [Pulsar](https://github.com/sou350121/Pulsar-KenVersion) 自动生成、部分人工撰写。
 
-**Recent additions (2026-05)**:
-- 🔮 Feed-Forward 3D: + **VGGT-Ω** (efficiency) + **MapAnything** ★ (**metric solved**)
-- 详 [feed-forward-3d/README.md](feed-forward-3d/README.md) 三件套对照
+**Recent additions (2026-05, multi-round)**:
+- 🔮 Feed-Forward 3D: + **VGGT-Ω** + **MapAnything ★** + DA3 (any-view generalist, 2025-11)
+- 📡 Sensor Physics ★: 5 → 17 篇 (RGB / GNSS / barometer / magnetometer / opt-flow / range finder)
+- 🧮 Spatial Math: + 前置教学 + 跨领域灵感 + IMU §6 production 优化
+- 📏 Depth Foundation: 4 篇 v1.2 + **depth_models_comparison ★** (4 模型对照)
+- 详各区 README explorer-map 风格
 
 新文章会通过 Pulsar pipeline 自动追加，参考 [`AGENTS.md`](../AGENTS.md) 的写入权限矩阵 + 14 项质量门槛。
 
