@@ -150,6 +150,11 @@ NeRF 只在以下条件成立时 work；每条在实践中悄悄破坏：
 
 后续每篇挑一个补 — 这正是该谱系 *碎片化*的原因：要组合 3–4 个变体才能凑出可用系统，而 3DGS 把多数折进单一表示.
 
+### 6.3 GitHub 实地失败（atlas 联动）
+
+- **GitHub-validated**：原 `bmild/nerf` 已事实归档 — spam issue (#217) 长期未关、TF 2.x 兼容 (#216) 无人补、数据集 GoogleDrive 链接失效 (#214/#213)，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。"经典 NeRF 论文 repo" 在 2026 只能作历史参考，复现请走 `yenchenlin/nerf-pytorch` 或 nerfstudio `vanilla-nerf`。
+- **GitHub-validated**：`yenchenlin/nerf-pytorch` 同样 stale — 官方 checkpoint 损坏 (#151)、Blender 数据链接失效 (#155)、OOM kill (#147) 是教学用户最常见三连击；维护者已转向 robotics 多年，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
+
 ---
 
 ## 7 · Comparison and interview tip

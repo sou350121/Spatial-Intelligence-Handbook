@@ -102,6 +102,14 @@ Depth Anything v1 与 v2 的架构矩阵几乎相同. **变的是训练语料库
 
 违反时模型仍产出看着干净的深度图 — 静默失败是任何部署下游系统的危险模式.
 
+### 4.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+DepthAnything/Depth-Anything-V2 上 236 open issues 里 ~40% 都是同一类"输出契约没读懂"问题，与 §3 / §4 完全对得上：
+
+- **GitHub-validated**：**relative-vs-metric 混淆是头号坑** —— 用户把 disparity 当 meter 读，对应 [issue #93](https://github.com/DepthAnything/Depth-Anything-V2/issues/93) / [#178](https://github.com/DepthAnything/Depth-Anything-V2/issues/178)；维护者最高 ROI 的修复不是改模型而是写 README Output Contract 表（§4.3）；详见 [`github_failure_atlas.md`](./github_failure_atlas.md#1--depth-anything-v2--relative-only-的输出契约困局)。
+- **GitHub-validated**：metric variant `max_depth` 写死（Hypersim 20 m / VKITTI 80 m）超过即截断 —— 对应 [#26](https://github.com/DepthAnything/Depth-Anything-V2/issues/26) / [#4](https://github.com/DepthAnything/Depth-Anything-V2/issues/4) / [#69](https://github.com/DepthAnything/Depth-Anything-V2/issues/69) / [#289](https://github.com/DepthAnything/Depth-Anything-V2/issues/289)，印证 §4.1 "天花板 80 m" 行；relative→metric 蒸馏（[#98](https://github.com/DepthAnything/Depth-Anything-V2/issues/98) / [#102](https://github.com/DepthAnything/Depth-Anything-V2/issues/102)）的 shift `b` 与内容相关，single-anchor 不可跨场景迁移。
+- **GitHub-validated**：ONNX 后 metric head sigmoid + max_depth 丢精度 —— 对应 [issue #49](https://github.com/DepthAnything/Depth-Anything-V2/issues/49)；部署到 ONNX/TRT 必须单元测试 metric 输出；详见 [`github_failure_atlas.md`](./github_failure_atlas.md#1--depth-anything-v2--relative-only-的输出契约困局)。
+
 ---
 
 ## 4.1 · Working Range（按距离桶）

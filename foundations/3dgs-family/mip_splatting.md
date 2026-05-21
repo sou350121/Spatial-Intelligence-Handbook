@@ -122,6 +122,14 @@ Mip-Splatting 就是让 3DGS 对尺度鲁棒的小而有原则的修复。
 
 违反时 Mip-Splatting 的好处缩小但不引入新失败模式 — 严格优于 vanilla，不会回退。
 
+### 3.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+autonomousvision/mip-splatting 1.4k stars / 31 open issues — 31 open 都是细节问题而非崩溃，**算法成熟、节奏放慢**：
+
+- **GitHub-validated（项目状态）**：commit 节奏明显放缓但 issue 都是"调参 / 数据"层级 —— 与 §5 "Mip-Splatting 会悄悄成为默认" 一致：算法稳定到不需大更新；详见 [`github_failure_atlas.md`](./github_failure_atlas.md#mip-splatting-autonomousvisionmip-splatting)。
+- **GitHub-validated**：data infra 长尾 —— NeRF Google Drive 数据失效（[#78](https://github.com/autonomousvision/mip-splatting/issues/78)）+ 与下游 supersplat viewer 集成结果错（[#75](https://github.com/autonomousvision/mip-splatting/issues/75)）；官方 demo 渲染质量被质疑（[#74](https://github.com/autonomousvision/mip-splatting/issues/74)，视感 quality vs benchmark 数字的 gap）—— **本仓代码可作 reference 实现，下游 viewer 集成需自测**。
+- **GitHub-validated**：核心抗锯齿参数 doc 不清 —— Gaussian ball size & ratio to pixel（[#73](https://github.com/autonomousvision/mip-splatting/issues/73)）+ 训练时渲染路径疑问（[#72](https://github.com/autonomousvision/mip-splatting/issues/72)）—— 印证 §2 "3D filter + 2D Mip filter 耦合" 是工程细节，社区仍在啃。
+
 ---
 
 ## 4 · 部署指南（何时该用）

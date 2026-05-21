@@ -121,6 +121,14 @@ Manipulation 几乎完全活在中-articulated regime。抓取时物体动力学
 
 违反时，重建通常仍在训练时刻渲染干净，在 novel time 静默退化 — 对 policy 训练而言是危险失败模式。
 
+### 4.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+hustvl/4DGaussians 3.6k stars / 130 open issues / **4 open PRs 长期不动**，符合"paper 发完代码就半弃养"模式：
+
+- **GitHub-validated（项目状态）**：**2024-06 后看不到大动作**，最后一次大规模 cleanup 显示在 "2024.6.25"；130 open issues 中近期标题多为空（社区 "Q & A 风格" 而非 "bug report 风格"），暗示项目处于 *半弃养* 状态 —— **paper 复现仍 OK，生产部署应找更新的 fork 或 Deformable-3DGS 系列**；详见 [`github_failure_atlas.md`](./github_failure_atlas.md#4dgs--wu-et-al-cvpr-2024-hustvl4dgaussians)。
+- **GitHub-validated**：高频痛点集中在数据准备（[#273](https://github.com/hustvl/4DGaussians/issues/273)）+ visualization / viewer 路径（[#271](https://github.com/hustvl/4DGaussians/issues/271) / [#270](https://github.com/hustvl/4DGaussians/issues/270) / Web-based Viewer 请求 [#266](https://github.com/hustvl/4DGaussians/issues/266)）+ 训练后 quality 调参（[#269](https://github.com/hustvl/4DGaussians/issues/269)）—— 印证 §2.5 worked example 末尾 "液体 / 拓扑变化场景输出差" 的 canonical-plus-deformation 契约边界，社区在 viewer 生态上等不到答复。
+- **GitHub-validated**：CUDA / 脚本失败长尾（#258–#263）—— 环境兼容性问题与 vanilla 3DGS 谱系（Windows / RTX 50）共享根因；**复现 paper 数据集仍能跑，manipulation 生产 demo 数据集**建议迁更新的 Deformable-3DGS 后继。
+
 ---
 
 ## 5 · 2-year outlook

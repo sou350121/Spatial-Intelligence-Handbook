@@ -114,6 +114,10 @@ Pose 通过预测当前渲染与观测差异的**残差更新**迭代精化. Ren
 
 **Failure modes.** 边缘硬件上非实时. 重遮挡（<30% 可见）→ refiner 吃力 `UNVERIFIED threshold`. 对称无纹理物体：旋转歧义.
 
+### 6.x GitHub 实地失败（atlas 联动）
+
+- **GitHub-validated**：mesh + texture PNG 双重门槛 + 渲染依赖地狱（pinocchio / geckodriver） — 对应 [#58](https://github.com/megapose6d/megapose6d/issues/58)·[#65](https://github.com/megapose6d/megapose6d/issues/65)·[#51](https://github.com/megapose6d/megapose6d/issues/51)；novel object 实际"pretty inaccurate"无官方回复（[#55](https://github.com/megapose6d/megapose6d/issues/55)），repo >1 年未 push，是学术"项目结束"的典型停摆信号，新用户应直接选 FoundationPose，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+
 ### 6.1 Hidden Assumptions
 
 - **Mesh 几何准确.** 比实际部件偏 5% 的 CAD 静默编码为 5% pose 误差.

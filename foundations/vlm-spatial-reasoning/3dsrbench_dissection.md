@@ -168,6 +168,10 @@ HEIGHT       LOCATION         ORIENTATION         MULTI-OBJECT
 | Uncommon viewpoint | 跌 13-19% | 训练数据视角分布窄 |
 | Multi-object 类 | 各模型普遍最差子类 `UNVERIFIED` | "两物体相对几何"=组合泛化 |
 
+### 6.1.x GitHub 实地失败（atlas 联动）
+
+- **GitHub-validated**："GPT-4o 45.3% < Random++ 45.8%"在 sub-axis 粒度被独立用户在 issue 区验证 — 某些 orientation / height 4-choice 子项确实低于 25% baseline，因为模型有**系统性偏好**（永远答最常见类别），比真随机更差；benchmark 仅给 HF dataset + project page、**无训练 repo**，"我 fine-tune 后 65%"类声称无法 fair-verify，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+
 ### 6.2 Hidden Assumptions
 
 - **MS-COCO 图像是"自然分布"** —— 但 COCO 偏向 photo-quality 室内/户外，与机器人相机的 cluttered 室内 / 户外有 gap

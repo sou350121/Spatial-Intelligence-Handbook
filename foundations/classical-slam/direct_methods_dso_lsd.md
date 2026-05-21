@@ -124,6 +124,12 @@ DSO —— TUM mono + EuRoC：在友好序列上直接法 translational 比 feat
 - **光度标定可用** —— 大部分用户跳过实测 response + vignette → 静默退化。
 - **不需要闭环** —— 非回路轨迹 → 漂移无界。
 
+### 6.2 GitHub 实地失败（atlas 联动）
+
+- **GitHub-validated**：DSO 在自录手机数据上反复触发 `Assertion 'std::isfinite' failed` (#123, 9 reactions) — 与 §6 "光度可标定 / Lambertian / 亮度恒定" 三条假设的同时破裂直接对应；textureless / use-after-free (#251 / #269) 是同源症状，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
+- **GitHub-validated**：DSO 输出无时间戳 (#237 6 reactions) 让 EVO 评测直接卡 — 教学读源码 OK，做 benchmark 要自己补 timestamp pipeline；最近 merged PR 停在 2017–2018，Engel 已转 Meta / RealityLabs，**这是学术冻结**，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
+- **GitHub-validated**：LSD-SLAM 被 ROS 1 + Ubuntu 14.04 锁死（#330 / #302 / #290 build 失败、#321 / #351 / #348 运行时崩、#350 教学提问自 2020 无人回），完全 frozen — 只剩博士论文 chapter 用途，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
+
 ---
 
 ## 7 · 比较 & 面试 Tip

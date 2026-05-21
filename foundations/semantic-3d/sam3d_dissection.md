@@ -147,6 +147,10 @@ SAM 3D Objects:
 - SAM 3D Objects 单物体导向，**不重建场景**——多物体 layout 是其副产品，不是主输出；
 - 几何精度未在接触级抓取 benchmark 上独立验证，工业精度需另测。
 
+### 6.y GitHub 实地失败（atlas 联动）
+
+- **GitHub-validated**：6665★ 但 103 open issue 全集中在 alignment / scale —— demo ≠ deploy 的范式信号。预测物体与输入 depth / mask **不对齐**（[#162](https://github.com/facebookresearch/sam-3d-objects/issues/162)），白纸等弱纹理平面上 pose 直接飞走（[#149](https://github.com/facebookresearch/sam-3d-objects/issues/149)），canonical scale 与 real metric depth 不一致（[#57](https://github.com/facebookresearch/sam-3d-objects/issues/57)）；single-image foundation 在低信息物体上 hallucinate mesh 是结构性失败，机器人闭环消费 metric 前必须额外做 scale alignment，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+
 ### 6.x · Hidden Assumptions
 
 - **SAGA**：3DGS 已建好 + SAM 在该场景出 mask 稳；多物体重叠 / 强遮挡时 affinity 蒸馏退化。

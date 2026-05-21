@@ -118,6 +118,11 @@ Multi-object 不批处理则线性 scale. 蒸馏后 Orin 上单物体 30 Hz trac
 
 **败于：** 无纹理的严重对称（旋转歧义固有）；透明 / 镜面物体（depth sensor 先失败）；物体 <~10 mm `UNVERIFIED`；无干净 2D 检测的重杂乱.
 
+### 6.x GitHub 实地失败（atlas 联动）
+
+- **GitHub-validated**：NaN scores 部署灾难 — 对应 [#53 (27 comments, closed-without-explicit-fix)](https://github.com/NVlabs/FoundationPose/issues/53)，多用户在不同 GPU / CUDA 复现但根因（fp16 / 老 GPU 路径）无官方诊断；"closed 不等于已修"是 maintainer wontfix 信号，与 depth 阵营 FoundationStereo #121 同模式，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+- **GitHub-validated**：输入资产门槛吃掉 ~30% 部署 — mesh / CAD 要求（[#83](https://github.com/NVlabs/FoundationPose/issues/83)·[#60](https://github.com/NVlabs/FoundationPose/issues/60)·[#32](https://github.com/NVlabs/FoundationPose/issues/32)）+ depth 预处理（[#44](https://github.com/NVlabs/FoundationPose/issues/44)）+ 首帧 mask 选不准导致 drift 传染（[#186](https://github.com/NVlabs/FoundationPose/issues/186)·[#279](https://github.com/NVlabs/FoundationPose/issues/279)）；论文 model-free 卖点在 issue 区落地为 "要么扫 mesh 要么没法用"，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+
 ### 6.1 Hidden Assumptions
 
 - **Depth 通道可用且可靠.** 仅 RGB 退化 5–15 AR `UNVERIFIED`. 反射金属 → 实际上仅 RGB.

@@ -105,6 +105,14 @@ right ──► foundation encoder ──┘                                    
 
 违反时得到看着合理的 metric 深度但有静默几何误差 — 在长距尤其差，因为 disparity SNR 本来就弱.
 
+### 4.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+NVlabs/FoundationStereo 83 open issues 印证 §X.3.3 "无 confidence map" 的部署灾难是真实痛点：
+
+- **GitHub-validated（关键发现）**：**[issue #121](https://github.com/NVlabs/FoundationStereo/issues/121) 多帧静止物体头部对齐但身体散开** —— stereo 预测有 **spatial heteroscedasticity（非均匀 spatial bias）**，但模型不输出 confidence → 下游融合无法 weighted fuse、grasp planner 用差像素作决策。**issue 已 closed 但根因未解（closed-without-fix 典型）** —— 这是 FoundationStereo 当前公开版本最大的部署债务，对 robot 是"身体能抓但头部位置不准"的灾难；详见 [`github_failure_atlas.md`](./github_failure_atlas.md#5--foundationstereo--没-confidence-map-的-stereo-旗舰)。
+- **GitHub-validated**：**TensorRT engine 输出 NaN（fp16）** —— 对应 [issue #49](https://github.com/NVlabs/FoundationStereo/issues/49) / [#175](https://github.com/NVlabs/FoundationStereo/issues/175)；ONNX export 缓慢（[#58](https://github.com/NVlabs/FoundationStereo/issues/58)）—— 同根：`flash_attn` export 路径 bug；Jetson Orin / camera K 输入格式问题（[#136](https://github.com/NVlabs/FoundationStereo/issues/136) / [#26](https://github.com/NVlabs/FoundationStereo/issues/26)）—— 印证 §3 "换前验证 Jetson 延迟" 警告。
+- **GitHub-validated**：synth→real KITTI 室外差（[#102](https://github.com/NVlabs/FoundationStereo/issues/102)，训练合成室内主导）+ 大 baseline drift（[#142](https://github.com/NVlabs/FoundationStereo/issues/142)，~15 cm 对比 RGB-D ~5–7 cm）—— 印证 §X.2.6 sim-to-real gap 在 contrarian niches 上仍需 fine-tune；空 disparity / rectify 错（[#104](https://github.com/NVlabs/FoundationStereo/issues/104)）+ 视频闪烁（[#59](https://github.com/NVlabs/FoundationStereo/issues/59)）。**部署端最被低估的工程债务 = 自己加 LR consistency check + confidence head fine-tune**。
+
 ---
 
 ## 5 · 部署模式

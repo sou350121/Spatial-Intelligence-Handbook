@@ -118,6 +118,14 @@ NeRF 给了你可微分场景表示，但要付出数小时训练 + 每帧数秒
 
 违反时模型经常仍能*渲染*出某种东西 — 静默失败（floater、shimmer、ghosting）才是危险模式。
 
+### 4.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+graphdeco-inria/gaussian-splatting 22k stars / 664 open issues / 45 open PRs，活跃的"祖师爷 repo"模式；issue 长尾集中在工程而非算法：
+
+- **GitHub-validated**：**Windows / CUDA 是真实痛点而非脚注** —— Install failure on Windows 11（[issue #1322](https://github.com/graphdeco-inria/gaussian-splatting/issues/1322)）+ RTX 50-series + CUDA 12.8 稳定训练（[#1313](https://github.com/graphdeco-inria/gaussian-splatting/issues/1313)）反复出现；**非 Linux 用户应做好踩坑预期，推荐 WSL2 / Docker 路径**；详见 [`github_failure_atlas.md`](./github_failure_atlas.md#3dgs-original-graphdeco-inriagaussian-splatting)。
+- **GitHub-validated**：submodule pinning 长尾 —— `submodules-simple-knn @ 86710c2` 打不开（[issue #1328](https://github.com/graphdeco-inria/gaussian-splatting/issues/1328)）；training stuck at 0%（[#1310](https://github.com/graphdeco-inria/gaussian-splatting/issues/1310)）多与 dataset 路径 / dependency 解析有关；SIBR viewer 网络层 bug（[#1314](https://github.com/graphdeco-inria/gaussian-splatting/issues/1314)）—— 印证 §6 outlook "compressed-by-default" + "feed-forward init" 未到位前工程长尾仍主导部署体验。
+- **GitHub-validated（surprise）**：近 6 月 PR 列表有 **HIP/AMDGPU 移植** —— 3DGS 生态正在"破除 NVIDIA 绑定"，对功耗敏感场景（marine / aerial）是 *未被注意的工程信号*；详见 [`github_failure_atlas.md`](./github_failure_atlas.md#3dgs-original-graphdeco-inriagaussian-splatting)。
+
 ---
 
 ## 5 · 为什么机器人团队在乎（本手册的核心车道）

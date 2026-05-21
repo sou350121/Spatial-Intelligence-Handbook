@@ -98,6 +98,14 @@ A100 上延迟 ~150–250 ms UNVERIFIED。一次 `model(images)` 调用——点
 
 重复模式：VGGT 在训练分布内极好，分布外*静默*失败。无置信 head 标 OOD depth —— 这让朴素部署危险。
 
+### 4.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+社区在 facebookresearch/vggt issue 上反复压测同一组边界，与上面六条几乎一一对应：
+
+- **GitHub-validated**：demo_colmap 触发 OOM，与 resize 维度耦合 —— 对应 [issue #470](https://github.com/facebookresearch/vggt/issues/470)，部署侧建议绕开该 path 自己写 inference loop + 控制 N；详见 [`github_failure_atlas.md`](./github_failure_atlas.md#vggt-v1)。
+- **GitHub-validated**：depth scale ambiguity 用户反复问"是 metric 还是 relative" —— 对应 [issue #471](https://github.com/facebookresearch/vggt/issues/471)，即 §4 #5 monocular up-to-scale 限制；文档仍需补。
+- **GitHub-validated**：长视频超过 batch 上限请求 factor-graph stitching —— 对应 [issue #474](https://github.com/facebookresearch/vggt/issues/474)，印证 §4 #6 "大 N" 边界被普遍撞到，详见 [`github_failure_atlas.md`](./github_failure_atlas.md#vggt-v1)。
+
 ### 4.x · Hidden Assumptions
 
 上游假设被违反时会产生上述失败：

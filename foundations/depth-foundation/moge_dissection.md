@@ -106,6 +106,14 @@ RGB ──► ViT encoder ──► shared 3D feature
 
 违反时通常得到一个看着合理的 3D point cloud，在一个场景里正确 scale，在下一个里漂移 — 与咬 Depth Anything 用户的同一内容相关 affine.
 
+### 4.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+microsoft/MoGe 76 open issues 揭示三 head "affine-invariant up to its own scale 且无跨 head scale 约束" 的部署后果：
+
+- **GitHub-validated**：**用户期待 "3D points 直接米" 但实际 scale 不可知** —— MoGe-2 点云 scale 与真实尺寸偏差 "2x? more? less?"（用户原话），对应 [issue #75](https://github.com/microsoft/MoGe/issues/75) / [#43](https://github.com/microsoft/MoGe/issues/43)；印证 §3 "需米切到 Metric3D"。详见 [`github_failure_atlas.md`](./github_failure_atlas.md#4--moge--moge-2--affine-invariant-3d-points-的多任务一致性)。
+- **GitHub-validated**：**local vs HF demo 不一致** —— 同图本地跑 vs HuggingFace demo 输出不同，对应 [#72](https://github.com/microsoft/MoGe/issues/72) / [#66](https://github.com/microsoft/MoGe/issues/66)；说明隐藏前/后处理 step，**复现实验前必须对照 HF Space 的 pipeline**。
+- **GitHub-validated**：**multi-head 矛盾 + sky 球面 hack** —— depth + normal + FoV 互不洽（[#79](https://github.com/microsoft/MoGe/issues/79) / [#81](https://github.com/microsoft/MoGe/issues/81)），sky 区被 "推到球面" 是 dynamic range hack **不是几何**；印证 §X.1.1 "mask head 把 infinity 显式排除"。v1 FoV 复现失败（[#115](https://github.com/microsoft/MoGe/issues/115)）；官方 ONNX 缺失（[#20](https://github.com/microsoft/MoGe/issues/20) / [#83](https://github.com/microsoft/MoGe/issues/83)）是社区呼声最高的 PR 方向。
+
 ---
 
 ## 5 · 何处用

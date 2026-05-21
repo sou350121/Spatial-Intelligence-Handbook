@@ -117,6 +117,10 @@ The Skydio-adjacent comment is not idle — multiple RPNG alumni (Geneva, Eckenh
 - **Loop closure has to be external** — the filter has no native loop-closure concept. You bolt on a pose-graph back-end (often borrowed from VINS-Fusion or ORB-SLAM3).
 - **Filter divergence under fast yaw** — same KLT track failure as VINS-Mono, but the filter has less recovery margin than an optimizer with multiple Gauss-Newton iterations.
 
+### 6.y GitHub 实地失败（atlas 联动）
+
+- **GitHub-validated**：OpenVINS 是 **aerial VIO 区唯一仍正常维护的官方 repo**（最近 push 2025-11，68 open issue，maintainer 回复活跃）— issue 多在自录数据 / 边缘硬件而非算法本身：filter divergence after init（[#540](https://github.com/rpng/open_vins/issues/540)·[#533](https://github.com/rpng/open_vins/issues/533)），static init fail（[#477](https://github.com/rpng/open_vins/issues/477)），Orin Nano segfault（YAML 与 IMU 实际采样率不匹配，[#514](https://github.com/rpng/open_vins/issues/514)），100 m 高度大尺度 parallax 退化（[#513](https://github.com/rpng/open_vins/issues/513)），multi-cam online calib 实际门槛比文档高（[#534](https://github.com/rpng/open_vins/issues/534)·[#505](https://github.com/rpng/open_vins/issues/505)）；**2026-05 aerial VIO 默认推 OpenVINS**（VINS-Fusion #3 long-open / VINS-Mono stale），详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+
 ### 6.x · 隐含假设（Hidden Assumptions）
 
 - **outlier 已被 chi-squared 滤干净**：单线性化 EKF 无 re-linearize，outlier 直接污染 covariance。

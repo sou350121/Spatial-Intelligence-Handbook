@@ -104,6 +104,11 @@ World Labs（创始人：Fei-Fei Li、Justin Johnson、Christoph Lassner、Ben M
 
 任一不成立，机器人相关性故事便塌缩为"看研究端发表"。
 
+### 4.y · GitHub 实地失败（atlas 联动）
+
+- **GitHub-validated**：Marble **无公开 repo / 无权重 / 无 paper**，GitHub 搜 "marble world model" 仅返回第三方 ComfyUI wrapper（`rikturnbull/comfyui-worldlabs-marble` 1★，调商业 API），不是 reimpl，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。任何 "Marble for robotics" 提案当前都是营销而非工程。
+- **GitHub-validated**：closed API → 训练管线锁定（厂商改 API → 数据分布漂移 → 模型必须重训）；这是除"无 metric scale / 无物理 / 消费审美 OOD"之外，atlas 单独点出的第四类风险，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
+
 **Interview Tip**：被问 Marble 时，答"消费 3D——具身 AI 范围外，直到 API 或 benchmark 过的研究产物落地。今天用 VGGT / DUSt3R / Depth Anything v2；跟 World Labs 的论文，不是产品页"。把你拽出炒作 lane。
 
 ---

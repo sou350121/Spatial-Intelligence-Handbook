@@ -27,6 +27,8 @@ This is why aerial state estimation gets its own folder rather than being absorb
 
 Each gets its own dissection because the failure modes are non-overlapping — pick by your CPU / GPU budget, your vibration profile, and how much loop-closure / relocalization tolerance you need.
 
+> **2026-05 默认推 OpenVINS**（VINS-Fusion [#3](https://github.com/HKUST-Aerial-Robotics/VINS-Fusion/issues/3) global-optimization 自 2019 long-open、VINS-Mono 已 stale 无 ROS 2 port）。OpenVINS 是 aerial VIO 区**唯一仍正常维护的官方 repo**（2025-11 仍 push，issue 回复活跃）。详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
+
 ## Cross-references
 
 - Cross-embodiment angle: [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../../crossing/slam-vio-migration/vggt_vs_drone_vio.md) — why VGGT does not replace VIO at aerial latency budgets.

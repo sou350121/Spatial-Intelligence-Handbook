@@ -153,6 +153,13 @@ MLP 只见过 `‖·‖ ≤ 2`. **天空是半径 2 处的薄壳** — 与建筑
 - **天空几何退化** — 塌缩到薄壳.
 - **接近 pinhole 相机** — 鱼眼 / 极广角违反线性锥半径.
 
+### 6.1.x GitHub 实地失败（atlas 联动）
+
+> ⚠️ **2026-05 状态**：`google-research/multinerf`（含 Mip-NeRF 360 / Ref-NeRF / RawNeRF 参考实现）已于 **2025-02-11 被 Google 官方 archive**（只读）。这是 NeRF 谱系**最后一个高质量参考实现**进入只读状态；**不要指望维护**。
+
+- **GitHub-validated**：archive 前留存的失败模式直接对应隐藏假设破裂 — 新 COLMAP 输出 `transforms.json` 不匹配 (#162)、JAX 版本兼容断 (`jax.core` has no attribute 'Shape' #156)、JAX 路径处理 quirk 强制 absolute path (#160)，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
+- **GitHub-validated**：离线重建仍是质量 SOTA 之一，但**部署要预算 JAX 老版本 + 数据集 / COLMAP 对接的工程债**；archive 意味着这些坑只能 fork 自修。新项目优先 Zip-NeRF (Barron 团队后续) + nerfstudio。
+
 ### 6.2 为什么这对 3DGS 重要
 
 3DGS *已知弱点*是无界：远 gaussian 长巨大，存储爆. Mip-NeRF 360 contraction *按构造解决*.

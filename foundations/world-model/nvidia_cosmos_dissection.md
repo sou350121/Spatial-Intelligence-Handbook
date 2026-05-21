@@ -1,5 +1,7 @@
 # NVIDIA Cosmos 解构 (NVIDIA Cosmos World Foundation Models — Dissection)
 
+> ⚠️ **2026-05 状态**: 原 `NVIDIA/Cosmos` repo 已 deprecate (#167)；新代码在 [`nvidia-cosmos/` org](https://github.com/nvidia-cosmos)（14+ 子库）。本文档 url/clone 命令以新 org 为准。
+
 > **发布时间**: CES 2025 announcement (NVIDIA)
 > **论文 / 模型**: Cosmos World Foundation Model Platform — Cosmos-Predict / Cosmos-Transfer / Cosmos-Reason
 > **核心定位**: 一套**为机器人 rollout 美学调过的 conditional video synthesis stack**——价值落在**数据工厂**，而非"rollout 当规划器"。
@@ -111,6 +113,12 @@ VLA 训练数据 pipeline 视图：
 - **VLA 能容忍 ≤20% 噪声监督** —— Cosmos-Reason 抓粗违反，不抓细指穿模；脆弱策略会被放大。
 
 任一被违反，预期**静默失败** —— Cosmos rollout 在人眼里没毛病，却暗中毒害策略训练。
+
+### 4.y · GitHub 实地失败（atlas 联动）
+
+- **GitHub-validated**：原 `NVIDIA/Cosmos` 8096★ monolithic repo 已被 issue #167 *"Deprecate codebase"* 合并后正式 deprecate，生态拆到 `nvidia-cosmos/` org 14+ 子库；**"git clone 一份跑通"路径已死**，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。读者必须立刻迁移到 `cosmos-predict2.5` + `cosmos-transfer2.5` + `cosmos-rl` + `cosmos-curate` 四个活子库的拼装。
+- **GitHub-validated**：predict1 / reason1 / transfer1 / predict2 都已被 2.5 替代而进入 📖 历史态；任何引用旧子库的教程或论文 baseline 都要核对版本号，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
+- **GitHub-validated**：**"Cosmos-trained VLA improves task X by Y" 至今无独立第三方验证** — 本 lane 最大未解问，社区欠这个数；任何论文报"Cosmos 数据 improves VLA"没有 baseline ablation 都该严审，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
 
 **Interview Tip**：被问 Cosmos 时，答"数据工厂，不是规划器——而且只对外观瓶颈任务有效；动力学 gap 不变"。这一区分把读懂方法的工程师和读营销的人分开。
 

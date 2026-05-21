@@ -114,6 +114,14 @@ Manipulator wrist cam，校准 `fx = fy = 750 px`，看 0.5 m 外的 mug.
 
 违反时输出仍是看着合理的 metric 深度图 — 校准错误是部署中主导静默失败模式.
 
+### 5.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+YvanYin/Metric3D 仓库 push 已 >1 年（2025-03-13 最后 push），处于"PhD 毕业 → low-maintenance"典型学术 repo 状态；84 open issues 集中在 canonical-camera 假设的几何代价：
+
+- **GitHub-validated**：**大焦距静默退化** —— `f = 1966 px`（训练分布 500–700）直接给错深度，对应 [issue #19](https://github.com/YvanYin/Metric3D/issues/19)；与 [issue #38](https://github.com/YvanYin/Metric3D/issues/38) 报告的"真值 5 m / 预测 16.5 m（~330% 偏差）"几乎对应 `(520/260)² ≈ 4` 量级，**不是模型学错，是 canonical 假设的几何代价**；详见 [`github_failure_atlas.md`](./github_failure_atlas.md#3--metric3d--canonical-camera-假设的边界)。
+- **GitHub-validated**：canonical 假设（focal ≈ 1000 px）违反时无 fallback —— 对应 [#17](https://github.com/YvanYin/Metric3D/issues/17) / [#95](https://github.com/YvanYin/Metric3D/issues/95)；维护者最高 ROI 的修复是 input focal 超训练分布时显式 warning + README in-the-wild checklist（K、ratio to canonical、resize 顺序）。
+- **GitHub-validated**：自定义 KITTI-like fine-tune shape mismatch —— 对应 [#156](https://github.com/YvanYin/Metric3D/issues/156) / [#91](https://github.com/YvanYin/Metric3D/issues/91)；ONNX 动态 shape 边角 case（[#117](https://github.com/YvanYin/Metric3D/issues/117) / [#126](https://github.com/YvanYin/Metric3D/issues/126)）；老 GPU sm<70 跑不通（[#81](https://github.com/YvanYin/Metric3D/issues/81)）。**部署前必做 in-house 校准 layer**。
+
 ---
 
 ## 6 · MoGe 对比（relative-track 竞争者）

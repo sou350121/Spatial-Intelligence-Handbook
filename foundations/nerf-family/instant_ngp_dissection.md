@@ -151,6 +151,10 @@ Table 内存: `L × T × F × 4 ≈ 67 MB`. MLP <1 MB.
 
 机器人方面：1080p 10 FPS 适合*可视化*，不适合闭环感知（需要 30+ FPS）. 推理时 1–2 GB GPU 内存对嵌入式尴尬. Hash table 不透明 — 不解码整个场景无法检查"椅子在哪". 无编辑 primitive — 修改一片需重训. 这些正是 3DGS 后来通过*显式*解决的. Instant-NGP 是快版 NeRF；3DGS 是*另一种* NeRF.
 
+### 6.3 GitHub 实地失败（atlas 联动）
+
+- **GitHub-validated**：NVIDIA 仍在维护（2025-07 v2.0 release）但 issue triage 跟不上 — 491 open issues 长尾，主轴是 Windows + cmake / gcc 14 编译失败（#1613 / #1603 / #1607 / #1606），对应"NVIDIA SCL-NC 非商 license + CUDA 单一文化"假设破裂，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。任何跨平台 / Windows 团队要预算"踩编译坑"工时。
+
 ---
 
 ## 7 · Comparison and interview tip

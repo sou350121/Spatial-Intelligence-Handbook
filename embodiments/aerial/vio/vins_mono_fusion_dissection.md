@@ -88,6 +88,11 @@ In 2017, the field had two camps. Filter-based VIO (MSCKF, ROVIO) was fast but s
 
 EuRoC MAV dataset numbers `UNVERIFIED` from secondary sources: VINS-Mono lands ~0.15 m RMSE on MH01–MH05 indoor trajectories. **Real outdoor / aerial racing numbers are not in the paper** — and that gap is the recurring story in aerial VIO benchmarks.
 
+### 4.y GitHub 实地失败（atlas 联动）
+
+- **GitHub-validated**：VINS-Fusion 招牌 loop closure 长期不可靠 — [VINS-Fusion #3 "global optimization thread doesn't work properly"](https://github.com/HKUST-Aerial-Robotics/VINS-Fusion/issues/3) **从 2019 至今仍 open**，官方未修；同 repo PR [#5](https://github.com/HKUST-Aerial-Robotics/VINS-Fusion/pull/5) `FeatureManager::triangulate` SVD 疑误也从 2019 挂着，是"学术毕业 + 社区自治"的范式信号
+- **GitHub-validated**：VINS-Mono 已 stale（最近 push 2024-08, 293 open issues）— 静止开机即发散（[#475](https://github.com/HKUST-Aerial-Robotics/VINS-Mono/issues/475)·[#473](https://github.com/HKUST-Aerial-Robotics/VINS-Mono/issues/473)），Jetson Nano 直接 crash（[#400](https://github.com/HKUST-Aerial-Robotics/VINS-Mono/issues/400)），ROS 2 port 官方未做；真上无人机 **2026-05 默认推 OpenVINS**，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+
 ### 4.x · 隐含假设（Hidden Assumptions）
 
 上述失败模式背后的"未明说但必须成立"的假设：
