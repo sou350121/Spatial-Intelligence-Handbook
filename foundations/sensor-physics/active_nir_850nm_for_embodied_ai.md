@@ -1,20 +1,20 @@
 # Active NIR (850 nm) for Embodied AI
 
 **Status:** v1 — opinionated draft. Spec numbers marked `UNVERIFIED` need datasheet check.
-**Wedge tier:** W1 (one of 5 launch docs)
-**TL;DR:** Every embodied-AI vendor that ships active sensing converges on 850 nm — the unique point where silicon QE, the solar irradiance dip, and the Class 1 eye-safety budget all clear at a price the BOM absorbs. Understanding why — and what flips at 940 nm or 1550 nm — is the prerequisite to honest sensor selection. Vision surveys treat the illuminator as a given ("an 850 nm projector emits a pattern"); the interesting story is upstream.
+**Wedge tier:** W1 (1 of 5 launch docs)
+**TL;DR:** Every embodied-AI vendor shipping active sensing converges on 850 nm — the unique point where silicon QE, the solar irradiance dip, and Class 1 eye-safety all clear at a price the BOM absorbs. Surveys treat the illuminator as a given; the interesting story is upstream. Why 850 — and what flips at 940 or 1550 — is the prerequisite to honest sensor selection.
 
 ---
 
 ## 1 · Spectral physics primer
 
-Three curves govern the choice; reading one in isolation is how vendors end up at 940 nm "because Apple did it" and then can't hit range.
+Three curves govern the choice; reading one in isolation is how vendors land at 940 nm "because Apple" and then can't hit range.
 
 **(a) Silicon QE.** FSI CMOS peaks ~550 nm and falls off a cliff past 1000 nm — photon energy drops below silicon's indirect-bandgap absorption. Sony IMX / OmniVision datasheets `UNVERIFIED`: ~35–50% QE at 850 nm, ~15–25% at 940 nm, zero past 1100 nm. BSI gains ~1.5×; NIR-enhanced (Sony STARVIS-2) pushes 850 nm toward 60% `UNVERIFIED`. Past 1100 nm you leave silicon for InGaAs — 50–100× sensor cost.
 
 **(b) Solar irradiance (AM1.5).** Atmosphere chews dips at 760 nm (O₂), 940 nm (H₂O), 1150/1380 nm (H₂O), 1880 nm (H₂O). 850 nm is a *shallow* dip — ambient ~30% below broad NIR baseline `UNVERIFIED`. 940 nm is a *deeper* trough; long-exposure consumer products favor it.
 
-**(c) Eye safety — IEC 60825-1.** MPE for collimated NIR rises sharply past 700 nm because cornea+lens absorb less and the blink reflex stops triggering — invisible, no aversion, full dose lands. At 850 nm, 100 ms exposure, Class 1 limits time-averaged irradiance to ~1 mW/cm² order `UNVERIFIED`; 940 nm is ~2× looser; 1550 nm jumps ~1000× because cornea+lens absorb almost everything. This is why 1550 nm LiDAR can punch kilowatts.
+**(c) Eye safety — IEC 60825-1.** MPE for collimated NIR rises sharply past 700 nm — cornea+lens absorb less and the blink reflex stops triggering, so the full dose lands invisibly. At 850 nm, 100 ms exposure, Class 1 caps time-averaged irradiance at ~1 mW/cm² order `UNVERIFIED`; 940 nm is ~2× looser; 1550 nm jumps ~1000× because cornea+lens absorb almost everything. This is why 1550 nm LiDAR can punch kilowatts.
 
 Optimization: maximize (Si QE × ambient rejection × safety) / cost. 850 nm wins pulsed <10 ms. 940 nm wins continuous-on. 1550 nm wins long-range automotive where InGaAs cost is acceptable.
 
@@ -31,7 +31,7 @@ Optimization: maximize (Si QE × ambient rejection × safety) / cost. 850 nm win
 | **1380 nm** | ~0% Si | strongest dip | very loose | InGaAs | atmospheric, not depth |
 | **1550 nm** | 0% Si | strong | ~1000× looser | InGaAs 50–100× | **automotive flash LiDAR** |
 
-The 850 vs 940 line is the only contested one in mass-market embodied AI. Decision rule that predicts vendor choice: if the projector pulses <10 ms per frame and sees a user occasionally, pick 850 nm and recover the QE. If it continuously illuminates a user's eyes (Face ID during auth; Vision Pro whenever worn), pick 940 nm and pay the QE tax to stay inside cumulative dose. **Apple picked 940 nm not for performance but because Face ID is on-skin and Vision Pro is on-eye continuous — the safety budget compounds.**
+The 850-vs-940 line is the only contested one in mass-market embodied AI. The rule that predicts vendor choice: pulse <10 ms and only occasionally on a user → 850 nm, recover QE. Continuously illuminating a user's eyes (Face ID auth; Vision Pro whenever worn) → 940 nm, pay the QE tax to stay inside cumulative dose. **Apple picked 940 nm not for performance but because Face ID is on-skin and Vision Pro is on-eye continuous — the safety budget compounds.**
 
 ---
 
@@ -67,7 +67,7 @@ The BPF must be angle-of-incidence stable; rays into a wide-FOV lens hit up to 3
 
 **VCSEL center-wavelength thermal drift.** ~0.06 nm/°C `UNVERIFIED`. Over 60°C that's ~4 nm. With a 5 nm BPF you lose half your photons at hot edge. Keep BPF ≥10 nm FWHM, thermally regulate the VCSEL, or accept duty-cycle penalty.
 
-**Blooming on the projector dot.** Cheap rolling-shutter sensors smear bright returns into vertical ghost lines. Global-shutter or BSI-with-anti-blooming fixes it.
+**Projector-dot blooming.** Cheap rolling-shutter sensors smear bright returns into vertical ghost lines. Global-shutter or BSI-anti-blooming fixes it.
 
 ---
 
@@ -85,27 +85,26 @@ The BPF must be angle-of-incidence stable; rays into a wide-FOV lens hit up to 3
 
 ## 7 · For the reader
 
-- **Manipulation** — active stereo 850 nm; only knob worth tuning is BPF FWHM vs VCSEL thermal envelope.
-- **Drone** — default passive stereo + VIO. Add active 850 nm only if mission includes indoor/dusk; budget 1–3 W and shorter flight time.
+- **Manipulation** — active stereo 850 nm; only knob is BPF FWHM vs VCSEL thermal envelope.
+- **Drone** — passive stereo + VIO by default. Active 850 nm only for indoor/dusk; 1–3 W tax.
 - **Headset / on-face** — 940 nm. Don't argue with the dose budget.
-- **AD / long-range** — 1550 nm if BOM tolerates InGaAs; 905 nm for short-range cost tiers.
+- **AD / long-range** — 1550 nm if BOM tolerates InGaAs; 905 nm for short-range cost tier.
 
 ---
 
 ## References
 
 - IEC 60825-1 — laser product safety classification.
-- Hamamatsu / Sony / OmniVision CMOS QE curves (datasheets).
-- Intel RealSense D400-series whitepapers.
-- Lumentum / II-VI VCSEL primers.
+- Hamamatsu / Sony / OmniVision CMOS QE datasheets.
+- Intel RealSense D400 whitepapers; Lumentum / II-VI VCSEL primers.
 - Empirical: maintainer's Autel sensor-stack work.
 
-## Cross-references / boundary
+## Cross-refs / boundary
 
 - `crossing/sensor-stack-matrix/sensor_budget_matrix_v1.md` — power/cost/range trades
 - `embodiments/aerial/sensor-stack/` — why drones skip 850 nm
 - `deployment/hardware-selection/` — BOM reasoning
 
-Spectrum + safety + cost only. Module integration, calibration, embodiment-specific tuning live under `embodiments/<x>/sensor-stack/`.
+Spectrum + safety + cost only. Module integration and calibration live under `embodiments/<x>/sensor-stack/`.
 
-*Last opinion update: 2026-05-21. UNVERIFIED numbers → datasheet citations in v1.1.*
+*2026-05-21. UNVERIFIED → datasheet cites in v1.1.*

@@ -6,7 +6,7 @@
 
 ## Thesis
 
-VGGT collapses multi-view stereo, dense reconstruction, and pose estimation into one transformer — and the value of that collapse is not speed, it's that *3D becomes composable with the deep-learning stack* (gradients flow through it, features reuse downstream, no per-scene state).
+VGGT collapses multi-view stereo, dense reconstruction, and pose estimation into one transformer — the value isn't speed, it's that *3D becomes composable with the deep-learning stack* (gradients flow through it, features reuse downstream, no per-scene state).
 
 ---
 
@@ -26,7 +26,7 @@ VGGT (Wang et al., CVPR 2025, Meta + Oxford, [arXiv:2503.11651](https://arxiv.or
 
 ## 2 · Architecture walk — four heads, one trunk
 
-A ViT-style transformer ingests N RGB views as one sequence of patch tokens. Cross-view attention is **not factorized** — every patch attends to every other across every view. That enables N-view reasoning in one pass and caps practical N (memory grows quadratically). Sweet spot: N=2 to ~30 frames UNVERIFIED.
+A ViT-style transformer ingests N RGB views as one token sequence. Cross-view attention is **not factorized** — every patch attends to every other across every view. That enables N-view reasoning in one pass and caps practical N (memory grows quadratically). Sweet spot: N=2 to ~30 frames UNVERIFIED.
 
 Four heads share the trunk:
 

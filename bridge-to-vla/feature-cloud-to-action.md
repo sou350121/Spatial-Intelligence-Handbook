@@ -1,16 +1,16 @@
 # 3D Feature Cloud → Action Head
 
 **Status:** v1 — opinionated draft. Specific integration numbers marked `UNVERIFIED`.
-**Wedge tier:** W2 · **Bridge document** between this handbook and [VLA-Handbook](https://github.com/sou350121/VLA-Handbook).
+**Wedge tier:** W2 · **Bridge** between this handbook and [VLA-Handbook](https://github.com/sou350121/VLA-Handbook).
 **TL;DR:** A 3D feature cloud is not a *better RGB image*. It is a different input class that forces architectural choices RGB-only VLAs sidestep — three of which (frame, scale, density) are where deployments silently fail.
 
 ---
 
 ## 1 · Where the boundary sits
 
-Spatial-Handbook owns the **encoder side**: how a 3D feature cloud is computed (3DGS, VGGT-class feed-forward, point-decoder heads, semantic lifting). VLA-Handbook owns the **action side**: how a policy head — diffusion, flow matching, autoregressive — consumes that representation.
+Spatial owns the **encoder side**: how a 3D feature cloud is computed (3DGS, VGGT-class feed-forward, point-decoder heads, semantic lifting). VLA owns the **action side**: how a policy head — diffusion, flow matching, autoregressive — consumes that representation.
 
-This is the bug-on-the-edge document. It exists because neither handbook alone answers "why does my 3D-aware policy work in sim and collapse on hardware?" The answer is almost always in the interface.
+This is the bug-on-the-edge doc. It exists because neither handbook alone answers "why does my 3D-aware policy work in sim and collapse on hardware?" The answer is almost always in the interface.
 
 ---
 
@@ -30,19 +30,19 @@ This is the bug-on-the-edge document. It exists because neither handbook alone a
 | PointVLA (PointNet++) | Medium | Low | Medium | High — augments cleanly |
 | SpatialVLM (captions) | Low | Medium | Large (VLM pretrain) | Low — captions lossy |
 
-Voxel when geometry is the bottleneck and GPU plentiful. PointNet++ when data-poor. Captions when team strength is VLM prompting and task is coarse.
+Voxel when geometry is the bottleneck and GPU plentiful. PointNet++ when data-poor. Captions when team's strength is VLM prompting and the task is coarse.
 
 ---
 
 ## 3 · What breaks in deployment
 
-Three failure modes, ordered by how often they kill an integration. All three are silent — the policy doesn't crash, it degrades, and the regression is hard to attribute.
+Three failure modes, ordered by how often they kill an integration. All silent — the policy doesn't crash, it degrades, and the regression is hard to attribute.
 
-**3.1 · Sparse cloud → density-conditioned collapse.** Sparse pointcloud is fine in sim, where every demo sees the same dense reconstruction. In real, your depth sensor or VGGT-class encoder drops to ~30% of training density the moment lighting changes, the object is glossy, or the camera angle is bad. The policy falls over silently — wrong object, missed grasp by 2 cm, mean-trajectory hallucination. The fix is **not more data**. It is density-conditioned augmentation: randomly subsample the cloud to 20–80% density during training and inject the density ratio as a feature. The policy learns to be *aware* of how much information it has.
+**3.1 · Sparse cloud → density-conditioned collapse.** Sparse pointcloud is fine in sim, where every demo sees the same dense reconstruction. In real, your depth sensor or VGGT-class encoder drops to ~30% of training density the moment lighting changes, the object is glossy, or the angle is bad. The policy falls over silently — wrong object, missed grasp by 2 cm, mean-trajectory hallucination. The fix is **not more data**. It is density-conditioned augmentation: randomly subsample to 20–80% density during training and inject the density ratio as a feature. The policy learns to be *aware* of how much information it has.
 
-**3.2 · Coordinate frame mismatch — the silent killer.** Encoder emits in camera frame; demos were recorded with TCP in base frame; sim logs in world frame. Somewhere a 4×4 transform is wrong by a 90° rotation or a gripper-offset translation, and the policy learns the offset as a *bias*. Works on the training rig. Fails on a second rig where the camera mount is 3 cm different. The fix is an **explicit frame normalization layer** at the seam: every cloud is transformed into a canonical frame (we recommend object-bbox-relative — see §4.1), with transform parameters logged so you can detect drift.
+**3.2 · Coordinate frame mismatch — the silent killer.** Encoder emits in camera frame; demos were recorded with TCP in base frame; sim logs in world frame. Somewhere a 4×4 transform is wrong by a 90° rotation or a gripper-offset translation, and the policy learns the offset as a *bias*. Works on the training rig. Fails on a second rig where the camera mount is 3 cm different. The fix is an **explicit frame normalization layer** at the seam: every cloud is transformed into a canonical frame (object-bbox-relative — see §4.1), with transform parameters logged so you can detect drift.
 
-**3.3 · Metric scale drift — the VGGT-class trap.** Monocular feed-forward 3D (VGGT, DUSt3R lineage) is **un-metric**. The encoder emits geometrically correct clouds at an arbitrary scale. Plug it in front of a policy trained on stereo or RGB-D and you get the most common bug in this stack — the policy reaches with the right *direction* and the wrong *distance*. The fix is a **scale-conditional decoder**: fuse a known reference (gripper width as anchor, IMU-derived stereo baseline, calibration object), or train with a scale token the encoder emits explicitly. Do not let "the network will figure it out" be your plan. It will not.
+**3.3 · Metric scale drift — the VGGT-class trap.** Monocular feed-forward 3D (VGGT, DUSt3R lineage) is **un-metric**. The encoder emits geometrically correct clouds at an arbitrary scale. Plug it in front of a policy trained on stereo or RGB-D and you get the most common bug in this stack — the policy reaches with the right *direction* and the wrong *distance*. The fix is a **scale-conditional decoder**: fuse a known reference (gripper width, IMU-derived stereo baseline, calibration object), or train with a scale token the encoder emits explicitly. Do not let "the network will figure it out" be your plan. It will not.
 
 ---
 
@@ -52,7 +52,7 @@ Three failure modes, ordered by how often they kill an integration. All three ar
 
 **4.2 · Augmentation with synthetic 3DGS render perturbations.** Most effective when sim2real is the bottleneck. Train a 3DGS reconstruction, render perturbations (viewpoint, lighting, density) during policy training. Policy sees a continuous distribution of plausible inputs instead of a discrete set of demos. Makes a small dataset go further than collecting 10× more demos `UNVERIFIED`.
 
-**4.3 · Late fusion: RGB + 3D tokens in same transformer.** Best when data is plentiful. Concatenate both as token streams; let cross-attention figure out which modality matters per-frame. 3D-VLA is the canonical instance. Highest ceiling, most expensive to train.
+**4.3 · Late fusion: RGB + 3D tokens in same transformer.** Best when data is plentiful. Concatenate both as token streams; let cross-attention figure out which modality matters per-frame. 3D-VLA is the canonical instance. Highest ceiling, most expensive.
 
 ---
 
@@ -70,16 +70,16 @@ If either side breaks the contract silently, the integration fails silently. Tha
 
 ## 6 · For the reader
 
-- **Manipulation engineer** — start with PointNet++ embedding and bbox-relative normalization. Cheapest path to a working 3D-aware policy. Upgrade to late fusion only after you hit the data ceiling.
+- **Manipulation engineer** — start with PointNet++ embedding and bbox-relative normalization. Cheapest path to a working 3D-aware policy. Upgrade to late fusion only after the data ceiling.
 - **VLA researcher** — §3 failure modes are interface bugs, not encoder bugs. Your action head must declare what it expects (frame, scale, density) and refuse mismatched input.
-- **Spatial researcher** — emit the §5 metadata. It costs nothing and saves the integrator a week.
+- **Spatial researcher** — emit the §5 metadata. Costs nothing; saves the integrator a week.
 
 ---
 
 ## Cross-references
 
 - **VLA-Handbook** — action policy design: https://github.com/sou350121/VLA-Handbook
-- `foundations/feed-forward-3d/vggt_cvpr2025_dissection.md` — encoder side, why VGGT is un-metric
+- `foundations/feed-forward-3d/vggt_cvpr2025_dissection.md` — why VGGT is un-metric
 - `foundations/semantic-3d/` — label-lift to 3D
 - `crossing/representation-migration/` — when 3D matters per embodiment
 
@@ -93,6 +93,6 @@ If either side breaks the contract silently, the integration fails silently. Tha
 
 ## Boundary
 
-This doc lives on the seam. It does **not** dissect any single encoder (see `foundations/feed-forward-3d/`) or action head (see VLA-Handbook). Cite from both sides for the integration angle.
+This doc lives on the seam. Does **not** dissect any single encoder (see `foundations/feed-forward-3d/`) or action head (see VLA-Handbook).
 
-*Last opinion update: 2026-05-21. `UNVERIFIED` numbers open for rig-side validation.*
+*Last opinion update: 2026-05-21.*
