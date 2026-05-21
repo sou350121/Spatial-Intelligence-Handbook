@@ -157,14 +157,14 @@ graph TB
 | 💎 3DGS family | `3dgs-family/` | 4 | |
 | 🔬 NeRF family | `nerf-family/` | 4 | |
 | 📏 深度基础 | `depth-foundation/` | **5** | + depth_models_comparison ★ (横向对比) |
-| 🎯 位姿 / 追踪 | `pose-tracking/` | 4 | |
+| 🎯 位姿 / 追踪 | `pose-tracking/` | **8** | + tracking 全景 primer + MOT (SORT/ByteTrack) + classical (KCF/CSRT) + Siamese-Transformer SOT (含 SAM 2) — 7 家族全覆盖 |
 | 🌐 语义 3D | `semantic-3d/` | **4** | + SAM3D + LangSplat (retrieval × promptable 双轴) |
 | 🧠 VLM 空间推理 | `vlm-spatial-reasoning/` | **3** | + SpatialBot + 3DSRBench (implicit / explicit / judge 三脚架) |
 | 🌍 世界模型 | `world-model/` | 3 | |
 | 🎬 生成式 3D | `generative-3d-sim/` | 3 | |
 | ⚛️ 物理感知 | `physics/` | 1 | |
 | 📡 **Sensor Physics ★** | `sensor-physics/` | **23 · 7 桶** | + RGB / GNSS / barometer / magnetometer / opt-flow / range finder / UWB / WiFi-5G / 水下声呐 / 热红外 / 24GHz Doppler / mic array — drone + 室内 + 水下 + counter-drone 全闭合 |
-| **foundations 小计** | | **69** | |
+| **foundations 小计** | | **73** | |
 | ✋ Manipulation | `embodiments/manipulation/` | 2 | |
 | 🦿 Humanoid | `embodiments/humanoid-legged/` | 2 | |
 | 🛒 Ground Mobile | `embodiments/ground-mobile/` | 2 | |
@@ -179,7 +179,7 @@ graph TB
 | 🏢 Companies | `companies/` | 7 | |
 | 📋 Cheat Sheet | `cheat-sheet/` | 3 | |
 
-**总计：~113 dissections · 27 功能簇 · 9 顶层目录 · 154 md 文件 (含 READMEs)**
+**总计：~117 dissections · 27 功能簇 · 9 顶层目录 · 158 md 文件 (含 READMEs)**
 
 **Tier 1 logic 升级完成 (2026-05-22)** — AGENTS.md 5 类型文档分层 + vlm-spatial 1→3 + semantic-3d 2→4 + deployment 3→6 + 之前 multi-round (FF-3D 三件套, sensor-physics 7 桶, spatial-math 9 篇, depth comparison, IMU §6, cross-domain inspirations).
 

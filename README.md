@@ -47,7 +47,7 @@
 
 ```mermaid
 graph TD
-    START["⚔️ START HERE<br/>选你的角色"] --> FOUND["🏗️ Foundations<br/>跨 embodiment 共享底层<br/>13 zones · 69 篇"]
+    START["⚔️ START HERE<br/>选你的角色"] --> FOUND["🏗️ Foundations<br/>跨 embodiment 共享底层<br/>13 zones · 73 篇"]
     START --> CROSS["🔭 Crossing ★ USP<br/>跨 embodiment 合流<br/>5 wedges"]
 
     FOUND -->|"工具箱原语"| EMB["🤖 Embodiments<br/>各 embodiment 应用层<br/>manip / humanoid / ground<br/>driving / aerial ★ / marine"]
@@ -90,7 +90,7 @@ graph TD
 &nbsp;
 
 <details open>
-<summary><h3>🏗️ 1. <code>foundations/</code> — 跨 embodiment 共享底层 &nbsp;<code>13 zones · 69 篇</code></h3></summary>
+<summary><h3>🏗️ 1. <code>foundations/</code> — 跨 embodiment 共享底层 &nbsp;<code>13 zones · 73 篇</code></h3></summary>
 
 **一句话**：3DGS / VGGT / Depth Foundation / 经典 SLAM 这些"工具箱"原语 — 无论你做 manipulation、aerial 还是 marine，最终都会回到这里。
 

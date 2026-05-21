@@ -2,7 +2,7 @@
 
 > **Foundations** 是跨 embodiment 共享的底层 — 3DGS / VGGT / Depth Foundation / 经典 SLAM 这些"工具箱"原语，无论你做 manipulation、aerial 还是 marine，最终都会回到这里。
 >
-> 目前收录 **69 篇深度解析** + **13 区导读**，是华语世界对空间智能底层最系统的拆解。
+> 目前收录 **73 篇深度解析** + **13 区导读**，是华语世界对空间智能底层最系统的拆解。
 >
 > **2026-05 重要更新（多轮叠加）**：
 > - 🔮 Feed-Forward 3D：+ VGGT-Ω + **MapAnything ★ (metric solved)** + 即将 Depth Anything 3
@@ -630,7 +630,7 @@ VGGT → SpatialVLM → bridge-to-vla/3d_aware_vla
 
 &nbsp;
 
-**69** dissections · **13** zones · 部分由 [Pulsar](https://github.com/sou350121/Pulsar-KenVersion) 自动生成、部分人工撰写。
+**73** dissections · **13** zones · 部分由 [Pulsar](https://github.com/sou350121/Pulsar-KenVersion) 自动生成、部分人工撰写。
 
 **Recent additions (2026-05, multi-round)**:
 - 🔮 Feed-Forward 3D: + **VGGT-Ω** + **MapAnything ★** + DA3 (any-view generalist, 2025-11)
