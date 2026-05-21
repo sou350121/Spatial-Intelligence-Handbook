@@ -1,5 +1,7 @@
 # SE(3) / SO(3) Lie Groups Primer (李群入门：旋转与刚体变换)
 
+> 💡 **觉得本文太硬？先读** [`rotation_intuition_primer.md`](./rotation_intuition_primer.md) — 从手机翻转开始的前置教学，0 SLAM 背景即可。
+
 > **发布时间**: 2026-05-21
 > **核心定位**: 2010 年以来每一个 SLAM 优化器、IMU 积分器、pose-graph 后端背后那个所有人都默认你会的前置数学。
 
