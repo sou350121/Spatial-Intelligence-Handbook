@@ -1,13 +1,53 @@
-# Sensor Budget Matrix v1
+# Sensor Budget Matrix v1 (传感器预算矩阵 — 跨 embodiment SWaP-C 对照)
 
-**Status:** v1 — opinionated draft. Datasheet numbers marked `UNVERIFIED` need spec-sheet cross-check.
+> **发布时间**：2026-05-21
+> **适用范围**：6 embodiments × 8 sensor classes (manipulation/humanoid/ground/driving/aerial/marine)
+> **核心定位**：industry's missing SWaP-C account — academic surveys never write it down, internal BoMs always do.
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Datasheet numbers marked `UNVERIFIED` need spec-sheet cross-check.
 **Wedge tier:** W2 (one of 5 launch docs)
-**TL;DR:** Each embodiment picks its sensor stack on a binding SWaP-C constraint (Size / Weight / Power / Cost) academic surveys never write down. Drones bound by grams and watts, AD by range and integration miles, manipulation by cost-per-cell, marine by physics. A Velodyne VLP-16 at **580g/~8W** `UNVERIFIED` is unremarkable on a Waymo van, fatal on a 250g racing drone, over-budget by 4× on a $5k AGV. Same sensor, three verdicts. That is the whole game.
+**TL;DR:** Each embodiment picks its sensor stack on a binding SWaP-C constraint academic surveys never write down. Drones bound by grams+watts, AD by range, manipulation by cost-per-cell, marine by physics. A Velodyne VLP-16 at **580g/~8W** `UNVERIFIED` is unremarkable on a Waymo van, fatal on a 250g racing drone, over-budget by 4× on a $5k AGV. Same sensor, three verdicts.
+
+### X-Ray opening (non-expert friendly)
+
+(a) The **same** VLP-16 is mandatory on Waymo's van, fatal on a 250g racer, over-budget by 4× on a $5k AGV — one datasheet, three verdicts. (b) Each embodiment binds on a different constraint: weight+power (drones), range (AD), cost-per-cell (manipulation), physics (marine). (c) For sensor-hardware engineers, this is the BoM-level table usually rebuilt internally from scratch — academic surveys stop at "we used a RealSense D435."
+
+### 📍 研究全景时间线 (where this matrix sits)
+
+```
+2010 ── Velodyne HDL-64 era (KITTI). LiDAR == AD. $80k/13kg normal.
+2013 ── Kinect v1 / Xtion. Indoor RGBD unlocks manipulation papers.
+2015 ── MEMS IMU revolution (Bosch BMI / InvenSense). $3 IMUs unlock drones.
+2017 ── 850nm RealSense D400 lineage. RGBD = "default" indoor; sun saturation
+        ignored by most academic benchmarks.
+2020 ── Apple iPad/iPhone Pro LiDAR (Sony dToF). Consumer SPAD normalized.
+2023 ── 1550nm InGaAs SPAD wave (Hesai AT128, Innoviz, Aeva).
+2025 ── Livox Mid-360 (~250g) brings LiDAR within reach of 3kg+ drones.
+        ── you are here (2026) ──
+?    ── Solid-state automotive LiDAR <100g? Underwater LiDAR <$50k? Open.
+```
 
 ---
+
 ## 1 · SWaP-C axes per embodiment
 
-Manipulation: cost-per-cell, ~5% of $25–50k arm. Humanoid: head weight + thermal, 3–8%. Ground (AGV): cost + cert, 10–20% of $5–30k. Driving (L4): range + integration miles, $50k+ on $80k vehicle. Aerial (<3kg): **weight + power**, 20–40% by weight. Marine (AUV): pressure + acoustic, 30–50% of $50k–1M.
+📌 **Napkin Formula** (X-Ray):
+
+```
+verdict = sensor_cost / (embodiment_total_budget × workspace_relevance)
+```
+
+SWaP-C decisions are **ratios, not absolute prices**. A $4k LiDAR is "cheap" on an $80k AD car at 200m; "infinite" on a $300 hobby drone at 5m. Workspace relevance is the multiplier most surveys silently drop.
+
+| Embodiment | Binding constraint | Sensor share of budget |
+|---|---|---|
+| Manipulation | cost-per-cell | ~5% of $25–50k arm |
+| Humanoid | head weight + thermal | 3–8% |
+| Ground (AGV) | cost + cert | 10–20% of $5–30k |
+| Driving (L4) | range + integration miles | $50k+ on $80k vehicle |
+| Aerial (<3kg) | **weight + power** | 20–40% by weight |
+| Marine (AUV) | pressure + acoustic | 30–50% of $50k–1M |
+
 ## 2 · The matrix, expanded
 
 Cells: **status** · *reason* · number.
@@ -22,54 +62,81 @@ Cells: **status** · *reason* · number.
 | **Marine (AUV)** | sometimes · *<5m visibility* | sometimes · *photogrammetry* | rare · *NIR absorbed <1m* | rare · *blue-green $200k+* | **core** · *FOG mandatory; KVH 1750 $15k/700g `UNVERIFIED`* | rare · *physics forbids* | rare | **core** · *DVL+multibeam+side-scan = the whole stack; AURELION ACOSTRA `UNVERIFIED, no DOI`* |
 
 ---
+
 ## 3 · The three counterintuitive cells
 
 ### 3.1 Why drones almost never use RGBD
 
-A D435 is 70g/3W. On a Skydio 2+ (800g) that's tolerable; on a 250g cinewhoop it's 28% of all-up weight and >10% of battery — *before* the projector helps you, because **outdoor sunlight saturates the 850nm pattern within 2m** (see `foundations/sensor-physics/active_nir_850nm_for_embodied_ai.md`). You pay weight indoors and get nothing outdoors.
+A D435 is 70g/3W. On a Skydio 2+ (800g) tolerable; on a 250g cinewhoop it's 28% of all-up weight and >10% of battery — *before* the projector helps, because **outdoor sunlight saturates the 850nm pattern within 2m** (see `foundations/sensor-physics/active_nir_850nm_for_embodied_ai.md`). Pay weight indoors, get nothing outdoors.
 
-The deeper number: on a 3kg quad, every 100g costs 30–60s of hover `UNVERIFIED`. A 500g active-illumination rig = ~2 min lost on a 12-min mission — 17% of mission, for a sensor that only works in the 0.5–3m band drones rarely operate in. Drones fly 5–50m space; RGBD is built for 0.5–5m. The Venn diagram is empty. Dominant pattern: **mono RGB + IMU + ultrasonic <5m + (optional) downward stereo**. Active depth reserved for indoor inspection drones over 1.5kg. See `embodiments/aerial/sensor-stack/`.
+Deeper: on a 3kg quad, every 100g costs 30–60s of hover `UNVERIFIED`. A 500g active-illumination rig = ~2 min lost on a 12-min mission, for a sensor working only in 0.5–3m — drones fly 5–50m. The Venn diagram is empty. Pattern: **mono RGB + IMU + ultrasonic <5m + (optional) downward stereo**. Active depth reserved for indoor inspection drones >1.5kg.
 
 ### 3.2 Why AD almost never uses RGBD
 
-Design range for highway AD is 150–250m forward, 50–80m side. RGBD breaks past 5m (structured light) or ~20m (indoor ToF) because returned NIR falls as 1/r² and ambient sunlight is a 1kW/m² floor `UNVERIFIED`. To match LiDAR at 200m, active RGBD would need *kilowatts* of illumination — which is exactly why pulsed LiDAR exists. RGBD and LiDAR aren't competitors at AD range; they're the same physics scaled by 100× optical power and a different detector (SPAD vs ToF imager). The AD depth question is **stereo + LiDAR + radar**, with RGBD only in parking-assist (<5m, low speed). Mobileye-class: stereo + radar + mono ML depth. Waymo-class: LiDAR-primary. RGBD never reaches the highway stack.
+Highway AD design range is 150–250m. RGBD breaks past 5m (structured light) or ~20m (ToF) because returned NIR falls as 1/r² against a 1kW/m² sunlight floor `UNVERIFIED`. To match LiDAR at 200m, active RGBD needs *kilowatts* — which is why pulsed LiDAR exists. RGBD and LiDAR aren't competitors at AD range; they're the same physics scaled by 100× optical power. AD depth = **stereo + LiDAR + radar**, RGBD only in parking-assist. Mobileye: stereo+radar+mono-ML. Waymo: LiDAR-primary.
 
 ### 3.3 Why manipulation almost never uses LiDAR
 
-VLP-16: $4k/580g `UNVERIFIED`. D435: $300/70g. Manipulation workspace is a 1m³ cube. Inside that cube, LiDAR's 0.1–0.4° angular resolution gives sub-cm depth — same as a $300 RGBD. Outside the cube you don't care. LiDAR offers **no resolution advantage in the relevant volume** while costing 13× and weighing 8× more. Exception: mobile manipulation (Stretch, Fetch) where the base already amortizes a 2D LiDAR for safety — but even there the wrist sensor is RGBD. LiDAR's value scales with range; manipulation's range doesn't. The trades never cross.
+VLP-16: $4k/580g `UNVERIFIED`. D435: $300/70g. Manipulation workspace is a 1m³ cube. Inside it, LiDAR's 0.1–0.4° angular resolution gives sub-cm depth — same as a $300 RGBD. Outside, you don't care. LiDAR offers **no resolution advantage in the relevant volume** at 13× cost and 8× weight. Exception: mobile manipulation where base amortizes 2D LiDAR for safety — wrist stays RGBD. LiDAR's value scales with range; manipulation's range doesn't.
 
 ---
+
 ## 4 · Cross-cutting patterns
 
-- **IMU is always core.** Every embodiment lists it. Only real question: FOG vs MEMS, decided by mission duration vs allowable drift. BMI270 (MEMS, ~$3, 0.5°/s bias `UNVERIFIED`) covers drones/AGVs. KVH 1750 FOG (~$15k, 0.05°/hr `UNVERIFIED`) covers AUVs and L4 AD.
-- **At least one camera is always core.** Mono vs stereo is a $200 + sync-complexity decision, not physics.
-- **Sensor #3 splits embodiments.** RGBD for manipulation/indoor. LiDAR for outdoor ground + AD. Sonar for marine. Nothing for sub-1kg aerial. This is the cell where a Velodyne datasheet number lives or dies.
+- **IMU is always core.** Only question: FOG vs MEMS, decided by mission duration vs allowable drift. BMI270 (~$3, 0.5°/s bias `UNVERIFIED`) covers drones/AGVs; KVH 1750 FOG (~$15k, 0.05°/hr `UNVERIFIED`) covers AUVs and L4 AD.
+- **At least one camera is always core.** Mono vs stereo is $200 + sync complexity, not physics.
+- ⚡ **Eureka Moment — Sensor #3 splits embodiments.** IMU is universal, ≥1 camera is universal, and **the third sensor (RGBD / LiDAR / sonar / nothing) is where the embodiment identity is written**. Everything else follows.
+
+## 5 · Hidden Assumptions
+
+Where this matrix would break:
+
+- **Embodiment classes are fixed.** Hybrid duty cycles (teleop humanoid indoor + walking outdoor) collapse here; re-classify if needed.
+- **Payload class dominates compute class.** Sub-100g nano drones flip this — compute weight rivals sensor weight.
+- **Vendor SKU prices stable.** Hesai/Innoviz moved 3× downward in 24 months; "$8–80k LiDAR" is a 2026 snapshot, not a law.
+- **Underwater visibility physics holds.** Turbid coastal vs clear blue shifts "<5m visibility" by an order of magnitude.
+- **AD long range is a hard requirement.** Geofenced low-speed AD (campus shuttle, mining truck) unlocks cheaper RGBD-class stacks.
+- **`UNVERIFIED` numbers within 2×.** Order-of-magnitude is load-bearing; 5×-off vendor spec may flip individual verdicts — the *pattern* (Sensor #3 splits embodiments) does not.
+
+## 6 · "Always" / "Never" per embodiment
+
+Manipulation: RGBD wrist / never LiDAR. Humanoid: stereo head + multi-IMU / never active NIR on head. Ground: 2D safety LiDAR + wheel IMU / never FOG. Driving: front mono + radar + IMU / never RGBD. Aerial <3kg: IMU + mono FPV / never RGBD. Marine: FOG IMU + DVL / never RGB-only.
+
+## 7 · Decision tree — embodiment + budget → starter stack
+
+**$500 indoor AGV** → D435 ($300) + BMI270 ($3) + ultrasonic ($5) + RPi. Skip LiDAR; depth as virtual 2D scan. Ships in a weekend; won't pass SEMI S2.
+
+**$5k outdoor drone (1.5kg)** → Mono global-shutter ($200) + BMI270 ($3) + GPS/RTK ($300) + downward stereo ($400) + Livox Mid-360 *only if* payload >2kg (~$1k/250g `UNVERIFIED`). For a 250g racer: mono + IMU + baro. VLP-16 at $4k/580g is a non-starter.
+
+**$50k AD demo car** → Auto IMU ($500) + 4–6× mono ($2k) + front stereo ($1k) + 128-beam LiDAR ($15–25k, Hesai AT128 `UNVERIFIED`) + 4× corner radar ($2k) + front long-range radar ($1.5k). LiDAR alone = half the BoM; "Tesla or Waymo school?" reduces to "spend half the budget on one device?"
+
+## 8 · Falsifiable 2-year prediction
+
+**By 2028-05-21**, ≥1 commercial sub-3kg drone will ship with an integrated <100g solid-state automotive-derived LiDAR (Hesai/Innoviz/Aeva lineage) at <$2k retail, flipping the aerial "LiDAR rare" cell to "sometimes" for the 1–3kg class. Falsified if no such SKU exists at that date.
+
+## 9 · For the reader (per-persona)
+
+- **Manipulation engineer:** stop benchmarking LiDAR; RGBD wrist + IMU is your stack — argue resolution, not range.
+- **Aerial engineer:** every 100g = 30–60s of hover; reject active-NIR on outdoor sub-3kg platforms.
+- **AD engineer:** RGBD is not "cheap LiDAR" — different range regime. Stereo+radar+mono-ML (Tesla) vs LiDAR-primary (Waymo).
+- **Marine engineer:** acoustic (DVL + multibeam) is *the* stack; treat RGB/NIR as <5m clear-water special cases.
+
+## 10 · Interview Tip
+
+If asked *"why doesn't drone X use RGBD?"* — say **weight + sun saturation + range mismatch**. Always SWaP-C, never "unproven technology."
 
 ---
-## 5 · "Always" / "Never" per embodiment
 
-Manipulation: RGBD wrist / never LiDAR. Humanoid: stereo head + multi-IMU / never active NIR on head (thermal). Ground: 2D safety LiDAR + wheel IMU / never FOG (overkill). Driving: front mono + radar + IMU / never RGBD (range). Aerial <3kg: IMU + mono FPV / never RGBD (weight + sun). Marine: FOG IMU + DVL / never RGB-only stacks.
-
----
-## 6 · Decision tree — embodiment + budget → starter stack
-
-**$500 indoor AGV** → D435 ($300) + BMI270 ($3) + ultrasonic ($5) + RPi compute. Skip LiDAR; use depth as virtual 2D scan. Ships in a weekend; won't pass SEMI S2.
-
-**$5,000 outdoor drone (1.5kg)** → Mono global-shutter ($200) + BMI270 ($3) + GPS/RTK ($300) + downward stereo ($400) + Livox Mid-360 *only if* payload >2kg (~$1k/250g `UNVERIFIED`). For a 250g racer: mono + IMU + baro. VLP-16 at $4k/580g is a non-starter; the LiDAR question only matters above 3kg.
-
-**$50,000 AD demo car** → Auto IMU ($500) + 4–6× mono ($2k) + front stereo ($1k) + 128-beam LiDAR ($15–25k, Hesai AT128 `UNVERIFIED`) + 4× corner radar ($2k) + front long-range radar ($1.5k). LiDAR alone is half the BoM; "Tesla or Waymo school?" reduces to "spend half the budget on one device?" — the rest follows.
-
----
 ## Cross-references
 
-`foundations/sensor-physics/active_nir_850nm_for_embodied_ai.md` (why 850nm RGBD breaks outdoors) · `embodiments/aerial/sensor-stack/` (drone payload class table) · `embodiments/marine/` (DVL+FOG+sonar) · `deployment/hardware-selection/` (BoM templates).
+`foundations/sensor-physics/active_nir_850nm_for_embodied_ai.md` · `embodiments/aerial/sensor-stack/` · `embodiments/marine/` · `deployment/hardware-selection/`.
 
-## References (datasheet-dominant)
+## References
 
-Sony IMX900 · Velodyne VLP-16 / Hesai AT128 / Innoviz One · Bosch BMI270 · KVH 1750 FOG · Intel RealSense D435 · AURELION ACOSTRA sonar — all `UNVERIFIED, no DOI`. Skydio engineering blog. Tesla AI Day archives.
+Sony IMX900 · Velodyne VLP-16 / Hesai AT128 / Innoviz One · Bosch BMI270 · KVH 1750 FOG · Intel RealSense D435 · AURELION ACOSTRA — all `UNVERIFIED, no DOI`. Skydio blog. Tesla AI Day.
 
 ## Boundary
 
-Compares sensor classes across embodiments at BoM level. Per-sensor physics: `foundations/sensor-physics/`. Per-embodiment integration: `embodiments/*/sensor-stack/`. Cite from there when the cross-embodiment SWaP-C trade is what's argued.
+Compares sensor classes across embodiments at BoM level. Per-sensor physics: `foundations/sensor-physics/`. Per-embodiment integration: `embodiments/*/sensor-stack/`.
 
-*2026-05-21. Datasheets verified in v1.1.*
+*2026-05-21. v1.1 backfill — datasheets verified in v1.2.*

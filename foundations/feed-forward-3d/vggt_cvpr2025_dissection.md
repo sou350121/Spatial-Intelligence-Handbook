@@ -1,8 +1,25 @@
-# VGGT (CVPR 2025) Dissection
+# VGGT (CVPR 2025) Dissection (VGGT 解构 — CVPR 2025 best paper)
 
-**Status:** v1 — opinionated draft. Hyperparam claims marked UNVERIFIED need rig-side validation.
+> **发布时间**: 2025-03 (arXiv) / CVPR 2025
+> **论文 / 模型**: VGGT — Wang et al.
+> **团队**: Meta + Oxford VGG
+> **核心定位**: feed-forward N-view 3D reconstruction in one transformer pass — collapses MVS + pose + depth + tracking into a single learned function.
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Hyperparam claims marked UNVERIFIED need rig-side validation.
 **Wedge tier:** W1 (one of 5 launch docs)
 **TL;DR:** VGGT replaces per-scene optimization with one feed-forward pass that jointly emits poses, depth, point maps, and tracks. Not a speedup over DUSt3R — a *category change* dragging 3D out of the offline-fitting regime (NeRF, 3DGS, COLMAP) into the foundation-model regime where 3D is an inference output.
+
+### X-Ray (non-expert friendly)
+
+(a) Pre-VGGT, multi-view 3D needed pair-wise feed-forward (DUSt3R) + a separate global alignment step. (b) VGGT does N views in one shared transformer trunk, emitting poses, depth, point maps, tracks simultaneously. (c) For spatial AI engineers: 3D becomes a *composable layer* (gradients flow, features reuse) instead of an offline fitting step.
+
+### 📍 Research Landscape Timeline
+
+```
+NeRF 2020 ─► COLMAP+3DGS 2023 ─► DUSt3R 2024 ─► MASt3R 2024 ─► ★ VGGT CVPR 2025 ─► π³ streaming 2025+ ─► ?
+```
+
+VGGT is the first to fuse N-view geometry + pose + depth + tracking in one pass. Open downstream: streaming, metric scale, edge deployment.
 
 ## Thesis
 
@@ -26,6 +43,8 @@ VGGT (Wang et al., CVPR 2025, Meta + Oxford, [arXiv:2503.11651](https://arxiv.or
 
 ## 2 · Architecture walk — four heads, one trunk
 
+> 📌 **Napkin Formula**: `3D ≈ Transformer(N RGB views) → {poses, depths, points, tracks}` — all four outputs from one forward pass, not four cascaded systems.
+
 A ViT-style transformer ingests N RGB views as one token sequence. Cross-view attention is **not factorized** — every patch attends to every other across every view. That enables N-view reasoning in one pass and caps practical N (memory grows quadratically). Sweet spot: N=2 to ~30 frames UNVERIFIED.
 
 Four heads share the trunk:
@@ -37,7 +56,22 @@ Four heads share the trunk:
 
 The non-obvious choice: all four heads share the trunk *and train jointly*. **The four heads regularize each other.** Depth without pose is metrically ambiguous; pose without depth is under-constrained; point maps without tracks have no temporal coherence. Joint training is what makes the depth head beat Depth Anything v2 at the same backbone size UNVERIFIED.
 
+> ⚡ **Eureka Moment**: Joint training across the 4 heads (pose / depth / pointmap / tracking) regularizes each one — depth without pose is metrically ambiguous, pose without depth is under-constrained. **The constraint stack IS the architecture**; the trunk is just the substrate that lets the constraints couple.
+
 Shape check: N RGB views → N depth maps + N camera params + globally-aligned point cloud + 2D tracks. One pass. No optimization loop. No scene state.
+
+---
+
+## 2.5 · Worked example — N=4 desktop views
+
+Four 518×518 RGB views of a desktop (mug, laptop, keyboard), ~30° apart, phone in hand.
+
+- **Input**: `4 × 3 × 518 × 518` RGB
+- **Tokens**: 14×14 patches → `4 × 1369 ≈ 5476` patch tokens (+ camera / register tokens UNVERIFIED)
+- **Attention**: all-to-all across views — N-view fusion happens here
+- **Out**: 4 poses (R, t, intrinsics; first view = world frame) + 4 dense depth maps + per-view pointmap `4 × 518 × 518 × 3` in shared world frame + K optional 2D track trajectories
+
+Latency ~150–250 ms on A100 UNVERIFIED. One `model(images)` call — cloud consumable downstream immediately. Sanity check: measure a known-length object vs a reference edge; mismatched ratio = scale ambiguity bit you (monocular up-to-scale).
 
 ---
 
@@ -63,6 +97,20 @@ The synthetic-to-real ratio controls failure mode. Synthetic-heavy gives geometr
 6. **Large N** — caps at ~30 frames UNVERIFIED on a single GPU; longer video needs a streaming variant (π³ lineage).
 
 Recurring pattern: VGGT is excellent inside its training distribution and fails *silently* outside it. No confidence head flags out-of-distribution depth — which makes naïve deployment dangerous.
+
+### 4.x · Hidden Assumptions
+
+Upstream assumptions whose violation produces the failures above:
+
+- **Static scene** — moving objects averaged into static geometry; no motion model.
+- **Sufficient view overlap** — needs ≥30% shared content UNVERIFIED; else collapses to per-view monocular depth.
+- **Monocular up-to-scale** — no metric scale; needs external anchor (stereo / IMU / known object).
+- **Near-Lambertian surfaces** — specular / transparent / mirrored breaks correspondence.
+- **In-distribution motion blur** — ViT encoder has no temporal denoising.
+- **≤30 views per pass** UNVERIFIED — O(N²) attention; longer needs streaming.
+- **Camera intrinsics implicitly learnable** — works for phone / webcam FOVs; degrades on fisheye / wide-angle.
+
+If violated, outputs may still look clean — silent failure is the dangerous mode.
 
 ---
 
@@ -92,6 +140,20 @@ The cross-embodiment story lives in `crossing/`:
 - **Feature handoff to policy** — `bridge-to-vla/feature-cloud-to-action.md`. For VLA policies the question is whether VGGT's intermediate features are more useful than its explicit point cloud — probably yes, and that re-routes the integration story.
 
 Reading habit: when you see "VGGT replaces X", ask *at which embodiment*. The answer is almost always "manipulation desktop, with caveats", almost never "aerial outdoor".
+
+---
+
+## 7 · Comparison + Interview Tip
+
+| System | Inputs | Outputs | Multi-view | Per-scene fit |
+|---|---|---|---|---|
+| **VGGT** | N RGB | pose + depth + points + tracks | **N-view, one pass** | no |
+| **DUSt3R** | 2 RGB | aligned pointmap | pair + alignment step | no |
+| **MASt3R** | 2 RGB | DUSt3R + matching | same as DUSt3R | no |
+| **Depth Anything v2** | 1 RGB | relative depth | no | no |
+| **COLMAP + 3DGS** | many RGB | poses + dense splats | yes | **yes (hours)** |
+
+**Interview Tip**: pick DUSt3R for exactly-2-views with smallest model; pick VGGT when N>2 or you want pose / depth / tracks from one call without gluing systems. "Why not COLMAP?" — gradients can't flow through it and inference is offline.
 
 ---
 

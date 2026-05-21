@@ -1,98 +1,149 @@
-# 3D Feature Cloud → Action Head
+# 3D Feature Cloud → Action Head (3D 特征云 → 动作头：跨 handbook 接口)
 
-**Status:** v1 — opinionated draft. Specific integration numbers marked `UNVERIFIED`.
-**Wedge tier:** W2 · **Bridge** between this handbook and [VLA-Handbook](https://github.com/sou350121/VLA-Handbook).
-**TL;DR:** A 3D feature cloud is not a *better RGB image*. It is a different input class that forces architectural choices RGB-only VLAs sidestep — three of which (frame, scale, density) are where deployments silently fail.
+> **发布时间**：2026-05-21 · **范围**：Spatial-Handbook 与 [VLA-Handbook](https://github.com/sou350121/VLA-Handbook) 的接口
+> **核心定位**：a 3D feature cloud is not a better RGB image — it forces interface choices RGB-only VLAs sidestep, and 3 of those choices kill silent deployments
+
+**Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Integration numbers `UNVERIFIED`. **Wedge tier:** W2 · Bridge to VLA-Handbook.
+
+**X-Ray.** (a) Spatial computes the 3D encoder; VLA consumes it for action — most failures live in the seam. (b) Three interface patterns dominate 2025–2026: voxel tokens (3D-VLA), pooled embedding (PointVLA), captions (SpatialVLM). (c) For integration engineers, the 3 silent failure modes are **density-drop, frame-mismatch, metric-scale drift** — fix them at the seam, not in encoder or policy.
+
+### 📍 研究全景时间线 (3D-aware policy evolution)
+
+```
+2022 ─── 2023 ─── 2024 ────────── 2025 ──────── 2026 ── ?
+ RT-1   CLIPort  3D-VLA (voxel)   VGGT-enc      ←── here
+ (2D)   (2D sem) SpatialVLM (cap) + diffusion
+                 PointVLA* (pool)  policy        * pattern; exact paper UNVERIFIED
+```
+
+Each step adds geometric awareness; **each step also exposed a new interface bug** (token budget → frame drift → metric-scale drift).
 
 ---
 
-## 1 · Where the boundary sits
+## 1 · Where the boundary sits (Architecture)
 
-Spatial owns the **encoder side**: how a 3D feature cloud is computed (3DGS, VGGT-class feed-forward, point-decoder heads, semantic lifting). VLA owns the **action side**: how a policy head — diffusion, flow matching, autoregressive — consumes that representation.
+Spatial owns the **encoder side** (3DGS, VGGT-class feed-forward, point-decoder heads, semantic lifting). VLA owns the **action side** (diffusion / flow-matching / autoregressive heads consuming that representation). This is the bug-on-the-edge doc: neither handbook alone answers "why does my 3D-aware policy work in sim and collapse on hardware?" The answer is almost always in the interface.
 
-This is the bug-on-the-edge doc. It exists because neither handbook alone answers "why does my 3D-aware policy work in sim and collapse on hardware?" The answer is almost always in the interface.
+### ⚡ Eureka Moment
+
+**The encoder and action head must trade a *contract*** — frame normalization, density conditioning, and metric-scale flag are NOT optional. They are the interface; either side silently breaks them and the system silently fails.
 
 ---
 
-## 2 · Three integration patterns observed in 2025–2026
+## 2 · The contract, as one line (Math Core)
 
-**3D-VLA (UMass + MIT, ICML 2024).** Voxelize the scene into a coarse grid (`UNVERIFIED` typical 32³ at ~5 cm). Emit per-voxel feature tokens. Concatenate into LLM context alongside RGB tokens. *Get:* clean integration — voxel tokens look like vision tokens. *Pay:* voxelization discards geometry below grid resolution; token count scales with grid³, killing context budget fast.
+### 📌 Napkin Formula
 
-**PointVLA (`UNVERIFIED` paper name; architectural pattern is verified).** Encode the raw cloud with PointNet++ or similar permutation-invariant backbone. Pool to a fixed-size embedding. Inject into the policy head as a side-channel feature, not tokens. *Get:* O(N) in points; handles variable density. *Pay:* embedding is opaque to LLM attention — you lose the ability to *point* at geometry.
+```
+policy(obs) = ActionHead( normalize_frame( scale_aware( density_conditional( cloud_encoder(views) ) ) ) )
+```
 
-**SpatialVLM (Google DeepMind 2024).** The contrarian move: don't feed 3D to the policy at all. Train a VLM that emits **spatial captions** ("red block 12 cm left of gripper, 4 cm above table") and feed those as text. *Get:* zero changes to your action head. *Pay:* captioning latency and a hard ceiling on fidelity — text cannot express a dense feature cloud.
+The nested calls **are** the contract — skip a layer and the next layer breaks. Inside-out: Spatial supplies `cloud_encoder` (cloud tensor), `density_conditional` (`density_ratio ∈ [0,1]`), `scale_aware` (`metric_scale_flag`). VLA supplies `normalize_frame` (bbox-relative `T_canonical`) and `ActionHead`, which **must refuse** if flags mismatch training, not silently coerce.
+
+---
+
+## 3 · Three integration patterns observed in 2025–2026
+
+**3D-VLA (UMass + MIT, ICML 2024).** Voxelize the scene (`UNVERIFIED` typical 32³ at ~5 cm), emit per-voxel feature tokens, concatenate into LLM context alongside RGB tokens. *Get:* clean — voxel tokens look like vision tokens. *Pay:* sub-grid geometry discarded; token count scales with grid³.
+
+**PointVLA (`UNVERIFIED` paper name; pattern verified).** Encode the raw cloud with PointNet++ or similar permutation-invariant backbone. Pool to a fixed-size embedding, inject into the policy head as a side-channel feature. *Get:* O(N) in points; handles variable density. *Pay:* embedding is opaque to LLM attention — lose the ability to *point* at geometry.
+
+**SpatialVLM (Google DeepMind 2024).** Contrarian: don't feed 3D to the policy. Train a VLM that emits **spatial captions** ("red block 12 cm left of gripper, 4 cm above table") and feed as text. *Get:* zero changes to action head. *Pay:* captioning latency, hard fidelity ceiling.
 
 ### Trade-off table
 
-| Pattern | Fidelity | Latency | Data appetite | Efficiency |
+| Pattern | Fidelity | Latency | Data | Efficiency |
 |---|---|---|---|---|
 | 3D-VLA (voxel tokens) | High | High `UNVERIFIED` ~2× RGB-VLA | Large (paired RGB+3D) | Medium |
-| PointVLA (PointNet++) | Medium | Low | Medium | High — augments cleanly |
-| SpatialVLM (captions) | Low | Medium | Large (VLM pretrain) | Low — captions lossy |
+| PointVLA (PointNet++) | Medium | Low | Medium | High |
+| SpatialVLM (captions) | Low | Medium | Large (VLM pretrain) | Low |
 
-Voxel when geometry is the bottleneck and GPU plentiful. PointNet++ when data-poor. Captions when team's strength is VLM prompting and the task is coarse.
+Voxel: geometry bottleneck, GPU plentiful. PointNet++: data-poor. Captions: VLM-strong team, coarse task.
 
----
+### Hidden Assumptions (where each pattern silently breaks)
 
-## 3 · What breaks in deployment
-
-Three failure modes, ordered by how often they kill an integration. All silent — the policy doesn't crash, it degrades, and the regression is hard to attribute.
-
-**3.1 · Sparse cloud → density-conditioned collapse.** Sparse pointcloud is fine in sim, where every demo sees the same dense reconstruction. In real, your depth sensor or VGGT-class encoder drops to ~30% of training density the moment lighting changes, the object is glossy, or the angle is bad. The policy falls over silently — wrong object, missed grasp by 2 cm, mean-trajectory hallucination. The fix is **not more data**. It is density-conditioned augmentation: randomly subsample to 20–80% density during training and inject the density ratio as a feature. The policy learns to be *aware* of how much information it has.
-
-**3.2 · Coordinate frame mismatch — the silent killer.** Encoder emits in camera frame; demos were recorded with TCP in base frame; sim logs in world frame. Somewhere a 4×4 transform is wrong by a 90° rotation or a gripper-offset translation, and the policy learns the offset as a *bias*. Works on the training rig. Fails on a second rig where the camera mount is 3 cm different. The fix is an **explicit frame normalization layer** at the seam: every cloud is transformed into a canonical frame (object-bbox-relative — see §4.1), with transform parameters logged so you can detect drift.
-
-**3.3 · Metric scale drift — the VGGT-class trap.** Monocular feed-forward 3D (VGGT, DUSt3R lineage) is **un-metric**. The encoder emits geometrically correct clouds at an arbitrary scale. Plug it in front of a policy trained on stereo or RGB-D and you get the most common bug in this stack — the policy reaches with the right *direction* and the wrong *distance*. The fix is a **scale-conditional decoder**: fuse a known reference (gripper width, IMU-derived stereo baseline, calibration object), or train with a scale token the encoder emits explicitly. Do not let "the network will figure it out" be your plan. It will not.
+- **3D-VLA** assumes voxel grid resolution is task-relevant. Sub-voxel geometry (fingertips, threads, folds) is invisible regardless of token spend.
+- **PointVLA-style pooled embedding** assumes runtime density ≈ training density. Pooling washes out the difference; policy has **no way** to know it's seeing 30 % density unless density is a side-channel feature (§5.1).
+- **SpatialVLM** assumes captioning resolution suffices. Once the task needs finer-than-vocabulary orientation ("rotate 7° about wrist"), the ceiling is hit and no data fixes it.
 
 ---
 
-## 4 · Engineering patterns that work
+## 4 · Worked example — density-drop in the wild
 
-**4.1 · Pre-policy normalization to canonical bbox-relative frame.** Best general default. Detect a task-relevant bounding box (object, workspace, robot base) and transform every cloud into that frame before the policy sees it. The policy learns relative geometry, not camera-extrinsics-conditional geometry. Cross-rig generalization improves substantially `UNVERIFIED` — typical reports cite 2–3× sample efficiency.
+Diffusion policy trained on tabletop pick-place; depth sensor consistently gives ~30 % voxel occupancy.
 
-**4.2 · Augmentation with synthetic 3DGS render perturbations.** Most effective when sim2real is the bottleneck. Train a 3DGS reconstruction, render perturbations (viewpoint, lighting, density) during policy training. Policy sees a continuous distribution of plausible inputs instead of a discrete set of demos. Makes a small dataset go further than collecting 10× more demos `UNVERIFIED`.
+```
+Train:   density_ratio = 0.30  (all demos)
+Deploy:  glossy red mug + side-lit → 0.08  (73 % drop)
 
-**4.3 · Late fusion: RGB + 3D tokens in same transformer.** Best when data is plentiful. Concatenate both as token streams; let cross-attention figure out which modality matters per-frame. 3D-VLA is the canonical instance. Highest ceiling, most expensive.
+Naive PointVLA-style (no density side-channel):
+  Pool over 8 % of expected points → embedding magnitude collapses
+  → policy outputs mean trajectory ("safe" prior)
+  → reach 4 cm short of mug; gripper closes on air
+
+Correct: refuse (density ∉ [0.20, 0.40]) OR density-conditioned
+  policy trained on 0.05–0.95 → corrected reach.
+3-rig eval lift: ~38 % vs ~91 % success  `UNVERIFIED`
+```
+
+Silent because nothing crashes. Catch with a regression test that **logs density at inference and asserts it lies in the training distribution.**
 
 ---
 
-## 5 · The cross-handbook contract
+## 5 · What breaks in deployment — the 3 silent failure modes
+
+Ordered by how often they kill an integration.
+
+**5.1 · Sparse cloud → density-conditioned collapse.** Sparse pointcloud is fine in sim. In real, depth or VGGT-class encoders drop to ~30 % of training density once lighting changes, object is glossy, or angle is bad. Policy fails silently — wrong object, 2 cm grasp miss, mean-trajectory hallucination. Fix: density-conditioned augmentation (subsample 20–80 % in training, inject density ratio as a feature). **Not more data.**
+
+**5.2 · Coordinate frame mismatch — the silent killer.** Encoder emits in camera frame; demos in TCP/base frame; sim in world frame. A 4×4 off by 90° or a gripper-offset translation, and the policy learns the offset as a *bias*. Works on training rig; fails on a second rig with camera 3 cm different. Fix: **explicit frame normalization** at the seam — every cloud into canonical (bbox-relative, §6.1) frame, params logged.
+
+**5.3 · Metric scale drift — the VGGT-class trap.** Monocular feed-forward 3D (VGGT, DUSt3R) is **un-metric** — geometry correct at arbitrary scale. Plug in front of a policy trained on stereo/RGB-D and you get the most common bug in this stack: right *direction*, wrong *distance*. Fix: **scale-conditional decoder** — fuse a known reference (gripper width, IMU stereo baseline, calibration object), or emit a scale token. "Network will figure it out" is not a plan.
+
+---
+
+## 6 · Engineering patterns that work
+
+**6.1 · Pre-policy normalization to canonical bbox-relative frame.** Best general default. Detect a task-relevant bounding box (object, workspace, base); transform every cloud into it before the policy. Policy learns relative geometry. `UNVERIFIED` ~2–3× sample efficiency.
+
+**6.2 · Augmentation with 3DGS render perturbations.** Most effective when sim2real is the bottleneck. Train a 3DGS reconstruction; render viewpoint/lighting/density perturbations during policy training. Beats 10× more demos `UNVERIFIED`.
+
+**6.3 · Late fusion: RGB + 3D tokens in same transformer.** Best when data is plentiful. Cross-attention picks which modality matters per-frame. 3D-VLA is canonical. Highest ceiling, most expensive.
+
+---
+
+## 7 · The cross-handbook contract
 
 | Side | Provides | At the boundary |
 |---|---|---|
-| **Spatial** | Cloud (points + features), camera-to-world transform, density estimate, metric-scale flag | Documented schema; canonical frame is camera-frame unless tagged |
-| **VLA** | Action head consuming the schema; frame normalization layer; density/scale conditioning | Logs transform applied; refuses input if metric-scale flag mismatches training |
+| **Spatial** | Cloud (points + features), camera-to-world transform, density estimate, metric-scale flag | Schema documented; canonical = camera-frame unless tagged |
+| **VLA** | Action head consuming schema; frame normalization; density/scale conditioning | Logs transform; **refuses** on metric-scale flag mismatch |
 | **Both** | Round-trip integration tests on a shared embodiment (manipulation tabletop default) | Cited from both handbooks' boundary sections |
 
-If either side breaks the contract silently, the integration fails silently. That is why this doc exists.
+Break the contract silently → integration fails silently. That is why this doc exists.
+
+### Interview Tip
+
+Asked *"how do I plug a 3D encoder into my diffusion policy"*? — answer: **normalize to bbox-relative frame, condition on density, flag metric-scale.** The 3 things academic papers never tell you.
 
 ---
 
-## 6 · For the reader
+## 8 · For the reader
 
-- **Manipulation engineer** — start with PointNet++ embedding and bbox-relative normalization. Cheapest path to a working 3D-aware policy. Upgrade to late fusion only after the data ceiling.
-- **VLA researcher** — §3 failure modes are interface bugs, not encoder bugs. Your action head must declare what it expects (frame, scale, density) and refuse mismatched input.
-- **Spatial researcher** — emit the §5 metadata. Costs nothing; saves the integrator a week.
+- **Manipulation engineer** — start with PointNet++ + bbox-relative normalization. Upgrade to late fusion only after the data ceiling.
+- **VLA researcher** — §5 failures are interface bugs, not encoder bugs. Your action head must declare (frame, scale, density) and **refuse** mismatched input.
+- **Spatial researcher** — emit the §7 metadata. Costs nothing; saves the integrator a week.
 
 ---
 
-## Cross-references
+## Cross-references & References
 
-- **VLA-Handbook** — action policy design: https://github.com/sou350121/VLA-Handbook
-- `foundations/feed-forward-3d/vggt_cvpr2025_dissection.md` — why VGGT is un-metric
-- `foundations/semantic-3d/` — label-lift to 3D
-- `crossing/representation-migration/` — when 3D matters per embodiment
-
-## References (starter set)
-
-- 3D-VLA — Zhen et al. *ICML 2024*
-- SpatialVLM — Chen et al. *CVPR 2024*. https://spatial-vlm.github.io
-- PointVLA — `UNVERIFIED` exact paper; pattern is verified
-- Diffusion Policy 3D — Ze et al. *RSS 2024*
-- π0 technical report — Physical Intelligence 2024
+- [VLA-Handbook](https://github.com/sou350121/VLA-Handbook) (action policy design) · `foundations/feed-forward-3d/vggt_cvpr2025_dissection.md` (why VGGT is un-metric) · `foundations/semantic-3d/` · `crossing/representation-migration/`
+- 3D-VLA — Zhen et al. *ICML 2024* · SpatialVLM — Chen et al. *CVPR 2024* (https://spatial-vlm.github.io) · PointVLA — `UNVERIFIED` exact paper, pattern verified · Diffusion Policy 3D — Ze et al. *RSS 2024* · π0 — Physical Intelligence 2024
 
 ## Boundary
 
-This doc lives on the seam. Does **not** dissect any single encoder (see `foundations/feed-forward-3d/`) or action head (see VLA-Handbook).
+This doc lives on the seam. Does **not** dissect any single encoder (see `foundations/feed-forward-3d/`) or action head (see VLA-Handbook). *Last opinion update: 2026-05-21.*
 
-*Last opinion update: 2026-05-21.*
+---
+[← Back to bridge-to-vla README](./README.md)
