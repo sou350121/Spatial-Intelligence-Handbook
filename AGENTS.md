@@ -140,6 +140,28 @@ emoji 前缀，便于 `git log` 区分人工与自动：
 
 ---
 
+## 文档类型分层（5 种 · 2026-05-22 立约）
+
+> **不是所有 `.md` 都是 dissection**。仓库分 5 种文档类型，质量门槛不同 —— 之前 audit 误判 `*_primer` / `*_comparison` / `*_inspirations` "缺 Eureka" 是因为没区分类型。
+
+| 类型 | 后缀 | 14 项门槛? | 何时用 | 已有例 |
+|---|---|---|---|---|
+| **dissection** | `*_dissection.md` | **必须** 满 14 项 | 单 paper / model / sensor 深度拆解 | `vggt_cvpr2025_dissection.md`、`orb_slam3_dissection.md` |
+| **primer** | `*_primer.md` | 部分（不必有 Eureka / Worked Example）| 前置教学 / 直觉建立，**高门槛话题前的"地图"** | `rotation_intuition_primer.md`、`se3_so3_lie_groups_primer.md` |
+| **comparison** | `*_comparison.md` | 不必满 14 项；**核心是横向对比表 + 决策树** | 多 model / 多 sensor 横向选型对照 | `depth_models_comparison.md` |
+| **ecosystem** | `*_ecosystem.md` | 不必；**核心是工具链生态拼图** | Kalibr / maplab / ROS 类工具链全景 | `slam_toolchain_ecosystem.md` |
+| **roadmap** | `*_inspirations.md` / `*_outlook.md` | 不必；**核心是方向指引** | 跨学科 / 未来方向 roadmap | `cross_domain_math_inspirations.md` |
+
+**写作前先决定类型**：
+
+- 是单 paper 完整解构 ⇒ `*_dissection.md` ⇒ 严格 14 项
+- 是前置教学（"读者还不会基础"）⇒ `*_primer.md` ⇒ 重直觉，可省 Eureka / Napkin
+- 是多个东西横向比 ⇒ `*_comparison.md` ⇒ 表格主导
+- 是工具链生态 ⇒ `*_ecosystem.md` ⇒ 拼图视角
+- 是方向 / 未来 / 跨学科展望 ⇒ `*_inspirations.md` ⇒ 灵感主导
+
+---
+
 ## Dissection 写作模板（foundations / embodiments / crossing / bridge-to-vla 深度文档通用）
 
 > 对齐 VLA-Handbook `theory/pi0_5_dissection.md` 范式。目标：把一篇文章写成 **"可面试复述、可工程落地、可快速定位"** 的结构化笔记，不是流水摘要。Spatial 这边的旗舰参考是 `crossing/slam-vio-migration/vggt_vs_drone_vio.md`。
