@@ -151,7 +151,7 @@ graph TB
 
 | 功能簇 | 子目录 | 篇数 | 重大更新 |
 |---|---|---|---|
-| 🧮 数学骨架 | `spatial-math/` | **8** | + 前置教学 + 跨领域灵感 + IMU §6 production 优化 |
+| 🧮 数学骨架 | `spatial-math/` | **9** | + 前置教学 + 相机投影多视几何 + 跨领域灵感 + IMU §6 production 优化 |
 | 🗺️ 经典 SLAM | `classical-slam/` | 3 | |
 | 🔮 前向 3D | `feed-forward-3d/` | **3** ★ | + VGGT-Ω + MapAnything (metric solved) |
 | 💎 3DGS family | `3dgs-family/` | 4 | |
@@ -163,8 +163,8 @@ graph TB
 | 🌍 世界模型 | `world-model/` | 3 | |
 | 🎬 生成式 3D | `generative-3d-sim/` | 3 | |
 | ⚛️ 物理感知 | `physics/` | 1 | |
-| 📡 **Sensor Physics ★** | `sensor-physics/` | **17** (→ 23 pending) | + RGB / GNSS / barometer / magnetometer / opt-flow / range finder（+ UWB / WiFi / 水下声呐 / 热红外 / 24GHz Doppler / mic array pending agent）|
-| **foundations 小计** | | **58** | |
+| 📡 **Sensor Physics ★** | `sensor-physics/` | **23 · 7 桶** | + RGB / GNSS / barometer / magnetometer / opt-flow / range finder / UWB / WiFi-5G / 水下声呐 / 热红外 / 24GHz Doppler / mic array — drone + 室内 + 水下 + counter-drone 全闭合 |
+| **foundations 小计** | | **65** | |
 | ✋ Manipulation | `embodiments/manipulation/` | 2 | |
 | 🦿 Humanoid | `embodiments/humanoid-legged/` | 2 | |
 | 🛒 Ground Mobile | `embodiments/ground-mobile/` | 2 | |
@@ -179,9 +179,9 @@ graph TB
 | 🏢 Companies | `companies/` | 7 | |
 | 📋 Cheat Sheet | `cheat-sheet/` | 3 | |
 
-**总计：~99 dissections · 26 功能簇 · 9 顶层目录 · 140 md 文件 (含 READMEs)**
+**总计：~106 dissections · 27 功能簇 · 9 顶层目录 · 147 md 文件 (含 READMEs)**
 
-**待补**: sensor-physics wave agent 完成后 +6 (UWB / WiFi / 水下声呐 / 热红外 / 24GHz Doppler / mic array)，foundations 升至 64 / 总 105。
+**所有 multi-round 升级完成 (2026-05-22)** — feed-forward 3D 三件套 + sensor-physics 7 桶 + spatial-math 9 篇 + depth comparison + IMU production 优化 + cross-domain inspirations.
 
 ---
 
