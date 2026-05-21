@@ -2,7 +2,9 @@
 
 > **Foundations** 是跨 embodiment 共享的底层 — 3DGS / VGGT / Depth Foundation / 经典 SLAM 这些"工具箱"原语，无论你做 manipulation、aerial 还是 marine，最终都会回到这里。
 >
-> 目前收录 **38 篇深度解析** + **13 区导读**，是华语世界对空间智能底层最系统的拆解。
+> 目前收录 **40 篇深度解析** + **13 区导读**，是华语世界对空间智能底层最系统的拆解。
+>
+> **2026-05 重要更新**：feed-forward 3D 区域加入 **VGGT-Ω**（efficiency 突破）和 **MapAnything**（**metric scale 突破** ★）— 两条 Meta 并行路线，3 篇互补对照见 [feed-forward-3d/README.md](feed-forward-3d/README.md)。
 >
 > 不知道从哪开始？先选你的角色 ↓
 
@@ -12,7 +14,7 @@
 
 | | 角色 | 你的背景 | 👉 推荐起点 |
 |:---:|------|---------|-----------|
-| 🧙 | **3D vision 研究者** | 熟悉 NeRF / SfM / Multi-view stereo | → [VGGT 解构](feed-forward-3d/vggt_cvpr2025_dissection.md)，2025 CVPR best paper 是范式转移信号 |
+| 🧙 | **3D vision 研究者** | 熟悉 NeRF / SfM / Multi-view stereo | → [Feed-Forward 3D 三件套对照](feed-forward-3d/README.md)：VGGT v1 (CVPR 2025) + **MapAnything (metric ★)** + **VGGT-Ω (efficient ★)** |
 | 🤖 | **机器人感知工程师** | 调过 SLAM、做过 RGBD 处理 | → [Depth Anything v2 解构](depth-foundation/depth_anything_v2_dissection.md)，相对深度 vs 度量深度的现场 trap |
 | 🎮 | **图形学 / 渲染从业者** | 熟悉光线追踪、material shading | → [3DGS 原始论文解构](3dgs-family/3dgs_original_dissection.md)，看它如何在 6 个月内 100× NeRF |
 | 🛰️ | **跨 embodiment / 系统架构师** | 同时关注车 + 机器人 + AR | → [Crossing 章节旗舰](../crossing/slam-vio-migration/vggt_vs_drone_vio.md)，再回来看 foundations 当工具箱 |
@@ -39,7 +41,7 @@
 |---|---|---|---|
 | 🧮 [Math](spatial-math/) | （n/a — 数学 primitives） | 公式 / 算法 toolkit | 所有 SLAM / VIO / BA / 3D 系统都引用 |
 | 🗺️ [Classical SLAM](classical-slam/) | 视频流 + IMU 流（在线） | **6DoF pose 轨迹 + 稀疏 map** | controller / motion planner / autonomy stack |
-| 🔮 [Feed-Forward 3D](feed-forward-3d/) | N 张 RGB（batch） | poses + dense depth + pointmaps + 2D tracks | 3DGS / NeRF init / SfM 替代 / manipulation 感知 |
+| 🔮 [Feed-Forward 3D](feed-forward-3d/) ★ 3 篇 | N RGB (+MapAnything 可选 K/T/D/recon) | poses + depth + pointmaps + tracks（VGGT）或 **米制 3D**（MapAnything）| 3DGS/NeRF init / SfM 替代 / **manipulation grasp（米制时）** |
 | 💎 [3DGS family](3dgs-family/) | **N RGB + 相机姿态**（COLMAP / VGGT 给）| 显式 radiance field（gaussian set，可编辑）| NVS 渲染 / sim2real 数据 / 3D 可视化 |
 | 🔬 [NeRF family](nerf-family/) | **N RGB + 相机姿态**（同 3DGS）| 隐式 radiance field（MLP / hash grid）| 同 3DGS，但更高质量更慢 |
 | 📏 [Depth Foundation](depth-foundation/) | 单 RGB（DA v2 / Metric3D / MoGe）or stereo pair（FoundationStereo）| per-pixel depth map（**DA 相对 / Metric3D 米制**）| 点云 lift / 障碍物 / VLA 输入 |
@@ -63,6 +65,7 @@
 | 🗺️ Classical SLAM | **30 Hz** real-time | ❌ **无训练**（经典算法）| **CPU OK**（Jetson Nano 即可） | ✅ stereo/RGBD/IMU 给；**mono ❌**（scale drift） |
 | 🔮 Feed-Forward 3D (v1) | ~5 Hz / latency 100-200 ms | ❌ **已训好**（用 pretrained）| Orin Nano + 3GB 内存 | ❌ **un-metric**（需要外部 anchor） |
 | 🔮 Feed-Forward 3D (Ω) | ~10 Hz? `UNVERIFIED` | ❌ 已训好（**15× 数据 + 自监督**）| Orin Nano（memory 比 v1 省 30%）| ❌ un-metric |
+| 🔮 **Feed-Forward 3D (MapAnything)** ★ | TBD（1B 模型推理重）| ❌ 已训好（multi-task）| RTX 4090 / A100（1B params · 4GB F32）| **✅ 米制 ★**（factored repr 含 scale factor）|
 | 💎 3DGS family | **render: 60+ FPS** / 训练 5-30 min/scene | ✅ **每场景训**（per-scene fitting）| 1× consumer GPU (RTX 3090+) | ❌ 从上游 SfM 继承（COLMAP 米则米；VGGT 给则非米）|
 | 🔬 NeRF family | render: 0.1-30 FPS / 训练 30 min-hr/scene | ✅ **每场景训** | 1× consumer GPU | ❌ 同上（继承上游 SfM）|
 | 📏 Depth Foundation | per-frame ~50 ms | ❌ 已训好 | Orin Nano | **DA v2: ❌ 相对** / **Metric3D: ✅** / **FoundationStereo: ✅** |
@@ -96,7 +99,8 @@
 |---|---|---|
 | 🧮 Math | 不是 dissection 工具 | 想吃透 SLAM / VIO 数学 |
 | 🗺️ Classical SLAM | 静态场景假设 / 白墙坍塌 / 200 Hz aerial 不够快 | 室内 manipulation / RGBD / AR 多 session |
-| 🔮 Feed-Forward 3D | 200+ ms 延迟 / un-metric / N ≤ 30 / 边缘内存紧 | 离线 / 慢速 / 桌面环境替代 SfM |
+| 🔮 Feed-Forward 3D (VGGT v1/Ω) | 200+ ms 延迟 / **un-metric** / N ≤ 30 / 边缘内存紧 | 离线 / 慢速 / 桌面环境替代 SfM |
+| 🔮 Feed-Forward 3D (**MapAnything ★**) | 1B 模型推理重 / **CC-BY-NC-4.0 非商用** / 仍 batch | **需要 metric 输出的所有下游**（manipulation grasp / 慢速 drone）|
 | 💎 3DGS family | 1-2 GB/场景存储 / loop closure 难 | 高保真渲染 / sim 数据 / 可检视 3D primitive |
 | 🔬 NeRF family | 训练慢 / 推理慢 / 但 quality 仍领先 ~1 dB | 离线高质量 / city-scale (Block-NeRF) / surface 重建 |
 | 📏 Depth Foundation | **"相对 vs 米制"陷阱** / >30m 崩 / 透明镜面失败 | 任何要 depth 的下游 (manipulation / drone) |
@@ -120,7 +124,8 @@
 ├─ 我要 6DoF pose 估计 (实时控制)
 │   ├─ 室内 + RGBD / IMU 都有          → 🗺️ Classical SLAM (ORB-SLAM3)
 │   ├─ Aerial 200 Hz 控制环              → 🗺️ Classical SLAM (VINS-Fusion @ embodiments/aerial/vio/)
-│   └─ 桌面 / 慢速 / 离线              → 🔮 Feed-Forward 3D (VGGT)
+│   ├─ 桌面 / 慢速 / 离线 + 不需米       → 🔮 VGGT v1 / VGGT-Ω
+│   └─ 桌面 / 慢速 / 离线 + 要米 ★       → 🔮 **MapAnything** (metric solved!)
 │
 ├─ 我要 depth (per-pixel)
 │   ├─ 相对深度够用 (rendering)        → 📏 Depth Foundation (Depth Anything v2)
@@ -190,7 +195,7 @@
 ```mermaid
 graph TD
     START["⚔️ START HERE<br/>选你的角色"] --> MATH["🧮 Math Workshop<br/>Spatial Math<br/>6 篇"]
-    START --> FF["🔮 Crystal Crucible<br/>Feed-forward 3D<br/>1 篇 · VGGT 系"]
+    START --> FF["🔮 Crystal Crucible<br/>Feed-forward 3D<br/><b>3 篇</b> · VGGT v1/Ω + MapAnything ★"]
 
     MATH --> FF
     MATH --> CS["🗺️ Cartographer's Hall<br/>Classical SLAM<br/>3 篇"]
@@ -277,7 +282,7 @@ graph TD
 &nbsp;
 
 <details>
-<summary><h3>🔮 Crystal Crucible — Feed-forward 3D &nbsp;<code>1 篇 · ⭐ 旗舰区</code></h3></summary>
+<summary><h3>🔮 Crystal Crucible — Feed-forward 3D &nbsp;<code>3 篇 · ⭐ 旗舰区</code></h3></summary>
 
 **一句话**：3D 不再是离线拟合的目标 — 而是可直接前向推理的输出。
 
@@ -285,9 +290,12 @@ graph TD
 
 | 推荐入口 | 说明 |
 |---------|------|
-| [VGGT (CVPR 2025) Dissection](feed-forward-3d/vggt_cvpr2025_dissection.md) | ★ 完整拆解：4-head 联合训练、训练数据配比、为什么 N-view 不只是 2-view 加强版 |
+| [Feed-Forward 3D 三件套对照 README](feed-forward-3d/README.md) | ★ 时间线 + 互补对照 4 张窄表 + 选型决策树 |
+| [VGGT v1 (CVPR 2025) Dissection](feed-forward-3d/vggt_cvpr2025_dissection.md) | 谱系起点：4-head N-view 范式开创，un-metric |
+| [VGGT-Ω Dissection](feed-forward-3d/vggt_omega_dissection.md) | 2026-05：register attention + 30% memory + 动态场景 ★ |
+| [**MapAnything Dissection** ★](feed-forward-3d/mapanything_dissection.md) | 3DV 2026：**factored repr + metric ★ + 12+ tasks unified** |
 
-📂 **完整目录**：待补 (1 篇暂未拆出独立 README)。DUSt3R / MASt3R / π³ streaming 的独立解构是下一轮 W2 目标。
+📂 **完整目录**：[feed-forward-3d/README.md](feed-forward-3d/README.md) — 3 件套时间线 + 对照表 + 选型决策树。
 
 </details>
 
@@ -591,7 +599,7 @@ VGGT → SpatialVLM → bridge-to-vla/3d_aware_vla
 
 | Zone | Boss | Why It's Hard |
 |------|------|---------------|
-| 🔮 Crystal Crucible | [VGGT Dissection](feed-forward-3d/vggt_cvpr2025_dissection.md) | 4-head 联合训练数学 + 训练数据配比 + 部署内存模型 |
+| 🔮 Crystal Crucible | [MapAnything](feed-forward-3d/mapanything_dissection.md) | Factored representation + metric scale 突破 + 12+ tasks unified |
 | 💎 Gem Quarry | [3DGS Original](3dgs-family/3dgs_original_dissection.md) | 可微 rasterizer + anisotropic gaussian 数学 |
 | 📏 Depth Foundry | [Metric3D](depth-foundation/metric3d_dissection.md) | Canonical camera transformation 推导 |
 | 🌐 Meaning Tower | [LERF](semantic-3d/lerf_dissection.md) | 多 scale CLIP 蒸馏 + NeRF field 联合优化 |
@@ -618,7 +626,11 @@ VGGT → SpatialVLM → bridge-to-vla/3d_aware_vla
 
 &nbsp;
 
-**38** dissections · **13** zones · 部分由 [Pulsar](https://github.com/sou350121/Pulsar-KenVersion) 自动生成、部分人工撰写。
+**40** dissections · **13** zones · 部分由 [Pulsar](https://github.com/sou350121/Pulsar-KenVersion) 自动生成、部分人工撰写。
+
+**Recent additions (2026-05)**:
+- 🔮 Feed-Forward 3D: + **VGGT-Ω** (efficiency) + **MapAnything** ★ (**metric solved**)
+- 详 [feed-forward-3d/README.md](feed-forward-3d/README.md) 三件套对照
 
 新文章会通过 Pulsar pipeline 自动追加，参考 [`AGENTS.md`](../AGENTS.md) 的写入权限矩阵 + 14 项质量门槛。
 
