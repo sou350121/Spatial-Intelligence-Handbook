@@ -2,17 +2,17 @@
 
 > **发布时间**: CVPR 2023 (Peng, Genova, Jiang, Tagliasacchi, Tombari, Guibas — Google + ETH + Stanford)
 > **论文 / 模型**: OpenScene, [arXiv:2211.15654](https://arxiv.org/abs/2211.15654)
-> **核心定位**: open-vocabulary 3D segmentation **without per-scene training** — project 2D CLIP into 3D points, aggregate across views. Robotics-deployable; loses to closed-set on labeled benchmarks.
+> **核心定位**: **不需要 per-scene 训练**的开放词汇 3D 分割——把 2D CLIP 投到 3D 点上，跨视角聚合。机器人可部署；在标 label benchmark 上输给闭集模型。
 
-OpenScene is the deployable counterpart to LERF: instead of training a new field per scene, it trains a **reusable 3D backbone once** and projects 2D CLIP features into any new scene in one pass. The dumb-and-correct move turns out to be what robotics teams need.
+OpenScene 是 LERF 的可部署对照：不再每场景训一个新 field，而是**一次训好可复用的 3D backbone**，在任意新场景上一次投影就出特征。"笨而对"的做法，结果正是机器人团队需要的。
 
 **Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item template 2026-05-21. Latency / memory numbers marked `UNVERIFIED`.
 **Wedge tier:** W2 · `foundations/semantic-3d/` anchor #2
-**TL;DR:** OpenScene makes open-vocabulary 3D segmentation work *without per-scene training* — project 2D CLIP into 3D points/voxels, average across views. Dumb-and-correct = what robotics needs. Loses to closed-set on labeled benchmarks; wins everywhere else.
+**TL;DR:** OpenScene 让开放词汇 3D 分割在*不需要 per-scene 训练*的前提下 work —— 把 2D CLIP 投到 3D 点/体素上、跨视角平均。笨而对 = 机器人需要的。在 labeled benchmark 上输给闭集；其它场景都赢。
 
 ### X-Ray (non-expert friendly)
 
-(a) Before OpenScene, robots needing 3D language grounding had two bad options: closed-set segmentation (fixed classes) or per-scene field training (LERF, minutes/room). (b) OpenScene extracts dense per-pixel CLIP from posed RGB(-D), projects onto 3D points/voxels, averages across views — every point carries a CLIP feature; queries become dot products. (c) For engineers: **the deployable semantic-3D pattern** — streaming, geometry-decoupled, no scene training. Cite when shipping; cite LERF only for paradigm.
+(a) OpenScene 之前，需要 3D 语言 grounding 的机器人有两种坏选项：闭集分割（固定类别）或 per-scene field 训练（LERF，每房间几分钟）。(b) OpenScene 从 posed RGB(-D) 提取 dense per-pixel CLIP，投到 3D 点/体素上，跨视角平均——每个点都带 CLIP 特征；查询变点积。(c) 对工程师：**这才是可部署的 semantic-3D 模式**——流式、几何解耦、无场景训练。出活时引用它；引用 LERF 只为讲范式。
 
 ### 📍 Research Landscape Timeline
 
@@ -22,19 +22,19 @@ CLIP 2021 ─► OpenSeg / LSeg 2022 ─► ★ OpenScene CVPR 2023 ─► Conce
                                             └── peer: LERF ICCV 2023 (feature field — elegant, undeployable)
 ```
 
-OpenScene-lineage = deployed approach; LERF-lineage = elegant approach. The "published" vs "deployed" gap is the lane's key story.
+OpenScene 血统 = 部署方法；LERF 血统 = 优雅方法。"published" 与 "deployed" 的差距是本 lane 的核心故事。
 
 ---
 
 ## 1 · What OpenScene actually does
 
-OpenScene (Peng, Genova, Jiang, Tagliasacchi, Tombari, Guibas — Google + ETH + Stanford, CVPR 2023, [arXiv:2211.15654](https://arxiv.org/abs/2211.15654)) takes a posed RGB-D sequence (or mesh + posed images) and produces a 3D point cloud where **every point carries a CLIP-compatible feature vector**. Text queries become vector-similarity on the cloud.
+OpenScene (Peng, Genova, Jiang, Tagliasacchi, Tombari, Guibas — Google + ETH + Stanford, CVPR 2023, [arXiv:2211.15654](https://arxiv.org/abs/2211.15654)) 取一段 posed RGB-D 序列（或 mesh + posed images），产出一个 3D 点云，其中**每个点带 CLIP 兼容的特征向量**。文本查询化为点云上的向量相似度。
 
-The pipeline is brutally simple:
+pipeline 直白得不能再直白：
 
-1. Per image, extract a *dense* per-pixel CLIP feature map. Paper uses OpenSeg / LSeg — CLIP-aligned dense extractors (not raw CLIP-ViT, which emits one global vector).
-2. Per 3D point/voxel, project to each visible image, sample the feature, aggregate across views (average + visibility weighting).
-3. **Distillation step** — train a small 3D backbone (sparse-conv MinkowskiNet) to predict the aggregated feature from 3D coords + colors. At query time the projected and predicted features are ensembled.
+1. 每张图，提取 *dense* per-pixel CLIP 特征图。论文用 OpenSeg / LSeg —— CLIP 对齐的 dense 抽取器（不是原始 CLIP-ViT，那只出一个 global vector）。
+2. 每个 3D 点/体素，投到每张可见图，采样特征，跨视角聚合（average + visibility 加权）。
+3. **蒸馏步骤** —— 训一个小型 3D backbone（sparse-conv MinkowskiNet）从 3D 坐标 + 颜色预测聚合特征。查询时把投影特征与预测特征 ensemble。
 
 ```
 posed RGB ──► CLIP-aligned 2D dense backbone (OpenSeg/LSeg) ──► per-pixel CLIP feat.
@@ -49,89 +49,89 @@ inference:
   text query ──► CLIP text encoder ──► dot product against per-point feature ──► open-vocab labels
 ```
 
-The result: a 3D scene that answers arbitrary text queries — `chair`, `something to sit on`, `the red object`, `kitchen utensil` — without ever having been trained with those class names.
+结果是一个 3D 场景，能回答任意 text query —— `chair`、`something to sit on`、`the red object`、`kitchen utensil` —— 而从来没用这些类名训练过。
 
 ---
 
-> 📌 **Napkin Formula**: `feat(p ∈ ℝ³) = avg_views{ CLIP_dense(image_v)[π_v(p)] · visibility(p, v) }` — every 3D point's feature is the **view-weighted average of projected dense 2D CLIP features**. Inference query: `relevancy(text, p) = ⟨CLIP_text(text), feat(p)⟩`. No field training, no NeRF; just project-and-average.
+> 📌 **Napkin Formula**: `feat(p ∈ ℝ³) = avg_views{ CLIP_dense(image_v)[π_v(p)] · visibility(p, v) }` —— 每个 3D 点的特征是**视角加权平均的投影 dense 2D CLIP 特征**。推理 query：`relevancy(text, p) = ⟨CLIP_text(text), feat(p)⟩`。无 field 训练、无 NeRF；就只是投影并平均。
 
-> ⚡ **Eureka Moment**: **CLIP-aligned 2D features are already 3D-consistent enough that *projection alone* closes most of the gap** to specialized closed-set 3D segmenters. The 3D backbone (MinkowskiNet) is a refinement, not the core contribution — the projection insight is what unlocks deployment.
+> ⚡ **Eureka Moment**: **CLIP 对齐的 2D 特征本身就 3D 一致到足够*仅靠投影*就关掉大部分到专用闭集 3D 分割器的差距**。3D backbone（MinkowskiNet）是细化，不是核心贡献——核心是投影这一洞察解锁了部署。
 
 ## 2 · Why this works without per-scene training
 
-OpenScene's contribution is *not* architectural novelty. It is the observation that CLIP-aligned 2D features are already 3D-consistent enough to *aggregate by projection*, and that aggregation alone closes most of the gap to specialized closed-set 3D segmenters. Once per-point features exist, open-vocab segmentation reduces to text-feature dot products — no scene-specific optimization, no NeRF training, no second model.
+OpenScene 的贡献*不是*架构上的新意，而是观察到：CLIP 对齐的 2D 特征已经 3D 一致到能*靠投影聚合*，且聚合本身就关掉了大部分到专用闭集 3D 分割器的差距。一旦 per-point 特征到位，开放词汇分割就化约为文本特征点积——无 per-scene 优化、无 NeRF 训练、无第二个模型。
 
-Contrast with LERF (see [`lerf_dissection.md`](./lerf_dissection.md)): LERF distills CLIP into a *new field per scene*. OpenScene trains a *reusable 3D backbone* once, then projects into any new scene in one forward pass.
+对照 LERF（见 [`lerf_dissection.md`](./lerf_dissection.md)）：LERF 在*每个场景*蒸馏一个新 field。OpenScene 一次性训好*可复用的 3D backbone*，在任意新场景一次前向就投影完。
 
 | Property | OpenScene | LERF |
 |---|---|---|
-| Per-scene training | None | Required, `UNVERIFIED` 5–30 min |
-| Query at inference | Dot product on per-point features | NeRF forward pass + ray rendering |
-| Geometry source | Provided (RGB-D / mesh) | Learned (NeRF) |
-| Multi-scale text queries | Inherited from CLIP backbone | Explicit multi-scale supervision |
-| View consistency | By averaging across views | By construction (field) |
-| Memory footprint | O(points) — moderate | O(NeRF params) — fixed per scene |
-| Robotics deployability `UNVERIFIED` | Plausible online with streaming RGB-D | Offline-only without 3DGS port |
+| Per-scene 训练 | 无 | 必需，`UNVERIFIED` 5–30 min |
+| 推理 query | per-point 特征点积 | NeRF 前向 + ray 渲染 |
+| 几何来源 | 提供（RGB-D / mesh） | 学（NeRF） |
+| Multi-scale 文本 query | 继承 CLIP backbone | 显式 multi-scale 监督 |
+| 视角一致 | 跨视角平均 | 构造上一致（field） |
+| 内存开销 | O(points) —— 适中 | O(NeRF params) —— 每场景固定 |
+| 机器人可部署性 `UNVERIFIED` | 流式 RGB-D 下合理在线 | 离线为主，3DGS 移植前无解 |
 
 ---
 
 ## 3 · The closed-set baseline gap
 
-The honest part of the paper: on closed-set 3D semantic segmentation benchmarks (ScanNet, Matterport3D, S3DIS), OpenScene loses to supervised baselines by a clear margin. Not surprising — a closed-set model trained on ScanNet's 20 classes beats a zero-shot system on those exact 20 classes. The point: the moment you step outside the closed set (a 21st class, a free-form query, a different label space), the supervised baseline drops to zero and OpenScene keeps working.
+论文里诚实的部分：在 closed-set 3D 语义分割 benchmark（ScanNet、Matterport3D、S3DIS）上，OpenScene 与有监督 baseline 有明显差距。不奇怪——在 ScanNet 那 20 类上用 ScanNet 训过的模型一定胜过 zero-shot 系统。要点在于：一旦走出闭集（第 21 类、自由 query、不同 label 空间），有监督 baseline 掉到零，OpenScene 继续 work。
 
-**For robotics this is the right trade.** A house robot encounters objects no benchmark labeled. A factory robot needs free-form instructions. Zero-shot floor matters more than closed-set ceiling.
+**对机器人，这是对的 trade。** 入户机器人遇到的物体没人 benchmark 标过。工厂机器人需要自由 form 指令。zero-shot 下限比 closed-set 上限重要。
 
 ### 3.5 · Worked example — streaming semantic map for a mobile manipulator
 
-Mobile robot with RGB-D + ORB-SLAM3 walks a kitchen, 5 cm voxel map (~30k voxels).
+带 RGB-D + ORB-SLAM3 的移动机器人走过一个厨房，5 cm 体素图（~30k 体素）。
 
-- **Per frame (10–30 Hz)**: OpenSeg dense forward → per-pixel CLIP feats (512-D).
-- **Per newly-visible voxel**: project to frame, sample feature, running-average with visibility weighting.
-- **Memory**: ~30k × 512 × 4 B ≈ 60 MB `UNVERIFIED` — fits on Orin.
-- **Query `the kitchen utensils`**: text-encode → dot product across voxels → top-K. Latency: O(N), milliseconds.
-- **Fail case**: stainless knife seen from one specular angle → single-view voxel, noisy feature, wrong cluster.
+- **每帧（10–30 Hz）**：OpenSeg dense 前向 → per-pixel CLIP 特征（512-D）。
+- **每个新可见体素**：投到当前帧、采特征、用 visibility 加权运行均值。
+- **内存**：~30k × 512 × 4 B ≈ 60 MB `UNVERIFIED` —— Orin 装得下。
+- **Query `the kitchen utensils`**：text-encode → 体素上点积 → top-K。延迟：O(N)，毫秒级。
+- **失败案例**：不锈钢刀只从一个 specular 角度看到 → 单视角体素，噪声特征，错聚类。
 
-The streaming-vs-LERF win: same room, same query, **no per-scene training**, fits a 30 Hz loop.
+streaming vs LERF 的胜利：同房间、同 query、**无 per-scene 训练**、适配 30 Hz 闭环。
 
 ---
 
 ## 4 · Why robotics teams cite OpenScene more than LERF
 
-In 2024–2026 manipulation and mobile-robotics papers needing language grounding in 3D, **OpenScene (or an OpenScene-lineage projection pipeline) gets cited as the deployable approach; LERF as the elegant approach.** Three reasons:
+2024–2026 需要 3D 语言 grounding 的 manipulation 与 mobile-robotics 论文里，**OpenScene（或 OpenScene 血统的 projection pipeline）被作为可部署方法引用；LERF 作为优雅方法。** 三个原因：
 
-1. **No per-scene training** — semantic 3D in the time it takes to reconstruct geometry. LERF's training loop is incompatible.
-2. **Streaming-friendly** — projection is naturally per-frame; an online RGB-D + SLAM system builds a semantic map incrementally. LERF needs the full image set up front.
-3. **Geometry comes from a component you already have** (depth camera, RGB-D SLAM, VGGT-class). LERF couples geometry choice to semantics choice — a coupling robotics teams resist.
+1. **无 per-scene 训练** —— semantic 3D 在重建几何同等时间内就出。LERF 的训练循环不兼容。
+2. **流式友好** —— 投影天然是 per-frame；在线 RGB-D + SLAM 系统增量地建 semantic map。LERF 需整套图先到。
+3. **几何来自你已经有的部件**（depth camera、RGB-D SLAM、VGGT 类）。LERF 把几何选择与语义选择耦合——机器人团队反对这种耦合。
 
-Successor papers that matter (ConceptGraphs, OVIR-3D, CLIP-Fields w/ online updates) all inherit OpenScene's projection-first philosophy.
+后续重要论文（ConceptGraphs、OVIR-3D、CLIP-Fields with online updates）都继承 OpenScene 的投影优先哲学。
 
 ---
 
 ## 5 · Where it breaks
 
-- **Dense 2D backbone is the ceiling.** OpenSeg / LSeg smear features across object boundaries; 3D fusion inherits the smearing. Sharper output requires SAM-CLIP, DINOv2+CLIP alignment, etc.
-- **Visibility aggregation is hand-tuned.** Points seen from many views are reliable; few-view points are noisy. Paper uses simple weighting; deployments re-engineer this.
-- **No multi-scale by construction.** Per-point features are object-scale by default. Scene-level queries need downstream clustering or a scene-graph layer.
-- **No update-in-place.** Moving objects and re-arrangements require re-projection. One-shot fusion, not temporal.
+- **dense 2D backbone 是天花板。** OpenSeg / LSeg 跨物体边界涂特征；3D fusion 继承这种涂抹。要更锐，需要 SAM-CLIP、DINOv2+CLIP 对齐等。
+- **visibility 聚合是手调的。** 多视角的点可靠；少视角点噪。论文用简单加权；部署都要重新工程化这块。
+- **构造上不 multi-scale。** Per-point 特征默认是 object scale。场景级 query 需要下游聚类或一个 scene-graph layer。
+- **无原地更新。** 移动物体与重新摆放需要重投影。一次性 fusion，无时序。
 
 ### 5.x · Hidden Assumptions
 
-- **You have geometry from elsewhere** — RGB-D / mesh / SLAM voxel grid; OpenScene does not produce geometry.
-- **2D dense CLIP backbone caps quality** — OpenSeg / LSeg smear; SAM-CLIP / DINOv2-CLIP raises the floor.
-- **Sufficient per-point view count** — single-view points are noisy.
-- **Static scene during mapping** — no entity tracking; moving objects average inconsistent features.
-- **CLIP vocabulary covers your queries** — industrial / domain jargon is weak.
-- **SLAM-grade poses** — projection error propagates into feature mis-aggregation.
+- **几何来自他处** —— RGB-D / mesh / SLAM 体素；OpenScene 不产几何。
+- **2D dense CLIP backbone 锁定质量上限** —— OpenSeg / LSeg 涂抹；SAM-CLIP / DINOv2-CLIP 抬下限。
+- **每点足够 view count** —— 单视角点噪。
+- **建图期间场景静态** —— 无实体跟踪；运动物体平均不一致特征。
+- **CLIP 词表覆盖你的 query** —— 工业 / 领域 jargon 弱。
+- **SLAM 级位姿** —— 投影误差传播为特征错聚合。
 
-Violations show as **silent label confidence on subtly-wrong cells**.
+违反时表现为**对略错的格子也给出静默的高 label 置信**。
 
 ---
 
 ## 6 · Falsifiable prediction
 
-By 2027, the dominant semantic-3D pattern in shipped robot stacks will be OpenScene-lineage projection (SAM-CLIP / DINOv2-CLIP dense backbone) feeding a ConceptGraphs-style object layer on top — *not* feature fields. LERF-lineage will remain the default in research papers because it looks prettier in figures, but the "published" vs "deployed" gap will widen, not narrow.
+到 2027，已出货机器人栈中的主导 semantic-3D 模式将是 OpenScene 血统投影（SAM-CLIP / DINOv2-CLIP dense backbone）配合 ConceptGraphs 风格 object layer —— *不是* feature field。LERF 血统会继续作为研究论文默认，因为图里好看；但"published vs deployed"差距会扩大、不会缩小。
 
-**Interview Tip**: when asked about OpenScene vs LERF, answer "OpenScene projects + averages — no per-scene training, geometry decoupled, streaming-friendly. LERF is paradigm; OpenScene is shipping." Bonus credit for citing ConceptGraphs as the natural object-layer successor.
+**Interview Tip**：被问 OpenScene vs LERF 时，答 "OpenScene 投影 + 平均 —— 无 per-scene 训练、几何解耦、流式友好。LERF 是范式；OpenScene 是出货。" Bonus credit：把 ConceptGraphs 引为天然的 object-layer 后继。
 
 ---
 
@@ -145,11 +145,11 @@ By 2027, the dominant semantic-3D pattern in shipped robot stacks will be OpenSc
 
 ## Cross-references
 
-- Feature-field alternative → [`lerf_dissection.md`](./lerf_dissection.md)
-- Lane overview → [`README.md`](./README.md)
-- VLM-only spatial reasoning (no explicit 3D fusion) → [`foundations/vlm-spatial-reasoning/`](../vlm-spatial-reasoning/README.md)
-- Semantic cloud → action → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)
+- Feature-field 替代方案 → [`lerf_dissection.md`](./lerf_dissection.md)
+- Lane 总览 → [`README.md`](./README.md)
+- 仅 VLM 的空间推理（无显式 3D fusion）→ [`foundations/vlm-spatial-reasoning/`](../vlm-spatial-reasoning/README.md)
+- 语义点云 → action → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)
 
 ## Boundary
 
-This document dissects OpenScene specifically. It does **not** cover: LERF and the feature-field paradigm (→ [`lerf_dissection.md`](./lerf_dissection.md)); scene-graph paradigm (ConceptGraphs, OVIR-3D — queued v2); the 3D geometry pipeline OpenScene assumes upstream (→ `foundations/feed-forward-3d/`, `3dgs-family/`); per-embodiment deployment (→ `embodiments/<emb>/`); cross-representation comparison (→ `crossing/representation-migration/`, TBD).
+本文专门解构 OpenScene。它**不**覆盖：LERF 与 feature-field 范式（→ [`lerf_dissection.md`](./lerf_dissection.md)）；scene-graph 范式（ConceptGraphs、OVIR-3D —— v2 queue）；OpenScene 上游假设的 3D 几何管线（→ `foundations/feed-forward-3d/`、`3dgs-family/`）；具身侧部署（→ `embodiments/<emb>/`）；跨表示对比（→ `crossing/representation-migration/`，TBD）。

@@ -1,24 +1,24 @@
-# AQUALOC, SubPipe, and the Marine SLAM Data Desert
+# AQUALOC, SubPipe, and the Marine SLAM Data Desert (水下 SLAM 数据荒漠)
 
 **Status:** v1 — opinionated draft. Sequence counts and license details marked `UNVERIFIED`.
-**TL;DR:** Marine SLAM has essentially three public datasets that anyone outside an ocean lab can use, and they exist *because nothing else does*. The visibility tier (clear water vs turbid vs ROV-pipeline) matters more than the algorithm. "Saturation" doesn't apply yet — there aren't enough methods competing on enough datasets.
+**TL;DR:** 水下 SLAM 在海洋实验室之外能用的公开数据集大致只有三个，它们存在的原因 *正是因为没有别的*。能见度层级（清水 vs 浊水 vs ROV-管道）比算法本身更决定结果。"饱和" 在这里不适用 — 在足够多的数据集上竞争的方法数量根本不够。
 
 ---
 
-## 1 · Why the marine data desert exists
+## 1 · 数据荒漠为什么会存在
 
-Underwater data collection has four structural problems:
+水下数据采集有四个结构性问题：
 
-1. **Cost.** Field deployment requires a vessel + crew + ROV / AUV pilot. A single dataset season can cost six figures.
-2. **Localization ground truth is hard.** GPS doesn't work; ground truth needs USBL / LBL acoustic positioning, which is its own integration project.
-3. **Sharing is restricted.** A lot of marine survey data is owned by oil & gas operators or defense contractors and never gets released.
-4. **Generalization is suspect.** A SLAM benchmark in Mediterranean clear water tells you almost nothing about a tannin-stained estuary.
+1. **成本.** 实地部署需要船只 + 船员 + ROV / AUV 飞手。一个 season 的单次数据采集就要六位数。
+2. **定位 ground truth 困难.** GPS 不工作；ground truth 需要 USBL / LBL 声学定位，那本身就是一个集成工程。
+3. **共享受限.** 大量海洋调查数据归油气运营商或国防承包商所有，从来不发布。
+4. **泛化可疑.** 在地中海清水里跑的 SLAM benchmark，对一条单宁染色的河口几乎说明不了任何事。
 
-Result: a handful of public datasets that academics share, each tied to a specific institution and rig.
+结果：少数公开数据集由学界共享，每个都绑定到某个机构和 rig。
 
 ---
 
-## 2 · The three public datasets — comparison
+## 2 · 三个公开数据集 — 对照
 
 | Dataset | Origin | Environment | Sensors | Ground truth | Size `UNVERIFIED` |
 |---|---|---|---|---|---|
@@ -26,15 +26,15 @@ Result: a handful of public datasets that academics share, each tied to a specif
 | **SubPipe** | INESC TEC (Portugal) | ROV inspecting subsea pipeline | Stereo + IMU + DVL + USBL | USBL acoustic positioning | ~10 sequences |
 | **Marine Robotics Dataset family** (e.g., FLSea, Tahoe, EuRoC-underwater attempts) | Various | Mixed | Mixed | Patchy | scattered |
 
-These are the canonical three; most marine SLAM papers in 2023–2026 evaluate on AQUALOC + SubPipe + a few proprietary clips and call that the bar.
+这是 canonical 的三个；2023–2026 的多数水下 SLAM 论文都在 AQUALOC + SubPipe + 几段私有片段上评测，并把它当作 bar。
 
 ---
 
-## 3 · The visibility tier — the axis nobody publishes
+## 3 · 能见度层级 — 没人公开的那个轴
 
-The thing that makes marine benchmarks *different* from terrestrial ones is that "the dataset" is really "the dataset at this visibility tier." A method that works on AQUALOC's clear-water harbor clip can fail outright on the same dataset's turbid sequence.
+水下基准与陆上基准 *根本不同* 的地方在于：所谓 "the dataset" 其实是 "the dataset at this visibility tier"。一个在 AQUALOC 清水港湾段上工作的方法，在同一数据集的浊水序列上可能彻底失效。
 
-A pragmatic three-tier model:
+实用的三层模型：
 
 | Tier | Visibility | Typical attenuation | What works | What fails |
 |---|---|---|---|---|
@@ -42,65 +42,65 @@ A pragmatic three-tier model:
 | **Turbid** | 1–5 m (coastal, post-storm, estuary) | Strong scattering | Short-baseline stereo + DVL fusion | Monocular VO; long-baseline stereo |
 | **ROV-pipeline / dark** | <1 m or active light dominated | Total ambient loss; sensor sees only what its light reaches | Active acoustic (sonar / DVL); proprioception; structured light short-range | Any passive RGB |
 
-AQUALOC spans tiers 1 and 2 across its sequences. SubPipe is a tier 3 dataset (ROV inspection lighting + close range to pipe). Reporting "AQUALOC trajectory ATE" without saying which sequence is meaningless — the harbor clip and the deep-sea archaeology clip are different problems.
+AQUALOC 跨 tier 1 与 2。SubPipe 是 tier 3 数据集（ROV 检查照明 + 近距贴管）。报 "AQUALOC trajectory ATE" 而不说哪条序列毫无意义 — 港湾片段和深海考古片段是不同的问题。
 
 ---
 
-## 4 · Why "saturation" isn't the right question
+## 4 · 为什么 "饱和" 不是正确的问题
 
-Terrestrial SLAM benchmarks (EuRoC, TUM-RGBD, KITTI) saturated because dozens of methods competed on the same data over a decade. Marine SLAM doesn't have that density:
+陆上 SLAM 基准（EuRoC、TUM-RGBD、KITTI）会饱和，是因为十年间几十种方法在同一数据上竞争。水下 SLAM 没有这种密度：
 
-- Methods that report on AQUALOC in any given year: probably <10 `UNVERIFIED`.
-- Methods that report on SubPipe: even fewer.
-- The same lab often produces both the dataset *and* the SOTA method on it.
+- 任一年内在 AQUALOC 上报结果的方法数：大概 <10 `UNVERIFIED`。
+- 在 SubPipe 上报结果的更少。
+- 数据集 *和* 该数据集上的 SOTA 方法常出自同一实验室。
 
-This is structurally different from the terrestrial "ScanNet++ saturated" problem. Marine SLAM is in an *exploration phase*, not a *saturation phase*. The right question is "does the method generalize across visibility tiers?", not "does it beat the leaderboard?"
+这与 "ScanNet++ 饱和了" 的陆上问题在结构上不同。水下 SLAM 处于 *exploration phase*，而非 *saturation phase*。正确的问题是 "方法跨能见度层级是否泛化？" 而不是 "是否击败 leaderboard？"
 
-A useful negative test: a paper that quotes AQUALOC numbers but doesn't show results on at least one turbid sequence is signaling that turbid is where it falls down. Most do.
-
----
-
-## 5 · What this means for VGGT-class methods underwater
-
-Tying this to the [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../crossing/slam-vio-migration/vggt_vs_drone_vio.md) thread: feed-forward 3D inherits whatever the monocular RGB front-end can see. Underwater that becomes:
-
-- Tier 1 (clear): VGGT *might* run — but no marine VGGT paper exists yet `UNVERIFIED`.
-- Tier 2 (turbid): featureless scattering kills any ViT encoder that wasn't trained on underwater scenes.
-- Tier 3 (ROV / dark): not even a question.
-
-This is why marine is the contrasting-case anchor in the VGGT-vs-VIO piece: it's the embodiment where the visual-only paradigm doesn't compete at all, full stop. Marine SLAM stacks are *acoustic first, visual auxiliary*, and that ordering is unlikely to flip on any 5-year horizon.
+一个有用的反向测试：论文引 AQUALOC 数字但不展示至少一条浊水序列结果，等于在暗示浊水是它的塌陷点。多数论文都是如此。
 
 ---
 
-## 6 · The dataset-creation gap as a research opportunity
+## 5 · 对 VGGT 一类方法在水下意味着什么
 
-Marine SLAM's biggest unlock isn't a new architecture, it's *more datasets*. Specifically:
+衔接 [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../crossing/slam-vio-migration/vggt_vs_drone_vio.md)：前馈 3D 继承的是 monocular RGB 前端能看到什么。水下的情况是：
 
-- Multi-tier visibility benchmarks (same scene, three water conditions).
-- AUV swarm datasets (multi-agent SLAM underwater is barely benchmarked).
-- Sonar-camera tightly-synced datasets with ground truth (most public sets sync poorly).
-- Long-duration deployment data (10+ hour AUV missions reveal drift behaviors short clips hide).
+- Tier 1 (clear): VGGT *可能* 能跑 — 但目前没有水下 VGGT 论文 `UNVERIFIED`。
+- Tier 2 (turbid): 无特征的散射会击杀任何未在水下场景上训练过的 ViT 编码器。
+- Tier 3 (ROV / dark): 不是问题，是不成立。
 
-For practitioners: if you have access to ocean / harbor time, *releasing a good marine dataset is currently a higher-leverage contribution than publishing a new method on the existing three*.
+这就是为什么水下成为 VGGT-vs-VIO 一文里的反例锚点：在这个 embodiment 上，纯视觉范式根本不参赛。水下 SLAM 栈是 *acoustic first, visual auxiliary*，这一顺序在 5 年视野内不太可能翻转。
 
 ---
 
-## 7 · Practical defaults for marine SLAM evaluation
+## 6 · 数据集创建空白即是研究机会
 
-If you have to evaluate a method, the 2026 pragmatic protocol is:
+水下 SLAM 最大的解锁不是新架构，而是 *更多数据集*。具体来说：
 
-1. **AQUALOC**, all harbor + archaeology sequences — primary monocular / stereo test.
-2. **SubPipe**, full set — DVL-fusion + acoustic test.
-3. **One proprietary clip** — disclose institution, water conditions, ground-truth source. This is mandatory if you claim "real-world."
-4. **Cross-tier ablation** — at minimum, report performance separately for clear vs turbid sequences. Aggregated numbers hide the failure mode.
+- 多层能见度基准（同场景、三种水体条件）。
+- AUV 集群数据集（multi-agent SLAM 水下几乎无基准）。
+- 声学—相机紧耦合同步数据集，带 ground truth（多数公开集同步质量差）。
+- 长时部署数据（10+ 小时 AUV 任务能暴露短片段隐藏的 drift 行为）。
 
-Without this protocol, marine SLAM papers regress to the "EuRoC 100%" trap: optically benign sequences inflate the headline, and the field looks more solved than it is.
+对实践者：如果你有海洋 / 港湾时段的访问权，*现在发布一个好的水下数据集，比在已有三个基准上发新方法是更高杠杆的贡献*。
+
+---
+
+## 7 · 水下 SLAM 评测的实用默认
+
+如果必须评一个方法，2026 的实用协议是：
+
+1. **AQUALOC**，所有港湾 + 考古序列 — 主要 monocular / stereo 测试。
+2. **SubPipe**，全集 — DVL-fusion + acoustic 测试。
+3. **一段私有片段** — 注明机构、水况、ground-truth 来源。声称 "real-world" 时这是必需的。
+4. **跨层级消融** — 至少分别报清水和浊水序列的表现。聚合数字会隐藏失败模式。
+
+没有这套协议，水下 SLAM 论文会退回 "EuRoC 100%" 陷阱：光学友好的序列拉高头条，整个领域看起来比实际更接近被解决。
 
 ---
 
 ## Boundary
 
-This doc compares public marine SLAM datasets. Per-method dissection (Aqua-SLAM, DVL-tightly-coupled VIO variants, sonar-camera fusion methods) goes to `embodiments/marine/`. Sensor physics (sonar imaging, DVL operating principles, underwater optics attenuation curves) lives in `foundations/sensor-physics/`. Cross-embodiment "visual-only ceiling" framing belongs in `crossing/`.
+本文比较公开的水下 SLAM 数据集。Per-method 拆解（Aqua-SLAM、DVL 紧耦合 VIO 变体、声—相机融合方法）归 `embodiments/marine/`。Sensor physics（sonar 成像、DVL 工作原理、水下光学衰减曲线）住在 `foundations/sensor-physics/`。跨 embodiment 的 "visual-only ceiling" 框架归 `crossing/`。
 
 Cross-link: see `embodiments/marine/` for AUV / ROV stack architecture and the "why visual is auxiliary" discussion.
 

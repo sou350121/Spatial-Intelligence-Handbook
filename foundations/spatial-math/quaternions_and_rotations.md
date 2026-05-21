@@ -1,12 +1,12 @@
 # Quaternions and Rotation Representations (四元数与旋转表示)
 
 > **发布时间**: 2026-05-21
-> **核心定位**: Which rotation representation to use, when, and how the Hamilton vs JPL convention war has cost real teams real weeks.
+> **核心定位**: 选哪种旋转表示、什么时候选、以及 Hamilton vs JPL 约定战争如何让真实团队真实地损失几个星期。
 
-**Status:** v1 — primer. Convention-conflict numbers from public SLAM forum reports `UNVERIFIED`.
-**TL;DR:** Unit quaternions for storage, rotation matrices for transformation, axis-angle for tangent updates. Never Euler in real-time stacks. **Pin one quaternion convention (Hamilton or JPL) per repo** — silent mismatches sink integrations.
+**Status:** v1 —— primer。约定冲突相关数字来自公开 SLAM 论坛报告，`UNVERIFIED`。
+**TL;DR:** 存储用 unit quaternion，变换用 rotation matrix，切空间更新用轴角。实时栈里**永远别用 Euler**。**每个 repo 钉死一种 quaternion 约定（Hamilton 或 JPL）** —— 静默 mismatch 会沉掉整个集成。
 
-**X-Ray.** A 3D rotation has 3 DoF but every parametrisation pays a cost — Euler hits gimbal lock, matrices over-parametrise, axis-angle is singular at π, quaternions have a sign ambiguity. Unit quaternions win in practice: compose cheaply, slerp smoothly, stay manifold-correct without re-orthonormalisation. Catch: graphics (Hamilton) vs aerospace (JPL) write the math with opposite multiplication order. (中文直觉：旋转有四种穿法，四元数最优 — 但要确认是 Hamilton 还是 JPL。)
+**X-Ray.** 3D 旋转有 3 个自由度，但每种参数化都得付代价 —— Euler 会撞 gimbal lock，matrix 是过参数化，轴角在 π 处奇异，quaternion 有符号歧义。实战中 unit quaternion 胜出：复合便宜，slerp 平滑，不需重新正交化就保持 manifold 正确。坑：图形界（Hamilton）和航空界（JPL）写的数学乘法顺序是反的。（中文直觉：旋转有四种穿法，四元数最优 —— 但要确认是 Hamilton 还是 JPL。）
 
 ## 📍 研究全景时间线
 
@@ -17,36 +17,36 @@ quaternions Hamilton SLAM "Indirect KF / 3D Attitude" (JPL) convention war
                                                             still bites stacks
 ```
 
-Trawny-Roumeliotis 2005 is why OpenVINS / MSCKF uses JPL while ROS / ORB-SLAM3 uses Hamilton. **Both correct; both incompatible.**
+Trawny-Roumeliotis 2005 就是 OpenVINS / MSCKF 用 JPL、而 ROS / ORB-SLAM3 用 Hamilton 的原因。**两边都对；两边互不兼容。**
 
 ---
 
-## 1 · The four representations (and one anti-pattern)
+## 1 · 四种表示（外加一种反模式）
 
-| Repr | Storage | Composition | Singularity | Interpolation | Real-time SLAM use |
+| 表示 | 存储 | 复合 | 奇点 | 插值 | 实时 SLAM 用法 |
 |---|---|---|---|---|---|
-| **Euler (roll/pitch/yaw)** | 3 floats | 3 trig ops, order-dependent | gimbal lock | ugly | ❌ anti-pattern in SLAM |
-| **Rotation matrix R** | 9 floats | 1 matmul (27 mul + 18 add) | none | nlerp on each row, then re-orthonormalise | rarely stored, used for transforming points |
-| **Axis-angle / rotvec** | 3 floats | needs exp-log round-trip | at θ = π | linear on axis, ok for small θ | tangent-space updates only |
-| **Unit quaternion** | 4 floats (1 constraint) | 16 mul + 12 add | sign ambiguity | slerp (clean) | ★ canonical storage |
+| **Euler (roll/pitch/yaw)** | 3 floats | 3 次三角运算、顺序敏感 | gimbal lock | 丑 | ❌ SLAM 里的反模式 |
+| **Rotation matrix R** | 9 floats | 1 次 matmul（27 乘 + 18 加） | 无 | 逐行 nlerp 再重新正交化 | 很少存储，用于变换点 |
+| **轴角 / rotvec** | 3 floats | 需 exp-log 往返 | θ = π 处 | 小 θ 时沿轴线性 OK | 仅用于切空间更新 |
+| **Unit quaternion** | 4 floats（1 个约束） | 16 乘 + 12 加 | 符号歧义 | slerp（干净） | ★ 规范存储 |
 
-### 1.1 Why Euler is forbidden in SLAM stacks
+### 1.1 为什么 SLAM 栈里禁用 Euler
 
-1. **Order ambiguity** — ZYX vs ZXY vs ... 12 conventions, rarely documented.
-2. **Gimbal lock** at pitch = ±90° — drone flying inverted hits this; conversion Jacobian singular; EKF blows up.
-3. **No clean composition** — combining Euler triples requires rotation matrix anyway.
+1. **顺序歧义** —— ZYX vs ZXY vs ... 12 种约定，很少明文写。
+2. **pitch = ±90° 处 gimbal lock** —— 倒飞的 drone 会撞上；转换 Jacobian 奇异；EKF 爆掉。
+3. **没有干净的复合** —— Euler 三元组的复合反正还得过 rotation matrix。
 
-Euler is for *display*. Never the canonical state.
+Euler 只配做*显示用*。永远不是规范状态。
 
 ### 1.2 ⚡ Eureka Moment
 
-> **Unit quaternions are the only repr that is (a) singularity-free, (b) double-cover smooth at identity, (c) cheap to compose, (d) interpolatable — all four at once. Every other drops at least one.**
+> **Unit quaternion 是唯一一种同时满足 (a) 无奇点、(b) identity 附近的双覆盖光滑、(c) 复合便宜、(d) 可插值的表示。其他每种至少要丢掉一项。**
 
-This is why shipping aerial / AR / AD attitude estimators since 2015 store quaternions, even though papers write rotation-matrix equations for readability.
+这就是为什么 2015 年以来所有量产的航空 / AR / AD 姿态估计器都把状态存成 quaternion，哪怕论文为了可读用 rotation matrix 写方程。
 
 ---
 
-## 2 · Math core: quaternion algebra
+## 2 · 数学核心：quaternion 代数
 
 ### 📌 Napkin Formula
 
@@ -56,25 +56,25 @@ ij = k, jk = i, ki = j        (Hamilton)
 ji = k, kj = i, ik = j        (JPL — flipped sign)
 ```
 
-The sign flip is not "different math" — it is which side a vector rotates from. Identical-looking equations produce transposed rotations.
+这个符号翻转不是"不同的数学" —— 是"向量从哪一侧被旋转"。**长得一模一样的方程会产出转置过的 rotation。**
 
-| Aspect | Hamilton | JPL |
+| 项 | Hamilton | JPL |
 |---|---|---|
 | `ij =` | `+k` | `-k` |
 | `R(q) v` | active rotation | passive (frame change) |
-| `q1 ⊗ q2` | composes left-to-right | right-to-left |
-| Used by | Eigen, ROS tf, GTSAM, ORB-SLAM3, HZ | OpenVINS, MSCKF, aerospace |
-| First bug | rotations backwards | covariance Jacobians transposed |
+| `q1 ⊗ q2` | 左到右复合 | 右到左 |
+| 使用方 | Eigen、ROS tf、GTSAM、ORB-SLAM3、HZ | OpenVINS、MSCKF、航空 |
+| 第一个 bug | 旋转反向 | 协方差 Jacobian 转置 |
 
-A Hamilton lib fed JPL data compiles fine — output drifts slowly in straight flight, explodes in turns. Teams have lost weeks here `UNVERIFIED`.
+Hamilton 库吃 JPL 数据，编译通过、直飞时缓慢漂移、一转弯就爆。团队在这里损失过几个星期 `UNVERIFIED`。
 
 ---
 
-## 3 · Worked example: a Hamilton-vs-JPL collision in real code
+## 3 · 玩具例子：Hamilton-vs-JPL 在真实代码里的碰撞
 
-Team integrates OpenVINS IMU front-end (JPL) with ORB-SLAM3 back-end (Hamilton). Quaternions flow front → back.
+团队把 OpenVINS IMU 前端（JPL）和 ORB-SLAM3 后端（Hamilton）集成。Quaternion 从前端流到后端。
 
-Both stacks define `Quaternion(w, x, y, z)` same layout. Both expose `toRotationMatrix()`. Identity unit tests pass. **The bug appears at runtime under yaw.**
+两边都把 `Quaternion(w, x, y, z)` 定义成同样的 layout。两边都暴露 `toRotationMatrix()`。单元测试 identity 通过。**bug 在运行时 yaw 转动下出现。**
 
 ```
 front (JPL):     q_FE = (0.7071, 0, 0, 0.7071)   // 90° about z
@@ -84,81 +84,81 @@ back (Hamilton): same q bits → R = ...
                   → "rotates world-z to body-x"
 ```
 
-Same quaternion, opposite interpretation. Every pose *transposed*. Position fine in straight flight (identity dominates), wrong by ~2θ in turns.
+同一个 quaternion，相反的解释。每个位姿被*转置*。直飞时位置看起来对（identity 主导），转弯时偏 ~2θ。
 
-**Fix:** at integration boundary, `q_out = q_in.conjugate()` if active-vs-passive is the conflict. Document convention next to the boundary.
+**修法:** 在集成边界上，若冲突是 active vs passive，写 `q_out = q_in.conjugate()`。在边界旁明文标注约定。
 
 ---
 
-## 4 · Engineering view: slerp, normalisation, double cover
+## 4 · 工程视角：slerp、归一化、双覆盖
 
 ```
 slerp(q0, q1, t) = sin((1-t)θ)/sin(θ)·q0 + sin(tθ)/sin(θ)·q1
 where cos θ = q0 · q1   (4D dot)
 ```
 
-If `q0·q1 < 0`, flip (`q1 = -q1`) before slerping — else interpolation goes the long way around. **Double-cover ambiguity** in practice.
+如果 `q0·q1 < 0`，先 `q1 = -q1` 再 slerp —— 不然插值走的是长路。这就是实践中的**双覆盖歧义**。
 
-**Renorm cadence.** Double-precision drifts ~1e-15 per op; 10 min at 200 Hz ≈ 1e-9 drift, negligible. Float32 drifts ~1e-7 per op, renorm every ~1000 ops. Idiom: renorm in predict step, not every multiply.
+**归一化节奏.** Double 精度每次操作漂 ~1e-15；200 Hz 跑 10 分钟约 1e-9，可忽略。Float32 每次操作漂 ~1e-7，每 ~1000 次操作要 renorm 一下。习惯做法：在 predict step 里 renorm，不是每次乘法都 renorm。
 
-| Repr | Bytes (dbl) | Compose | Rotate vec |
+| 表示 | Bytes (dbl) | 复合 | 变换向量 |
 |---|---|---|---|
-| Quaternion | 32 | 16 mul + 12 add | ~30 flops `q v q*` |
-| Rotation matrix | 72 | 27 mul + 18 add | 9 mul + 6 add |
+| Quaternion | 32 | 16 乘 + 12 加 | ~30 flops `q v q*` |
+| Rotation matrix | 72 | 27 乘 + 18 加 | 9 乘 + 6 加 |
 
-10k keyframes: quaternions save ~400 KB and stay manifold-correct. Convert to R per-query for point transforms.
-
----
-
-## 5 · When each repr is right
-
-| Need | Use |
-|---|---|
-| Store keyframe pose | quaternion + translation (7 doubles) |
-| Transform point cloud | rotation matrix (matmul) |
-| Tangent-space update | axis-angle (so(3)) |
-| Human log display | Euler (deg) — only place Euler belongs |
-| Average N rotations | eigendecomp of `Σ q_i q_iᵀ` (Markley 2007) |
-| Interpolate poses | slerp |
+10k 关键帧：quaternion 省下 ~400 KB 且 manifold 正确。需要变换点时按需转成 R。
 
 ---
 
-## 6 · Failure modes & Hidden Assumptions
+## 5 · 何时用哪种表示
 
-| Failure | Cause |
+| 需求 | 选什么 |
 |---|---|
-| Drone flips at pitch 89° | Euler in stack, gimbal lock |
-| Rotations transposed | Hamilton-vs-JPL mismatch |
-| Slerp long-way-around | forgot `q0·q1 < 0` flip |
-| Drift off SO(3) after 1M ops | missed renorm, float32 |
-| Avg quat garbage | naïve component avg, need eigendecomp |
+| 存关键帧位姿 | quaternion + translation（7 doubles） |
+| 变换点云 | rotation matrix (matmul) |
+| 切空间更新 | 轴角 (so(3)) |
+| 人类日志显示 | Euler（deg）—— Euler 唯一能上场的地方 |
+| N 个旋转求平均 | `Σ q_i q_iᵀ` 的特征分解（Markley 2007） |
+| 位姿插值 | slerp |
+
+---
+
+## 6 · 失败模式 & Hidden Assumptions
+
+| 失败 | 原因 |
+|---|---|
+| 在 pitch 89° 翻 drone | 栈里有 Euler，gimbal lock |
+| 旋转方向被转置 | Hamilton-vs-JPL mismatch |
+| Slerp 走长路 | 忘了 `q0·q1 < 0` 时翻号 |
+| 跑 1M 次操作后漂出 SO(3) | 漏 renorm，float32 |
+| Quat 平均出垃圾 | 朴素分量平均，需特征分解 |
 
 ### 6.1 Hidden Assumptions
 
-- **Convention pinned** — Hamilton or JPL, documented; never silently mixed across boundaries.
-- **Storage is unit-norm** — renorm after accumulations.
-- **Sign canonical** — flip `q ← -q` when `w < 0` before slerp / compare.
-- **Coords documented** — body vs world, FRD (aerospace) vs FLU (ROS).
-- **Active vs passive matches** the rotation-matrix convention downstream (Eigen / Sophus).
+- **约定钉死** —— Hamilton 或 JPL，写在文档里；不在边界上静默混用。
+- **存储是单位长** —— 累积后要 renorm。
+- **符号规范化** —— 比较 / slerp 前若 `w < 0` 就 `q ← -q`。
+- **坐标系写明** —— body vs world，FRD（航空）vs FLU（ROS）。
+- **active vs passive** 与下游 rotation matrix 约定（Eigen / Sophus）一致。
 
-Any mismatch produces *silent* garbage that passes identity unit tests.
+任何 mismatch 都会产出能通过 identity 单元测试的*静默*垃圾。
 
 ---
 
 ## 7 · Interview Tip
 
-> **🎤 Interview Tip.** "Why quaternions over rotation matrices?" — strong answer hits three: (1) singularity-free 4-vec vs 9-entry redundant matrix, (2) manifold-correct under composition without re-orthonormalisation, (3) clean slerp interpolation. Add: "and we pin Hamilton vs JPL at the repo boundary because they are silently incompatible." That last sentence signals production experience.
+> **🎤 Interview Tip.** "为什么用 quaternion 而不是 rotation matrix？" —— 强答抓三点：(1) 无奇点 4-vec vs 9-entry 冗余矩阵，(2) 复合下 manifold 正确、无需重新正交化，(3) 干净的 slerp 插值。加一句："我们在 repo 边界钉死 Hamilton vs JPL，因为两者会静默不兼容。" 最后这句出来面试官就知道你做过 production。
 
 ---
 
 ## Boundary
 
-This primer covers the *parametrisation choice*. For:
+这篇 primer 只覆盖*参数化选择*。如需：
 
-- **so(3) exp/log tangent updates** → `./se3_so3_lie_groups_primer.md`
-- **Quaternion EKF state propagation** → `./bayesian_filtering_ekf_msckf.md`
-- **IMU preintegration quaternion accumulation** → `./imu_preintegration_math.md`
-- **OpenVINS JPL impl** → `embodiments/aerial/vio/openvins_dissection.md`
+- **so(3) exp/log 切空间更新** → `./se3_so3_lie_groups_primer.md`
+- **Quaternion EKF 状态传播** → `./bayesian_filtering_ekf_msckf.md`
+- **IMU preintegration quaternion 累积** → `./imu_preintegration_math.md`
+- **OpenVINS JPL 实现** → `embodiments/aerial/vio/openvins_dissection.md`
 
 ---
 

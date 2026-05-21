@@ -2,12 +2,12 @@
 
 > **Publication:** CVPR 2022 (oral)
 > **Paper:** Barron, Mildenhall, Verbin, Srinivasan, Hedman. Google Research. arXiv: https://arxiv.org/abs/2111.12077
-> **Core position:** The NeRF variant that handles unbounded 360° scenes properly and remains the *quality* benchmark 3DGS still chases — four years later.
+> **Core position:** 正确处理无界 360° 场景的 NeRF 变体，且仍是 3DGS 在四年后依然追赶的*质量* benchmark.
 
-**Status:** v1 — opinionated. Numbers from paper unless `UNVERIFIED`.
-**TL;DR:** Vanilla NeRF and Mip-NeRF assume the scene lives in a bounded box. Real captures don't — point a camera in a backyard and there's sky, distant buildings, ground to the horizon. Mip-NeRF 360 contributes three pieces: (1) disparity-based *scene contraction* mapping unbounded space into a bounded ball, (2) *cone-tracing with gaussian sampling* (from Mip-NeRF) for multi-scale anti-aliasing, (3) *online distillation + proposal sampling* to learn where surfaces are. The LPIPS / SSIM numbers 3DGS reports are compared against Mip-NeRF 360 — and 3DGS still loses on the hardest scenes. **3DGS wins on speed and editability; Mip-NeRF 360 still wins on quality.**
+**Status:** v1 — 带立场。除非标 `UNVERIFIED`，数字来自论文。
+**TL;DR:** Vanilla NeRF 和 Mip-NeRF 都假设场景在有界 box 内. 真实拍摄不是 — 把相机指向后院就有天空、远处建筑、地面到地平线. Mip-NeRF 360 贡献三件：(1) 基于 disparity 的*场景收缩*，把无界空间映到有界球；(2) *cone-tracing with gaussian sampling*（来自 Mip-NeRF）做多尺度抗锯齿；(3) *online distillation + proposal sampling* 学表面在哪. 3DGS 上报告的 LPIPS / SSIM 是与 Mip-NeRF 360 对比的 — 在最难的场景上 3DGS 仍输. **3DGS 赢速度与可编辑；Mip-NeRF 360 仍赢质量.**
 
-**X-Ray.** Measured by "deployable in a robot stack", 3DGS displaced everything. Measured by "best PSNR on Mip-NeRF 360 benchmark", the 2026 answer is still a NeRF (Zip-NeRF, direct successor). For spatial-intelligence engineers, the lesson is *don't confuse deployment dominance with technical superiority* — 3DGS won because explicit primitives are robotics-friendly, not because gaussian splats are more accurate.
+**X-Ray.** 按 "能塞进机器人栈" 衡量，3DGS 取代一切. 按 "Mip-NeRF 360 benchmark 最佳 PSNR" 衡量，2026 答案仍是 NeRF（Zip-NeRF，直系继任）. 对空间智能工程师，教训是*别把部署主导混同技术优越* — 3DGS 赢是因显式 primitive 对机器人友好，不是因 gaussian splat 更精确.
 
 ## 📍 Research panorama timeline
 
@@ -20,7 +20,7 @@ NeRF     ► Mip-NeRF        ► Mip-NeRF 360     ► Instant-NGP-     ► 3DGS 
                              └─ "make NeRF correct" wing ─┘   └─ "make NeRF deployable" wing ─┘
 ```
 
-Mip-NeRF 360 = the *quality-maximizing* branch. Instant-NGP and 3DGS = the *speed-maximizing* branch. They barely overlap until Zip-NeRF (2023) tried merging.
+Mip-NeRF 360 = *最大化质量*分支. Instant-NGP 和 3DGS = *最大化速度*分支. 几乎不重叠，直到 Zip-NeRF (2023) 尝试合并.
 
 ---
 
@@ -30,18 +30,18 @@ Mip-NeRF 360 = the *quality-maximizing* branch. Instant-NGP and 3DGS = the *spee
 
 | Component | Function | From |
 |---|---|---|
-| Scene contraction `f(x)` | Map unbounded ℝ³ → bounded ball radius 2 | **New** |
-| Conical frustum sampling | Pixel = cone; sample gaussians along cone | Mip-NeRF (2021) |
-| IPE (integrated PE) | Encode gaussian *distribution*, not point | Mip-NeRF (2021) |
-| Proposal MLP + NeRF MLP | Proposal predicts where to sample | **New** |
-| Online distillation | Proposal supervised by NeRF density | **New** |
-| Distortion regularizer | Penalize spread weight histograms; anti-floater | **New** |
+| Scene contraction `f(x)` | 把无界 ℝ³ → 半径 2 的有界球 | **New** |
+| Conical frustum sampling | 像素 = 锥；沿锥采样 gaussian | Mip-NeRF (2021) |
+| IPE (integrated PE) | 编码 gaussian *分布*，不是点 | Mip-NeRF (2021) |
+| Proposal MLP + NeRF MLP | Proposal 预测哪里采样 | **New** |
+| Online distillation | Proposal 由 NeRF density 监督 | **New** |
+| Distortion regularizer | 惩罚扩散权重直方图；anti-floater | **New** |
 
 ### 1.2 ⚡ Eureka moment
 
-> **An unbounded scene becomes bounded if you contract distance in disparity (inverse-depth) space — and the only metric that matters for rendering is angular resolution per screen pixel, which disparity preserves.**
+> **无界场景在 disparity（逆深度）空间里收缩距离后即变有界 — 渲染唯一在意的指标是每屏像素的角分辨率，disparity 保留它.**
 
-`f(x) = (2 − 1/‖x‖)·(x/‖x‖)` for `‖x‖ > 1` maps the ray at infinity smoothly to a ball of radius 2. A pixel covers more *world space* at 100 m than at 1 m — disparity matches that linear-in-screen-pixels growth.
+`f(x) = (2 − 1/‖x‖)·(x/‖x‖)` 对 `‖x‖ > 1` 把无穷射线平滑映到半径 2 的球. 像素在 100 m 处覆盖比 1 m 处更多*世界空间* — disparity 匹配那种 linear-in-screen-pixels 增长.
 
 ### 1.3 Flow diagram
 
@@ -82,36 +82,36 @@ per-pixel cone radius r(t) = base_radius · t
 IPE(μ, Σ) = encode gaussian distribution    (vs encode point in NeRF)
 ```
 
-Three orthogonal pieces; remove any one → degrades.
+三件正交；去掉任一 → 退化.
 
-### 2.1 Why cone tracing matters at scale
+### 2.1 为什么 cone tracing 在尺度上重要
 
-NeRF samples points; the same point queried by near- and far-cameras gives the same MLP output. But a *pixel* at the far camera covers a larger world region — the right answer is an integral, not a point. Without cone tracing, contracted unbounded scenes alias horribly because every distant pixel covers a huge contracted volume.
+NeRF 采样点；同点被近、远相机查询给同样 MLP 输出. 但远相机上一个*像素*覆盖更大世界区域 — 正确答案是积分而非点. 没有 cone tracing，收缩的无界场景因每个远像素覆盖巨大收缩体而严重 aliasing.
 
 ### 2.2 Proposal network + distortion
 
-Proposal MLP (density only) replaces NeRF's coarse pass → ~96 evals/pixel instead of 192. Trained to match NeRF's density via online KL distillation on weight histograms.
+Proposal MLP（仅 density）替换 NeRF 的 coarse pass → 每像素 ~96 评估而非 192. 通过 weight 直方图上的 online KL distillation 训练以匹配 NeRF 的 density.
 
-Distortion regularizer: `L_dist = ∫∫ w(s)w(t)|s−t| ds dt`. Penalizes spread weight histograms along the ray, concentrating density at well-defined depths. Single regularizer kills most floater artifacts.
+Distortion regularizer: `L_dist = ∫∫ w(s)w(t)|s−t| ds dt`. 沿射线惩罚扩散权重直方图，把密度集中到明确深度. 单一正则杀掉多数 floater.
 
 ---
 
-## 3 · Worked example: contraction in action
+## 3 · Worked example: contraction 实战
 
-Ray from camera at a building 200 m away in a backyard.
+后院 200 m 外建筑的相机射线.
 
 | Sample | t (raw) | ‖x‖ | contracted | Meaning |
 |---|---|---|---|---|
-| Near grass | 1 m | 1.0 | 1.0 | Foreground, no contraction |
-| Tree | 5 m | 5.0 | 1.8 | Compressed but localized |
-| Building | 200 m | 200 | 1.995 | Near outer shell |
-| Sky | ∞ | ∞ | → 2.0 | Boundary |
+| Near grass | 1 m | 1.0 | 1.0 | 前景，无收缩 |
+| Tree | 5 m | 5.0 | 1.8 | 压缩但定位 |
+| Building | 200 m | 200 | 1.995 | 接近外壳 |
+| Sky | ∞ | ∞ | → 2.0 | 边界 |
 
-MLP only ever sees `‖·‖ ≤ 2`. **Sky is a thin shell at radius 2** — distinguishable from the building (1.995) but barely. Without contraction, MLP would need density over four orders of magnitude; with it, same capacity covers everything.
+MLP 只见过 `‖·‖ ≤ 2`. **天空是半径 2 处的薄壳** — 与建筑 (1.995) 可区分但勉强. 无收缩时，MLP 需四个数量级的 density；有收缩时，同容量覆盖一切.
 
 ---
 
-## 4 · Engineering view: cost vs vanilla NeRF
+## 4 · Engineering view: 与 vanilla NeRF 的代价对比
 
 | Metric | NeRF | Mip-NeRF 360 |
 |---|---|---|
@@ -121,48 +121,48 @@ MLP only ever sees `‖·‖ ≤ 2`. **Sky is a thin shell at radius 2** — dis
 | LPIPS | ~0.45 | **~0.25** |
 | Reproducible? | Yes (PyTorch) | Painful; ref is JAX |
 
-2026 leaderboard snapshot on the 7-scene Mip-NeRF 360 benchmark `UNVERIFIED`:
+7 场景 Mip-NeRF 360 benchmark 上 2026 排行榜快照 `UNVERIFIED`:
 
 - 3DGS vanilla (2023): ~27.4 PSNR
 - Mip-NeRF 360: ~27.7
 - Zip-NeRF (2023): **~28.5**
 - Mip-Splatting (2024): ~27.6
 
-**NeRF lineage still wins by 0.5–1 dB**, loses on wall-clock by ~20×.
+**NeRF 谱系仍以 0.5–1 dB 取胜**，wall-clock 输 ~20×.
 
 ---
 
 ## 5 · Data and evaluation
 
-- **Mip-NeRF 360 benchmark** (introduced here): 7 unbounded 360° scenes — bicycle, garden, stump, room, counter, kitchen, bonsai. 100–300 images each, COLMAP poses.
-- Defined what "unbounded NeRF" means — single most-cited eval in radiance-field papers 2022–2026.
-- Does not test dynamic content, low-light, transparency. Quality test, not robustness.
+- **Mip-NeRF 360 benchmark**（此处引入）：7 个无界 360° 场景 — bicycle, garden, stump, room, counter, kitchen, bonsai. 每个 100–300 张，COLMAP 位姿.
+- 定义了 "unbounded NeRF" 的含义 — 2022–2026 radiance-field 论文中引用最多的单个 eval.
+- 不测动态、低光、透明. 是质量测试，不是鲁棒性测试.
 
 ---
 
 ## 6 · Capabilities and failure modes
 
-**Does well:** 360° captures of bounded objects with unbounded backgrounds ("backyard with centerpiece"); multi-scale viewing via cone tracing; specular highlights better than vanilla NeRF.
+**做得好：** 有界物体配无界背景的 360° 拍摄（"后院带主体"）；通过 cone tracing 做多尺度观看；比 vanilla NeRF 更好的镜面高光.
 
 ### 6.1 Hidden assumptions
 
-- **Single bounded centerpiece** — contraction assumes a meaningful "inside" (unit ball). No clear center (long street) → wastes capacity.
-- **Static, well-calibrated** — inherits NeRF's "static + COLMAP poses" requirements.
-- **Slow training acceptable** — ~7h / scene; impractical at scale.
-- **No editing** — implicit MLP; can't delete the bonsai keep the kitchen.
-- **Sky geometrically degenerate** — collapsed to a thin shell.
-- **Pinhole-ish camera** — fisheye / very wide-angle violates linear-cone-radius.
+- **单一有界主体** — contraction 假设有意义的"内部"（单位球）. 无明确中心（长街）→ 浪费容量.
+- **静态、良好标定** — 继承 NeRF 的 "静态 + COLMAP 位姿" 要求.
+- **可接受慢训练** — 每场景 ~7h；规模化不实际.
+- **无编辑** — 隐式 MLP；不能删盆栽保留厨房.
+- **天空几何退化** — 塌缩到薄壳.
+- **接近 pinhole 相机** — 鱼眼 / 极广角违反线性锥半径.
 
-### 6.2 Why this matters vs 3DGS
+### 6.2 为什么这对 3DGS 重要
 
-3DGS's *known weakness* is unbounded: distant gaussians grow huge, blowing up storage. Mip-NeRF 360 contraction *solves this by construction*.
+3DGS *已知弱点*是无界：远 gaussian 长巨大，存储爆. Mip-NeRF 360 contraction *按构造解决*.
 
-- Quality: Mip-NeRF 360 wins by ~1 dB / ~10% LPIPS.
-- Speed: 3DGS by 20–100×.
-- Editability: 3DGS.
-- Storage: comparable (~500 MB).
+- 质量：Mip-NeRF 360 以 ~1 dB / ~10% LPIPS 取胜.
+- 速度：3DGS 20–100×.
+- 可编辑：3DGS.
+- 存储：可比（~500 MB）.
 
-Film VFX offline backyard reconstruction → Mip-NeRF 360. Robot needing <10 ms render → 3DGS + Mip-Splatting.
+电影 VFX 离线后院重建 → Mip-NeRF 360. 机器人需 <10 ms 渲染 → 3DGS + Mip-Splatting.
 
 ---
 
@@ -176,7 +176,7 @@ Film VFX offline backyard reconstruction → Mip-NeRF 360. Robot needing <10 ms 
 | Render | <1 | <1 | <1 | ~1 | 100 FPS |
 | PSNR Mip360 | 22 | 24 | 27.7 | **28.5** | 27.4 |
 
-> **🎤 Interview tip.** "If Mip-NeRF 360 is still SOTA on quality, why did 3DGS win deployment?" — Right answer: *"Quality isn't a single number — for robotics, 'render rate × editability × storage' dominates 'last 1 dB of PSNR'. Mip-NeRF 360 still wins offline reconstruction benchmarks; 3DGS wins because its primitives match robotics' operational constraints (inspectable, fast, editable). The two coexist."* Wrong: "3DGS is just better." Better along axes robotics cares about, not on the benchmark this paper introduced.
+> **🎤 Interview tip.** "若 Mip-NeRF 360 在质量上仍 SOTA，为什么 3DGS 赢了部署？" — 正确答案：*"质量不是单一数字 — 对机器人，'渲染速率 × 可编辑性 × 存储' 压倒 'PSNR 最后 1 dB'. Mip-NeRF 360 仍赢离线重建 benchmark；3DGS 赢是因其 primitive 匹配机器人操作约束（可检查、快、可编辑）. 二者共存."* 错答："3DGS 就是更好". 在机器人在意的轴上更好，不是在这篇论文引入的 benchmark 上.
 
 ---
 
@@ -190,7 +190,7 @@ Film VFX offline backyard reconstruction → Mip-NeRF 360. Robot needing <10 ms 
 
 ## Boundary
 
-Dissects Mip-NeRF 360 only. Does **not** cover surface-recon NeRFs (NeuS, VolSDF), sparse-view (PixelNeRF), dynamic, city-scale (→ `block_nerf_large_scenes.md`), or 3DGS displacement (→ `foundations/3dgs-family/`).
+仅解构 Mip-NeRF 360. **不**覆盖表面重建 NeRF（NeuS, VolSDF）、稀疏视角（PixelNeRF）、动态、城市级（→ `block_nerf_large_scenes.md`）或 3DGS 替代（→ `foundations/3dgs-family/`）.
 
 ---
 

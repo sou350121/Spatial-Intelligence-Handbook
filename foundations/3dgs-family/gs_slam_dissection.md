@@ -3,14 +3,14 @@
 > **Published**: 2023-11 (arXiv) / CVPR 2024
 > **Paper**: Yan et al. — *GS-SLAM: Dense Visual SLAM with 3D Gaussian Splatting*
 > **Team**: Tsinghua + Zhejiang Lab
-> **Core position**: First system to run 3DGS *online* from a moving RGB-D camera — tracking by render-and-compare against the current gaussian map, mapping by depth-driven gaussian spawning. Loop closure remains unsolved.
+> **Core position**: 第一个把 3DGS *在线*跑在移动 RGB-D 相机下的系统 — tracking 靠在当前 gaussian map 上 render-and-compare，mapping 靠 depth 驱动 gaussian spawn。Loop closure 仍未解决。
 
-**Status:** v1.1 — backfilled to AGENTS.md 14-item template 2026-05-21. Hyperparams marked UNVERIFIED.
-**TL;DR:** GS-SLAM finally got 3DGS to run *online* from a moving camera, which is what closes the gap from "post-hoc reconstruction" to "live spatial map." The unsolved problem is loop closure — gaussians don't refactor cleanly when you discover the camera was wrong about its pose 30 seconds ago, and that's why classical SLAM still wins for long-horizon mapping.
+**Status:** v1.1 — 已按 AGENTS.md 14 项门槛模板回填于 2026-05-21. Hyperparams 标 UNVERIFIED.
+**TL;DR:** GS-SLAM 终于让 3DGS *在线*跑在移动相机下，填补了 "post-hoc reconstruction" 到 "live spatial map" 的 gap。未解的问题是 loop closure — 当你 30 秒后发现相机当时位姿错了，gaussian 不能干净重构，这是经典 SLAM 在长时序 mapping 上仍占优的原因。
 
 ### X-Ray (non-expert friendly)
 
-(a) Vanilla 3DGS is offline: capture images, run COLMAP, optimize ~30 minutes. SLAM needs the opposite — every new frame should refine the map incrementally. (b) GS-SLAM separates *tracking* (pose only, fast, render-and-compare) from *mapping* (gaussian update, slow, keyframe-bounded), the classical ORB-SLAM split with gaussians as the map back-end. (c) For spatial AI engineers: GS-SLAM is the first time you get a *renderable, dense, online* map — good for short indoor demos, but not yet a replacement for ORB-SLAM3 on long-horizon trajectories with loops.
+(a) Vanilla 3DGS 是离线的：拍图、跑 COLMAP、优化 ~30 分钟。SLAM 要求反过来 — 每个新帧都应增量精化地图。(b) GS-SLAM 把 *tracking*（只更新位姿，快，render-and-compare）和 *mapping*（gaussian 更新，慢，受 keyframe 限定）分开，是经典 ORB-SLAM 拆分但以 gaussian 作为地图后端。(c) 对空间 AI 工程师：GS-SLAM 是你第一次拿到 *可渲染、稠密、在线*的地图 — 适合短室内 demo，但还不能在带回环的长时序轨迹上替代 ORB-SLAM3。
 
 ### 📍 Research Landscape Timeline
 
@@ -18,23 +18,23 @@
 ORB-SLAM3 2020 ─► NICE-SLAM (NeRF) 2022 ─► Co-SLAM 2023 ─► ★ GS-SLAM CVPR 2024 ─► SplaTAM 2024 ─► MonoGS 2024 ─► loop-closed GS-SLAM 2026+ (open)
 ```
 
-GS-SLAM is the first 3DGS-native SLAM system; SplaTAM/MonoGS extend the lineage but loop closure on gaussian maps is still open.
+GS-SLAM 是首个 3DGS 原生的 SLAM 系统；SplaTAM/MonoGS 延展该谱系，但 gaussian map 上的 loop closure 仍开放。
 
 Reference paper: Yan et al. "GS-SLAM: Dense Visual SLAM with 3D Gaussian Splatting." *CVPR 2024.* arXiv: https://arxiv.org/abs/2311.11700
 
 ---
 
-## 1 · Why this fusion is the right next step
+## 1 · 为什么这个融合是对的下一步
 
-3DGS as published is an offline tool: collect images, run COLMAP, then optimize gaussians for ~30 minutes. SLAM demands incremental updates — every new frame should refine the map without retraining. The naive fusion ("just run 3DGS frame-by-frame") doesn't work; gaussian optimization is too slow and the representation has no notion of incremental insertion. **GS-SLAM is the first system to make the online loop tractable**, by separating tracking and mapping the way ORB-SLAM did but with gaussians as the map primitive.
+3DGS 发表态是离线工具：收图、跑 COLMAP，再优化 gaussian 约 30 分钟。SLAM 要求增量更新 — 每个新帧应精化地图而不重训练。朴素融合（"逐帧跑 3DGS"）不可行；gaussian 优化太慢，且表示没有增量插入的概念。**GS-SLAM 是第一个让在线环路可处理的系统**，借鉴 ORB-SLAM 拆分 tracking 与 mapping 的方式，把 gaussian 作为 map primitive。
 
-Overclaim to resist: "3DGS replaces classical SLAM." It does not. GS-SLAM is best read as "ORB-SLAM with a photoreal map back-end" — front-end tracking stays recognizably classical, gaussians are the back-end deliverable.
+要抵制的过度宣称："3DGS 替代经典 SLAM"。并没有。GS-SLAM 最好读作 "ORB-SLAM 配 photoreal 地图后端" — 前端 tracking 仍可辨认为经典做法，gaussian 是后端交付物。
 
-> ⚡ **Eureka Moment**: The differentiable rasterizer is the *tracker* — render an expected RGB-D from the current gaussian map at predicted pose, photometric loss vs observed frame, backprop into pose. The same rasterizer that does mapping does tracking. **No separate feature pipeline, no PnP, no descriptor matching** — pose estimation collapses into a 10-iter gradient descent on the rendering loss.
+> ⚡ **Eureka Moment**: 可微分 rasterizer 就是 *tracker* — 在预测位姿处用当前 gaussian map 渲染期望 RGB-D，与观测帧做 photometric loss，反传回位姿。同一个 rasterizer 既做 mapping 又做 tracking。**没有独立 feature pipeline，没有 PnP，没有 descriptor matching** — 位姿估计塌缩为对渲染 loss 做 10 步梯度下降。
 
-## 2 · Architecture
+## 2 · 架构
 
-> 📌 **Napkin Formula**: `pose ← argmin_T ‖Render(GaussianMap, T) − observed_RGBD‖²` (front-end). Then `GaussianMap ← argmin_G ‖Render(G, T_keyframes) − observed_keyframes‖²` (back-end). Both use the same differentiable rasterizer — the only difference is which variable is optimized.
+> 📌 **Napkin Formula**: `pose ← argmin_T ‖Render(GaussianMap, T) − observed_RGBD‖²`（前端）。然后 `GaussianMap ← argmin_G ‖Render(G, T_keyframes) − observed_keyframes‖²`（后端）。两者都用同一个可微分 rasterizer — 区别只在优化哪个变量。
 
 
 ```
@@ -74,93 +74,93 @@ Overclaim to resist: "3DGS replaces classical SLAM." It does not. GS-SLAM is bes
    Updated gaussian map
 ```
 
-Key engineering tricks: **render-and-compare tracking** (pose estimation reuses the differentiable rasterizer — render expected image from the current map at predicted pose, photometric loss vs actual frame, backprop into pose); **depth-driven spawning** (new gaussians seeded from RGB-D or learned monocular depth in unobserved regions, removing COLMAP-style global SfM init); **keyframe-bounded optimization** (gaussian updates over a sliding window of recent keyframes, not the entire map — bounds per-frame compute).
+关键工程技巧：**render-and-compare tracking**（位姿估计复用可微分 rasterizer — 在预测位姿渲染期望图像，与实际帧做 photometric loss，反传回位姿）；**depth-driven spawning**（新 gaussian 由 RGB-D 或学到的单目深度在未观测区播种，移除 COLMAP 风格全局 SfM init）；**keyframe-bounded optimization**（gaussian 更新只跑近期 keyframe 滑窗，不跑整个地图 — 限定单帧算力）。
 
-## 2.5 · Worked example — 30-second indoor walk
+## 2.5 · Worked example — 30 秒室内行走
 
-Walk a handheld RealSense D435i through a 4 m × 4 m office, 30 s @ 30 Hz → 900 frames.
+手持 RealSense D435i 走 4 m × 4 m 办公室，30 s @ 30 Hz → 900 帧。
 
-- **Frame 1**: spawn ~3K gaussians, pose = identity.
-- **Frame 300** (10 s): ~200K gaussians; tracking ~80 ms; render ~30 ms.
-- **Frame 900** (30 s): ~500K gaussians, ~600 MB GPU; rate drops to 3 Hz on RTX 3090 UNVERIFIED.
-- **Loop closure**: return to start, ATE ~5 cm; rigid SE(3) correction on 500K covariances → ~1 dB PSNR hit, no clean re-converge.
+- **Frame 1**: spawn ~3K gaussian，pose = identity。
+- **Frame 300** (10 s): ~200K gaussian；tracking ~80 ms；render ~30 ms。
+- **Frame 900** (30 s): ~500K gaussian、~600 MB GPU；RTX 3090 上速率降到 3 Hz UNVERIFIED。
+- **Loop closure**: 回到起点，ATE ~5 cm；对 500K covariance 做 rigid SE(3) 校正 → PSNR ~1 dB 损失，不能干净重收敛。
 
-Aggressive pruning is essential past ~30 s of capture.
+>30 s 捕获后必须做激进 pruning。
 
 ---
 
-## 3 · The loop closure problem (unsolved)
+## 3 · loop closure 问题（未解）
 
-Classical SLAM treats loop closure as graph optimization: detect revisit, run global pose-graph optimization, every landmark gets the same SE(3) correction.
+经典 SLAM 把 loop closure 当作图优化：检测重访，跑全局 pose-graph 优化，每个 landmark 接同样 SE(3) 校正。
 
-**Gaussians do not refactor cleanly under this.** Applying rigid pose correction to a point landmark is trivial; applying it to a gaussian rotates the covariance + SH coefficients into the wrong frame `UNVERIFIED severity`. Worse, gaussians from before and after the closure may overlap in the corrected map with no clean merge/prune algorithm, and re-optimization (densification + opacity) has no convergence guarantee.
+**Gaussian 在这套下不能干净 refactor。** 给点 landmark 加 rigid pose 校正是平凡的；给 gaussian 加，会把 covariance + SH 系数转到错误坐标系 `UNVERIFIED severity`。更糟，校正前后的 gaussian 在校正后地图里会重叠，没有干净的 merge/prune 算法，重优化（densification + opacity）没有收敛保证。
 
-GS-SLAM and successors (SplaTAM, MonoGS) mostly *avoid* loop closure rather than solving it — they target short-trajectory indoor scenes where drift is bounded. Honest claim: "good map quality on short loops, no real answer for long-trajectory closures."
+GS-SLAM 与后继（SplaTAM, MonoGS）大多是*回避* loop closure 而非解决 — 它们瞄准短轨迹室内场景，漂移有界。诚实的说法："短回环上地图质量好，对长轨迹闭合没有真正答案"。
 
-## 4 · Real-time on Jetson Orin (the deployment question)
+## 4 · Jetson Orin 上的实时性（部署问题）
 
-Reported runtime on a desktop RTX 3090 `UNVERIFIED`: ~5–8 Hz tracking, mapping in the background at lower rate. On a Jetson Orin (32 GB) the same code path drops to ~1–3 Hz `UNVERIFIED — needs rig validation`. The drop comes from LPDDR5 memory bandwidth (rasterization is memory-bound, not compute-bound, so FLOPS ratios mislead), no tensor-core shortcut (the rasterizer is hand-written CUDA), and map growth (~500k gaussians per 30s indoor capture `UNVERIFIED`, with rendering cost scaling in active gaussians per tile).
+桌面 RTX 3090 上报告运行时 `UNVERIFIED`: tracking ~5–8 Hz，后台 mapping 速率更低。Jetson Orin (32 GB) 上同代码路径降到 ~1–3 Hz `UNVERIFIED — 需实机验证`。下降原因：LPDDR5 内存带宽（rasterization 是 memory-bound，不是 compute-bound，FLOPS 比值会误导）、没有 tensor-core 捷径（rasterizer 是手写 CUDA）、地图增长（室内 30 s 捕获 ~500k gaussian `UNVERIFIED`，渲染开销随每 tile 活跃 gaussian 数量 scale）。
 
-Practical implication: GS-SLAM on Jetson is fine for a short demo (one room) but not for a multi-room long-horizon task without aggressive gaussian pruning.
+实际含义：GS-SLAM 在 Jetson 上做短 demo（一个房间）可以，但多房间长时序任务在没有激进 gaussian pruning 时不行。
 
 ### 4.x · Hidden Assumptions
 
-Upstream assumptions whose violation produces the deployment failures above:
+上游假设，违反就触发上面的部署失败：
 
-- **RGB-D input (depth available)** — depth-driven spawning needs real depth; monocular variants (MonoGS) replace this with learned depth but inherit its scale errors.
-- **Bounded trajectory length / no loops** — loop closure on gaussians is unsolved; long trajectories drift silently.
-- **Static scene** — moving people / objects produce floating gaussians the optimizer cannot prune cleanly.
-- **Photometric stability** — exposure / lighting changes break the rendering loss; tracking diverges.
-- **Sufficient texture** — textureless corridors degrade photometric tracking; classical+IMU recovers better.
-- **GPU on platform** — render-and-compare needs CUDA; CPU-only not viable.
+- **RGB-D input (depth available)** — depth-driven spawn 需要真实深度；单目变体（MonoGS）用学到的深度替代，但继承其 scale error。
+- **Bounded trajectory length / no loops** — gaussian 上的 loop closure 未解；长轨迹静默漂移。
+- **Static scene** — 移动的人 / 物产生 optimizer 不能干净 prune 的浮动 gaussian。
+- **Photometric stability** — 曝光 / 光照变化打破渲染 loss；tracking 发散。
+- **Sufficient texture** — 无纹理走廊使 photometric tracking 退化；经典 + IMU 能更好恢复。
+- **平台带 GPU** — render-and-compare 需 CUDA；纯 CPU 不可行。
 
-If violated, tracking either *diverges loudly* (good, recoverable) or *drifts silently* (bad, accumulates). No drift-aware confidence flag in vanilla GS-SLAM.
+违反时 tracking 要么*响亮发散*（好，可恢复），要么*静默漂移*（坏，会累积）。Vanilla GS-SLAM 没有 drift-aware 置信旗标。
 
 ---
 
-## 5 · Where this beats classical SLAM (and where it doesn't)
+## 5 · 它在哪里赢过经典 SLAM（在哪里没赢）
 
 | Scenario | GS-SLAM | Classical (ORB-SLAM3, RTAB-Map) |
 |---|---|---|
-| Indoor RGB-D, short trajectory, photoreal map needed | ✅ Wins clearly — output is renderable, classical produces sparse point cloud | — |
-| Indoor RGB-D, long trajectory with loops | ⚠️ Loop closure unsolved | ✅ Wins — pose-graph optimization is mature |
-| Outdoor, daylight, large scale | ❌ Memory blows up | ✅ Sparse maps handle this |
-| Texture-poor scenes (warehouse aisles) | ⚠️ Photometric tracking degrades | ⚠️ ORB features also degrade — call it a tie |
-| Low-light / high dynamic range | ❌ Rendering loss is brittle | ⚠️ Feature matching also struggles |
-| Map quality for downstream VLA policy input | ✅ Wins — gaussians are a richer prior than sparse points | ❌ Sparse points need separate dense reconstruction |
+| 室内 RGB-D，短轨迹，需要 photoreal 地图 | ✅ 明显赢 — 输出可渲染，经典只产稀疏 point cloud | — |
+| 室内 RGB-D，长轨迹带回环 | ⚠️ Loop closure 未解 | ✅ 赢 — pose-graph 优化成熟 |
+| 户外、白昼、大尺度 | ❌ 内存爆 | ✅ 稀疏地图能处理 |
+| 弱纹理场景（仓库走廊）| ⚠️ Photometric tracking 退化 | ⚠️ ORB 特征也退化 — 平局 |
+| 低光 / 高动态范围 | ❌ 渲染 loss 脆 | ⚠️ 特征匹配也吃力 |
+| 给下游 VLA policy 的地图质量 | ✅ 赢 — gaussian 比稀疏点更丰富的先验 | ❌ 稀疏点需独立 dense 重建 |
 
-The honest summary: GS-SLAM wins when you need a *renderable, dense* map and you can bound the trajectory length. Classical SLAM wins on long horizons, large scales, and adverse conditions.
+诚实总结：当你需要*可渲染、稠密*地图且能限制轨迹长度时，GS-SLAM 赢。长时序、大尺度、恶劣条件下，经典 SLAM 赢。
 
 ## 6 · 2-year outlook
 
-Unsolved problems, ordered by impact:
+按影响排序的未解问题：
 
-1. **Loop closure on gaussian maps** — needs a principled merge/prune that respects the rendering loss. Biggest opening in the lineage.
-2. **Feed-forward initialization** — replace RGB-D spawning with a VGGT-class model emitting gaussian-ready point clouds from monocular input.
-3. **In-loop map compression** — online pruning that doesn't damage renderability is open.
+1. **Gaussian map 上的 loop closure** — 需要尊重渲染 loss 的有原则 merge/prune。本谱系最大空缺。
+2. **Feed-forward initialization** — 用 VGGT 类模型从单目输入产 gaussian-ready point cloud 替代 RGB-D spawn。
+3. **环路内地图压缩** — 在线 pruning 而不损伤可渲染性，开放。
 
-**Falsifiable prediction:** by 2027-12 there will be at least one published GS-SLAM variant that handles loops of >100m with closure accuracy comparable to ORB-SLAM3. If no such system appears, the lineage will have plateaued as "indoor demo tool only."
+**Falsifiable prediction:** 到 2027-12，至少出现一个发表的 GS-SLAM 变体，能处理 >100m 回环，闭合精度与 ORB-SLAM3 相当。若不出现，该谱系会停在 "室内 demo 工具" 平台。
 
-**Interview Tip**: When asked "does GS-SLAM replace ORB-SLAM3," the trap answer is yes. The right answer: *"not yet — loop closure on gaussian maps is open."* Pitch it as "ORB-SLAM with a photoreal back-end" for short indoor demos; keep classical for long-horizon mapping until merge/prune under SE(3) correction has a principled algorithm.
+**Interview Tip**: 被问 "GS-SLAM 是否替代 ORB-SLAM3"，陷阱是 yes。正确答案：*"还不行 — gaussian map 上 loop closure 开放"*。把它定位为 "ORB-SLAM 加 photoreal 后端" 用于短室内 demo；长时序 mapping 保留经典直到 SE(3) 校正下的 merge/prune 有原则算法。
 
 ## References
 
 - **GS-SLAM** — Yan et al. *CVPR 2024.* https://arxiv.org/abs/2311.11700
-- **SplaTAM** (concurrent work, similar fusion) — Keetha et al. *CVPR 2024.* https://arxiv.org/abs/2312.02126
-- **ORB-SLAM3** (the classical baseline) — Campos et al. *T-RO 2021.* https://arxiv.org/abs/2007.11898
-- **MonoGS** (monocular variant, removes RGB-D requirement) — Matsuki et al. *CVPR 2024.* [arXiv link TBD]
+- **SplaTAM**（并行工作，类似融合）— Keetha et al. *CVPR 2024.* https://arxiv.org/abs/2312.02126
+- **ORB-SLAM3**（经典 baseline）— Campos et al. *T-RO 2021.* https://arxiv.org/abs/2007.11898
+- **MonoGS**（单目变体，移除 RGB-D 需求）— Matsuki et al. *CVPR 2024.* [arXiv link TBD]
 
 ## Boundary
 
-This doc covers gaussian splatting fused with online SLAM. It does **not** cover:
+本文覆盖 gaussian splatting 与在线 SLAM 的融合。**不**覆盖：
 
-- Static 3DGS baseline → `foundations/3dgs-family/3dgs_original_dissection.md`
-- Dynamic 4D extensions → `foundations/3dgs-family/4dgs_dynamic_scenes.md`
-- Aliasing across scales → `foundations/3dgs-family/mip_splatting.md`
-- Classical VIO/SLAM for aerial → `crossing/slam-vio-migration/vggt_vs_drone_vio.md`
-- Cross-representation comparison → `crossing/representation-migration/`
-- VLA policy consumption of gaussian maps → `bridge-to-vla/feature-cloud-to-action.md`
-- Feed-forward 3D as alternative front-end → `foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`
+- 静态 3DGS baseline → `foundations/3dgs-family/3dgs_original_dissection.md`
+- 动态 4D 扩展 → `foundations/3dgs-family/4dgs_dynamic_scenes.md`
+- 跨尺度 aliasing → `foundations/3dgs-family/mip_splatting.md`
+- 空中场景的经典 VIO/SLAM → `crossing/slam-vio-migration/vggt_vs_drone_vio.md`
+- Cross-representation 对比 → `crossing/representation-migration/`
+- VLA policy 对 gaussian map 的消费 → `bridge-to-vla/feature-cloud-to-action.md`
+- Feed-forward 3D 作为替代前端 → `foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`
 
 ---
 

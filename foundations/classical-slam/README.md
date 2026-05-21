@@ -1,8 +1,8 @@
 # 🧭 Classical Visual SLAM — Region Landing (经典视觉 SLAM 导读)
 
-> **Status:** v1 — new region, opinionated draft. `UNVERIFIED` numbers marked inline.
-> **Depth tier:** 📖 foundations baseline (1× depth; not a maintainer anchor — aerial VIO already is)
-> **TL;DR:** This region collects the **cross-embodiment classical visual SLAM canon** — ORB-SLAM3 (feature-based), DSO / LSD-SLAM (direct), and the tooling that keeps them honest (Kalibr / maplab / ROS). It is the *feed-forward 3D dual face* of the foundations stack: VGGT-class models are what the field is becoming, ORB-SLAM3 is what it actually runs on in 2026.
+> **Status:** v1 —— 新区，立场鲜明的草稿。`UNVERIFIED` 数字已 inline 标注。
+> **Depth tier:** 📖 foundations 基线（1× 深度；不是维护者锚点 —— 锚点已在 aerial VIO）
+> **TL;DR:** 这一区汇集**跨 embodiment 的经典视觉 SLAM 范本** —— ORB-SLAM3（feature-based）、DSO / LSD-SLAM（direct）、以及让它们诚实运行的工具链（Kalibr / maplab / ROS）。它是 foundations 栈里 *feed-forward 3D 的对偶面*：VGGT 类模型是这个领域正在成为的样子，ORB-SLAM3 是 2026 年它实际跑在上面的样子。
 
 ---
 
@@ -12,9 +12,9 @@
 
 之前的分工是：
 
-- `foundations/feed-forward-3d/` — VGGT / DUSt3R 这类**前向 3D foundation 模型**（2024+）
-- `embodiments/aerial/vio/` — VINS / OpenVINS / DROID 这类**aerial real-time VIO**（rate × latency × IMU 严苛）
-- `crossing/slam-vio-migration/` — 跨 embodiment 对比
+- `foundations/feed-forward-3d/` —— VGGT / DUSt3R 这类**前向 3D foundation 模型**（2024+）
+- `embodiments/aerial/vio/` —— VINS / OpenVINS / DROID 这类**aerial real-time VIO**（rate × latency × IMU 严苛）
+- `crossing/slam-vio-migration/` —— 跨 embodiment 对比
 
 但有一整批论文坐落在中间：**ORB-SLAM (1/2/3)** 是 manipulation / ground / AR / 室内 robotics 的事实默认；**DSO / LSD-SLAM** 是直接法的里程碑；**Kalibr / maplab** 是不论你跑哪个 stack 都得用的工具链。这些既不"feed-forward"也不"aerial-only"，应该住在 foundations 里，作为跨 embodiment 共享的**经典基线**。
 
@@ -26,9 +26,9 @@
 
 | File | 一句话 |
 |---|---|
-| [`orb_slam3_dissection.md`](./orb_slam3_dissection.md) ★ | Campos et al. *T-RO 2021* — 三线程 + Atlas multi-map，**Why ORB-features still ship in 2026** |
-| [`direct_methods_dso_lsd.md`](./direct_methods_dso_lsd.md) | Engel 2014 / 2017 — pixel intensity 直接法 vs feature matching 的根本分歧，何时赢何时输 |
-| [`slam_toolchain_ecosystem.md`](./slam_toolchain_ecosystem.md) | Kalibr / maplab / ROS2 — 没人写论文但每个 deployment 都得用的工具链账本 |
+| [`orb_slam3_dissection.md`](./orb_slam3_dissection.md) ★ | Campos et al. *T-RO 2021* —— 三线程 + Atlas multi-map，**Why ORB-features still ship in 2026** |
+| [`direct_methods_dso_lsd.md`](./direct_methods_dso_lsd.md) | Engel 2014 / 2017 —— pixel intensity 直接法 vs feature matching 的根本分歧，何时赢何时输 |
+| [`slam_toolchain_ecosystem.md`](./slam_toolchain_ecosystem.md) | Kalibr / maplab / ROS2 —— 没人写论文但每个 deployment 都得用的工具链账本 |
 
 ---
 
@@ -62,10 +62,10 @@
 
 ## Cross-references
 
-- [`foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../feed-forward-3d/vggt_cvpr2025_dissection.md) — 这一区的"未来对偶面"
-- [`embodiments/aerial/vio/README.md`](../../embodiments/aerial/vio/README.md) — aerial 严苛实时实战
-- [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../crossing/slam-vio-migration/vggt_vs_drone_vio.md) — 跨 embodiment 跨范式旗舰
-- [`foundations/sensor-physics/`](../sensor-physics/) — IMU / camera 信号源头
+- [`foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../feed-forward-3d/vggt_cvpr2025_dissection.md) —— 这一区的"未来对偶面"
+- [`embodiments/aerial/vio/README.md`](../../embodiments/aerial/vio/README.md) —— aerial 严苛实时实战
+- [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../crossing/slam-vio-migration/vggt_vs_drone_vio.md) —— 跨 embodiment 跨范式旗舰
+- [`foundations/sensor-physics/`](../sensor-physics/) —— IMU / camera 信号源头
 
 ---
 

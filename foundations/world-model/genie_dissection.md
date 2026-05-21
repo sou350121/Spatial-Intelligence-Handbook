@@ -2,17 +2,17 @@
 
 > **发布时间**: Genie 1 — ICML 2024 (Bruce et al.); Genie 2 — DeepMind blog, December 2024
 > **论文 / 模型**: Genie — DeepMind action-conditional world model family
-> **核心定位**: a **playable** image-space world model with a **learned latent action vocabulary** — candidate **inference-time planner** for a VLA, not a training-data factory.
+> **核心定位**: 一个**可玩**的图像空间 world model，带**学到的潜在动作词表**——VLA 的候选**推理时规划器**，不是训练数据工厂。
 
-Genie is structurally different from Cosmos: it gives you a callable `next_frame = model(frame, action)` function. That makes it the right primitive for MPC-style planning inside a policy loop — provided you can solve the unsolved part: mapping VLA actions to Genie's learned latent vocabulary.
+Genie 在结构上与 Cosmos 不同：它给你一个可调用的 `next_frame = model(frame, action)` 函数。这让它成为策略闭环内 MPC 风格规划的合适原语——前提是你能解决未解决的部分：把 VLA 动作映射到 Genie 学到的潜在词表上。
 
 **Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Latent-action dimensionality and horizon claims marked `UNVERIFIED`.
 **Wedge tier:** W2 · ⚡ [WorldModel] 🛰️
-**TL;DR:** Genie's contribution isn't "another text-to-video model." It's the **first credible move toward an action-conditional world model with a controllable latent action space** — which positions it as a candidate **inference-time planner / rollout engine for a VLA**, not as a training-data factory. The catch: the latent action space is learned from video without grounded labels, so the mapping from VLA action vocabulary to Genie latent actions is the integration problem nobody has cleanly solved. Multi-step horizon and fine geometry are the two failure modes that gate real use.
+**TL;DR:** Genie 的贡献不是"又一个 text-to-video"，而是**首个可信地朝 action-conditional world model 迈进、且带一个可控潜在动作空间**的工作——这使它成为 VLA 的候选**推理时规划器 / rollout 引擎**，而非训练数据工厂。代价：潜在动作空间是从视频无监督学到、无 grounded label，从 VLA 动作词表映射到 Genie 潜在动作的问题至今没人干净解决。多步 horizon 与精细几何是限制实用的两大失败模式。
 
 ### X-Ray (non-expert friendly)
 
-(a) Existing video models (Cosmos, Sora) render plausible video but are not *playable* — you cannot ask "what happens if I take action a?" (b) Genie learns a discrete latent action vocabulary from unlabeled video, then trains a dynamics model that predicts the next frame given the current frame + chosen latent action — call it like a function. (c) For spatial AI engineers: Genie is the first plausible **online MPC rollout engine** for VLAs, but unusable today because (i) latent actions don't ground to robot end-effector commands, (ii) rollouts drift after 2–4 s, (iii) weights are closed.
+(a) 现有视频模型（Cosmos、Sora）渲染出合理视频但不可*玩*——你没法问"如果我采取动作 a 会发生什么？"。(b) Genie 从无标签视频学一个离散潜在动作词表，再训一个 dynamics 模型，给定当前 frame + 选定潜在动作预测下一 frame——像函数一样调用。(c) 对空间 AI 工程师：Genie 是 VLA 首个可信的**在线 MPC rollout 引擎**，但今天用不上，因为 (i) 潜在动作不 grounded 到机器人末端命令，(ii) rollout 在 2–4 s 后漂，(iii) 权重不开。
 
 ### 📍 Research Landscape Timeline
 
@@ -22,25 +22,25 @@ World Models 2018 ─► DreamerV3 2023 ─► UniSim ICLR 2024 ─► ★ Genie
                                             └── peer: Cosmos (data factory, not planner)
 ```
 
-Genie 2 is the first to claim minute-scale 3D-scene rollouts; weights stay closed, so practical robotics work runs on UniSim-style open clones.
+Genie 2 是首个声称分钟级 3D 场景 rollout 的工作；权重保持封闭，所以实际机器人工作都跑在 UniSim 风格的开源 clone 上。
 
 ---
 
 ## 1 · Why Genie is structurally different from Cosmos
 
-Cosmos asks: *"given conditioning, render plausible video."* Action enters as a weak signal, if at all.
+Cosmos 问的是：*"给定 conditioning，渲染合理视频。"* 动作进来作为弱信号，甚至不进来。
 
-Genie asks: *"given a current frame and a discrete latent action, render the next frame as if that action were taken."* This is a stronger architectural commitment — it makes the model **playable**, which is the property a planner needs.
+Genie 问的是：*"给定当前 frame 和一个离散潜在动作，按好像采取了那个动作的方式渲染下一 frame。"* 这是更强的架构承诺——它让模型**可玩**，规划器需要的就是这个性质。
 
-That's why Genie matters to a VLA team in a way Cosmos does not. A Cosmos rollout is something you train *on*. A Genie rollout is something you imagine *inside* a policy loop, prune branches over, and use to score candidate actions. **Inference-time use, not training-time use** — different integration story, different failure modes.
+这就是为什么 Genie 对 VLA 团队的意义和 Cosmos 不同。Cosmos rollout 是你*训练之上的*东西。Genie rollout 是你在策略闭环内*想象*的东西——你在分支上剪枝，给候选动作打分。**推理时使用，不是训练时使用**——集成故事不同，失败模式也不同。
 
 ---
 
 ## 2 · Architecture in one diagram
 
-> 📌 **Napkin Formula**: `frame_{t+1} = Dynamics(frame_t, a_t)`, where `a_t ∈ {1..K}` is a **learned latent action** inferred self-supervised from unlabeled video. The whole model is just "frame + latent action → next frame", and the playable part is the conditioning on `a_t`.
+> 📌 **Napkin Formula**: `frame_{t+1} = Dynamics(frame_t, a_t)`，其中 `a_t ∈ {1..K}` 是从无标签视频自监督推得的**学到的潜在动作**。模型整体就是"frame + latent action → next frame"，可玩部分在于以 `a_t` 为条件。
 
-DeepMind's Genie (Bruce et al. 2024) and Genie 2 (DeepMind blog, late 2024) share the same skeleton:
+DeepMind 的 Genie（Bruce et al. 2024）与 Genie 2（DeepMind blog, 2024 年底）共享同一骨架：
 
 ```
   (training)   frame_t, frame_{t+1} ──► ST-Transformer tokenizer ──► VQ latent action a_t ∈ {1..K}
@@ -50,36 +50,36 @@ DeepMind's Genie (Bruce et al. 2024) and Genie 2 (DeepMind blog, late 2024) shar
   (inference)  frame_t + supplied a_t ──► dynamics ──► next frame  ◄──────────┘
 ```
 
-Three components:
+三个组件：
 
 | Component | Role | Trained on |
 |---|---|---|
-| **Video tokenizer** | Compress frames into spatial tokens | Unlabeled internet video |
-| **Latent action model (LAM)** | Infer discrete latent action between consecutive frames | Self-supervised from same video |
-| **Dynamics model** | Predict next frame given current frame + latent action | Joint with above |
+| **Video tokenizer** | 把帧压成空间 token | 无标签互联网视频 |
+| **Latent action model (LAM)** | 推断连续两帧间的离散潜在动作 | 同视频自监督 |
+| **Dynamics model** | 给定当前 frame + 潜在动作预测下一 frame | 与以上联合训练 |
 
-Genie 1: mostly 2D platformer / robotics video; K ≈ 8 `UNVERIFIED`. Genie 2: 3D scenes, longer horizons (~1 minute stable rollout in cherry-picked demos), more diverse action vocabulary — exact K not disclosed.
+Genie 1：以 2D 平台跳跃 / 机器人视频为主；K ≈ 8 `UNVERIFIED`。Genie 2：3D 场景、更长 horizon（在 cherry-pick 的 demo 里约 1 分钟稳定 rollout）、更丰富的动作词表——确切 K 未公开。
 
-The architectural fact that matters most: **the latent action space is learned, not labeled**. No guaranteed mapping from "Genie latent action #3" to "VLA end-effector +5 cm in x." That's the integration headache.
+最重要的架构事实：**潜在动作空间是学到的，不是 labeled 的**。"Genie 潜在动作 #3" → "VLA 末端 +5 cm x" 没有保证映射。这就是集成痛点。
 
-> ⚡ **Eureka Moment**: A **learned discrete latent action vocabulary** (K ≈ 8 in Genie 1) is what makes the model *playable*. Video models without it generate plausibly but unconditionally; Genie generates plausibly **conditioned on a chosen action token**, which is the exact primitive an MPC loop needs.
+> ⚡ **Eureka Moment**: **学到的离散潜在动作词表**（Genie 1 中 K ≈ 8）是模型可*玩*的原因。没有它的视频模型只是无条件地合理生成；Genie 在**选定动作 token 下合理生成**，这正是 MPC 闭环需要的原语。
 
 ### 2.5 · Worked example — toy MPC planning step
 
-VLA controlling a desktop manipulator. State = current wrist-cam frame.
+VLA 控制一个桌面机械臂。状态 = 当前 wrist-cam 帧。
 
-- **Sample** 5 candidate (Δx, Δy, Δz, Δθ) actions from VLA top-K.
-- **Action → latent** (open problem): nearest-neighbor in a learned embedding → 5 tokens `a ∈ {1..8}` `UNVERIFIED`.
-- **Genie rolls** 8 frames per branch at ~10–30 ms/frame `UNVERIFIED` (well below current Genie 2 latency).
-- **VLM critic** scores each branch; execute best Δ.
+- **采样**：VLA top-K 中取 5 个候选 (Δx, Δy, Δz, Δθ)。
+- **Action → latent**（开放问题）：在学到的 embedding 里最近邻 → 5 个 `a ∈ {1..8}` token `UNVERIFIED`。
+- **Genie 滚** 8 帧 / 分支，每帧 ~10–30 ms `UNVERIFIED`（远低于当前 Genie 2 实际延迟）。
+- **VLM critic** 给每个分支打分；执行最优 Δ。
 
-Killers today: (i) 5 distinct VLA actions can collapse to the **same** K=8 token; (ii) rollouts drift after ~4 s; (iii) Genie 2 step latency `UNVERIFIED` >> 50 ms — too slow for 10–30 Hz control without distillation.
+今天的杀手：(i) 5 个不同 VLA 动作可能塌缩到**同一个** K=8 token；(ii) rollout ~4 s 后漂；(iii) Genie 2 单步延迟 `UNVERIFIED` 远 >> 50 ms——不蒸馏跟不上 10–30 Hz 控制。
 
 ---
 
 ## 3 · Inference-time planner: the use case that justifies the model
 
-A VLA-in-the-loop pattern that *would* justify Genie's existence:
+一个能*正当化*Genie 存在的 VLA-in-the-loop 模式：
 
 ```
  VLA top-K candidate actions
@@ -91,9 +91,9 @@ A VLA-in-the-loop pattern that *would* justify Genie's existence:
  Critic (VLM / value head) scores rollouts ──► pick best branch
 ```
 
-An MPC loop with a learned image-space dynamics model. **The most plausible high-leverage use of Genie-class models for embodied AI**, strictly different from Cosmos's data-factory role.
+一个学到的图像空间 dynamics 模型驱动的 MPC 闭环。**这是 Genie 类模型对具身 AI 最合理的高杠杆用法**，与 Cosmos 的数据工厂角色严格不同。
 
-Why hard: continuous VLA actions → discrete K-way latent vocabulary loses precision; rollouts drift (useful horizon 5–10 frames `UNVERIFIED`); the critic also has to live in pixel space, or you need a fast pixel→state encoder. Natural intersection with `bridge-to-vla/feature-cloud-to-action.md`.
+为什么难：连续 VLA 动作 → 离散 K-way 潜在词表失精；rollout 漂（有用 horizon 5–10 帧 `UNVERIFIED`）；critic 也得活在像素空间，否则需要一个快速 pixel→state encoder。与 `bridge-to-vla/feature-cloud-to-action.md` 自然相交。
 
 ---
 
@@ -101,56 +101,56 @@ Why hard: continuous VLA actions → discrete K-way latent vocabulary loses prec
 
 | Failure | Severity | Why |
 |---|---|---|
-| **Multi-step horizon** | High | Rollouts drift visually after 2–4 seconds. Anything longer is cherry-picked. Hard cap on planning horizon. |
-| **Fine geometry** | High | Tokenizer is video-statistical, not 3D-aware. Small objects, narrow gaps, precise contact = wrong. |
-| **Action precision** | High | Discrete K-way actions don't represent sub-cm motion. Fine manipulation infeasible. |
-| **Out-of-distribution scene** | Medium | Trained on internet video; novel robot lab geometry is OOD. |
-| **Lack of metric scale** | Medium | Same blind spot as VGGT — no absolute units, hard to mix with metric world models or physics priors. |
-| **Closed weights** | Hard blocker | Neither Genie 1 nor Genie 2 weights public as of 2026-05; reproducibility for robotics work is gated. |
+| **Multi-step horizon** | High | rollout 在 2–4 秒后视觉漂移。再长就是 cherry-pick，硬性限制规划 horizon |
+| **Fine geometry** | High | tokenizer 是视频统计而非 3D 感知；小物体、窄缝、精接触都错 |
+| **Action precision** | High | 离散 K-way 动作无法表达亚厘米级运动，精细操作不可行 |
+| **Out-of-distribution scene** | Medium | 训于互联网视频；新机器人实验室几何 OOD |
+| **Lack of metric scale** | Medium | 和 VGGT 同盲点——无绝对单位，与 metric world model 或物理先验难融合 |
+| **Closed weights** | Hard blocker | 截至 2026-05 Genie 1 与 Genie 2 权重均未公开；机器人工作可复现性受限 |
 
-Genie 2's announced 1-minute rollouts come with cherry-picking caveats and were never claimed policy-loop-ready.
+Genie 2 声称的 1 分钟 rollout 伴随 cherry-pick 注释，从未被宣称为"策略闭环可用"。
 
 ### 4.x · Hidden Assumptions
 
-- **Latent actions map to your action space** — no guarantee; LAM trained on internet video, not teleop.
-- **Useful horizon ≤ 5–10 frames** `UNVERIFIED`; anything longer drifts.
-- **Static or near-static scene** — moving objects tokenized as appearance, not entities.
-- **Pixel-space critic acceptable** — or you need a fast pixel→state encoder.
-- **You have weights** — Genie 1 & 2 closed (2026-05); UniSim-clones are the only practical substrate.
-- **Near-Lambertian internet-video-like scenes** — robot-lab geometry is OOD.
+- **潜在动作可映射到你的动作空间** —— 无保证；LAM 训于互联网视频，不是 teleop。
+- **有用 horizon ≤ 5–10 帧** `UNVERIFIED`；再长就漂。
+- **静态或近静态场景** —— 运动物体被 token 化为外观、不当作实体。
+- **像素空间 critic 可接受** —— 否则需要快速 pixel→state encoder。
+- **你拿到权重** —— Genie 1 & 2 至今封闭（2026-05）；UniSim clone 是唯一实际基底。
+- **近 Lambertian、类互联网视频场景** —— 机器人实验室几何 OOD。
 
-Violating any turns the planner into noise — no calibrated uncertainty flag.
+任一被违反，规划器变噪声——没有 calibrated uncertainty 旗。
 
-**Interview Tip**: answer "playable world model, but latent-action grounding is unsolved — today it's offline dream-based pretraining (Dreamer-style), not live MPC. Watch UniSim clones, not the Genie brand."
+**Interview Tip**：答"可玩 world model，但潜在动作 grounding 未解；今天它的位置是 *离线 dream-based pretraining*（Dreamer 风格），不是 live MPC。关注 UniSim clone，而非 Genie 这个品牌。"
 
 ---
 
 ## 5 · Open-source siblings to watch
 
-Since Genie weights aren't public, the practically relevant lineage is open clones:
+由于 Genie 权重不开，实际可用的相关血统是开源 clone：
 
-- **Open-source Genie reproductions** ([arXiv link TBD], multiple 2024–2025 efforts) — smaller scale, same skeleton.
-- **UniSim** (Yang et al. *ICLR 2024 best paper*) — action-conditional simulator for robot policy training.
-- **iVideoGPT / 1X World Model** — embodiment-specific dynamics models in the same slot.
+- **Open-source Genie reproductions** ([arXiv link TBD], multiple 2024–2025 efforts) —— 较小规模，同骨架。
+- **UniSim** (Yang et al. *ICLR 2024 best paper*) —— 用于机器人策略训练的 action-conditional 仿真器。
+- **iVideoGPT / 1X World Model** —— 嵌入具身的 dynamics 模型，占同一槽。
 
-Real robotics work on this lane uses a UniSim-style open variant; Genie is the reference target, not the deployed system.
+真实机器人工作走 UniSim 风格的开源变体；Genie 是参考目标，不是部署系统。
 
 ---
 
 ## 6 · 2-year outlook + falsifiable prediction
 
-Unlocks: (1) **grounded latent action labels** — supervised LAM with a fraction of known-action video (teleop / sim GT); (2) **3D-consistent dynamics** — coupling Genie's tokenizer with 3DGS or feed-forward 3D so geometry stops drifting; (3) **fast (<50 ms) per-step rollout** required for MPC, current Genie 2 well above this `UNVERIFIED`; (4) **open weights** — without them, the community substitutes UniSim clones.
+解锁项：(1) **grounded 潜在动作标签** —— 用少量已知动作视频（teleop / sim GT）有监督训 LAM；(2) **3D-consistent dynamics** —— 把 Genie tokenizer 与 3DGS 或 feed-forward 3D 耦合，几何不再漂；(3) **每步 <50 ms** —— MPC 必需，当前 Genie 2 远高于此 `UNVERIFIED`；(4) **开源权重** —— 没有它，社区会一直拿 UniSim clone 顶上。
 
-**Falsifiable prediction:** before 2027-12, **no published manipulation policy uses a Genie-lineage model as online MPC rollout engine in a real-robot evaluation, beating a non-rollout VLA baseline by >10%**. Wins land first in offline dream-based pretraining (Dreamer-style) where the horizon problem is sidestepped. Bet against any "Genie as live planner" headline lacking real-hardware comparison.
+**Falsifiable prediction:** 在 2027-12 之前，**不会有任何公开 manipulation 策略在真机评估中把 Genie 血统模型作 online MPC rollout 引擎、并以 >10% 优势胜过非 rollout VLA 基线**。胜利会先落在 offline dream-based pretraining（Dreamer 风格），horizon 问题在那里被绕开。任何缺乏真硬件对比的"Genie 当 live planner"标题应当下注反方。
 
 ---
 
 ## For the reader
 
-- **Manipulation VLA team:** Genie is a *future* inference-time planner. Today, prefer offline dream-based pretraining (DreamerV3 lineage) over live MPC. Track UniSim clones.
-- **Driving team:** GAIA-2 / DriveDreamer is your version. Same trade-offs, more domain data.
-- **RL researcher:** latent-action vocabulary is the cleanest open question. Grounded-LAM training is the next paper.
-- **Aerial / drone:** not your model. Internet-video prior doesn't encode high-speed flight dynamics.
+- **Manipulation VLA team:** Genie 是*未来*的推理时规划器。今天，优先 offline dream-based pretraining（DreamerV3 血统）而非 live MPC。跟 UniSim clone。
+- **Driving team:** GAIA-2 / DriveDreamer 是你那侧的版本。同 trade-off，更多 domain 数据。
+- **RL researcher:** 潜在动作词表是最干净的开放问题。Grounded-LAM 训练是下一篇论文。
+- **Aerial / drone:** 不是你的模型。互联网视频先验不编码高速飞行动力学。
 
 ---
 
@@ -163,7 +163,7 @@ Unlocks: (1) **grounded latent action labels** — supervised LAM with a fractio
 
 ## Boundary
 
-This file dissects Genie as a **candidate inference-time rollout engine for embodied policies**. Media / game-generation framing is out of scope per the lane PRD. Cross-family comparison (Cosmos / Genie / UniSim) goes in `crossing/representation-migration/world-models-as-data-vs-planner.md` (TBD). The VLA integration contract lives in `bridge-to-vla/feature-cloud-to-action.md`.
+本文把 Genie 解构为**具身策略的候选推理时 rollout 引擎**。媒体 / 游戏生成视角按 lane PRD 划在范围外。跨家族对比（Cosmos / Genie / UniSim）归 `crossing/representation-migration/world-models-as-data-vs-planner.md`（TBD）。VLA 集成契约归 `bridge-to-vla/feature-cloud-to-action.md`。
 
 ---
 

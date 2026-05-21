@@ -1,34 +1,34 @@
-# NeRF Family — The Predecessor Paradigm (and Where It Still Beats 3DGS)
+# NeRF Family — 前驱范式（以及它仍在哪里击败 3DGS）
 
-**Status:** v1 — opinionated draft.
-**TL;DR:** NeRF was the dominant radiance-field paradigm from ECCV 2020 to mid-2024 and got displaced — *as a deployment substrate* — by 3D Gaussian Splatting roughly the moment SIGGRAPH 2023 hit arXiv. But "displaced" is not "dead": for unbounded outdoor scenes, city-scale reconstruction, and the last 0.5 dB of LPIPS on small bounded scenes, the NeRF lineage is still the right tool in 2026. This region exists so that readers who only know 3DGS understand what they inherited — and what they're missing when they default to gaussians for problems NeRF still handles better.
+**Status:** v1 — 带立场的初稿。
+**TL;DR:** NeRF 从 ECCV 2020 到 2024 年中是 radiance field 的主导范式，*作为部署基底*被 3D Gaussian Splatting 取代 — 大致是 SIGGRAPH 2023 上 arXiv 的那一刻。但 "displaced" 不等于 "dead"：在无界室外场景、城市级重建、以及小型有界场景上最后 0.5 dB LPIPS 的争夺中，NeRF 谱系到 2026 年仍是对的工具。本区域存在，是为了让只懂 3DGS 的读者明白他们继承了什么 — 以及当他们对 NeRF 仍处理得更好的问题默认上 gaussian 时错过了什么。
 
 ---
 
-## Why a NeRF region exists when 3DGS won the spotlight
+## 为什么有 3DGS 抢了风头，仍要保留 NeRF 区域
 
-Most spatial-intelligence handbooks written after 2024 treat NeRF as a historical footnote — "the slow MLP that gaussians replaced." That framing is half right and dangerous. The right framing:
+2024 之后写的多数 spatial-intelligence 手册把 NeRF 当历史脚注 — "被 gaussian 替换掉的慢 MLP"。这个框定一半正确，且危险。正确框定：
 
-- **NeRF (2020–2022) was the paradigm change.** Volumetric rendering + positional encoding + per-scene MLP was the first time photorealistic novel-view synthesis from RGB-only inputs became a credible research direction. Everything that followed — Instant-NGP, Mip-NeRF 360, Block-NeRF, and yes 3DGS itself — is a patch on a specific weakness of vanilla NeRF.
-- **3DGS won deployment, not accuracy.** On Mip-NeRF 360 unbounded scenes, the best NeRF variants (Zip-NeRF, Mip-NeRF 360 itself) still beat vanilla 3DGS on LPIPS / SSIM. 3DGS wins on training time, render rate, and editability — which is exactly what robotics needed. For an offline scene reconstruction job where quality is the only metric, NeRF lineage is still competitive.
-- **City-scale stayed NeRF.** Block-NeRF / Mega-NeRF / Switch-NeRF were never seriously challenged by 3DGS for kilometer-scale outdoor reconstruction. Storage cost of 3DGS (~1–2 GB / room scene) makes city-scale gaussian splats operationally awkward; NeRF's MLP parametrization scales by data, not by primitive count.
+- **NeRF (2020–2022) 是范式转移。** Volumetric rendering + positional encoding + per-scene MLP 是首次让 photorealistic novel-view synthesis 从纯 RGB 输入成为可信的研究方向。之后的一切 — Instant-NGP、Mip-NeRF 360、Block-NeRF，没错连 3DGS 本身 — 都是在 vanilla NeRF 某一具体弱点上打补丁。
+- **3DGS 赢的是部署，不是精度。** 在 Mip-NeRF 360 无界场景上，最佳 NeRF 变体（Zip-NeRF、Mip-NeRF 360 本身）在 LPIPS / SSIM 上仍打过 vanilla 3DGS。3DGS 赢在训练时间、渲染速率、可编辑性 — 正是机器人需要的。对于以质量为唯一指标的离线场景重建，NeRF 谱系仍有竞争力。
+- **城市级仍属 NeRF。** Block-NeRF / Mega-NeRF / Switch-NeRF 从未在公里级户外重建上被 3DGS 真正挑战。3DGS 存储成本（房间级场景 ~1–2 GB）让城市级 gaussian splat 操作上很尴尬；NeRF 的 MLP 参数化按数据 scale，不按 primitive 数量 scale。
 
-The lane that matters: **NeRF is what you read when you want to understand *why* differentiable scene rendering works at all**, and what you reach for when 3DGS' weaknesses (storage, unbounded scenes, surface reconstruction precision) bite.
+要紧的车道：**NeRF 是你想理解 *为什么* differentiable scene rendering 能 work 时该读的**，也是 3DGS 弱点（存储、无界、表面精度）反咬你时该拿出来的。
 
-## When to use NeRF vs 3DGS in 2026
+## 2026 年何时用 NeRF vs 3DGS
 
 | Scenario | Pick | Why |
 |---|---|---|
-| Robot perception map, ≤room scale | **3DGS** | 100 Hz inference, inspectable primitives, edit-friendly |
-| Offline photoreal reconstruction, small bounded scene | **Mip-NeRF 360 / Zip-NeRF** | Last 1 dB on LPIPS; quality > speed |
-| Unbounded outdoor (360°) hero shot | **Mip-NeRF 360 lineage** | Disparity-based contraction handles sky/far-field |
-| City / multi-block reconstruction | **Block-NeRF / Mega-NeRF** | Spatial decomposition; 3DGS storage breaks |
-| Live SLAM-coupled mapping | **3DGS** (GS-SLAM) | NeRF is too slow to integrate online |
-| High-precision *surface* reconstruction | **NeuS / VolSDF (NeRF lineage)** | SDF-parametrized NeRF still wins meshing |
-| Drone-altitude multi-scale viewing | **Mip-Splatting (3DGS)** *or* **Mip-NeRF 360** | Mip-aware; aliasing fixed |
-| Compressed mobile deployment | **3DGS variants** (SOGS, Compact3D) | NeRF MLPs aren't easily streamable |
+| Robot perception map, ≤room scale | **3DGS** | 100 Hz 推理、可检查 primitive、易编辑 |
+| 离线 photoreal 重建，小型有界场景 | **Mip-NeRF 360 / Zip-NeRF** | LPIPS 最后 1 dB；质量 > 速度 |
+| 无界户外 360° 镜头 | **Mip-NeRF 360 lineage** | Disparity-based contraction 处理天空 / 远场 |
+| 城市 / 多街区重建 | **Block-NeRF / Mega-NeRF** | 空间分解；3DGS 存储崩 |
+| Live SLAM 耦合 mapping | **3DGS** (GS-SLAM) | NeRF 在线集成太慢 |
+| 高精度*表面*重建 | **NeuS / VolSDF (NeRF lineage)** | SDF 参数化 NeRF 仍在 meshing 上赢 |
+| Drone 高度多尺度观看 | **Mip-Splatting (3DGS)** *或* **Mip-NeRF 360** | Mip-aware；aliasing 已修 |
+| 压缩移动端部署 | **3DGS variants** (SOGS, Compact3D) | NeRF MLP 不易 streamable |
 
-Rule of thumb: **if the consumer is a robot, default to 3DGS; if the consumer is a renderer or a meshing pipeline, NeRF lineage is still on the table.**
+经验法则：**若消费者是机器人，默认 3DGS；若消费者是 renderer 或 meshing pipeline，NeRF 谱系仍在桌面上。**
 
 ---
 
@@ -36,35 +36,35 @@ Rule of thumb: **if the consumer is a robot, default to 3DGS; if the consumer is
 
 | File | Topic | Tier |
 |---|---|---|
-| `nerf_original_dissection.md` | Mildenhall et al. ECCV 2020 — the paper that rewrote the rules; volumetric rendering + positional encoding; why training takes hours | ⚡ |
-| `instant_ngp_dissection.md` | Müller et al. SIGGRAPH 2022 (NVIDIA) — multi-resolution hash encoding; NeRF training from hours to minutes | ⚡ |
-| `mip_nerf_360_dissection.md` | Barron et al. CVPR 2022 (Google) — unbounded scenes + cone-tracing anti-aliasing; the quality benchmark 3DGS still chases | 🔧 |
-| `block_nerf_large_scenes.md` | Tancik et al. CVPR 2022 (Google/Waymo) — city-scale reconstruction by spatial block decomposition; deployed in Waymo's AV stack | 🔧 |
+| `nerf_original_dissection.md` | Mildenhall et al. ECCV 2020 — 改写规则的论文；volumetric rendering + positional encoding；训练为何要数小时 | ⚡ |
+| `instant_ngp_dissection.md` | Müller et al. SIGGRAPH 2022 (NVIDIA) — multi-resolution hash encoding；NeRF 训练从数小时降到几分钟 | ⚡ |
+| `mip_nerf_360_dissection.md` | Barron et al. CVPR 2022 (Google) — 无界场景 + cone-tracing 抗锯齿；3DGS 仍在追的质量 benchmark | 🔧 |
+| `block_nerf_large_scenes.md` | Tancik et al. CVPR 2022 (Google/Waymo) — 通过空间块分解做城市级重建；已部署在 Waymo AV stack | 🔧 |
 
-## Reading order (recommended)
+## 阅读顺序（推荐）
 
-1. **`nerf_original_dissection.md`** — establishes the mental model (volume rendering, positional encoding, per-scene optimization). Without this the rest is just engineering patches.
-2. **`instant_ngp_dissection.md`** — the engineering breakthrough that made NeRF practically trainable. Reads like a systems paper.
-3. **`mip_nerf_360_dissection.md`** — the quality ceiling. If you want to know what NeRF can still do better than 3DGS, this is the answer.
-4. **`block_nerf_large_scenes.md`** — the deployment story. Waymo's reason to keep the NeRF lineage alive.
+1. **`nerf_original_dissection.md`** — 建立心智模型（volume rendering、positional encoding、per-scene optimization）。没有这个，其余只是工程补丁。
+2. **`instant_ngp_dissection.md`** — 让 NeRF 实际可训的工程突破。读起来像系统论文。
+3. **`mip_nerf_360_dissection.md`** — 质量上限。想知道 NeRF 仍比 3DGS 强在哪，这就是答案。
+4. **`block_nerf_large_scenes.md`** — 部署故事。Waymo 让 NeRF 谱系活下去的理由。
 
 ## Cross-references
 
-- The successor paradigm → `foundations/3dgs-family/3dgs_original_dissection.md` (SIGGRAPH 2023; what displaced NeRF for robotics)
-- The next paradigm shift → `foundations/feed-forward-3d/vggt_cvpr2025_dissection.md` (CVPR 2025; what may displace per-scene optimization entirely)
-- Industry adoption (Waymo Block-NeRF lineage) → `companies/wayve_world_model.md`
-- Cross-representation comparison (NeRF vs 3DGS vs feed-forward pointmap) → `crossing/representation-migration/`
+- 继任范式 → `foundations/3dgs-family/3dgs_original_dissection.md`（SIGGRAPH 2023；在机器人侧取代 NeRF 的东西）
+- 下一个范式转移 → `foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`（CVPR 2025；可能完全取代 per-scene optimization）
+- 产业采用（Waymo Block-NeRF 谱系）→ `companies/wayve_world_model.md`
+- Cross-representation 对比（NeRF vs 3DGS vs feed-forward pointmap）→ `crossing/representation-migration/`
 
 ## Boundary
 
-This directory dissects four NeRF-lineage papers picked for *narrative value*: the original (2020), the systems unlock (Instant-NGP), the quality benchmark (Mip-NeRF 360), and the large-scale deployment (Block-NeRF). It does **not** cover:
+本目录解构按*叙事价值*挑选的四篇 NeRF 谱系论文：原作 (2020)、系统解锁 (Instant-NGP)、质量 benchmark (Mip-NeRF 360)、大规模部署 (Block-NeRF)。**不**覆盖：
 
-- Surface-reconstruction NeRFs (NeuS, VolSDF, Neuralangelo) — separate research line; covered indirectly when meshing is discussed in `crossing/representation-migration/`
-- Dynamic-scene NeRFs (D-NeRF, HyperNeRF, K-Planes) — the 3DGS lineage took over this niche; see `foundations/3dgs-family/4dgs_dynamic_scenes.md` for the inheriting work
-- Generative NeRF (DreamFusion, Zero-1-to-3) — out of scope; this region is reconstructive, not generative
-- 3DGS itself or its derivatives → `foundations/3dgs-family/`
+- 表面重建 NeRF（NeuS、VolSDF、Neuralangelo）— 独立研究线；在 `crossing/representation-migration/` 讨论 meshing 时间接涉及
+- 动态场景 NeRF（D-NeRF、HyperNeRF、K-Planes）— 该 niche 被 3DGS 谱系接管；继承工作见 `foundations/3dgs-family/4dgs_dynamic_scenes.md`
+- Generative NeRF（DreamFusion、Zero-1-to-3）— 不在范围内；本区域是 reconstructive，不是 generative
+- 3DGS 本体或其衍生 → `foundations/3dgs-family/`
 
-The goal here is **3DGS prehistory + still-relevant niches**, not exhaustive NeRF zoo coverage.
+这里的目标是 **3DGS 史前史 + 仍相关的 niche**，不是穷举 NeRF zoo。
 
 ---
 

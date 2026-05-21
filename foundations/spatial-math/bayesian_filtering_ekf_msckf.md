@@ -1,12 +1,12 @@
 # Bayesian Filtering: EKF, UKF, MSCKF (贝叶斯滤波)
 
 > **发布时间**: 2026-05-21
-> **核心定位**: The filter family that runs aerial VIO under the 10 ms / 200 Hz wall — where BA-class optimization cannot fit. OpenVINS / Skydio-class systems use MSCKF for a reason.
+> **核心定位**: 在 10 ms / 200 Hz 这堵墙下跑 aerial VIO 的滤波器家族 —— BA 级优化进不来的地方。OpenVINS / Skydio 级系统选 MSCKF 有原因。
 
-**Status:** v1 — primer.
-**TL;DR:** Filters propagate a Gaussian over state via predict-update. EKF linearises; UKF samples sigma points; MSCKF stores a window of past *poses* but no landmarks — bounded state, BA-quality, real-time. Payoff: fits Orin Nano where VINS-Mono's optimizer struggles `UNVERIFIED`.
+**Status:** v1 —— primer。
+**TL;DR:** 滤波器把状态的 Gaussian 通过 predict-update 向前传播。EKF 线性化；UKF 采 sigma point；MSCKF 在状态里保留过去一窗口的*位姿*但不存 landmark —— 状态有界、精度接近 BA、实时可行。回报：能跑在 Orin Nano 上，而 VINS-Mono 的优化器在这里挣扎 `UNVERIFIED`。
 
-**X-Ray.** A Kalman filter keeps a Gaussian over state, updates with each measurement. Linear → exact. Non-linear → EKF (linearise) or UKF (sample). VIO state with N landmarks is O(N), too big for 200 Hz. MSCKF (Mourikis 2007) keeps N past *poses* and marginalises landmarks at observation time — state bounded, every observation contributes jointly to in-window poses. This is the trick that lets phone-class CPUs run drone-grade VIO. (中文直觉：MSCKF 只存过去 N 个位姿，观测时把 landmark 边际化 — 状态不长。)
+**X-Ray.** Kalman filter 维护状态的 Gaussian，每个测量更新一次。线性 → 精确。非线性 → EKF（线性化）或 UKF（采样）。带 N 个 landmark 的 VIO 状态是 O(N)，200 Hz 太大。MSCKF（Mourikis 2007）只保留过去 N 个*位姿*，在观测时把 landmark 边际化 —— 状态有界，每个观测对窗口内所有位姿都做联合贡献。这正是手机级 CPU 能跑 drone 级 VIO 的关键 trick。（中文直觉：MSCKF 只存过去 N 个位姿，观测时把 landmark 边际化 —— 状态不长。）
 
 ## 📍 研究全景时间线
 
@@ -17,28 +17,28 @@ linear   sigma pts  Multi-State        opt-based  Geneva MSCKF   filter still be
                     Constraint KF      counterpart                opt on sub-10ms VIO
 ```
 
-Mourikis 2007 is the unsung hero of aerial VIO — without it, drones cannot run tightly-coupled VI at aerospace-controller rates. OpenVINS (Geneva 2020) is the canonical impl.
+Mourikis 2007 是 aerial VIO 不为人知的功臣 —— 没有它，drone 无法在 aerospace 控制器频率下跑紧耦合 VI。OpenVINS（Geneva 2020）是规范实现。
 
 ---
 
-## 1 · Architecture: predict-update cycle
+## 1 · 架构：predict-update 循环
 
-### 1.1 The Kalman family
+### 1.1 Kalman 家族
 
-| Filter | When |
+| 滤波器 | 何时 |
 |---|---|
-| **KF** linear | rare in robotics |
-| **EKF** non-linear + Jacobians | most VIO |
-| **UKF** sigma points | strong non-linearity |
-| **MSCKF** EKF + window of past poses, landmarks marginalised | high-rate VIO |
+| **KF** 线性 | robotics 罕见 |
+| **EKF** 非线性 + Jacobian | 大多 VIO |
+| **UKF** sigma point | 强非线性 |
+| **MSCKF** EKF + 过去位姿窗口、landmark 边际化 | 高速率 VIO |
 
 ### 1.2 ⚡ Eureka Moment
 
-> **MSCKF stores past *poses* in state but never landmarks — landmarks are triangulated then algebraically projected out (null-space marginalisation) before update. State bounded, every landmark contributes jointly to in-window poses.**
+> **MSCKF 在状态里存过去*位姿*，但绝不存 landmark —— landmark 先 triangulate，再在 update 前代数投影掉（null-space 边际化）。状态有界，每个 landmark 对窗口内位姿做联合贡献。**
 
-State is `O(N_poses)` not `O(N_poses + N_landmarks)`. Constant time per IMU sample regardless of feature count.
+状态是 `O(N_poses)`，不是 `O(N_poses + N_landmarks)`。无论特征数是多少，每个 IMU 样本的处理是常数时间。
 
-### 1.3 Information flow
+### 1.3 信息流
 
 ```
 IMU 200 Hz ──► predict step → [x: IMU | T_1...T_N]
@@ -48,11 +48,11 @@ cam 30 Hz ──► track f → triangulate X_f
             → EKF update with r̃
 ```
 
-Null-space projection removes the landmark's residual contribution while preserving geometric info about the poses.
+Null-space 投影把 landmark 的 residual 贡献剥掉，同时保留对位姿的几何信息。
 
 ---
 
-## 2 · Math core: EKF predict-update, MSCKF marginalisation
+## 2 · 数学核心：EKF predict-update、MSCKF 边际化
 
 ### 📌 Napkin Formula
 
@@ -63,20 +63,20 @@ update:   K = P Hᵀ (H P Hᵀ + R)⁻¹    (Kalman gain)
           P ← (I - KH) P
 ```
 
-`x`: state (IMU + N past poses for MSCKF); `P`: covariance; `F, H`: Jacobians; `Q, R`: process / measurement noise; `K`: trust ratio between meas and prediction.
+`x`: 状态（MSCKF 是 IMU + N 个过去位姿）；`P`: 协方差；`F, H`: Jacobian；`Q, R`: 过程 / 量测噪声；`K`: 测量与预测之间的信任比。
 
-### MSCKF state vector
+### MSCKF 状态向量
 
 ```
 x = [p_IB, v, q_IG, b_a, b_g | T_1...T_N]
     └── IMU state (15) ──┘ └─ N past poses (6N) ─┘
 ```
 
-Window N ≈ 10–25 → state ~165–225 elements `UNVERIFIED OpenVINS config`.
+窗口 N ≈ 10–25 → 状态约 165–225 个元素 `UNVERIFIED OpenVINS config`。
 
-### Null-space marginalisation
+### Null-space 边际化
 
-Feature `f` seen at `T_{i_1}...T_{i_k}`:
+特征 `f` 在 `T_{i_1}...T_{i_k}` 处被观测：
 
 ```
 r_j ≈ H_T_j δT_j + H_Xf_j δX_f + n_j
@@ -90,91 +90,91 @@ Project: r̃ = Vᵀ r,  H̃ = Vᵀ H_T,  R̃ = Vᵀ R V
 EKF update with r̃, H̃, R̃.
 ```
 
-That is the algebraic core. Just linear algebra on residual blocks.
+这就是代数核心。residual 块上的线性代数而已。
 
 ---
 
-## 3 · Worked example: 2D EKF with one position observation
+## 3 · 玩具例子：2D EKF 带一次位置观测
 
-State `x = [px, py, vx, vy]ᵀ`. Init `x̂₀ = [0, 0, 1, 0]`, `P₀ = diag(0.1, 0.1, 0.01, 0.01)`. Constant-velocity dynamics, Δt = 1 s; `Q = diag(0, 0, 0.01, 0.01)`.
+状态 `x = [px, py, vx, vy]ᵀ`。Init `x̂₀ = [0, 0, 1, 0]`，`P₀ = diag(0.1, 0.1, 0.01, 0.01)`。常速动力学，Δt = 1 s；`Q = diag(0, 0, 0.01, 0.01)`。
 
-Predict: `x̂₁ = [1, 0, 1, 0]`, `P = F P Fᵀ + Q`.
+Predict：`x̂₁ = [1, 0, 1, 0]`，`P = F P Fᵀ + Q`。
 
-GPS `z = [1.1, 0.05]`, `R = diag(0.05, 0.05)`, `H = [I₂ | 0₂]`:
+GPS `z = [1.1, 0.05]`，`R = diag(0.05, 0.05)`，`H = [I₂ | 0₂]`：
 
 ```
 S = H P Hᵀ + R         K = P Hᵀ S⁻¹
 x̂ ← x̂ + K(z - Hx̂)     P ← (I - KH) P
 ```
 
-Result ≈ `[1.05, 0.025, 1.05, 0.025]` — meas + prediction averaged by info weights. Velocity cov shrinks via correlation in P even though velocity wasn't observed.
+结果约为 `[1.05, 0.025, 1.05, 0.025]` —— 测量与预测按信息权重平均。速度协方差通过 P 内的相关性也缩小了，即使速度本身没被观测。
 
-**MSCKF analogue:** state 15 + 6N, predict integrates IMU, update stacks reprojection residuals across window with null-space projection.
+**MSCKF 类比:** 状态 15 + 6N，predict 积分 IMU，update 跨窗口堆 reprojection residual 并做 null-space 投影。
 
 ---
 
-## 4 · Engineering view: why MSCKF wins on aerial
+## 4 · 工程视角：MSCKF 在 aerial 为什么赢
 
-| Approach | State | Cost | Orin Nano? |
+| 方法 | 状态 | 代价 | Orin Nano? |
 |---|---|---|---|
-| EKF-SLAM | 15 + 3M | `O(M³)` | no, M > 100 chokes |
-| MSCKF | 15 + 6N (N≈20) | `O(N³)` bounded | ✅ 200 Hz `UNVERIFIED` |
-| Sliding-window BA | 6N + 3M | LM ~10 ms/iter `UNVERIFIED` | ✅ 30 Hz |
-| Full BA | grows | offline only | no |
+| EKF-SLAM | 15 + 3M | `O(M³)` | 不行，M > 100 卡住 |
+| MSCKF | 15 + 6N (N≈20) | `O(N³)` 有界 | ✅ 200 Hz `UNVERIFIED` |
+| 滑窗 BA | 6N + 3M | LM ~10 ms/iter `UNVERIFIED` | ✅ 30 Hz |
+| Full BA | 增长 | 离线 only | 不行 |
 
-**Bounded cost** makes MSCKF canonical for sub-10 ms VIO. Skydio / OpenVINS / ASL use it. Optimization wins on offline accuracy, loses on jitter.
+**有界成本**让 MSCKF 成为 sub-10 ms VIO 的规范选择。Skydio / OpenVINS / ASL 都用它。优化在离线精度上赢，在抖动上输。
 
-**Why filter at high rate:** deterministic cost, absorbs IMU at full rate, no tail latency. Hard accuracy ceiling (one linearisation / update), but IMU dominates between camera frames anyway.
+**为什么在高速率用滤波器:** 确定性成本、吃满 IMU 速率、没有长尾延迟。精度天花板硬（一次线性化 / 更新），但反正帧间是 IMU 主导。
 
-**Gotchas:** linearisation drift → iterated EKF; bias unobservable stationary → ZUPT; quaternion in state → error-state form; P non-PSD → Joseph form or sqrt-EKF.
+**坑:** 线性化漂 → 迭代 EKF；静止时 bias 不可观 → ZUPT；状态里有 quaternion → error-state form；P 非 PSD → Joseph form 或 sqrt-EKF。
 
 ---
 
-## 5 · Capabilities & failure modes
+## 5 · 能力与失败模式
 
 ### 5.1 Hidden Assumptions
 
-- **Noise Gaussian** — rarely strictly true; need chi-square innovation rejection.
-- **Linearisation accurate at current mean** — fails on large δ; iterated EKF or smaller Δt.
-- **Jacobians correct** — IMU Jacobians vs quat + biases are the most error-prone code; copy from OpenVINS.
-- **P stays PSD** — Joseph form or square-root EKF prevents drift.
-- **Sufficient feature overlap** — each MSCKF feature needs ≥2 in-window observations.
+- **噪声 Gaussian** —— 很少严格成立；需 chi-square innovation 拒绝。
+- **当前均值处线性化准确** —— 大 δ 时失败；要么迭代 EKF，要么减小 Δt。
+- **Jacobian 正确** —— 含 quat + bias 的 IMU Jacobian 是代码里最易错的部分；从 OpenVINS 抄。
+- **P 保持 PSD** —— Joseph form 或 square-root EKF 防漂。
+- **特征足够 overlap** —— 每个 MSCKF 特征在窗口里要 ≥2 个观测。
 
-### Failure signatures
+### 失败特征
 
-| Symptom | Cause |
+| 现象 | 原因 |
 |---|---|
-| Cov shrinks to zero | numerical underflow; missing Q |
-| Linear drift in straight flight | bias not observable; need ZUPT or motion excitation |
-| Estimate jumps on update | R over-confident; chi-sq miscalibrated |
-| Diverges under high spin | linearisation error; iterated EKF or smaller window |
+| 协方差缩到 0 | 数值下溢；Q 漏了 |
+| 直飞时线性漂移 | bias 不可观；需 ZUPT 或激发运动 |
+| update 时估计跳变 | R 太自信；chi-sq 校得不对 |
+| 高自旋下发散 | 线性化误差；改迭代 EKF 或缩窗口 |
 
 ---
 
-## 6 · Comparison & Interview Tip
+## 6 · 比较 & 面试 Tip
 
-| Estimator | Best for |
+| 估计器 | 最适合 |
 |---|---|
-| EKF | low-dim, smooth state |
-| UKF | strong non-linearity, no Jacobian |
-| MSCKF | high-rate VIO (aerial, AR) |
-| EKF-SLAM | small-scale 2D / indoor |
-| Sliding-window opt | offline-quality online VIO (VINS-Mono) |
-| iSAM2 | factor-graph smoothing |
+| EKF | 低维、平滑状态 |
+| UKF | 强非线性、无 Jacobian |
+| MSCKF | 高速率 VIO（aerial、AR） |
+| EKF-SLAM | 小规模 2D / 室内 |
+| 滑窗优化 | 在线但接近离线精度的 VIO（VINS-Mono） |
+| iSAM2 | factor-graph 平滑 |
 
-> **🎤 Interview Tip.** "Why MSCKF instead of BA on Skydio / OpenVINS?" — strong answer: "Bounded state and deterministic update time. MSCKF keeps a sliding window of past poses in state but marginalises landmarks at observation via null-space projection — every feature contributes jointly to in-window poses without inflating state. Per-update is `O(N³)` for N≈20, fits under 10 ms on Orin. Sliding-window optimizers re-linearise per iter (more accurate) but have non-deterministic tail latency unsuitable for 200 Hz control." Bonus: "Jacobians are the production-bug surface — every MSCKF impl copies them from OpenVINS source for a reason."
+> **🎤 Interview Tip.** "Skydio / OpenVINS 为什么用 MSCKF 而不是 BA？" —— 强答："状态有界、更新时间确定。MSCKF 在状态里保留过去位姿的滑窗，观测时通过 null-space 投影把 landmark 边际化掉 —— 每个特征对窗口内位姿做联合贡献，状态不膨胀。每次更新 `O(N³)`，N≈20，Orin 上 < 10 ms。滑窗优化器每 iter 重新线性化（更准）但有不确定的长尾延迟，不适合 200 Hz 控制。" 加分："Jacobian 是 production bug 的高发面 —— 每个 MSCKF 实现都从 OpenVINS 源抄是有原因的。"
 
 ---
 
 ## Boundary
 
-This primer covers the filter math. For:
+这篇 primer 只覆盖滤波器数学。如需：
 
-- **SO(3) error-state in filters** → `./se3_so3_lie_groups_primer.md`
-- **JPL quaternion convention** → `./quaternions_and_rotations.md`
-- **IMU integration feeding predict** → `./imu_preintegration_math.md`
-- **OpenVINS code architecture** → `embodiments/aerial/vio/openvins_dissection.md`
-- **VINS-Mono opt counterpart** → `embodiments/aerial/vio/vins_mono_fusion_dissection.md`
+- **滤波器里的 SO(3) error-state** → `./se3_so3_lie_groups_primer.md`
+- **JPL quaternion 约定** → `./quaternions_and_rotations.md`
+- **喂 predict 的 IMU 积分** → `./imu_preintegration_math.md`
+- **OpenVINS 代码架构** → `embodiments/aerial/vio/openvins_dissection.md`
+- **VINS-Mono 优化版对照** → `embodiments/aerial/vio/vins_mono_fusion_dissection.md`
 
 ---
 

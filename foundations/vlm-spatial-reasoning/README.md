@@ -1,23 +1,23 @@
 # VLM Spatial Reasoning
 
 **Status:** v1 — opinionated draft. Capability claims marked `UNVERIFIED` where not personally measured.
-**TL;DR:** A general-purpose VLM (GPT-4V, Claude, Gemini, Qwen-VL) is *flat by default* — it can name objects but cannot reliably say which is closer, how far, or where the gripper should move. Making a VLM reason about 3D is a training problem, not a prompting problem. Three approaches compete: implicit pretraining on synthetic spatial QA (SpatialVLM), explicit caption / depth tokens (SpatialBot lineage), and 3D-aware benchmark training. Each bets on a different bottleneck.
+**TL;DR:** 通用 VLM（GPT-4V、Claude、Gemini、Qwen-VL）*默认是扁平的*——能命名物体，但无法可靠说出谁更近、距离多远、夹爪该往哪去。让 VLM 推理 3D 是一个训练问题，不是 prompt 问题。三种方法竞争：synthetic 空间 QA 的隐式预训练（SpatialVLM）、显式 caption / depth token（SpatialBot 血统）、3D-aware benchmark 训练。每种押在不同瓶颈上。
 
 ---
 
-## VLMs are flat — they don't reason about 3D unless trained to
+## VLM 是扁的——不训不会推 3D
 
-The default behavior of every off-the-shelf VLM in 2025 is to treat an image as a 2D semantic scene. They will tell you "there is a mug and a keyboard" with high accuracy and fail — or confidently hallucinate — when asked "is the mug closer than the keyboard?" or "how many centimeters above the table is the mug handle?" The reason is structural: training data is image-caption pairs from the web, and web captions are object-naming captions, not spatial-relation captions. The model has the features to *answer* spatial questions; it has never been *taught* to surface them.
+2025 年现成 VLM 的默认行为，是把图当 2D 语义场景。它会高准确率告诉你"there is a mug and a keyboard"，被问"mug 比 keyboard 更近吗？"或"mug 把手离桌面多少厘米？"时则失败——或自信地胡说。原因是结构性的：训练数据是来自网络的 image-caption 对，而网络 caption 是命名 caption，不是空间关系 caption。模型有特征能*回答*空间问题；只是从来没被*教过*把它们浮上来。
 
-This matters for robotics because a VLM is the cheapest possible interface between a language goal and a perception system. If a VLM could answer "where should the gripper go?" reliably, you could skip half of the semantic-3D pipeline (see [`foundations/semantic-3d/`](../semantic-3d/README.md)). The papers in this lane all answer one question: **how do we make a VLM produce 3D-grounded answers, given that no architectural trick alone is enough?**
+这对机器人很重要，因为 VLM 是把语言目标接到感知系统上的最便宜接口。如果 VLM 能可靠回答"夹爪该往哪去？"，半个 semantic-3D 管线（见 [`foundations/semantic-3d/`](../semantic-3d/README.md)）就可以省掉。本 lane 的论文都回答一个问题：**鉴于单靠架构小技巧不够，如何让 VLM 给出 3D-grounded 答案？**
 
 ## The 3 approaches
 
-- **Implicit pretraining (SpatialVLM, Google DeepMind 2024).** Auto-generate a massive synthetic dataset of spatial QA pairs by running depth estimation and open-set segmentation on web images, then fine-tune. *Bet:* scale of spatial supervision is the lever; the model already sees geometry, it just needs to be taught to talk about it. *Pay:* precise metric answers shaky, occlusion reasoning weak.
-- **Explicit caption / depth tokens (SpatialBot lineage, 2024).** Augment the input with depth images or textual scene summaries (`object A at 0.4 m, B at 0.7 m`). *Bet:* the VLM is bad at *extracting* geometry from RGB but good at *consuming* it when handed in. *Pay:* couples the model to a sensor at inference.
-- **3D-aware benchmark training.** Train end-to-end on a target benchmark (SpatialBench, EmbodiedQA, VSR), often with a 3D-aware backbone. *Bet:* the benchmark captures the right capability and transfer follows. *Pay:* the benchmark frequently does not capture what robotics needs.
+- **隐式预训练（SpatialVLM, Google DeepMind 2024）**。在网络图像上跑深度估计与开集分割，自动合成海量 spatial QA 对再微调。*押注：*空间监督规模是杠杆；模型已看见几何，只需被教会说。*代价：*精确 metric 答案不稳，遮挡推理弱。
+- **显式 caption / depth token（SpatialBot 血统, 2024）**。把 depth image 或文本场景摘要（`object A at 0.4 m, B at 0.7 m`）作为输入注入。*押注：*VLM 不擅长从 RGB *抽*几何，擅长在被喂时*消费*几何。*代价：*推理期与传感器绑定。
+- **3D-aware benchmark 训练**。端到端在目标 benchmark（SpatialBench、EmbodiedQA、VSR）上训，通常配 3D-aware backbone。*押注：*benchmark 抓住了对的能力，且会迁移。*代价：*benchmark 经常抓不到机器人需要的东西。
 
-Read horizontally: SpatialVLM is the *data* bet, SpatialBot the *input* bet, benchmark training the *task* bet. The strongest 2026+ systems combine implicit pretraining with explicit depth tokens.
+横着读：SpatialVLM 押*数据*，SpatialBot 押*输入*，benchmark 训练押*任务*。2026+ 最强的系统会把隐式预训练与显式 depth token 结合。
 
 ---
 
@@ -25,17 +25,17 @@ Read horizontally: SpatialVLM is the *data* bet, SpatialBot the *input* bet, ben
 
 | File | Topic | Tier |
 |---|---|---|
-| `spatialvlm_dissection.md` | Chen et al. CVPR 2024 — 2B-pair auto-generated spatial QA, the scale-of-data argument | ⚡ |
+| `spatialvlm_dissection.md` | Chen et al. CVPR 2024 — 2B 自动合成的空间 QA，"数据规模"论点 | ⚡ |
 
-`UNVERIFIED` SpatialBot, SpatialRGPT, and benchmark-driven (SpatialBench / VSR) dissections queued for v2.
+`UNVERIFIED` SpatialBot、SpatialRGPT 与 benchmark-driven（SpatialBench / VSR）解构 queued for v2。
 
 ## Cross-references
 
-- The *other* way to ground language in geometry (semantic 3D lifting) → [`foundations/semantic-3d/`](../semantic-3d/README.md)
-- Spatial-reasoning benchmarks → [`benchmarks/reasoning/`](../../benchmarks/reasoning/) (TBD)
-- VLM spatial outputs → policy action → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md) (the SpatialVLM caption integration is the contrarian row)
-- Cross-embodiment comparison ("VLM as perception" vs "VLM + explicit 3D") → `crossing/representation-migration/` (TBD)
+- 把语言 grounded 到几何的*另一种*方式（semantic 3D lifting）→ [`foundations/semantic-3d/`](../semantic-3d/README.md)
+- 空间推理 benchmark → [`benchmarks/reasoning/`](../../benchmarks/reasoning/)（TBD）
+- VLM 空间输出 → 策略动作 → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)（SpatialVLM caption 集成是逆向案例）
+- 跨具身体对比（"VLM as perception" vs "VLM + 显式 3D"）→ `crossing/representation-migration/`（TBD）
 
 ## Boundary
 
-This directory is per-method dissection of VLMs that reason about space. It does **not** cover: explicit 3D semantic lifting (→ `foundations/semantic-3d/`); general VLM architectures without a spatial angle (out of scope); 3D-aware VLA action heads (→ [VLA-Handbook](https://github.com/sou350121/VLA-Handbook), `bridge-to-vla/`); per-embodiment deployment (→ `embodiments/<emb>/`).
+本目录是关于 VLM 如何对空间推理的 per-method 解构。它**不**覆盖：显式 3D 语义抬升（→ `foundations/semantic-3d/`）；无空间视角的通用 VLM 架构（out of scope）；3D-aware VLA action head（→ [VLA-Handbook](https://github.com/sou350121/VLA-Handbook)，`bridge-to-vla/`）；具身侧部署（→ `embodiments/<emb>/`）。

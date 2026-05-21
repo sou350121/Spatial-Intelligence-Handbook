@@ -2,12 +2,12 @@
 
 > **Publication:** SIGGRAPH 2022
 > **Paper:** Müller, Evans, Schied, Keller. NVIDIA. arXiv: https://arxiv.org/abs/2201.05989 · Code: https://github.com/NVlabs/instant-ngp
-> **Core position:** The engineering paper that turned NeRF training from "two days on a V100" into "five minutes on an RTX 3090" — and proved the bottleneck was the input encoding, not the MLP.
+> **Core position:** 把 NeRF 训练从 "V100 上两天" 变成 "RTX 3090 上五分钟" 的工程论文 — 并证明瓶颈是输入编码，而非 MLP.
 
-**Status:** v1 — opinionated. Numbers from paper unless `UNVERIFIED`.
-**TL;DR:** Replace fixed Fourier positional encoding with a *learnable* multi-resolution hash grid; let a tiny 2-layer MLP do the rest. Hash collisions you'd think would ruin quality don't — the MLP handles them gracefully, and the speedup is 1000× wall-clock with no measurable quality loss on standard benchmarks. This is the moment NeRF stopped being a research artifact and started showing up in commercial pipelines (NVIDIA Omniverse, Luma AI, Polycam).
+**Status:** v1 — 带立场。除非标 `UNVERIFIED`，数字来自论文。
+**TL;DR:** 用一个*可学*的 multi-resolution hash grid 替换固定 Fourier positional encoding；让一个微型 2 层 MLP 做剩下的事。本来以为会毁掉质量的 hash collision 实际不会 — MLP 优雅地处理它们，在标准 benchmark 上速度提升 1000× 而无可测质量损失。这是 NeRF 不再是研究 artifact、开始出现在商业 pipeline（NVIDIA Omniverse、Luma AI、Polycam）的时刻。
 
-**X-Ray.** Vanilla NeRF spent 99% of training time evaluating an 8-layer MLP 192 times per pixel. Instant-NGP asks: what if the MLP only learns *interpolation between nearby features*, and the features themselves live in a hash-indexed grid? You get an explicit data structure (fast to query, cheap to update) + a 2-layer MLP for local smoothing. For spatial-intelligence engineers, this is the canonical "right *data structure* beats deeper *network*" lesson — which 3DGS later generalized.
+**X-Ray.** Vanilla NeRF 99% 训练时间在做每像素 192 次 8 层 MLP 评估. Instant-NGP 问：如果 MLP 只学*邻近特征间的插值*，特征本身住在 hash-indexed grid 里呢？你得到一个显式数据结构（查询快、更新便宜）+ 用于局部平滑的 2 层 MLP. 对空间智能工程师，这是经典的 "对的*数据结构*胜过更深*网络*" 教训 — 后来 3DGS 把它推到极限。
 
 ## 📍 Research panorama timeline
 
@@ -19,7 +19,7 @@ NeRF (ECCV) ► Plenoxels    ► Instant-NGP (SIGGRAPH) ► NerfAcc          ►
               └─ "kill MLP" wing ─┘  └─ "keep tiny MLP, fix encoding" wing ─┘
 ```
 
-Two simultaneous attacks on NeRF speed in 2021–22. Instant-NGP won influence because the hash grid generalizes beyond NeRF (same primitive powers SDF, neural radiance caching, gigapixel image fitting).
+2021–22 对 NeRF 速度的两条同时攻击。Instant-NGP 赢得影响力，因为 hash grid 泛化到 NeRF 之外（同 primitive 驱动 SDF、neural radiance caching、gigapixel image fitting）。
 
 ---
 
@@ -29,18 +29,18 @@ Two simultaneous attacks on NeRF speed in 2021–22. Instant-NGP won influence b
 
 | Component | Input | Output | Detail |
 |---|---|---|---|
-| Multi-resolution hash grid | xyz | 16 levels × 2 = 32-d feat | Hashed at fine levels |
+| Multi-resolution hash grid | xyz | 16 levels × 2 = 32-d feat | 细级 hashed |
 | Tiny MLP | 32-d + view dir | RGB + σ | 2-layer, 64 wide `UNVERIFIED` |
-| Occupancy grid | xyz | skip-empty bool | Cached, refreshed |
-| Volume renderer | (σ, RGB) | Pixel | Same as NeRF |
+| Occupancy grid | xyz | skip-empty bool | 缓存，定期刷新 |
+| Volume renderer | (σ, RGB) | Pixel | 同 NeRF |
 
-Total params ~12M (mostly hash entries) vs ~1M NeRF. Counterintuitive but explains speed: params are cheap to *index*, expensive to *forward through*.
+总参数 ~12M（多数在 hash entry）vs ~1M NeRF。反直觉但解释了速度：参数*索引*便宜，*前向*贵.
 
 ### 1.2 ⚡ Eureka moment
 
-> **Hash collisions are not bugs — they're a feature. The MLP learns to disambiguate colliding features, so a tiny hash table per level works; trust the network to clean up.**
+> **Hash collision 不是 bug — 是 feature. MLP 学会消歧冲突的特征，所以每级小 hash table 就够；信任网络自行清理.**
 
-At coarse levels, the grid fits in the table (no collisions). At fine levels, table < grid → collisions inevitable. Rendering loss naturally allocates fine capacity to *important* spatial locations (where rays terminate) and ignores collisions in empty space. **The hash function does not need optimization; xor-based spatial hashing is fine.**
+粗级，grid 能装进 table（无冲突）。细级，table < grid → 冲突不可避免。渲染 loss 自然把细级容量分配到*重要*空间位置（射线终止处），忽略空区冲突. **hash function 无需优化；基于 xor 的空间 hash 即可.**
 
 ### 1.3 Flow diagram
 
@@ -61,7 +61,7 @@ At coarse levels, the grid fits in the table (no collisions). At fine levels, ta
    View dir (SH-encoded) → concat → 1-layer MLP → RGB
 ```
 
-Pipeline is one fused CUDA kernel. ~10k lines of hand-written CUDA. Also Instant-NGP's curse — see §6.
+Pipeline 是一个融合 CUDA kernel. ~10k 行手写 CUDA. 也是 Instant-NGP 的诅咒 — 见 §6.
 
 ---
 
@@ -78,39 +78,39 @@ For each level L:
 feature = concat_L trilerp(table[indices_L])
 ```
 
-Spatial hash: `hash(x,y,z) = (x·π₁) XOR (y·π₂) XOR (z·π₃)`, primes `{1, 2654435761, 805459861}`. Cheap, decorrelated enough.
+空间 hash: `hash(x,y,z) = (x·π₁) XOR (y·π₂) XOR (z·π₃)`, 素数 `{1, 2654435761, 805459861}`. 便宜，相关性足够低.
 
 ### 2.1 Parameter budget
 
 | Knob | Default | Rationale |
 |---|---|---|
 | L (levels) | 16 | Coarse → fine |
-| T (table / level) | 2¹⁹ = 524k | Memory/quality knob |
-| F (feat dim) | 2 | MLP combines |
-| N_min, N_max | 16, 2048 | Resolution range |
+| T (table / level) | 2¹⁹ = 524k | 内存/质量旋钮 |
+| F (feat dim) | 2 | MLP 组合 |
+| N_min, N_max | 16, 2048 | 分辨率范围 |
 
-Table memory: `L × T × F × 4 ≈ 67 MB`. MLP <1 MB.
+Table 内存: `L × T × F × 4 ≈ 67 MB`. MLP <1 MB.
 
-### 2.2 Why collisions work
+### 2.2 为什么冲突可行
 
-Finest level: 2048³ ≈ 8.6B cells, table 524k → >16,000× compression. But only cells *along surfaces* (σ ≠ 0) need distinct features — typically ~0.01% of volume, well under table capacity. **Empty cells collide harmlessly because their gradients are zero.** Same statistical argument that makes Bloom filters work.
-
----
-
-## 3 · Worked example: graceful collision degradation
-
-Two points on different surfaces — A = (0.1, 0.1, 0.1), B = (0.7, 0.3, 0.9) — hash to the same fine-level slot 42.
-
-- Ray through A: target "red" → updates `table[42]` toward red.
-- Later ray through B: target "blue" → pushes `table[42]` toward blue.
-- `table[42]` oscillates → **noise** at fine level.
-- Coarse levels do *not* collide for A vs B (enough cells), supplying most of the signal. MLP downweights fine levels automatically.
-
-Result: slight loss of high-freq detail at one point, not catastrophic. Paper's Figure 4: imperceptible at standard hash sizes.
+最细级：2048³ ≈ 8.6B cell，table 524k → >16,000× 压缩. 但只有*表面附近*（σ ≠ 0）的 cell 需要独特特征 — 通常 ~0.01% 体积，远在 table 容量内. **空 cell 无害冲突，因其梯度为零.** 同样的统计论据让 Bloom filter work.
 
 ---
 
-## 4 · Engineering view: where 1000× comes from
+## 3 · Worked example: 优雅的冲突退化
+
+不同表面上两点 — A = (0.1, 0.1, 0.1), B = (0.7, 0.3, 0.9) — hash 到细级同一 slot 42.
+
+- 穿 A 的射线：target "red" → 把 `table[42]` 推向红.
+- 之后穿 B 的射线：target "blue" → 把 `table[42]` 推向蓝.
+- `table[42]` 振荡 → 细级**噪声**.
+- 粗级对 A vs B *不*冲突（cell 足够），提供大部分信号. MLP 自动给细级降权.
+
+结果：一点的高频细节略损，不致命. 论文 Figure 4：标准 hash size 下不可感.
+
+---
+
+## 4 · Engineering view: 1000× 从哪来
 
 | Source | NeRF | Instant-NGP | Factor |
 |---|---|---|---|
@@ -121,19 +121,19 @@ Result: slight loss of high-freq detail at one point, not catastrophic. Paper's 
 | CUDA fusion | PyTorch | Hand-written | ~5–10× |
 | **Net** | | | **~1000×** |
 
-- Lego: **~5s** to PSNR=30; **5 min** to final.
-- NeRF: **~1 day** to PSNR=30.
+- Lego: **~5s** 到 PSNR=30；**5 min** 到最终.
+- NeRF: **~1 day** 到 PSNR=30.
 - Render: **~10 FPS** at 1920×1080 on RTX 3090 `UNVERIFIED`.
 
-**Catch:** lives inside NVIDIA CUDA. Single-GPU, NVIDIA-only, hard to extend, locked to tinycudann. Downstream re-impls (Nerfstudio) less optimized, losing 3–5× wall-clock.
+**Catch:** 活在 NVIDIA CUDA 内. 单 GPU、仅 NVIDIA、难扩展、锁死 tinycudann. 下游重实现（Nerfstudio）优化较少，丢失 3–5× wall-clock.
 
 ---
 
 ## 5 · Data and evaluation
 
-- **NeRF synthetic / LLFF:** same datasets, same protocol. Quality parity at 1/1000th training time.
-- **Beyond NeRF:** paper demos SDF, gigapixel images, neural radiance caching. **Hash grid is not NeRF-specific.**
-- **Does NOT benchmark:** unbounded scenes (Mip-NeRF 360's problem), view-dependent specular accuracy. Inherits vanilla-NeRF limits except speed.
+- **NeRF synthetic / LLFF:** 同数据集、同协议. 1/1000 训练时间下达到质量平价.
+- **超越 NeRF：** 论文展示 SDF、gigapixel images、neural radiance caching. **Hash grid 非 NeRF 专用.**
+- **未做 benchmark：** unbounded 场景（Mip-NeRF 360 的问题）、view-dependent specular 精度. 除速度外继承 vanilla-NeRF 限制.
 
 ---
 
@@ -141,15 +141,15 @@ Result: slight loss of high-freq detail at one point, not catastrophic. Paper's 
 
 ### 6.1 Hidden assumptions
 
-- **Hash collision tolerance** — assumes high-freq content is *sparse on surfaces*. Violated by volumetric phenomena (smoke, fog) where σ ≠ 0 everywhere; quality degrades when every cell is in the working set.
-- **Sufficient GPU memory** — 67 MB table is modest, but occupancy grid + activations push working set to ~2 GB. **Won't fit on Jetson Nano.** Jetson Orin (8 GB shared) is the practical floor.
-- **CUDA monoculture** — speed depends on tinycudann fused kernels. Apple Silicon / AMD ROCm / edge: no first-class support. Porting is research-grade.
-- **Per-scene training still required** — *fast*, not *unnecessary*. Cross-scene transfer cliff stayed until VGGT-class feed-forward.
-- **Static scene** — inherits from NeRF.
+- **Hash collision tolerance** — 假设高频内容*在表面上稀疏*. Volumetric 现象（烟、雾）σ ≠ 0 处处皆是会违反；每个 cell 都在工作集时质量退化.
+- **足够 GPU 内存** — 67 MB table 不大，但 occupancy grid + activation 把工作集推到 ~2 GB. **Jetson Nano 装不下.** Jetson Orin (8 GB shared) 是实际下限.
+- **CUDA 单一文化** — 速度依赖 tinycudann fused kernel. Apple Silicon / AMD ROCm / 边缘：无一线支持. 移植级别属研究.
+- **仍需 per-scene 训练** — *快*，不是*不需要*. 跨场景迁移悬崖到 VGGT 类 feed-forward 才填上.
+- **Static scene** — 继承自 NeRF.
 
-### 6.2 What kills deployment
+### 6.2 什么阻碍部署
 
-For robotics: 10 FPS at 1080p is fine for *visualization*, not closed-loop perception (need 30+ FPS). 1–2 GB GPU memory at inference awkward for embedded. Hash table opaque — cannot inspect "where is the chair" without decoding entire scene. No editing primitive — modifying a region requires retraining. These are exactly what 3DGS later solved by being *explicit*. Instant-NGP is fast NeRF; 3DGS is *different* NeRF.
+机器人方面：1080p 10 FPS 适合*可视化*，不适合闭环感知（需要 30+ FPS）. 推理时 1–2 GB GPU 内存对嵌入式尴尬. Hash table 不透明 — 不解码整个场景无法检查"椅子在哪". 无编辑 primitive — 修改一片需重训. 这些正是 3DGS 后来通过*显式*解决的. Instant-NGP 是快版 NeRF；3DGS 是*另一种* NeRF.
 
 ---
 
@@ -163,7 +163,7 @@ For robotics: 10 FPS at 1080p is fine for *visualization*, not closed-loop perce
 | **Instant-NGP** | Hash grid + tiny MLP | **~5 min** | **~10 FPS** |
 | 3DGS (2023) | Explicit gaussians | ~30 min | **~100 FPS** |
 
-> **🎤 Interview tip.** "What did Instant-NGP actually contribute?" — Right answer: *"It moved capacity from the network into a learnable spatial data structure (hash grid), proving NeRF's bottleneck was input encoding, not MLP depth. 1000× speedup made NeRF practically reproducible — and 'explicit data structure beats deeper net' is the lesson 3DGS later took to its logical conclusion."* Wrong: "It made the MLP smaller." Symptom, not cause.
+> **🎤 Interview tip.** "Instant-NGP 实际贡献了什么？" — 正确答案：*"它把容量从网络挪到一个可学的空间数据结构（hash grid），证明 NeRF 瓶颈是输入编码而非 MLP 深度. 1000× 加速让 NeRF 实际可复现 — '显式数据结构胜过更深网络' 是 3DGS 后来推到逻辑结论的教训."* 错答："它把 MLP 变小了"。症状，不是原因.
 
 ---
 
@@ -177,7 +177,7 @@ For robotics: 10 FPS at 1080p is fine for *visualization*, not closed-loop perce
 
 ## Boundary
 
-Dissects Instant-NGP only. Does **not** cover unbounded-scene handling (→ `mip_nerf_360_dissection.md`), city-scale (→ `block_nerf_large_scenes.md`), 3DGS (→ `foundations/3dgs-family/3dgs_original_dissection.md`), hash-grid SDF / image demos, or competing "no MLP" lineage.
+仅解构 Instant-NGP. **不**覆盖 unbounded-scene 处理（→ `mip_nerf_360_dissection.md`）、城市级（→ `block_nerf_large_scenes.md`）、3DGS（→ `foundations/3dgs-family/3dgs_original_dissection.md`）、hash-grid SDF / image demo，或竞争的 "no MLP" 谱系.
 
 ---
 

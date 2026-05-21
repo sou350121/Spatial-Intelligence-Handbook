@@ -2,13 +2,13 @@
 
 > **发布时间**: 2024-03 (CVPR 2024 *best paper* — Wen, Yang et al., NVIDIA)
 > **论文 / 模型**: FoundationPose (arXiv 2312.08344)
-> **核心定位**: One model that estimates 6D pose for *any* object — with a CAD mesh OR ~16 reference images — without per-object fine-tuning.
+> **核心定位**: 一个模型给*任意*物体估计 6D pose — 用 CAD mesh 或 ~16 参考图 — 无需 per-object fine-tune.
 
-**Status:** v1 — opinionated draft. Numbers marked `UNVERIFIED` unless rig-tested.
-**Wedge tier:** W1 · pose-foundation default for 2024–2026 manipulation stacks.
-**TL;DR:** First 6D pose model that earns "foundation". Drop in any new object — mug, screwdriver, packing-tape roll — and get pose without retraining. Render-and-compare + diffusion-style iterative refinement, scored by a model trained on ~1M+ synthetic objects. The reason 2026 teams shouldn't be training per-object pose heads.
+**Status:** v1 — 带立场的初稿. 数字除非在 rig 上测过否则标 `UNVERIFIED`.
+**Wedge tier:** W1 · 2024–2026 manipulation 栈的 pose-foundation 默认.
+**TL;DR:** 第一个配得上 "foundation" 的 6D pose 模型. 丢任何新物体（mug、螺丝刀、打包胶带）进去就能得到 pose 而无需重训. Render-and-compare + 扩散风迭代精化，由训在 ~1M+ 合成物体上的模型打分. 这是 2026 团队不应再训 per-object pose head 的原因.
 
-**X-Ray.** Pre-2024 pose models (PoseCNN, DenseFusion, GDR-Net) required *per-object training*. FoundationPose breaks the wall: train once on huge synthetic data, generalize to any unseen object — mesh or ~16 reference images. Object pose joined the foundation-model club in 2024, alongside depth (Depth Anything) and 3D (VGGT precursors).
+**X-Ray.** 2024 前的 pose 模型（PoseCNN、DenseFusion、GDR-Net）要求 *per-object 训练*. FoundationPose 打破这堵墙：一次在巨量合成数据上训，泛化到任意未见物体 — 用 mesh 或 ~16 参考图. 2024 年 Object pose 加入 foundation-model 俱乐部，与深度（Depth Anything）和 3D（VGGT 前驱）同列.
 
 ---
 
@@ -20,30 +20,30 @@ PoseCNN ─► DenseFusion ► GDR-Net ► MegaPose ───► FoundationPose 
 └─ per-object supervised ──┘  └── novel obj, mesh required ──┘  └─ mesh-free ─┘
 ```
 
-First paper handling unseen objects *without* mesh at production accuracy. Temporal / video successors are early-stage in 2026.
+第一篇在生产精度下处理未见物体*无 mesh* 的论文. 时序 / 视频继任者在 2026 仍处早期.
 
 ---
 
-## 1 · Architecture overview
+## 1 · 架构总览
 
-### 1.1 System component comparison
+### 1.1 系统组件对比
 
 | Module | Input | Output |
 |---|---|---|
-| Hypothesizer | RGB-D crop + obj rep | N pose hypotheses |
+| Hypothesizer | RGB-D crop + obj rep | N 个 pose hypotheses |
 | Refinement (diffusion-style) | hypothesis + render | refined (multi-step) |
 | Scorer | rendered vs observed | scalar score |
 | Object rep (mesh-free) | ~16 ref images | implicit neural object |
 
-**Render-and-compare wrapped in a learned scorer**, with diffusion-style iterative refinement. The *scorer is the foundation model* — generalizes across objects because it saw a million in training.
+**Render-and-compare 包在学到的 scorer 里**，配扩散风迭代精化. *Scorer 才是 foundation model* — 跨物体泛化，因为它训练时见过百万个.
 
 ### 1.2 ⚡ Eureka Moment
 
-> **Treat pose as "score how well a rendered hypothesis matches the observation" — and make the scorer the foundation model, not the regressor.**
+> **把 pose 视为"给 rendered hypothesis 与观测的匹配度打分" — 让 scorer 成为 foundation model，不是 regressor.**
 
-Earlier work regressed 6D pose from features → fragile per-object. FoundationPose flips it: render N candidates (free, deterministic) and *learn to score* (generalizes from synthetic prior).
+之前工作从特征 regress 6D pose → per-object 脆弱. FoundationPose 反转：render N 个候选（免费、确定性）并*学打分*（从合成先验泛化）.
 
-### 1.3 Information flow
+### 1.3 信息流
 
 ```
    RGB-D crop ──┐
@@ -64,30 +64,30 @@ Earlier work regressed 6D pose from features → fragile per-object. FoundationP
   pose*  =  argmax_{T in candidates}  scorer( render(obj, T),  observed_crop )
 ```
 
-Pose is *selected* from a candidate set, not regressed. The scorer is the learned generalization machine.
+Pose 是从候选集*选出*，不是 regress. Scorer 是学到的泛化机器.
 
 | Symbol | Meaning |
 |---|---|
 | `T = (R, t)` | 6D pose |
-| `render(obj, T)` | rasterized RGB-D at `T` |
-| `scorer(·, ·)` | learned contrastive scorer |
-| `K` | refinement iterations (~5 `UNVERIFIED`) |
+| `render(obj, T)` | 在 `T` 处 rasterize 的 RGB-D |
+| `scorer(·, ·)` | 学到的对比 scorer |
+| `K` | refinement 迭代数 (~5 `UNVERIFIED`) |
 
-**Intuition.** Rendering is the geometric oracle; the scorer is the perceptual oracle. Combined → pose becomes *search* in pose space, scorer as navigation gradient.
+**Intuition.** 渲染是几何 oracle；scorer 是感知 oracle. 合起来 → pose 变成 pose 空间中的*搜索*，scorer 作为导航梯度.
 
 ---
 
-## 3 · Worked example: pose of a screwdriver
+## 3 · Worked example: 螺丝刀的位姿
 
-RealSense D435, screwdriver detected → crop. CAD mesh available.
+RealSense D435，screwdriver 检测到 → crop. 有 CAD mesh.
 
-1. **Hypothesize** ~252 rotation hypotheses (icosphere × in-plane); translation from depth centroid.
-2. **Render** each candidate into the crop.
-3. **Score** (rendered, observed) → 252 scalars; top-5 within ~10° of GT.
-4. **Refine** top-5 × K=5 steps; top-1 → ~2° rotation, ~3 mm translation `UNVERIFIED`.
-5. **Final score** ~0.92 → ship to grasp planner.
+1. **Hypothesize** ~252 旋转假设（icosphere × in-plane）；translation 从 depth 重心.
+2. **Render** 每个候选到 crop.
+3. **Score** (rendered, observed) → 252 个标量；top-5 在 GT ~10° 内.
+4. **Refine** top-5 × K=5 步；top-1 → ~2° 旋转、~3 mm translation `UNVERIFIED`.
+5. **Final score** ~0.92 → 发给 grasp planner.
 
-End-to-end ~80–150 ms desktop `UNVERIFIED`, ~300–550 ms Orin `UNVERIFIED`. Mesh-free mode replaces the renderer with the implicit neural object.
+端到端桌面 ~80–150 ms `UNVERIFIED`，Orin ~300–550 ms `UNVERIFIED`. Mesh-free 模式用 implicit neural object 替换 renderer.
 
 ---
 
@@ -100,33 +100,33 @@ End-to-end ~80–150 ms desktop `UNVERIFIED`, ~300–550 ms Orin `UNVERIFIED`. M
 | Refinement (×5) | 30–60 ms | 100–200 ms |
 | **End-to-end** | **~80–150 ms** | **~300–550 ms** |
 
-Multi-object scales linearly unless batched. Single-object 30 Hz tracking on Orin is feasible after distillation; pose-of-everything-on-table at 30 Hz is not 2026-ready on edge.
+Multi-object 不批处理则线性 scale. 蒸馏后 Orin 上单物体 30 Hz tracking 可行；2026 年桌面所有物体 30 Hz 在边缘不就绪.
 
-**Deployment.** New SKU: 16 photos + 30-s mesh-free fit → ready. Tracking mode: re-detect every Nth frame, refine from prior → ~30 ms/frame `UNVERIFIED`.
+**Deployment.** 新 SKU：16 张照片 + 30 秒 mesh-free 拟合 → 就绪. Tracking 模式：每 N 帧重检，从先验 refine → ~30 ms/frame `UNVERIFIED`.
 
 ---
 
 ## 5 · Data & eval
 
-Trained on ~1M+ synthetic objects (paper claim; exact `UNVERIFIED`) from Objaverse / ShapeNet, with domain-randomized lighting / materials / backgrounds. Evaluated on LM-O, YCB-V, T-LESS — beats MegaPose by 6–18 AR points `UNVERIFIED`. Mesh-free variant lags model-based by a few AR points but is the more important real-world capability.
+训在 Objaverse / ShapeNet 的 ~1M+ 合成物体（论文声称；准确 `UNVERIFIED`），用域随机光照 / 材料 / 背景. 在 LM-O、YCB-V、T-LESS 上评估 — 比 MegaPose 高 6–18 AR `UNVERIFIED`. Mesh-free 变体比 model-based 落后几个 AR 但是更重要的真实世界能力.
 
 ---
 
 ## 6 · Capabilities & failure modes
 
-**Wins:** novel-SKU onboarding in minutes; moderate-occlusion robustness; mesh-free path for objects without CAD.
+**赢：** 几分钟内 onboard 新 SKU；中度遮挡鲁棒；无 CAD 物体的 mesh-free 路径.
 
-**Fails on:** severe symmetry without texture (rotation ambiguity inherent); transparent / specular objects (depth sensor fails first); objects <~10 mm `UNVERIFIED`; heavy clutter without clean 2D detection.
+**败于：** 无纹理的严重对称（旋转歧义固有）；透明 / 镜面物体（depth sensor 先失败）；物体 <~10 mm `UNVERIFIED`；无干净 2D 检测的重杂乱.
 
 ### 6.1 Hidden Assumptions
 
-- **Depth channel available and reliable.** RGB-only degrades 5–15 AR `UNVERIFIED`. Reflective metal → effectively RGB-only.
-- **Object rigid.** Cables / fabric out of scope; articulated objects give dominant-link pose only.
-- **Reference images cover the rotational hull (mesh-free).** Single hemisphere doesn't generalize to the back side.
-- **Object ≥~10 mm in image.** Tiny SMD / fine screws below effective resolution.
-- **Lighting roughly photo-realistic.** Domain randomization covers wide variation, not monochrome IR.
+- **Depth 通道可用且可靠.** 仅 RGB 退化 5–15 AR `UNVERIFIED`. 反射金属 → 实际上仅 RGB.
+- **物体刚性.** 线 / 布料不在范围；articulated 物体仅给主导 link 的 pose.
+- **参考图覆盖旋转半球（mesh-free）.** 单半球不泛化到背面.
+- **物体在图像中 ≥~10 mm.** 微小 SMD / 细螺丝低于有效分辨率.
+- **光照大致 photo-realistic.** 域随机化覆盖广变化，不覆盖单色 IR.
 
-These are *input-domain* assumptions, not parameter issues — fine-tuning won't fix them.
+这些是*输入域*假设，不是参数问题 — fine-tune 也修不了.
 
 ---
 
@@ -140,13 +140,13 @@ These are *input-domain* assumptions, not parameter issues — fine-tuning won't
 | MegaPose | ✅ | **yes** | ✅ | ~3 Hz | 2022 |
 | **FoundationPose** | ✅ | **optional** | ✅ | ~5–10 Hz (Orin, distilled `UNVERIFIED`) | 2024 |
 
-> **🎤 Interview Tip.** "Pose estimator for a never-before-seen object?" — *"FoundationPose in mesh-free mode — onboard with ~16 reference images, then run the pose tracker. With a CAD mesh, use it for extra accuracy points."* "I'd train a PoseCNN on YCB-style data" is three years out of date.
+> **🎤 Interview Tip.** "为从未见过的物体做 pose estimator？" — *"FoundationPose 在 mesh-free 模式下 — 用 ~16 张参考图 onboard，然后跑 pose tracker. 有 CAD mesh 用它来多拿几个精度分."* "我会在 YCB 风格数据上训 PoseCNN" 已三年过时.
 
 ---
 
 ## References
 
-- FoundationPose — Wen et al. *CVPR 2024* (best paper). https://arxiv.org/abs/2312.08344
+- FoundationPose — Wen et al. *CVPR 2024*（best paper）. https://arxiv.org/abs/2312.08344
 - MegaPose — Labbé et al. *CoRL 2022*. https://arxiv.org/abs/2212.06870
 - GDR-Net — Wang et al. *CVPR 2021*. https://arxiv.org/abs/2102.12145
 - DenseFusion — Wang et al. *CVPR 2019*. https://arxiv.org/abs/1901.04780
@@ -155,7 +155,7 @@ These are *input-domain* assumptions, not parameter issues — fine-tuning won't
 
 ## Boundary
 
-Dissects FoundationPose as a **novel-object 6D pose foundation model**. Mesh-required predecessor → [`megapose_dissection.md`](./megapose_dissection.md). Per-embodiment usage → [`embodiments/manipulation/`](../../embodiments/manipulation/). Action consumption → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md).
+把 FoundationPose 解构为 **novel-object 6D pose foundation model**. 需 mesh 的前驱 → [`megapose_dissection.md`](./megapose_dissection.md). Per-embodiment 用法 → [`embodiments/manipulation/`](../../embodiments/manipulation/). Action 消费 → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md).
 
 ---
 

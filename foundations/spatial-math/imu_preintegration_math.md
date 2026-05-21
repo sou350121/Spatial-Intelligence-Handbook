@@ -1,12 +1,12 @@
 # IMU Preintegration (IMU 预积分)
 
 > **发布时间**: 2026-05-21
-> **核心定位**: The Forster *T-RO 2017* trick that lets VINS-Mono and OpenVINS use 1000 Hz IMU measurements inside a 30 Hz optimization loop *without* re-integrating every sample on every linearisation step.
+> **核心定位**: Forster *T-RO 2017* 的那个 trick —— 让 VINS-Mono / OpenVINS 在 30 Hz 优化循环里用 1000 Hz IMU 测量，*而不必*在每次线性化时从头重新积分每个样本。
 
-**Status:** v1 — primer.
-**TL;DR:** Naïve IMU integration must be re-run from scratch on every pose perturbation — `O(K)` per linearisation, prohibitive. Preintegration computes a pose-independent summary in the previous body frame; re-linearisation = closed-form bias correction. Math behind every tightly-coupled VIO with ≥200 Hz IMU.
+**Status:** v1 —— primer。
+**TL;DR:** 朴素 IMU 积分在每次位姿扰动后都要从头跑 —— 每次线性化 `O(K)`，代价过高。预积分在上一帧 body frame 里计算一个与位姿无关的 summary；重新线性化 = 闭式的 bias 修正。每个 ≥200 Hz IMU 的紧耦合 VIO 都靠这个。
 
-**X-Ray.** Drone IMU runs ~1000 Hz, camera ~30 Hz — ~33 samples between frames. Optimizer treats frames as state, IMU as constraint between them. Naïvely: every perturbation re-integrates 33 samples. Forster factored integration into `(ΔR, Δv, Δp)` depending only on readings + biases, not initial pose — pose composes at the end. Algebraic trick that makes VINS-Mono / OpenVINS feasible. (中文：IMU 段=相机帧间位姿增量，只依赖测量与偏置。)
+**X-Ray.** Drone IMU 跑 ~1000 Hz，相机 ~30 Hz —— 帧间约 33 个样本。优化器把帧当状态，IMU 当帧间约束。朴素：每次扰动都重新积 33 个样本。Forster 把积分因式化成 `(ΔR, Δv, Δp)`，只依赖于读数 + bias，不依赖初始位姿 —— 位姿在最后再复合。一个让 VINS-Mono / OpenVINS 跑得起来的代数 trick。（中文：IMU 段=相机帧间位姿增量，只依赖测量与偏置。）
 
 ## 📍 研究全景时间线
 
@@ -17,15 +17,15 @@ preint   on-manifold    "the IMU paper" ship it             preint default
 SLAM                                                         tightly-coupled VIO
 ```
 
-Forster 2017 is the citation. Engineering payoff: "VIO runs at all".
+Forster 2017 是规范引用。工程上的回报：「VIO 跑得起来」。
 
 ---
 
-## 1 · Architecture: why naïve integration is too slow
+## 1 · 架构：为什么朴素积分太慢
 
-### 1.1 The problem
+### 1.1 问题
 
-Between frames `k-1` and `k`, IMU gives `{a_i, ω_i}_{i=0}^{K-1}`. Naïve:
+帧 `k-1` 到 `k` 之间，IMU 给出 `{a_i, ω_i}_{i=0}^{K-1}`。朴素：
 
 ```
 R_k = R_{k-1} · Π_i exp((ω_i - b_g) Δt)
@@ -33,15 +33,15 @@ v_k = v_{k-1} + g KΔt + R_{k-1} · Σ_i [...]
 p_k = p_{k-1} + v_{k-1} KΔt + ...
 ```
 
-`R_{k-1}, v_{k-1}` appear in every line. Every perturbation re-integrates K samples. 10 kf × 30 samples × 10 LM × 30 Hz → ~100k IMU integrations/sec — painful.
+`R_{k-1}, v_{k-1}` 出现在每一行。每次扰动都要重新积 K 个样本。10 kf × 30 样本 × 10 LM × 30 Hz → ~100k IMU 积分/秒 —— 痛苦。
 
 ### 1.2 ⚡ Eureka Moment
 
-> **Factor the IMU sequence into a pose-independent delta `(ΔR, Δv, Δp)` in the previous body frame — pose composes at end. Re-linearisation = first-order bias correction, no re-integration.**
+> **把 IMU 序列因式化成上一帧 body frame 里与位姿无关的 delta `(ΔR, Δv, Δp)` —— 位姿在最后复合。重新线性化 = 一阶 bias 修正，不重新积分。**
 
-Trick: integrate in *previous body frame* (no absolute-pose dependence). Bias → first-order Taylor.
+Trick：在*上一帧 body frame* 内积分（无绝对位姿依赖）。Bias → 一阶 Taylor。
 
-### 1.3 Data flow
+### 1.3 数据流
 
 ```
 IMU 1 kHz ─► preintegration accumulator (incremental)
@@ -54,7 +54,7 @@ cam 30 Hz ─► optimizer consumes as one relative-pose factor between i and j
 
 ---
 
-## 2 · Math core: the three preintegrated deltas
+## 2 · 数学核心：三个预积分的 delta
 
 ### 📌 Napkin Formula
 
@@ -64,9 +64,9 @@ cam 30 Hz ─► optimizer consumes as one relative-pose factor between i and j
 Δp̃_ij = Σ_{k} [Δṽ_ik Δt + ½ ΔR̃_ik (a_k - b̄_a) Δt²]      ← position
 ```
 
-All three are in the body frame at time `i` — no dependence on absolute pose at i. Bias `b̄` fixed at linearisation point.
+三者都在时间 `i` 的 body frame 里 —— 不依赖 i 处的绝对位姿。Bias `b̄` 固定在线性化点。
 
-### Composition (residuals)
+### 复合（residual）
 
 ```
 e_R = log(ΔR̃_ij⁻¹ R_iᵀ R_j)
@@ -74,11 +74,11 @@ e_v = R_iᵀ(v_j - v_i - g Δt_ij) - Δṽ_ij
 e_p = R_iᵀ(p_j - p_i - v_i Δt_ij - ½g Δt_ij²) - Δp̃_ij
 ```
 
-Deltas are constants the optimizer compares against current pose / velocity. No re-integration.
+delta 是优化器拿来跟当前位姿 / 速度对照的常量。无需重新积分。
 
-### Bias update correction
+### Bias 更新修正
 
-`b̄ → b̄ + δb` shifts deltas first-order:
+`b̄ → b̄ + δb` 让 delta 做一阶平移：
 
 ```
 ΔR̃(b̄ + δb_g) ≈ ΔR̃(b̄) · exp(J_{ΔR,b_g} δb_g)
@@ -86,29 +86,29 @@ Deltas are constants the optimizer compares against current pose / velocity. No 
 Δp̃(b̄ + δb)   ≈ Δp̃(b̄) + J_{Δp,·} δb
 ```
 
-Jacobians stored once. Bias update = mat-vec multiply. **Headline of Forster 2017.**
+Jacobian 存一次。Bias 更新 = 一次 mat-vec。**Forster 2017 的头条。**
 
-Vars: `ω_k, a_k` (readings); `b̄_g, b̄_a` (biases); `ΔR̃, Δṽ, Δp̃` (deltas); `Σ_ij` (factor info); `g` (gravity); `Δt` (IMU period).
-
----
-
-## 3 · Worked example: 3 IMU samples between two camera frames
-
-Drone hovering, 3 ms gap, 3 samples @ 1 kHz. Biases `b̄_g = (0.001, 0, 0)`, `b̄_a = (0, 0, 0.05)`.
-
-Bias-subtracted each step: `ω - b̄_g = (0.01, 0, 0)`, `a - b̄_a = (0, 0, 9.81)`.
-
-- **Rotation:** `δR_k = exp((1e-5, 0, 0))`, `ΔR̃ ≈ exp((3e-5, 0, 0))` (~0.0017° x).
-- **Velocity:** `Δṽ ≈ 3 · (0, 0, 0.00981) = (0, 0, 0.0294)`.
-- **Position:** `Δp̃ ≈ (0, 0, 4.4e-5)`.
-
-In `e_v`: hover comparison = `-g Δt = (0, 0, -0.0294)` cancels Δṽ → `e_v ≈ 0`. IMU and motion agree.
-
-**Optimizer:** given pose / vel / pos at i, j + deltas → residuals + Jacobians. No re-int. Bias revise 0.001 rad/s → `ΔR̃` shifts by `J_{ΔR,b_g}·0.001`.
+变量：`ω_k, a_k`（读数）；`b̄_g, b̄_a`（bias）；`ΔR̃, Δṽ, Δp̃`（delta）；`Σ_ij`（factor 信息矩阵）；`g`（重力）；`Δt`（IMU 周期）。
 
 ---
 
-## 4 · Engineering view: where preintegration sits in a VIO
+## 3 · 玩具例子：相机两帧之间 3 个 IMU 样本
+
+drone 悬停，3 ms 间隔，1 kHz 取 3 个样本。Bias `b̄_g = (0.001, 0, 0)`、`b̄_a = (0, 0, 0.05)`。
+
+每步去 bias：`ω - b̄_g = (0.01, 0, 0)`、`a - b̄_a = (0, 0, 9.81)`。
+
+- **旋转:** `δR_k = exp((1e-5, 0, 0))`、`ΔR̃ ≈ exp((3e-5, 0, 0))`（~0.0017° x）。
+- **速度:** `Δṽ ≈ 3 · (0, 0, 0.00981) = (0, 0, 0.0294)`。
+- **位置:** `Δp̃ ≈ (0, 0, 4.4e-5)`。
+
+`e_v` 里：悬停时对照 `-g Δt = (0, 0, -0.0294)` 抵消 Δṽ → `e_v ≈ 0`。IMU 与运动一致。
+
+**优化器:** 给定 i / j 处的位姿 / 速度 / 位置 + delta → residual + Jacobian。无需重新积分。Bias 修 0.001 rad/s → `ΔR̃` 按 `J_{ΔR,b_g}·0.001` 平移。
+
+---
+
+## 4 · 工程视角：预积分在 VIO 里的位置
 
 ```
 IMU 1 kHz ──► accumulator (incremental ΔR̃, Δṽ, Δp̃, Σ, J)
@@ -116,61 +116,61 @@ cam 30 Hz ──► freeze, emit factor → optimizer (Ceres / GTSAM)
               sliding window, IMU factor = one residual block per pair
 ```
 
-| Per-LM-iter cost | |
+| 每次 LM iter 的代价 | |
 |---|---|
-| Naïve re-integration | 300 exp + matmul / iter |
-| Forster | 0 IMU ops; bias = O(window) mat-vec |
+| 朴素重新积分 | 300 次 exp + matmul / iter |
+| Forster | 0 次 IMU op；bias = O(window) mat-vec |
 
-Speedup ~10–50× on Orin `UNVERIFIED`. Bigger win: **opt time independent of IMU rate** — 200 Hz vs 1 kHz, same cost.
+Orin 上加速约 10–50× `UNVERIFIED`。更大的胜利是 **优化时间与 IMU 速率无关** —— 200 Hz vs 1 kHz，代价相同。
 
-**When bias changes too much:** valid for small δb; gyro > ~0.05 rad/s or accel > ~0.1 m/s² → re-preintegrate. VINS-Mono re-triggers every few seconds.
+**bias 变化过大时怎么办:** δb 小时有效；gyro > ~0.05 rad/s 或 accel > ~0.1 m/s² 就要重新预积分。VINS-Mono 每隔几秒触发一次。
 
-**Covariance:** 9×9 (or 15×15 with biases) propagated forward = factor's info matrix. Forster 2017 §V.
+**协方差:** 向前传播的 9×9（带 bias 是 15×15）= factor 的信息矩阵。Forster 2017 §V。
 
 ---
 
-## 5 · Capabilities & failure modes
+## 5 · 能力与失败模式
 
 ### 5.1 Hidden Assumptions
 
-- **Bias ≈ constant within interval** — biases drift slowly.
-- **First-order bias correction accurate** — fails for large δb.
-- **Gravity known in world frame** — needs initialisation.
-- **IMU-cam time-synced** — sync >2 ms produces bias in Δṽ `UNVERIFIED`.
-- **IMU noise white Gaussian** — props at 100–400 Hz violate this; need isolators + low-pass.
+- **区间内 bias 近似常数** —— bias 漂得慢。
+- **一阶 bias 修正准确** —— 大 δb 时失败。
+- **世界系下 gravity 已知** —— 需初始化。
+- **IMU 与相机时间同步** —— 同步偏移 > 2 ms 会在 Δṽ 里引入 bias `UNVERIFIED`。
+- **IMU 噪声白色 Gaussian** —— 100–400 Hz 的桨叶违反此条；要 isolator + 低通。
 
-### Failure signatures
+### 失败特征
 
-| Symptom | Cause |
+| 现象 | 原因 |
 |---|---|
-| Position drift straight flight | Accel bias mis-init |
-| Yaw drifts | Gyro bias not observable; need motion excitation |
-| Bench OK, flight diverges | Prop vibration breaks white-noise; need IMU isolation |
-| Preintegration jumps post bias update | First-order correction inadequate; re-integrate |
+| 直飞位置漂 | Accel bias 初始化错 |
+| Yaw 漂 | Gyro bias 不可观；需激发运动 |
+| 台架 OK、飞起来发散 | 桨振破坏白噪声；需 IMU 隔振 |
+| bias 更新后预积分跳变 | 一阶修正不够；重新积分 |
 
 ---
 
-## 6 · Comparison & Interview Tip
+## 6 · 比较 & 面试 Tip
 
-| Approach | Where | Cost |
+| 方法 | 用在哪 | 代价 |
 |---|---|---|
-| Re-integrate every iter | naïve baseline | O(K) per iter |
-| Forster preintegration | sliding-window / factor-graph VIO | O(K) once; O(1) per re-linearisation |
-| MSCKF predict | filter VIO | O(K) once per propagation |
+| 每 iter 重新积分 | 朴素 baseline | 每 iter `O(K)` |
+| Forster 预积分 | 滑窗 / factor-graph VIO | 一次 `O(K)`；重新线性化 `O(1)` |
+| MSCKF predict | filter VIO | 每次 propagate 一次 `O(K)` |
 
-> **🎤 Interview Tip.** "How does VINS-Mono use a 1 kHz IMU in a 30 Hz optimizer?" — strong answer: "Forster preintegration. The IMU sequence factors into a pose-independent delta `(ΔR̃, Δṽ, Δp̃)` in the previous body frame, with stored Jacobians w.r.t. biases. On re-linearisation the deltas don't re-integrate — they shift by a first-order bias-correction mat-vec. IMU sequence consumed exactly once; optimization cost independent of IMU rate." Bonus: "Filter-based stacks like MSCKF propagate state through samples in the predict step — same observation (re-integration is the bottleneck), different fix."
+> **🎤 Interview Tip.** "VINS-Mono 怎么把 1 kHz IMU 塞进 30 Hz 优化器？" —— 强答："Forster 预积分。IMU 序列被因式化成上一帧 body frame 里与位姿无关的 delta `(ΔR̃, Δṽ, Δp̃)`，并存了对 bias 的 Jacobian。重新线性化时 delta 不重积 —— 通过一次一阶 bias-修正 mat-vec 平移。IMU 序列只被吃一次；优化代价与 IMU 速率无关。" 加分："MSCKF 这种 filter 在 predict step 里把状态推过样本 —— 同一个观测（重新积分是瓶颈），不同的修法。"
 
 ---
 
 ## Boundary
 
-This primer covers the preintegration algorithm. For:
+这篇 primer 只覆盖预积分算法。如需：
 
-- **SO(3) exp/log behind rotation accumulation** → `./se3_so3_lie_groups_primer.md`
-- **EKF predict (MSCKF alternative)** → `./bayesian_filtering_ekf_msckf.md`
-- **Factor graph consuming the IMU factor** → `./pose_graph_optimization.md` + `./bundle_adjustment.md`
-- **VINS-Mono production** → `embodiments/aerial/vio/vins_mono_fusion_dissection.md`
-- **IMU noise physics** → `foundations/sensor-physics/`
+- **旋转累积背后的 SO(3) exp/log** → `./se3_so3_lie_groups_primer.md`
+- **EKF predict（MSCKF 替代方案）** → `./bayesian_filtering_ekf_msckf.md`
+- **消费 IMU factor 的 factor graph** → `./pose_graph_optimization.md` + `./bundle_adjustment.md`
+- **VINS-Mono 量产** → `embodiments/aerial/vio/vins_mono_fusion_dissection.md`
+- **IMU 噪声物理** → `foundations/sensor-physics/`
 
 ---
 

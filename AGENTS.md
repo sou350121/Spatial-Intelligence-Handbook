@@ -127,7 +127,12 @@ emoji 前缀，便于 `git log` 区分人工与自动：
 
 ## 内容与格式规范
 
-- **语言**：中英混排。foundations / crossing 优先英文（学术圈通用）；embodiments / deployment 偏中文（实战导向）；wedge / 旗舰文档 v1+ 中英都可，**保持单文档语言一致**。中文 = **简体中文**，不接受繁体（代码 / 模型名 / 公司名 / arXiv ID / 一手 URL 保留英文原样）
+- **语言**（2026-05-21 update）：中文 = **简体中文**（不接受繁体）。
+  - `foundations/` `embodiments/` `deployment/` `companies/` `cheat-sheet/` → **偏简体中文 narrative**（technical terms / paper names / model names / arXiv IDs / GitHub URLs / 公式符号 全部保留英文原样）
+  - `crossing/` → **优先英文**（学术圈通用 USP，国际读者也读得懂）
+  - `bridge-to-vla/` → 与 VLA-Handbook 接口，mixed OK，保持单文档语言一致
+  - `benchmarks/` → mixed 视既有风格
+  - 所有文档**双语标题**：`# Chinese Title (English Title)` 永远必须
 - **文件名**：`snake_case.md`
 - **公式**：theory 类文档**禁用 LaTeX**（GitHub 渲染不稳定）— 用代码块或 Unicode 纯文本
 - **引用**：必须给出来源链接（论文优先 arXiv ID / DOI；代码优先 GitHub / HuggingFace；数据手册可标 `UNVERIFIED, no DOI`）

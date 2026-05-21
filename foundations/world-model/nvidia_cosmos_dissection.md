@@ -2,17 +2,17 @@
 
 > **发布时间**: CES 2025 announcement (NVIDIA)
 > **论文 / 模型**: Cosmos World Foundation Model Platform — Cosmos-Predict / Cosmos-Transfer / Cosmos-Reason
-> **核心定位**: a **conditional video synthesis stack** tuned for robot-rollout aesthetics — value lives in the **data factory**, not in rollouts-as-planner.
+> **核心定位**: 一套**为机器人 rollout 美学调过的 conditional video synthesis stack**——价值落在**数据工厂**，而非"rollout 当规划器"。
 
-Cosmos is not a physics simulator dressed in a transformer. It is a video-generation pipeline with a sim2real-bridging story attached, and the only question that matters is whether VLAs trained on a Cosmos-augmented mix beat ones trained without — on a falsifiable benchmark.
+Cosmos 不是套了 transformer 外衣的物理仿真器，而是一条挂着 sim2real bridge 故事的视频生成管线。唯一重要的问题是：在某个可证伪的 benchmark 上，用 Cosmos 增广过的数据训出来的 VLA，能否真的胜过没用的版本。
 
 **Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. All throughput / sim2real-gap deltas marked `UNVERIFIED`.
 **Wedge tier:** W2 · 🔧 [WorldModel] 🛰️
-**TL;DR:** Cosmos is not a world model in the "simulator of physics" sense — it's a **conditional video synthesis stack tuned to look physics-plausible enough that a VLA trained on its rollouts doesn't immediately collapse on real hardware**. The value is in the data factory, not in the rollouts as a planner. The 2027 question is whether a Cosmos-augmented training mix measurably narrows the sim2real gap on a single, falsifiable manipulation benchmark.
+**TL;DR:** Cosmos 不是"物理仿真"意义上的 world model——它是一套 **conditional video synthesis stack，调到看起来足够物理合理，以致 VLA 用其 rollout 训出来后不会在真硬件上立刻崩**。价值在数据工厂，不在 rollout 当规划器。2027 年的关键问题是：在某个可证伪的 manipulation benchmark 上，Cosmos 增广的训练 mix 能否可测量地缩窄 sim2real gap。
 
 ### X-Ray (non-expert friendly)
 
-(a) Robot data is the bottleneck — real teleop costs ~$10–50 / episode `UNVERIFIED`, classical sim is cheap but visually wrong. (b) Cosmos turns Isaac-sim depth/seg into photoreal RGB video and filters physics-violating clips with a VLM critic, producing a **VLA training-data factory**, not a planner. (c) For spatial AI engineers: treat Cosmos as one data source in an ablation table — closes the appearance gap, **not** the dynamics gap; useless for contact-rich precision tasks.
+(a) 机器人数据是瓶颈——真实遥操作约 $10–50 / episode `UNVERIFIED`，经典 sim 便宜但视觉错位。(b) Cosmos 把 Isaac-sim 的 depth/seg 转成 photoreal RGB video，并用 VLM critic 过滤物理违规片段，产出**VLA 训练数据工厂**，而非规划器。(c) 对空间 AI 工程师：把 Cosmos 当 ablation 表里的一种数据源——它关掉**外观 gap**，关不掉**动力学 gap**；对 contact-rich 精细任务无用。
 
 ### 📍 Research Landscape Timeline
 
@@ -22,31 +22,31 @@ Isaac Sim 2018 ─► DriveDreamer / GAIA-1 2023 ─► Sora 2024 ─► ★ Cos
                                                                   └── peer: Genie (action-conditional planner)
 ```
 
-Cosmos is the first **embodied-AI-targeted** video foundation stack with an explicit Predict/Transfer/Reason factoring. Open downstream: action-conditioning fidelity, contact dynamics, learned-material grounding.
+Cosmos 是首个**面向具身 AI** 的 video foundation stack，并显式拆为 Predict/Transfer/Reason 三块。下游开放问题：action-conditioning fidelity、contact dynamics、learned-material grounding。
 
 ---
 
 ## 1 · Why this question matters
 
-Robot data is the bottleneck. Real teleop trajectories cost ~$10–50 per episode `UNVERIFIED`; classical sim (Isaac, MuJoCo) is cheap but visually domain-gapped. The Cosmos pitch: pay GPU dollars, get rollouts that look like a real wrist camera, train your VLA, ship a policy that survives real RGB. **The only benchmark that matters is whether such a policy beats one trained on Isaac + standard domain randomization**; everything else is aesthetics.
+机器人数据是瓶颈。真实遥操作每集 ~$10–50 `UNVERIFIED`；经典 sim（Isaac、MuJoCo）便宜但视觉上有域差。Cosmos 的卖点：付 GPU 费、拿到看起来像真实 wrist camera 的 rollout，训出 VLA，部署能扛真实 RGB 的策略。**唯一值得看的 benchmark 是：这种策略能否胜过 Isaac + 标准 domain randomization 训出来的策略**；其它皆为美学。
 
-Cosmos sits in `foundations/world-model/` because the data-pipeline use case is shared across manipulation, humanoid, and ground robots. The driving sibling line (DriveDreamer, GAIA-1) moves to `embodiments/driving/` later.
+Cosmos 落在 `foundations/world-model/` 是因为数据管线场景在 manipulation、humanoid、ground robot 间通用。driving 的姊妹线（DriveDreamer、GAIA-1）以后挪到 `embodiments/driving/`。
 
 ---
 
 ## 2 · Model family architecture
 
-> 📌 **Napkin Formula**: `VLA_data ≈ Cosmos-Transfer(Isaac depth/seg) → Cosmos-Predict(extend) → Cosmos-Reason(filter)` — three video models in series, **not one physics simulator**.
+> 📌 **Napkin Formula**: `VLA_data ≈ Cosmos-Transfer(Isaac depth/seg) → Cosmos-Predict(extend) → Cosmos-Reason(filter)`——三个视频模型串联，**不是一个物理仿真器**。
 
-NVIDIA announced Cosmos at CES 2025 as a "World Foundation Model Platform" with three sub-families (exact spec numbers `UNVERIFIED` outside NVIDIA marketing):
+NVIDIA 在 CES 2025 把 Cosmos 发布为"World Foundation Model Platform"，分三个子家族（NVIDIA 营销外的具体 spec 数字 `UNVERIFIED`）：
 
 | Sub-family | Architecture class | Conditioning | Primary use |
 |---|---|---|---|
-| **Cosmos-Predict** | Diffusion + autoregressive video generators (4B / 12B / 14B variants `UNVERIFIED`) | Text + first-frame + optionally action / trajectory | Generate plausible robot-camera rollouts |
-| **Cosmos-Transfer** | ControlNet-style structural transfer | Depth / segmentation / edge from sim → photoreal RGB | Sim2real domain bridging on Isaac assets |
-| **Cosmos-Reason** | VLM (~7B) fine-tuned for spatial / physical reasoning over video | Multi-frame video → text | Quality-gate generated rollouts; reject physics-violating clips |
+| **Cosmos-Predict** | Diffusion + autoregressive video generators (4B / 12B / 14B variants `UNVERIFIED`) | Text + first-frame + optionally action / trajectory | 生成合理的机器人摄像头 rollout |
+| **Cosmos-Transfer** | ControlNet 风格的结构迁移 | Depth / segmentation / edge from sim → photoreal RGB | Isaac 资产的 sim2real domain bridging |
+| **Cosmos-Reason** | VLM (~7B)，针对视频空间 / 物理推理 fine-tune | Multi-frame video → text | 质量门控生成的 rollout；reject 违反物理的片段 |
 
-Pipeline view for VLA training data:
+VLA 训练数据 pipeline 视图：
 
 ```
   Isaac Sim trajectories + depth/seg
@@ -56,21 +56,21 @@ Pipeline view for VLA training data:
         ──► VLA training mix
 ```
 
-The architectural commitment: **Cosmos does not simulate physics. It learns the statistics of plausible video** and uses Cosmos-Reason as a discriminator. This caps what Cosmos can ever do — contact-rich dynamics, deformables, and OOD physics will leak through whenever Cosmos-Reason's training distribution didn't see them.
+架构上的承诺：**Cosmos 不模拟物理，它学合理视频的统计**，再用 Cosmos-Reason 当判别器。这就限死了 Cosmos 的能力天花板——contact-rich dynamics、deformables、OOD 物理只要不在 Cosmos-Reason 的训练分布里都会漏过去。
 
-> ⚡ **Eureka Moment**: **Generator + Critic ≠ Simulator**, but for a VLA training mix it can be *enough*. Cosmos-Reason is the load-bearing piece — without a learned discriminator filtering physics-violating clips, free-generation Cosmos-Predict actively poisons VLA supervision faster than it helps.
+> ⚡ **Eureka Moment**: **Generator + Critic ≠ Simulator**，但用作 VLA 训练 mix 时可以*够用*。Cosmos-Reason 是承重件——没有学到的判别器筛掉违反物理的片段，free-generation 的 Cosmos-Predict 反而毒害 VLA 监督的速度比帮助的速度还快。
 
 ### 2.5 · Worked example — Isaac peg-in-hole augmentation
 
-100-episode Isaac peg-in-hole dataset (wrist cam, 256×256, depth + seg available):
+100-episode Isaac peg-in-hole 数据集（wrist cam, 256×256，含 depth + seg）：
 
-- **Transfer**: `(depth, seg)` → photoreal RGB; ~1–3 s/frame on A100 `UNVERIFIED`.
-- **Predict**: extends each clip by 10–20 frames of camera jitter.
-- **Reason**: rejects ~20–40% of clips for object permanence / hand-object intersection `UNVERIFIED`.
-- **Mix**: 60/30/10 (Isaac / real / Cosmos) training.
-- **Expected real-rig delta** on contact-rich peg-in-hole: **near zero** (pixel gap isn't the bottleneck). Same pipeline on cluttered tabletop pick: plausible +3–8% `UNVERIFIED`.
+- **Transfer**: `(depth, seg)` → photoreal RGB；A100 上约 1–3 s/frame `UNVERIFIED`。
+- **Predict**: 每段延长 10–20 帧 camera jitter。
+- **Reason**: 因 object permanence / hand-object intersection 拒 ~20–40% 片段 `UNVERIFIED`。
+- **Mix**: 60/30/10（Isaac / real / Cosmos）训练。
+- **真机 delta 预期**（contact-rich peg-in-hole）：**接近零**（像素 gap 不是瓶颈）。同 pipeline 上一个杂乱桌面抓取：合理 +3–8% `UNVERIFIED`。
 
-Appearance-bottlenecked tasks gain; contact-rich tasks don't — §6 in miniature.
+外观瓶颈任务收益，接触密集任务不收益——§6 的微缩版。
 
 ---
 
@@ -78,67 +78,67 @@ Appearance-bottlenecked tasks gain; contact-rich tasks don't — §6 in miniatur
 
 | Scenario | Helps? | Why |
 |---|---|---|
-| Wrist-camera manipulation, common household objects | ✅ likely | Texture / lighting domain bridge is the dominant sim2real gap; Cosmos-Transfer hits it directly |
-| Humanoid loco-manipulation, diverse scenes | ✅ likely | Scene diversity is currently bottlenecked by 3D asset cost — Cosmos sidesteps |
-| Precision insertion, contact-rich assembly | ❌ doubtful | The gap is physics, not pixels; pixel-perfect rollouts with wrong contact don't help |
-| Long-horizon mobile manipulation (>30 s) | ⚠️ partial | Cosmos-Predict drifts; useful only as short clip generator, not full episodes |
-| Driving — closed-loop policy training | ⚠️ partial | GAIA-1 / DriveDreamer lineage shows traffic-agent behavior gap is the real bottleneck; pixels secondary |
-| Drone aerial inspection at speed | ❌ | No prior over high-speed motion blur, prop vibration, outdoor lighting envelopes |
+| Wrist-camera manipulation, 常见家用物体 | ✅ likely | 纹理 / 光照是 sim2real 主 gap；Cosmos-Transfer 直击 |
+| Humanoid loco-manipulation, 场景多样 | ✅ likely | 场景多样性瓶颈在 3D 资产成本，Cosmos 绕过 |
+| 精密插装、接触密集装配 | ❌ doubtful | gap 是物理而非像素；像素完美但接触错误的 rollout 没用 |
+| Long-horizon mobile manipulation (>30 s) | ⚠️ partial | Cosmos-Predict 会漂；只能当短片段生成器 |
+| Driving — closed-loop policy training | ⚠️ partial | GAIA-1 / DriveDreamer 教训：traffic-agent 行为 gap 才是真瓶颈，像素次要 |
+| 无人机高速航拍 | ❌ | 无高速运动模糊、桨振、户外光照先验 |
 
-Read the table as: **Cosmos closes the appearance gap, not the dynamics gap**. If your sim2real failure is "wrong textures, fails on real wood grain," Cosmos earns its GPU bill. If it's "contact wrench off by 3×," Cosmos is irrelevant — you need better physics, not better pixels.
+读这张表的方式：**Cosmos 关掉外观 gap，不关动力学 gap**。如果你的 sim2real 失败是"纹理错、真实木纹上失败"，Cosmos 值它的 GPU 钱。如果是"接触力矩差 3 倍"，Cosmos 无关——你要的是更好的物理，不是更好的像素。
 
 ---
 
 ## 4 · Where it breaks
 
-Documented failure modes (from public demos + community reports, severity `UNVERIFIED`):
+公开 demo + 社区报告中可观察的失败模式（严重度 `UNVERIFIED`）：
 
-- **Object permanence over >5 s rollouts** — small objects get swapped / vanish; lethal for tracking-dependent policies.
-- **Hand-object intersection** — Cosmos-Reason catches gross violations; subtle finger clipping passes and poisons VLA supervision.
-- **Lighting consistency under camera motion** — global illumination drifts; the tell that there's no scene representation, only a video prior.
-- **Action-conditioning fidelity** — rendered hand doesn't track an explicit end-effector trajectory precisely. This is the gap to Genie.
+- **5 秒以上 rollout 的 object permanence** —— 小物体被换 / 消失；对依赖跟踪的策略致命。
+- **手物相交** —— Cosmos-Reason 抓得到粗暴违反；细微指头穿模会漏过去，毒害 VLA 监督。
+- **相机运动下的光照一致性** —— 全局光照漂移，是"没有场景表示、只有视频先验"的标志。
+- **Action-conditioning fidelity** —— 渲染出来的手并未精确跟随显式的末端轨迹。这是与 Genie 的差距。
 
-Mental model: **Cosmos-Predict is a video model with a robot-domain prior, not a robot model with video output**. Cosmos-Reason exists *because* the generator alone is not trustworthy.
+心智模型：**Cosmos-Predict 是带机器人 domain 先验的视频模型，不是带视频输出的机器人模型**。Cosmos-Reason 之所以存在，*正是因为*生成器单独不可信。
 
 ### 4.x · Hidden Assumptions
 
-Upstream commitments whose violation makes Cosmos actively harmful:
+哪些上游承诺被违反时，Cosmos 反而成有害源：
 
-- **Sim2real gap is appearance-dominated** — true on tabletop pick / pour, false on contact-rich assembly.
-- **Cosmos-Reason's training distribution covers your physics regime** — false for deformables, granular, fluids beyond its seen mix.
-- **You have an Isaac (or similar) source pipeline** — Cosmos-Transfer needs depth + seg input; pure RGB capture doesn't unlock it.
-- **You can afford a domain finetune on your wrist-cam distribution** — out-of-the-box Cosmos is generic and degrades on novel cameras.
-- **Your VLA can tolerate ≤20% noisy supervision** — Cosmos-Reason catches gross violations, not subtle finger-clipping; a brittle policy magnifies it.
+- **sim2real gap 由外观主导** —— tabletop pick / pour 上成立，contact-rich 装配上不成立。
+- **Cosmos-Reason 的训练分布覆盖你的物理 regime** —— 对 deformable / granular / fluid 超出其见过的 mix 不成立。
+- **你有 Isaac（或类似）源管线** —— Cosmos-Transfer 需要 depth + seg 输入；纯 RGB 拍摄不解锁。
+- **能负担在你的 wrist-cam 分布上做 domain finetune** —— 开箱 Cosmos 通用，遇到新摄像头会退化。
+- **VLA 能容忍 ≤20% 噪声监督** —— Cosmos-Reason 抓粗违反，不抓细指穿模；脆弱策略会被放大。
 
-If any one is violated, expect **silent failure** — Cosmos rollouts look fine to humans and poison policy training invisibly.
+任一被违反，预期**静默失败** —— Cosmos rollout 在人眼里没毛病，却暗中毒害策略训练。
 
-**Interview Tip**: when asked about Cosmos, answer "data factory, not planner — and only for appearance-bottlenecked tasks; the dynamics gap is unchanged." That distinction separates engineers who've read past the marketing from those who haven't.
+**Interview Tip**：被问 Cosmos 时，答"数据工厂，不是规划器——而且只对外观瓶颈任务有效；动力学 gap 不变"。这一区分把读懂方法的工程师和读营销的人分开。
 
 ---
 
 ## 5 · Deployment patterns that ship today
 
-1. **Augmentation, not replacement.** Train on Isaac + real teleop + Cosmos rollouts in a measured mix (e.g. 60/30/10). Don't replace real data.
-2. **Cosmos-Transfer over Cosmos-Predict for now.** Transfer is sim-conditioned; the underlying physics still comes from Isaac, which makes it more trustworthy than free-generation Predict.
-3. **Always gate.** Use Cosmos-Reason or a hand-crafted physics filter; unfiltered Predict output poisons VLA training faster than it helps.
-4. **Domain finetune required.** Out-of-the-box Cosmos is generic; useful only after a fine-tune on your robot's wrist-camera distribution.
+1. **增广，不是替换**。在 Isaac + 真实 teleop + Cosmos rollout 的可量化 mix（如 60/30/10）里训。别替换真实数据。
+2. **Cosmos-Transfer 优先于 Cosmos-Predict**。Transfer 受 sim 条件约束；底层物理仍来自 Isaac，比自由生成的 Predict 更可信。
+3. **永远过门**。用 Cosmos-Reason 或手工物理过滤器；未过滤的 Predict 毒害 VLA 训练的速度比帮助快。
+4. **必须做 domain finetune**。开箱 Cosmos 通用；只有在你机器人 wrist-camera 分布上微调过才有用。
 
 ---
 
 ## 6 · 2-year outlook + falsifiable prediction
 
-By **2027-06**, expect Cosmos-Transfer to be a standard step in published manipulation VLA pipelines (like DR today), a v2 Cosmos with explicit action-conditioning that narrows the Genie gap, and Cosmos-Reason augmented by 3D-aware critics (Cosmos × 3DGS hybrid is the obvious move).
+预计到 **2027-06**，Cosmos-Transfer 会成为 manipulation VLA 论文里的标准步骤（像今天的 DR），出现显式 action-conditioning 的 Cosmos v2 缩小与 Genie 的差距，Cosmos-Reason 由 3D-aware critic 加强（Cosmos × 3DGS 混合是显然的下一步）。
 
-**Falsifiable prediction:** before 2027-12, **no published manipulation VLA will report >15% real-world success-rate gain solely from Cosmos-augmented data on a contact-rich benchmark** (peg-in-hole, deformable handling). Wins land on appearance-bottlenecked tasks (cluttered tabletop pick, novel-texture pour) at 3–10%. Bet against any headline >20%.
+**Falsifiable prediction:** 在 2027-12 之前，**不会有任何公开 manipulation VLA 报告 contact-rich benchmark（peg-in-hole、deformable 操作）上仅靠 Cosmos 增广就拿到 >15% 真实世界成功率提升**。收益落在外观瓶颈任务（杂乱桌面拾取、新纹理倾倒）上 3–10%。任何标题写 >20% 的应当下注反方。
 
 ---
 
 ## For the reader
 
-- **Manipulation VLA team:** one more data source in your ablation table. Don't reorganize your stack around it.
-- **Driving team:** DriveDreamer / GAIA-1 are the closer cousins. Lessons transfer; the model probably doesn't.
-- **Aerial / outdoor robot:** ignore until 2027 — training distribution doesn't cover your domain.
-- **Researcher:** the open problem is **physics-grounded conditioning** — differentiable physics rollouts constraining the diffusion sampler. Obvious bridge to `foundations/physics/`.
+- **Manipulation VLA team:** 你 ablation 表上多一个数据源。不要围绕它重组整个 stack。
+- **Driving team:** DriveDreamer / GAIA-1 是更近的近亲。教训能迁，模型大概率不能。
+- **Aerial / outdoor robot:** 2027 之前忽略——训练分布不覆盖你的 domain。
+- **Researcher:** 开放问题是 **physics-grounded conditioning** —— 让可微物理 rollout 约束扩散采样器。明显桥接到 `foundations/physics/`。
 
 ---
 
@@ -152,7 +152,7 @@ By **2027-06**, expect Cosmos-Transfer to be a standard step in published manipu
 
 ## Boundary
 
-This file dissects Cosmos as a **data factory for embodied policy training**. Consumer / creative video uses are out of scope per the lane PRD. Cross-family comparison goes in `crossing/representation-migration/world-models-as-data-vs-planner.md` (TBD). VLA-side measurement of "did Cosmos data help my policy?" lives in `bridge-to-vla/cosmos-augmented-vla-training.md` (TBD).
+本文把 Cosmos 解构为**具身策略训练的数据工厂**。消费 / 创意视频用例按 lane PRD 划在范围外。跨家族对比归 `crossing/representation-migration/world-models-as-data-vs-planner.md`（TBD）。VLA 侧关于"Cosmos 数据是否真帮我的策略"的测量归 `bridge-to-vla/cosmos-augmented-vla-training.md`（TBD）。
 
 ---
 

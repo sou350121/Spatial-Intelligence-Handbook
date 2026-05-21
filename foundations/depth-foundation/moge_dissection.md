@@ -3,15 +3,15 @@
 > **Published**: 2024 (arXiv ID TBD UNVERIFIED)
 > **Paper**: Microsoft Research — *MoGe: Monocular Geometry Estimation* `arXiv link TBD UNVERIFIED`
 > **Team**: Microsoft Research
-> **Core position**: Relative-track multi-task monocular geometry model — predicts point map + depth + normal under a unified affine-invariant 3D loss. Richer than Depth Anything as a 3D-aware visual encoder; still no meters.
+> **Core position**: Relative-track 多任务 monocular 几何模型 — 在统一 affine-invariant 3D loss 下预测 point map + depth + normal. 作为 3D-aware 视觉编码器比 Depth Anything 更丰富；仍无米.
 
-**Status:** v1.1 — backfilled to AGENTS.md 14-item template 2026-05-21. Hyperparams marked UNVERIFIED. arXiv ID UNVERIFIED.
+**Status:** v1.1 — 已按 AGENTS.md 14 项门槛模板回填于 2026-05-21. Hyperparams 标 UNVERIFIED. arXiv ID UNVERIFIED.
 **Wedge tier:** W2 · relative-depth foundation (geometry-rich)
-**TL;DR:** MoGe (Microsoft Research 2024, `[arXiv link TBD]` UNVERIFIED) is the relative-track answer that says "if we're going to be affine-invariant anyway, let's predict the *whole geometry* — point map, depth, normals — under a single affine-invariant loss." It's a useful fork from the Depth Anything line because the multi-task head makes the model more useful as a 3D-scene-understanding backbone, even though the output is still up to scale. **For VLA pretraining and scene reconstruction it's interesting. For robotics-with-meters, it's the wrong track — go to Metric3D.**
+**TL;DR:** MoGe (Microsoft Research 2024, `[arXiv link TBD]` UNVERIFIED) 是 relative-track 的答案，说"既然要 affine-invariant，就预测*整个几何* — point map、depth、normal — 用同一 affine-invariant loss". 这是 Depth Anything 线的有用分叉，因为 multi-task head 让模型作为 3D-scene-understanding 骨干更有用，即使输出仍 up to scale. **对 VLA 预训练和场景重建有意思. 对带米的机器人，工具错 — 去 Metric3D.**
 
 ### X-Ray (non-expert friendly)
 
-(a) Depth Anything predicts a single scalar per pixel (disparity, up to affine); Metric3D predicts meters but needs intrinsics. (b) MoGe says "if we're affine-invariant anyway, let's predict the *full geometry* — 3D points, depth, normals — under one affine-invariant loss," so the model becomes a 3D-aware encoder, not just a depth net. (c) For spatial AI engineers: useful as a VLA pretrain or scene-reconstruction backbone; still not metric, so don't deploy for grasp pose.
+(a) Depth Anything 每像素预测一个标量（disparity, up to affine）；Metric3D 预测米但需内参. (b) MoGe 说"既然反正 affine-invariant，就在同一 affine-invariant loss 下预测*完整几何* — 3D 点、深度、法线"，模型由此变 3D-aware 编码器，不只深度网. (c) 对空间 AI 工程师：作为 VLA 预训练或场景重建骨干有用；仍非 metric，所以别用于 grasp pose.
 
 ### 📍 Research Landscape Timeline
 
@@ -19,31 +19,31 @@
 MiDaS 2020 ─► Depth Anything v1/v2 2024 ─► ★ MoGe (Microsoft) 2024 ─► VGGT CVPR 2025 (subsumes single-view) ─► MoGe v2 metric?  2026+
 ```
 
-MoGe is a one-view precursor to VGGT's multi-view geometry head. In 2 years, either MoGe v2 adds metric output (canonical-camera trick) or it's quietly retired in favor of VGGT-class models.
+MoGe 是 VGGT 多视角几何头的单视角前驱. 2 年内，要么 MoGe v2 加 metric 输出（canonical-camera 技巧），要么被静默退役、由 VGGT 类模型接手.
 
 ---
 
-## 1 · The pitch
+## 1 · 卖点
 
-The Depth Anything line predicts a single scalar per pixel (disparity, up to affine). The Metric3D line predicts metric depth but requires intrinsics. **MoGe sits between**: predict *geometry* (3D point map + depth + normal) directly from monocular RGB, with a unified loss that is invariant to the global affine of the scene but tight on the *internal* geometry.
+Depth Anything 线每像素预测一个标量（disparity, up to affine）. Metric3D 线预测 metric depth 但需内参. **MoGe 居中**：直接从 monocular RGB 预测*几何*（3D point map + depth + normal），用统一 loss，对场景全局 affine 不变但对*内部*几何紧.
 
-The bet is that this lets the model learn richer 3D structure than a depth-only head — surface continuity, normal consistency, occlusion-edge crispness — without committing to meters. **If you need a 3D-aware visual encoder and you're willing to multiply by an externally-estimated scale at deployment, MoGe gives you more than Depth Anything for similar inference cost.**
+赌注是这让模型比 depth-only head 学到更丰富的 3D 结构 — 表面连续性、法线一致性、遮挡边界锐度 — 不承诺米. **若你需要 3D-aware 视觉编码器且部署时愿意乘以外部估计的 scale，MoGe 给你的比 Depth Anything 多，推理成本相近.**
 
-> ⚡ **Eureka Moment**: Generalize the affine-invariant *disparity* loss (MiDaS) to an affine-invariant *3D point* loss. The output is now a full point cloud up to global scale + offset, but internally consistent across point / depth / normal heads. **The three heads regularize each other** — surface normals tighten depth gradients, point map tightens surface continuity — without paying the cost of metric supervision.
+> ⚡ **Eureka Moment**: 把 affine-invariant *disparity* loss (MiDaS) 推广到 affine-invariant *3D point* loss. 输出现是 up to global scale + offset 的完整 point cloud，但跨 point / depth / normal head 内部一致. **三头互为正则化** — surface normal 收紧 depth 梯度，point map 收紧表面连续 — 不付 metric 监督的代价.
 
 ---
 
-## 2 · Architecture
+## 2 · 架构
 
-> 📌 **Napkin Formula**: `RGB → ViT → {pointmap, depth, normal}` with loss `L = AffineInv(pointmap) + AffineInv(depth) + cos(normal, ∇pointmap)`. Single scene-level affine `(s, t)` solved per image; internal geometry constraints enforced across heads.
+> 📌 **Napkin Formula**: `RGB → ViT → {pointmap, depth, normal}`，loss `L = AffineInv(pointmap) + AffineInv(depth) + cos(normal, ∇pointmap)`. 每图像解一个场景级 affine `(s, t)`；跨头强制内部几何约束.
 
 
 | Component | Choice |
 |---|---|
 | Encoder | DINOv2 ViT (S/B/L) `UNVERIFIED breakdown` |
-| Heads | Point map + depth + (optionally) normal |
-| Loss | Affine-invariant per-scene + geometric consistency between heads |
-| Output | Up-to-affine 3D point cloud per image |
+| Heads | Point map + depth + (可选) normal |
+| Loss | Per-scene affine-invariant + 跨头几何一致 |
+| Output | 每图 up-to-affine 3D point cloud |
 
 ```
 RGB ──► ViT encoder ──► shared 3D feature
@@ -56,11 +56,11 @@ RGB ──► ViT encoder ──► shared 3D feature
             └─────── joint affine-invariant loss ───────┘
 ```
 
-The "affine-invariant point" loss is the contribution worth thinking about — it's a generalization of the MiDaS affine-invariant disparity loss to full 3D. It means MoGe predicts a 3D scene that is correct up to a global scale + offset, but with internally consistent geometry across the three output heads.
+"affine-invariant point" loss 是值得思考的贡献 — 是 MiDaS affine-invariant disparity loss 到完整 3D 的推广. 意味着 MoGe 预测的 3D 场景 up to global scale + offset，但三个输出头之间几何内部一致.
 
 ---
 
-## 3 · Where it sits in the landscape
+## 3 · 它在版图中位置
 
 | Axis | Depth Anything v2 | MoGe | Metric3D | FoundationStereo |
 |---|---|---|---|---|
@@ -70,79 +70,79 @@ The "affine-invariant point" loss is the contribution worth thinking about — i
 | Cost (single-view, ViT-L) | low | medium | medium | n/a (stereo) |
 | Best for | viz / pretrain | 3D-aware encoder | robot metric | robot metric (stereo) |
 
-**The clean way to pick:** if you need meters → Metric3D or stereo. If you need a relative depth source → Depth Anything v2 (simpler, more deployed). If you need a 3D-aware visual encoder for downstream learning → MoGe earns its weight.
+**干净选择方法：** 需米 → Metric3D 或 stereo. 需相对深度源 → Depth Anything v2（更简单、更广部署）. 需下游学习用的 3D-aware 视觉编码器 → MoGe 配得上.
 
 ---
 
-## 3.5 · Worked example — VLA pretraining feature signal
+## 3.5 · Worked example — VLA 预训练特征信号
 
-Compare a Depth Anything v2 pretrain vs MoGe pretrain on a manipulation policy encoder:
+对比 Depth Anything v2 预训练 vs MoGe 预训练在 manipulation policy 编码器上：
 
-- **Depth Anything v2 pretrain**: encoder gets one scalar supervision signal per pixel (disparity). Downstream policy linear probe on grasp success: 78% UNVERIFIED.
-- **MoGe pretrain**: encoder gets three signals per pixel (point, depth, normal) under a unified loss. Same encoder backbone (DINOv2 ViT-L), same downstream probe: 82% UNVERIFIED.
-- **Cost difference**: MoGe inference ~1.3× Depth Anything v2 (three heads).
-- **Caveat**: numbers are illustrative; the actual win depends on what the policy needs from the pretrain (normals matter for grasping cylinders; less so for picking blocks).
+- **Depth Anything v2 预训练**: 编码器每像素一个标量监督信号（disparity）. 下游 policy linear probe 在 grasp success 上: 78% UNVERIFIED.
+- **MoGe 预训练**: 编码器每像素三个信号（point、depth、normal）在统一 loss 下. 同编码器骨干（DINOv2 ViT-L），同下游 probe: 82% UNVERIFIED.
+- **成本差**: MoGe 推理 ~1.3× Depth Anything v2（三头）.
+- **Caveat**: 数字示意；实际胜负取决于 policy 从预训练需要什么（normal 对抓圆柱重要；对捡积木不那么）.
 
-The lesson: pretrain signal richness matters more than metric correctness when the downstream task isn't itself metric.
+教训：当下游任务本身不是 metric 时，预训练信号丰富度比 metric 正确性更重要.
 
 ---
 
-## 4 · Where it breaks
+## 4 · 它在哪里 break
 
-- **Same monocular-RGB failure modes** — transparent / specular / unbounded outdoor.
-- **The multi-task head doesn't fix scale** — predicting normals doesn't recover meters. The model is fundamentally affine-invariant; if you forget that, you get the same wrong-meters trap as Depth Anything v2.
-- **Deployment overhead** — three heads consume more memory than depth-only; on tight-edge devices it's not obviously worth it over Depth Anything.
-- **Documentation maturity** — as of writing the MoGe paper is recent enough that downstream eval coverage is thinner than Depth Anything v2 `UNVERIFIED, check post-2025 surveys`.
+- **同 monocular-RGB 失败模式** — 透明 / 镜面 / 无界户外.
+- **Multi-task head 修不了 scale** — 预测法线找不回米. 模型根本上 affine-invariant；若忘了这点，就掉进 Depth Anything v2 同样的错米陷阱.
+- **部署开销** — 三头比 depth-only 占更多内存；在紧边缘设备上相对 Depth Anything 不明显值.
+- **文档成熟度** — 截至写时 MoGe 论文较新，下游 eval 覆盖比 Depth Anything v2 稀 `UNVERIFIED, check post-2025 surveys`.
 
 ### 4.x · Hidden Assumptions
 
-Upstream assumptions whose violation produces silent failures:
+上游假设，违反就产生静默失败：
 
-- **Affine-invariant output is acceptable downstream** — same trap as Depth Anything v2; if the consumer needs meters, MoGe is the wrong tool.
-- **Multi-task heads stay consistent** — the unified loss is *supposed* to keep point / depth / normal consistent, but occasional inconsistencies (normal disagreeing with point-cloud gradient) leak into downstream consumers.
-- **In-distribution domain** — same internet-imagery training bias as Depth Anything.
-- **Standard FOV + pinhole** — fisheye / wide-angle degrades, no canonicalization mechanism.
-- **Sufficient inference compute** — three heads × ViT-L is heavier than Depth Anything v2; tight-edge devices may not justify the cost.
+- **下游可接受 affine-invariant 输出** — 同 Depth Anything v2 陷阱；若消费者需米，MoGe 工具错.
+- **Multi-task head 保持一致** — 统一 loss *应该*让 point / depth / normal 一致，但偶尔不一致（法线与 point-cloud 梯度不符）会漏到下游.
+- **In-distribution 域** — 与 Depth Anything 同样的互联网图像训练偏差.
+- **标准 FOV + pinhole** — 鱼眼 / 广角退化，无 canonicalization 机制.
+- **足够推理算力** — 三头 × ViT-L 比 Depth Anything v2 重；紧边缘设备可能不值.
 
-If violated, you typically get a plausible-looking 3D point cloud that scales correctly in one scene and drifts in the next — the same content-dependent affine that bites Depth Anything users.
+违反时通常得到一个看着合理的 3D point cloud，在一个场景里正确 scale，在下一个里漂移 — 与咬 Depth Anything 用户的同一内容相关 affine.
 
 ---
 
-## 5 · Where to use it
+## 5 · 何处用
 
-- **VLA pretraining** — feed the point/depth/normal outputs as auxiliary supervision for a policy encoder. The multi-task signal is richer than a single depth head.
-- **Offline scene reconstruction** — when you can fit a scale per scene against a known reference.
-- **Comparative ablations** — if you're writing a paper that argues "geometry-rich pretrain > depth-only pretrain," MoGe is the strong baseline.
+- **VLA 预训练** — 把 point/depth/normal 输出作为 policy 编码器的辅助监督. multi-task 信号比单深度头丰富.
+- **离线场景重建** — 当你能对已知参考拟合 per-scene scale.
+- **对比 ablation** — 若你写论文论证 "geometry-rich 预训练 > depth-only 预训练"，MoGe 是强 baseline.
 
 ---
 
 ## 6 · 2-year outlook + falsifiable prediction
 
-The relative track and the metric track are converging — VGGT (see [`foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../feed-forward-3d/vggt_cvpr2025_dissection.md)) already absorbs depth + pose + pointmap into a single multi-view feed-forward model. MoGe's multi-head pattern is a one-view precursor; in 2 years it gets either subsumed by VGGT-lineage models or by a metric-aware MoGe-v2.
+Relative 轨与 metric 轨在收敛 — VGGT（见 [`foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../feed-forward-3d/vggt_cvpr2025_dissection.md)）已把 depth + pose + pointmap 吸收进单一多视角 feed-forward 模型. MoGe 的 multi-head 模式是单视角前驱；2 年内要么被 VGGT 谱系吸收，要么由 metric-aware MoGe-v2 取代.
 
-**Falsifiable prediction:** by 2027-06 either (a) MoGe v2 ships with metric output (canonical-camera trick) or (b) it's been quietly retired in favor of VGGT-class models for the same use cases. If MoGe remains the active "monocular geometry-rich relative" line untouched, the prediction misses.
+**Falsifiable prediction:** 2027-06 前要么 (a) MoGe v2 出 metric 输出（canonical-camera 技巧），要么 (b) 它在同用例上静默被 VGGT 类模型取代. 若 MoGe 仍作为活跃的 "monocular geometry-rich relative" 线未动，则预测失败.
 
-**Interview Tip**: When asked "MoGe vs Depth Anything," the right answer is *"MoGe trades simplicity for a richer 3D pretrain signal — point + depth + normal under one loss"* — better for VLA encoders, same affine-invariant limitation for deployment. The metric trap remains; if you need meters, switch to Metric3D.
+**Interview Tip**: 被问 "MoGe vs Depth Anything"，正确答案：*"MoGe 用简单度换更丰富的 3D 预训练信号 — point + depth + normal 在同一 loss 下"* — 对 VLA 编码器更好，部署上相同的 affine-invariant 限制. Metric 陷阱仍在；需米切到 Metric3D.
 
 ---
 
 ## For the reader
 
-- **Manipulation engineer** — skip unless you're using it as a pretrain.
-- **Aerial engineer** — skip; need meters.
-- **VLA researcher** — worth a look as a pretrain target; richer than depth-only.
-- **Researcher** — the affine-invariant 3D point loss is the generalizable idea.
+- **Manipulation engineer** — 跳过，除非作为预训练.
+- **Aerial engineer** — 跳过；需米.
+- **VLA researcher** — 值得作为预训练目标看；比 depth-only 丰富.
+- **Researcher** — affine-invariant 3D point loss 是可推广的想法.
 
 ---
 
 ## References
 
 - MoGe — Microsoft Research 2024. `[arXiv link TBD]` UNVERIFIED
-- Depth Anything v2 — see [`depth_anything_v2_dissection.md`](./depth_anything_v2_dissection.md)
-- Metric3D — see [`metric3d_dissection.md`](./metric3d_dissection.md)
+- Depth Anything v2 — 见 [`depth_anything_v2_dissection.md`](./depth_anything_v2_dissection.md)
+- Metric3D — 见 [`metric3d_dissection.md`](./metric3d_dissection.md)
 - DINOv2 — Oquab et al. 2023. https://arxiv.org/abs/2304.07193
-- MiDaS (affine-invariant loss origin) — Ranftl et al. 2020. https://arxiv.org/abs/1907.01341
+- MiDaS (affine-invariant loss 起源) — Ranftl et al. 2020. https://arxiv.org/abs/1907.01341
 
 ## Boundary
 
-This file dissects MoGe as a relative-track multi-task monocular geometry model. For metric monocular, see [`metric3d_dissection.md`](./metric3d_dissection.md). For multi-view feed-forward 3D, see [`foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../feed-forward-3d/vggt_cvpr2025_dissection.md). Cross-embodiment scale debate is [`crossing/scale-comparison/`](../../crossing/scale-comparison/). Bridge to action policies is [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md).
+本文把 MoGe 作为 relative-track 多任务 monocular 几何模型解构. Metric monocular 见 [`metric3d_dissection.md`](./metric3d_dissection.md). 多视角 feed-forward 3D 见 [`foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../feed-forward-3d/vggt_cvpr2025_dissection.md). 跨 embodiment scale 争论在 [`crossing/scale-comparison/`](../../crossing/scale-comparison/). 到 action policy 的桥在 [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md).

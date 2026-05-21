@@ -3,15 +3,15 @@
 > **发布时间**: 2025-03 (arXiv) / CVPR 2025
 > **论文 / 模型**: VGGT — Wang et al.
 > **团队**: Meta + Oxford VGG
-> **核心定位**: feed-forward N-view 3D reconstruction in one transformer pass — collapses MVS + pose + depth + tracking into a single learned function.
+> **核心定位**: 一次 transformer 前向完成 N 视图 3D 重建 —— 将 MVS + pose + depth + tracking 合并为单一学得函数。
 
 **Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Hyperparam claims marked UNVERIFIED need rig-side validation.
 **Wedge tier:** W1 (one of 5 launch docs)
-**TL;DR:** VGGT replaces per-scene optimization with one feed-forward pass that jointly emits poses, depth, point maps, and tracks. Not a speedup over DUSt3R — a *category change* dragging 3D out of the offline-fitting regime (NeRF, 3DGS, COLMAP) into the foundation-model regime where 3D is an inference output.
+**TL;DR:** VGGT 以单次前向同时输出 pose、depth、point maps 与 tracks，替代 per-scene 优化。它并非对 DUSt3R 的提速，而是一次*范式跨越*——将 3D 从离线拟合（NeRF、3DGS、COLMAP）拽进 foundation-model 范式：3D 成为推理输出。
 
 ### X-Ray (non-expert friendly)
 
-(a) Pre-VGGT, multi-view 3D needed pair-wise feed-forward (DUSt3R) + a separate global alignment step. (b) VGGT does N views in one shared transformer trunk, emitting poses, depth, point maps, tracks simultaneously. (c) For spatial AI engineers: 3D becomes a *composable layer* (gradients flow, features reuse) instead of an offline fitting step.
+(a) VGGT 之前，multi-view 3D 需要 pair-wise 前向（DUSt3R）再叠一个独立的全局对齐步。(b) VGGT 让 N 张视图在一个共享 transformer trunk 内一次完成 —— 同时输出 pose、depth、point map、tracks。(c) 对空间 AI 工程师：3D 从离线拟合步骤变为*可组合层*（梯度可流、特征可复用）。
 
 ### 📍 Research Landscape Timeline
 
@@ -19,104 +19,104 @@
 NeRF 2020 ─► COLMAP+3DGS 2023 ─► DUSt3R 2024 ─► MASt3R 2024 ─► ★ VGGT CVPR 2025 ─► π³ streaming 2025+ ─► ?
 ```
 
-VGGT is the first to fuse N-view geometry + pose + depth + tracking in one pass. Open downstream: streaming, metric scale, edge deployment.
+VGGT 是首个在单次前向内合并 N-view 几何 + pose + depth + tracking 的工作。下游开放问题：streaming、metric scale、edge 部署。
 
 ## Thesis
 
-VGGT collapses multi-view stereo, dense reconstruction, and pose estimation into one transformer — the value isn't speed, it's that *3D becomes composable with the deep-learning stack* (gradients flow through it, features reuse downstream, no per-scene state).
+VGGT 将 multi-view stereo、dense 重建与 pose 估计合并到一个 transformer —— 价值不在速度，而在*3D 从此与深度学习栈可组合*（梯度可穿过、特征可复用下游、无 per-scene state）。
 
 ---
 
 ## 1 · Setup — what VGGT is being measured against
 
-By late 2024 three lineages each owned a slice of the problem:
+到 2024 年底，三条血统各自占据问题的一块：
 
-- **COLMAP + 3DGS / NeRF** (Kerbl et al. *SIGGRAPH 2023*, [arXiv:2308.04079](https://arxiv.org/abs/2308.04079)) — per-scene optimization. Hours of fitting, no transfer.
-- **DUSt3R / MASt3R** (Naver Labs Europe 2024, [arXiv:2312.14132](https://arxiv.org/abs/2312.14132), [arXiv:2406.09756](https://arxiv.org/abs/2406.09756)) — feed-forward, but **pair-wise**. Multi-view needs a separate global alignment step.
-- **Depth Anything v2** (Yang et al. 2024, [arXiv:2406.09414](https://arxiv.org/abs/2406.09414)) — feed-forward monocular depth. No geometry, no poses, no multi-view consistency.
+- **COLMAP + 3DGS / NeRF** (Kerbl et al. *SIGGRAPH 2023*, [arXiv:2308.04079](https://arxiv.org/abs/2308.04079)) —— per-scene 优化。拟合按小时，无迁移。
+- **DUSt3R / MASt3R** (Naver Labs Europe 2024, [arXiv:2312.14132](https://arxiv.org/abs/2312.14132), [arXiv:2406.09756](https://arxiv.org/abs/2406.09756)) —— 前向，但**pair-wise**。Multi-view 需独立的全局对齐步。
+- **Depth Anything v2** (Yang et al. 2024, [arXiv:2406.09414](https://arxiv.org/abs/2406.09414)) —— 前向 monocular depth。无几何、无 pose、无 multi-view 一致性。
 
-The field had a monocular branch, a pair branch, and a per-scene multi-view branch. Nothing was feed-forward *and* multi-view *and* geometry-aware at once.
+领域里有 monocular 分支、pair 分支与 per-scene multi-view 分支。没有任何一种同时做到前向 *且* multi-view *且* geometry-aware。
 
-VGGT (Wang et al., CVPR 2025, Meta + Oxford, [arXiv:2503.11651](https://arxiv.org/abs/2503.11651)) closes the gap in one architecture. **Where DUSt3R could only do pairs, VGGT does N — not a quantitative improvement, a category change.** Pair-wise + global alignment is a two-stage system; N-view in one pass is a single learned function. The downstream consequences — composability with policy nets, gradient flow, batch-able inference — only exist in the latter regime.
+VGGT (Wang et al., CVPR 2025, Meta + Oxford, [arXiv:2503.11651](https://arxiv.org/abs/2503.11651)) 在单一架构内合并了这些。**DUSt3R 只能做 pair，VGGT 做 N —— 不是定量提升，是范式跨越。** Pair + 全局对齐是两阶段系统；N-view 单次前向是单一学得函数。下游后果——与策略网络可组合、梯度可流、可批推理——只有在后一范式下才存在。
 
 ---
 
 ## 2 · Architecture walk — four heads, one trunk
 
-> 📌 **Napkin Formula**: `3D ≈ Transformer(N RGB views) → {poses, depths, points, tracks}` — all four outputs from one forward pass, not four cascaded systems.
+> 📌 **Napkin Formula**: `3D ≈ Transformer(N RGB views) → {poses, depths, points, tracks}` —— 四个输出来自单次前向，而非四个级联系统。
 
-A ViT-style transformer ingests N RGB views as one token sequence. Cross-view attention is **not factorized** — every patch attends to every other across every view. That enables N-view reasoning in one pass and caps practical N (memory grows quadratically). Sweet spot: N=2 to ~30 frames UNVERIFIED.
+一个 ViT 风格 transformer 把 N 个 RGB view 当成一段 token 序列吃进去。Cross-view attention **不被 factorize** —— 每个 patch 跨所有视图与所有其它 patch attend。这使 N-view 推理在单次前向中可行，并限制实用的 N（memory 随 N² 增）。甜点：N=2 到约 30 帧 UNVERIFIED。
 
-Four heads share the trunk:
+四个 head 共享 trunk：
 
-1. **Camera pose** — per-view extrinsics + intrinsics. Replaces COLMAP.
-2. **Depth** — per-view dense depth. Replaces MVS / Depth Anything.
-3. **Point map** — per-view 3D points in a shared world frame. The DUSt3R inheritance.
-4. **Tracking** — 2D point trajectories across views. Replaces CoTracker.
+1. **Camera pose** —— per-view extrinsics + intrinsics。替代 COLMAP。
+2. **Depth** —— per-view dense depth。替代 MVS / Depth Anything。
+3. **Point map** —— per-view 3D points 在共享世界坐标系下。DUSt3R 遗产。
+4. **Tracking** —— 跨视图 2D 点轨迹。替代 CoTracker。
 
-The non-obvious choice: all four heads share the trunk *and train jointly*. **The four heads regularize each other.** Depth without pose is metrically ambiguous; pose without depth is under-constrained; point maps without tracks have no temporal coherence. Joint training is what makes the depth head beat Depth Anything v2 at the same backbone size UNVERIFIED.
+不显眼的选择：四个 head 共享 trunk *且联合训练*。**四个 head 互相 regularize。** Depth 无 pose 时 metric 不定；pose 无 depth 时欠约束；point map 无 tracks 时无时序连贯。联合训练正是 depth head 在相同 backbone 尺寸下能胜过 Depth Anything v2 的原因 UNVERIFIED。
 
-> ⚡ **Eureka Moment**: Joint training across the 4 heads (pose / depth / pointmap / tracking) regularizes each one — depth without pose is metrically ambiguous, pose without depth is under-constrained. **The constraint stack IS the architecture**; the trunk is just the substrate that lets the constraints couple.
+> ⚡ **Eureka Moment**: 四个 head（pose / depth / pointmap / tracking）的联合训练相互 regularize —— depth 无 pose 时 metric 不定，pose 无 depth 时欠约束。**约束栈本身就是架构**；trunk 只是让约束彼此耦合的基底。
 
-Shape check: N RGB views → N depth maps + N camera params + globally-aligned point cloud + 2D tracks. One pass. No optimization loop. No scene state.
+形状校验：N RGB views → N depth maps + N camera params + 全局对齐的 point cloud + 2D tracks。一次前向。无优化循环。无 scene state。
 
 ---
 
 ## 2.5 · Worked example — N=4 desktop views
 
-Four 518×518 RGB views of a desktop (mug, laptop, keyboard), ~30° apart, phone in hand.
+桌面（mug、laptop、keyboard）四张 518×518 RGB，相机间隔约 30°，手持手机。
 
-- **Input**: `4 × 3 × 518 × 518` RGB
-- **Tokens**: 14×14 patches → `4 × 1369 ≈ 5476` patch tokens (+ camera / register tokens UNVERIFIED)
-- **Attention**: all-to-all across views — N-view fusion happens here
-- **Out**: 4 poses (R, t, intrinsics; first view = world frame) + 4 dense depth maps + per-view pointmap `4 × 518 × 518 × 3` in shared world frame + K optional 2D track trajectories
+- **输入**：`4 × 3 × 518 × 518` RGB
+- **Tokens**：14×14 patches → `4 × 1369 ≈ 5476` patch tokens（+ camera / register token UNVERIFIED）
+- **Attention**：跨视图 all-to-all —— N-view 融合发生在这里
+- **输出**：4 个 pose（R, t, intrinsics；首视为世界系）+ 4 张 dense depth map + 共享世界系下 per-view pointmap `4 × 518 × 518 × 3` + K 条可选 2D track 轨迹
 
-Latency ~150–250 ms on A100 UNVERIFIED. One `model(images)` call — cloud consumable downstream immediately. Sanity check: measure a known-length object vs a reference edge; mismatched ratio = scale ambiguity bit you (monocular up-to-scale).
+A100 上延迟 ~150–250 ms UNVERIFIED。一次 `model(images)` 调用——点云立即可被下游消费。合理性检验：测一段已知长度物体与参考边的比，比例不对 = scale ambiguity 咬到你了（monocular up-to-scale）。
 
 ---
 
 ## 3 · Training data — the unglamorous half
 
-The least-discussed part of the paper, and the part that decides whether the model generalizes to your rig. Mix UNVERIFIED:
+论文里讨论最少、但决定模型能否泛化到你的 rig 的部分。Mix UNVERIFIED：
 
-- Synthetic 3D (MegaSynth-class, Hypersim, BlendedMVS) — clean geometric truth.
-- Multi-view real + SfM pseudo-labels (ScanNet, ARKitScenes, Co3D, MegaDepth) — photorealism.
-- DINOv2-style backbone pre-training — feature quality.
+- 合成 3D（MegaSynth 类、Hypersim、BlendedMVS）—— 干净的几何真值。
+- 多视图真实 + SfM 伪标签（ScanNet、ARKitScenes、Co3D、MegaDepth）—— 照相级。
+- DINOv2 风格 backbone 预训练 —— 特征质量。
 
-The synthetic-to-real ratio controls failure mode. Synthetic-heavy gives geometric tightness on Hypersim-like indoor scenes and falls apart on outdoor unbounded depth, motion blur, non-Lambertian surfaces. Not VGGT-specific — every feed-forward 3D model since DUSt3R fails this way — but the manifestation here (worse on outdoor wide-baseline than indoor narrow-baseline UNVERIFIED) is the most important fact for anyone deploying outside a tabletop.
+合成与真实的比例决定失败模式。合成偏多在 Hypersim 类室内场景上几何紧；在户外 unbounded depth、运动模糊、非 Lambertian 表面上崩。这不是 VGGT 专属——DUSt3R 以来每个前向 3D 模型都这样失败——但此处的表现（窄基线室内胜过宽基线户外 UNVERIFIED）是任何要部署在桌面之外的人最需要记的事实。
 
 ---
 
 ## 4 · Where it breaks (deployment-ordered)
 
-1. **Unbounded outdoor depth** — sky, distant buildings, anything beyond ~30 m. The depth head wasn't trained on these distributions and confabulates. The biggest reason VGGT is not a drop-in for drone outdoor work — see `crossing/slam-vio-migration/vggt_vs_drone_vio.md`.
-2. **Texture-poor scenes** — white walls, polished floors, fog. Correspondence has nothing to lock onto; the point map head emits plausible-looking but unreliable geometry.
-3. **Motion blur, rolling shutter** — the ViT encoder has no temporal model; high-velocity capture aliases.
-4. **Dynamic objects** — assumes static scenes and silently averages dynamic geometry into the static estimate.
-5. **Metric scale** — up-to-scale monocular. Anything that needs meters needs external scale (stereo, IMU, known object size).
-6. **Large N** — caps at ~30 frames UNVERIFIED on a single GPU; longer video needs a streaming variant (π³ lineage).
+1. **Unbounded outdoor depth** —— 天空、远处建筑、超过约 30 m 的任何东西。depth head 没在这些分布上训过，会编。这是 VGGT 不能直接拿去做 drone 户外的最大原因——见 `crossing/slam-vio-migration/vggt_vs_drone_vio.md`。
+2. **纹理稀疏场景** —— 白墙、抛光地板、雾。对应无处可锁；point map head 发出貌似合理但不可靠的几何。
+3. **运动模糊、卷帘** —— ViT encoder 无时序模型；高速采集 aliasing。
+4. **动态物体** —— 假定场景静态，静默把动态几何平均进静态估计。
+5. **Metric scale** —— monocular up-to-scale。要米制需外部 scale（stereo、IMU、已知尺寸物体）。
+6. **大 N** —— 单 GPU 大约 30 帧封顶 UNVERIFIED；更长视频需流式变体（π³ 血统）。
 
-Recurring pattern: VGGT is excellent inside its training distribution and fails *silently* outside it. No confidence head flags out-of-distribution depth — which makes naïve deployment dangerous.
+重复模式：VGGT 在训练分布内极好，分布外*静默*失败。无置信 head 标 OOD depth —— 这让朴素部署危险。
 
 ### 4.x · Hidden Assumptions
 
-Upstream assumptions whose violation produces the failures above:
+上游假设被违反时会产生上述失败：
 
-- **Static scene** — moving objects averaged into static geometry; no motion model.
-- **Sufficient view overlap** — needs ≥30% shared content UNVERIFIED; else collapses to per-view monocular depth.
-- **Monocular up-to-scale** — no metric scale; needs external anchor (stereo / IMU / known object).
-- **Near-Lambertian surfaces** — specular / transparent / mirrored breaks correspondence.
-- **In-distribution motion blur** — ViT encoder has no temporal denoising.
-- **≤30 views per pass** UNVERIFIED — O(N²) attention; longer needs streaming.
-- **Camera intrinsics implicitly learnable** — works for phone / webcam FOVs; degrades on fisheye / wide-angle.
+- **静态场景** —— 移动物体被平均进静态几何；无运动模型。
+- **足够视图重叠** —— 需 ≥30% 共享内容 UNVERIFIED；否则塌为 per-view monocular depth。
+- **Monocular up-to-scale** —— 无 metric scale；需外锚（stereo / IMU / 已知物体）。
+- **近 Lambertian 表面** —— specular / 透明 / 镜面破坏对应。
+- **分布内运动模糊** —— ViT encoder 无时序去噪。
+- **每次前向 ≤30 视图** UNVERIFIED —— O(N²) attention；更长需流式。
+- **相机内参隐式可学** —— 手机 / 网络摄像头 FOV 可，鱼眼 / 大广角退化。
 
-If violated, outputs may still look clean — silent failure is the dangerous mode.
+若违反，输出可能仍看上去干净——静默失败才是危险模式。
 
 ---
 
 ## 5 · Deployment notes (Jetson-class targets)
 
-The reference checkpoint is too big for edge. Anchor numbers UNVERIFIED:
+参考 checkpoint 对 edge 太大。锚定数 UNVERIFIED：
 
 | Target | Rate | GPU mem |
 |---|---|---|
@@ -125,21 +125,21 @@ The reference checkpoint is too big for edge. Anchor numbers UNVERIFIED:
 | Orin (FP16) | ~5 Hz N=4 | ~6 GB |
 | Orin distilled | ~10 Hz N=4 | ~3 GB |
 
-Jetson numbers depend on token-reduction (patch dropping, smaller N, FP16 attention). Takeaway: VGGT is a *workstation* model that distills into edge-deployable; it is not natively edge.
+Jetson 数字取决于 token reduction（drop patch、缩小 N、FP16 attention）。结论：VGGT 是*工作站*模型，可蒸馏到 edge；不是原生 edge。
 
-Batch-2 trick: run VGGT once per second on a sliding window of N frames, cache the global point map, let a faster front-end (CNN depth net, classical VIO) interpolate. This lets VGGT participate in real-time loops without owning them.
+Batch-2 技巧：每秒在 N 帧滑窗上跑一次 VGGT，缓存全局 point map，让更快前端（CNN depth net、经典 VIO）做插值。这让 VGGT 参与实时闭环，但不主导。
 
 ---
 
 ## 6 · Cross-embodiment implications (pointers, not analysis)
 
-The cross-embodiment story lives in `crossing/`:
+跨具身体故事住在 `crossing/`：
 
-- **Aerial** — `crossing/slam-vio-migration/vggt_vs_drone_vio.md`. *No replacement, hybrid only* for any aircraft with a serious control loop.
-- **3DGS displacement** — `crossing/representation-migration/`. VGGT's point maps are not Gaussian splats; whether feed-forward point maps displace per-scene 3DGS for simulation, sim-to-real, and editing is a separate unresolved debate.
-- **Feature handoff to policy** — `bridge-to-vla/feature-cloud-to-action.md`. For VLA policies the question is whether VGGT's intermediate features are more useful than its explicit point cloud — probably yes, and that re-routes the integration story.
+- **Aerial** —— `crossing/slam-vio-migration/vggt_vs_drone_vio.md`。对任何有正经控制环的飞行器而言，*无替代、只能混合*。
+- **3DGS displacement** —— `crossing/representation-migration/`。VGGT 的 point map 不是 Gaussian splat；前向 point map 是否能替代 per-scene 3DGS 用于仿真、sim-to-real 与编辑，是另一个未解争论。
+- **特征到策略的传递** —— `bridge-to-vla/feature-cloud-to-action.md`。对 VLA 策略而言，问题是 VGGT 的中间特征是否比其显式点云更有用——多半是的，这会改写集成故事。
 
-Reading habit: when you see "VGGT replaces X", ask *at which embodiment*. The answer is almost always "manipulation desktop, with caveats", almost never "aerial outdoor".
+阅读习惯：看到"VGGT 替代 X"时，问*在哪种具身体上*。答案几乎总是"桌面 manipulation，带 caveat"，几乎从来不是"aerial 户外"。
 
 ---
 
@@ -153,7 +153,7 @@ Reading habit: when you see "VGGT replaces X", ask *at which embodiment*. The an
 | **Depth Anything v2** | 1 RGB | relative depth | no | no |
 | **COLMAP + 3DGS** | many RGB | poses + dense splats | yes | **yes (hours)** |
 
-**Interview Tip**: pick DUSt3R for exactly-2-views with smallest model; pick VGGT when N>2 or you want pose / depth / tracks from one call without gluing systems. "Why not COLMAP?" — gradients can't flow through it and inference is offline.
+**Interview Tip**：恰好两视、最小模型 → DUSt3R；N>2 或想一次拿到 pose / depth / tracks 而不粘合系统 → VGGT。"为什么不用 COLMAP？"—— 梯度穿不过它，且推理离线。
 
 ---
 
@@ -171,7 +171,7 @@ Reading habit: when you see "VGGT replaces X", ask *at which embodiment*. The an
 
 ## Boundary
 
-This doc dissects VGGT *specifically* as a model: architecture, training, failure modes, deployment. Cross-embodiment comparison (replace VIO? displace 3DGS? bridge to VLA?) lives in `crossing/`. Cite this doc from there when architecture matters; cite those from here when embodiment matters.
+本文*专门*把 VGGT 解构为一个模型：架构、训练、失败模式、部署。跨具身体对比（替代 VIO？取代 3DGS？桥到 VLA？）住 `crossing/`。架构层面引用此处；具身体重要时引用 `crossing/` 处。
 
 ---
 

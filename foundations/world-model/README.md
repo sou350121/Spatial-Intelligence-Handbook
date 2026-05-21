@@ -1,21 +1,21 @@
 # World Models · Decision-Useful Slice Only
 
 **Status:** v1 — opinionated lane intro. UNVERIFIED policy applies to all benchmark / latency claims downstream.
-**Scope tier:** W2 lane (Cosmos + Genie dissections graduate into W1 once we have real-world VLA training-data deltas measured).
+**Scope tier:** W2 lane（Cosmos + Genie 解构待真实世界 VLA 训练数据 delta 测出后再升 W1）。
 
 ---
 
-World models are the most over-claimed category in 2025 spatial AI. The papers promise "simulators of reality"; the demos show beautiful video that drifts after 3 seconds. This handbook lane deliberately ignores ~70% of what gets pitched under the "world model" banner and keeps **only the slice that closes a loop into an embodied policy**. Two questions gate every entry here: (1) does it produce data, observations, or rollouts that a VLA / RL policy can actually consume? (2) does it survive the geometric / temporal sanity check that a robot will encounter? If the answer to either is no, the system belongs in a generative-media survey, not here.
+World model 是 2025 年空间 AI 里最被过度宣称的品类。论文承诺"现实的模拟器"，demo 展示的是漂亮但 3 秒后就漂的视频。本仓本 lane 故意忽略约 70% 打着 "world model" 旗号的内容，**只保留能闭合到具身策略上的那一片**。每条入选都过两道闸门：(1) 它生成的数据 / 观测 / rollout，VLA / RL 策略能否真的消费？(2) 它能否撑过机器人会遇到的几何 / 时序合理性检查？任一答案为否，归类去生成式媒体综述，不入本仓。
 
-The strict "decision-useful only" rule is inherited from the project PRD: *Genie Sim is in (it pumps trajectories into VLA training); Marble is mostly out (its target user is a human exploring a generated 3D scene, not a robot integrating depth)*. We dissect Cosmos for its sim2real generation path, Genie for its action-conditional inference-time planning surface, and Marble only for the depth-from-video / NVS slice that a policy could plausibly use as augmentation. Anything labeled "world model" that boils down to longer-context text-to-video gets the ❌ tag in our rating system and does not get a dissection.
+严格的"only decision-useful"规则继承自项目 PRD：*Genie Sim 入选（它向 VLA 训练管线灌轨迹）；Marble 多数出局（它的目标用户是逛生成场景的人类，不是消费深度的机器人）*。我们解构 Cosmos 是看其 sim2real 数据生成路径；解构 Genie 是看其 action-conditional 推理时规划面；解构 Marble 仅限其 depth-from-video / NVS 这一片——策略可能用其作增广。任何"world model"本质上只是上下文更长的文本到视频，按本仓评分系统打 ❌ 标签，不写解构。
 
 | File | Tier | Decision-useful angle |
 |---|---|---|
-| `nvidia_cosmos_dissection.md` | W2 🔧 [WorldModel] | Robot-training data factory (sim2real video synthesis) |
-| `genie_dissection.md` | W2 ⚡ [WorldModel] | Action-conditional planner at inference, not a data source |
-| `marble_decision_view.md` | W3 📖 [WorldModel] | Depth-from-video + NVS for policy augmentation; consumer 3D scene gen explicitly excluded |
+| `nvidia_cosmos_dissection.md` | W2 🔧 [WorldModel] | 机器人训练数据工厂（sim2real video synthesis） |
+| `genie_dissection.md` | W2 ⚡ [WorldModel] | 推理时 action-conditional 规划器，**不是**数据源 |
+| `marble_decision_view.md` | W3 📖 [WorldModel] | depth-from-video + NVS 作策略数据增广；消费级 3D 场景生成显式排除 |
 
-**Boundary**: per-method physics realism dissection lives in `foundations/physics/`; per-embodiment "did this actually help my VLA?" goes in `bridge-to-vla/` and `embodiments/manipulation/` once we have real measurements. Cross-method comparison across world-model families (Cosmos vs Genie vs UniSim vs DriveDreamer) belongs in `crossing/representation-migration/` — not duplicated into each dissection.
+**Boundary**：单方法的物理真实度解构去 `foundations/physics/`；具身侧的"它真的有助于我的 VLA 吗？"等真实测量出来后去 `bridge-to-vla/` 与 `embodiments/manipulation/`。跨方法对比（Cosmos vs Genie vs UniSim vs DriveDreamer）归 `crossing/representation-migration/`——不在每篇解构里重复。
 
 ---
 

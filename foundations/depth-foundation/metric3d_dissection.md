@@ -3,15 +3,15 @@
 > **Published**: 2023-07 (v1, ICCV 2023) / 2024-04 (v2)
 > **Paper**: Yin et al. (v1) — *Metric3D: Towards Zero-shot Metric 3D Prediction*; Hu et al. (v2) — *Metric3D v2: A Versatile Monocular Geometric Foundation Model*
 > **Team**: HKUST + ANT Group + JD Explore
-> **Core position**: First monocular depth model to output **meters** across arbitrary cameras via a canonical-camera transformation — every input is geometrically rectified to a fixed virtual focal length, so the depth head learns "one camera" metric depth.
+> **Core position**: 第一个跨任意相机输出**米**的 monocular depth 模型，通过 canonical-camera 变换 — 每个输入被几何 rectify 到固定虚拟焦距，让 depth head 学"一个相机"的度量深度.
 
-**Status:** v1.1 — backfilled to AGENTS.md 14-item template 2026-05-21. Hyperparams marked UNVERIFIED.
+**Status:** v1.1 — 已按 AGENTS.md 14 项门槛模板回填于 2026-05-21. Hyperparams 标 UNVERIFIED.
 **Wedge tier:** W1 · metric-depth foundation
-**TL;DR:** Metric3D (Yin et al. *ICCV 2023*, arXiv 2307.10984 `UNVERIFIED ICCV vs preprint date`) is the first monocular depth model that **outputs meters across arbitrary cameras** without per-camera fine-tuning. The trick is a **canonical-camera transformation** — every input image is geometrically rectified to a fixed virtual focal length before prediction, so the depth head only has to learn "metric depth on one camera." v2 (2024) extends this to surface normals and adds a stronger backbone. **If your robot needs meters from a single RGB camera, this is the first model to look at.** It's the load-bearing answer to the relative-vs-metric trap that kills Depth Anything v2 for grasp pose.
+**TL;DR:** Metric3D (Yin et al. *ICCV 2023*, arXiv 2307.10984 `UNVERIFIED ICCV vs preprint date`) 是首个能在**任意相机间输出米**的 monocular depth 模型，无需 per-camera fine-tune. 技巧是 **canonical-camera 变换** — 每张输入图像在预测前被几何 rectify 到固定虚拟焦距，因此 depth head 只需学"一个相机的度量深度". v2 (2024) 扩到 surface normal 并加更强骨干. **若你的机器人需要从单 RGB 相机得到米，这是首选模型.** 它是杀死 Depth Anything v2 grasp pose 的 relative-vs-metric 陷阱的承重答案.
 
 ### X-Ray (non-expert friendly)
 
-(a) Monocular depth is fundamentally ambiguous (`s = f·w/Z` has two unknowns per pixel) — MiDaS/Depth Anything dodge by predicting relative depth, useless for "stop at 5 m." (b) Metric3D makes camera intrinsics *explicit*: resize every input to a canonical focal length `f_canon`, predict in canonical frame, then rescale `D_real = D_canon · (f_real / f_canon)`. (c) For spatial AI engineers: if your robot has a calibrated wrist cam, this gives meters from a single RGB input without LiDAR — but pass wrong intrinsics and the output is silently wrong by the ratio.
+(a) Monocular depth 根本上歧义（每像素 `s = f·w/Z` 有两未知）— MiDaS/Depth Anything 通过预测相对深度回避，对 "5 m 停" 无用. (b) Metric3D 把相机内参变*显式*：把每张输入 resize 到 canonical focal length `f_canon`，在 canonical frame 预测，然后 `D_real = D_canon · (f_real / f_canon)`. (c) 对空间 AI 工程师：若机器人有校准 wrist cam，这给你从单 RGB 输入得到米而无需 LiDAR — 但传错内参，输出按比例静默错.
 
 ### 📍 Research Landscape Timeline
 
@@ -19,31 +19,31 @@
 ZoeDepth 2023 ─► ★ Metric3D v1 ICCV 2023 ─► Metric3D v2 2024 ─► UniDepth (intrinsics-free) CVPR 2024 ─► VGGT-class multi-view 2025 ─► fused with stereo 2026+
 ```
 
-Metric3D is the canonical-camera anchor of the metric monocular lineage. UniDepth removes the intrinsics requirement; VGGT subsumes single-view into multi-view feed-forward.
+Metric3D 是 metric monocular 谱系的 canonical-camera 锚. UniDepth 移除内参需求；VGGT 把单视角吸收进多视角 feed-forward.
 
 ---
 
-## 1 · Why metric monocular is the hard problem
+## 1 · 为什么 metric monocular 是难题
 
-A camera with focal length `f` looking at an object at distance `Z` sees it at image-plane size `s = f · w / Z`, where `w` is real-world width. Two unknowns (`Z`, `w`), one observation (`s`). **Monocular depth from a single image is fundamentally ambiguous** — the same image is produced by a near small object and a far large one. MiDaS / Depth Anything dodge the ambiguity by predicting relative depth (up to affine). That's fine for visualization, useless for "stop at 5 m."
+焦距 `f` 的相机看距离 `Z` 处的物体，其像平面尺寸 `s = f · w / Z`，`w` 是真实宽度. 两个未知（`Z`、`w`），一个观察（`s`）. **单图像的 monocular 深度根本上歧义** — 同图像可由近小物体或远大物体产生. MiDaS / Depth Anything 通过预测相对深度（up to affine）回避. 对可视化可，对 "5 m 停" 不可.
 
-What you actually need for metric depth from a single RGB is **a prior linking `s` to `w`** — a learned prior over object scales in the training distribution. This works fine if you train and test on one camera (intrinsics implicitly encoded), and breaks the moment you swap cameras (a 35 mm phone sensor and a fisheye drone cam see the same scene at different `s`). Metric3D's contribution is making the intrinsics **explicit** to the network so cross-camera transfer is principled.
+要从单 RGB 得到 metric 深度，你实际需要的是**把 `s` 链接到 `w` 的先验** — 在训练分布上对物体尺度的学到先验. 若你在一个相机上训和测，这工作（内参隐式编码），换相机就崩（35 mm 手机感光和鱼眼 drone cam 看同场景给不同 `s`）. Metric3D 的贡献是把内参对网络**显式化**，让跨相机迁移有原则.
 
 ---
 
-> ⚡ **Eureka Moment**: Make the camera prior an **explicit network input**, not a hidden data assumption. By resampling every image to a single canonical focal length, the depth head sees one intrinsics distribution at train time and one at inference — the scale ambiguity that kills MiDaS-lineage models simply disappears. Same trick (in spirit) as positional encoding in NeRF: surface the geometry, don't hide it.
+> ⚡ **Eureka Moment**: 把相机先验变成**显式网络输入**，不是隐藏数据假设. 把每张图像 resample 到单一 canonical focal length，depth head 在训和推时只见过一个内参分布 — 杀死 MiDaS 谱系模型的 scale 歧义就此消失. 与 NeRF 中 positional encoding 同精神：把几何表面化，不要藏起来.
 
-## 2 · The canonical-camera transformation
+## 2 · canonical-camera 变换
 
-> 📌 **Napkin Formula**: `Resize(image; f_real → f_canon) → DepthHead → D_canon → D_real = D_canon · (f_real / f_canon)`. Metric depth is equivariant to focal-length scaling; the canonical resize exploits that equivariance to collapse all cameras into one training distribution.
+> 📌 **Napkin Formula**: `Resize(image; f_real → f_canon) → DepthHead → D_canon → D_real = D_canon · (f_real / f_canon)`. Metric depth 对焦距缩放等变；canonical resize 利用此等变把所有相机塌缩到一个训练分布.
 
 
 | Step | What happens |
 |---|---|
-| Input | RGB image + camera intrinsics `K` (fx, fy, cx, cy) |
-| Canonical resize | Image is resampled so that effective focal length equals a fixed canonical `f_canon` `UNVERIFIED value, typically ~1000 px` |
-| Network forward | DPT-style depth head predicts metric depth in canonical-camera frame |
-| Inverse transform | Output rescaled by `f_real / f_canon` to recover metric depth in real-camera frame |
+| Input | RGB 图像 + 相机内参 `K` (fx, fy, cx, cy) |
+| Canonical resize | 图像 resample 使有效焦距等于固定 canonical `f_canon` `UNVERIFIED value, typically ~1000 px` |
+| Network forward | DPT-style depth head 在 canonical-camera frame 预测度量深度 |
+| Inverse transform | 输出按 `f_real / f_canon` 重 scale 回真实相机 frame 的度量深度 |
 
 ```
 RGB + K_real
@@ -58,96 +58,96 @@ RGB + K_real
  D_real = D_canon · (f_real / f_canon)
 ```
 
-The insight is that **metric depth is equivariant to focal-length scaling** — if you double the focal length, depths halve (in pixel-implied units). By collapsing all cameras to a single canonical focal length at training and inference time, the network sees a single intrinsics distribution. **The scale ambiguity disappears because the camera prior is no longer hidden in the data — it's a network input.**
+洞见是 **metric depth 对焦距缩放等变** — 焦距加倍，depth 减半（按像素隐含单位）. 把所有相机在训和推时塌缩到单一 canonical focal length，网络见到单一内参分布. **Scale 歧义消失，因为相机先验不再藏在数据里 — 是网络输入.**
 
-This is the same trick (in spirit) as positional encoding in NeRF, or normalized device coordinates in graphics — making the geometry explicit instead of relying on the network to memorize it.
+这与 NeRF 中 positional encoding 或图形里 normalized device coordinates 同精神 — 把几何显式，而非依赖网络记忆.
 
 ---
 
 ## 3 · v1 vs v2
 
-v1 (ICCV 2023) lands the canonical-camera contribution with a ConvNeXt / ViT backbone `UNVERIFIED which is primary` and ~8M training images across 11 datasets `UNVERIFIED`. v2 (2024) scales to ViT-Large + Giant, adds a **surface-normal head** under a joint loss (helps depth quality at occlusion boundaries `UNVERIFIED magnitude`), and widens the training mix with more synthetic. Architecture-wise it's a straightforward scale-up; the canonical-camera trick is unchanged.
+v1 (ICCV 2023) 落地 canonical-camera 贡献，用 ConvNeXt / ViT 骨干 `UNVERIFIED which is primary` 和 ~8M 训练图像跨 11 数据集 `UNVERIFIED`. v2 (2024) 扩到 ViT-Large + Giant，加 **surface-normal head** 联合 loss（帮助遮挡边界处深度质量 `UNVERIFIED magnitude`），并用更多合成扩训练混合. 架构上是直接放大；canonical-camera 技巧不变.
 
 ---
 
 ## 3.5 · Worked example — wrist cam grasp pose
 
-A manipulator wrist cam, calibrated `fx = fy = 750 px`, looking at a mug 0.5 m away.
+Manipulator wrist cam，校准 `fx = fy = 750 px`，看 0.5 m 外的 mug.
 
-- **Canonical** (`f_canon = 1000 px` UNVERIFIED): resize 1.33×, predict `D_canon = 0.667 m`.
+- **Canonical** (`f_canon = 1000 px` UNVERIFIED): resize 1.33×，预测 `D_canon = 0.667 m`.
 - **Inverse**: `D_real = 0.667 × 750/1000 = 0.500 m`. ✅
 
-Pass wrong intrinsics (`fx = 1050` for a 50 mm, actual 28 mm with `750`):
-- Resize 0.952×, different image content → different `D_canon`.
-- Effective depth wrong by ~1.4× — gripper plunges past the mug. **Silent failure.**
+传错内参（实际 28 mm 时传 `fx = 1050` 当作 50 mm，使用 `750`）：
+- Resize 0.952×，不同图像内容 → 不同 `D_canon`.
+- 有效深度错约 1.4× — 夹爪冲过 mug. **静默失败.**
 
-Calibrate twice.
-
----
-
-## 4 · Where it matters
-
-Ship it for: manipulation grasp pose with calibrated wrist cam, tabletop bin picking, drone slow-flight obstacle distance (expect degradation past 30 m). Overkill for AR occlusion (Depth Anything v2 cheaper). Fails for underwater (texture breaks) and endoscopy (domain shift, needs fine-tune).
-
-**The hard requirement is calibrated intrinsics.** No `K`, no canonicalization. Fine for fixed-camera robotics. For "depth from an internet image" you need either ground-truth `K` or a learned intrinsics estimator — UniDepth (Piccinelli et al. 2024 `UNVERIFIED`) is the intrinsics-free variant.
+校准两次.
 
 ---
 
-## 5 · Where it breaks
+## 4 · 它在哪里重要
 
-- **Wrong intrinsics → wrong scale**. Pass `K` for a 50 mm lens when you shot at 28 mm and the output depth is wrong by ~1.8×. This is a silent failure mode — output looks plausible.
-- **Strong lens distortion** (fisheye, ultrawide) — the canonical resize assumes pinhole. Pre-undistort first, or use a fisheye-aware variant.
-- **Unbounded outdoor depth past ~30 m** — same fundamental issue as Depth Anything; metric or not, learned monocular depth tail is unreliable.
-- **Reflective / transparent surfaces** — same DPT-lineage failure mode.
-- **Domain shift to medical / underwater / synthetic** — needs fine-tune.
+发它做：校准 wrist cam 的 manipulation grasp pose、桌面 bin picking、drone 慢飞障碍距离（超 30 m 预计退化）. 对 AR occlusion 杀鸡用牛刀（Depth Anything v2 更便宜）. 对水下（纹理破）和内窥镜（域偏移，需 fine-tune）失败.
+
+**硬需求是校准内参.** 没 `K` 无 canonicalization. 适合固定相机机器人. 对"互联网图像深度"你需要 GT `K` 或学到的内参估计器 — UniDepth (Piccinelli et al. 2024 `UNVERIFIED`) 是 intrinsics-free 变体.
+
+---
+
+## 5 · 它在哪里 break
+
+- **错内参 → 错 scale**. 28 mm 拍时传 50 mm 的 `K`，输出深度错约 1.8×. 静默失败模式 — 输出看着合理.
+- **强透镜畸变**（鱼眼、ultrawide）— canonical resize 假设 pinhole. 先去畸变，或用 fisheye-aware 变体.
+- **超过 ~30 m 的无界户外深度** — 与 Depth Anything 相同的根本问题；metric 与否，学到的 monocular depth 尾不可靠.
+- **反射 / 透明表面** — 同 DPT-lineage 失败模式.
+- **域偏移到医学 / 水下 / 合成** — 需 fine-tune.
 
 ### 5.x · Hidden Assumptions
 
-Upstream assumptions whose violation produces silent metric errors:
+上游假设，违反就产生静默 metric 错误：
 
-- **Accurate intrinsics** — canonical resize depends on `K`; wrong `K` → silent scale error.
-- **Pinhole model** — fisheye breaks canonical resize; pre-undistort first.
-- **In-distribution domain** — daylight dominates; underwater / medical need fine-tune.
-- **Near-Lambertian surfaces** — specular / transparent → DPT-lineage failures.
-- **Depth ≤ ~30 m** — metric tail unreliable past ~30 m, same monocular issue as Depth Anything.
-- **Static scene** — rolling shutter under motion introduces geometric inconsistency.
+- **准确内参** — canonical resize 依赖 `K`；错 `K` → 静默 scale 错.
+- **Pinhole model** — 鱼眼破 canonical resize；先去畸变.
+- **In-distribution 域** — 白昼为主；水下 / 医学需 fine-tune.
+- **接近 Lambertian 表面** — 镜面 / 透明 → DPT-lineage 失败.
+- **Depth ≤ ~30 m** — metric 尾超 30 m 不可靠，与 Depth Anything 相同 monocular 问题.
+- **静态场景** — 运动下的 rolling shutter 引入几何不一致.
 
-If violated, the output remains a plausible-looking metric depth map — calibration errors are the dominant silent failure mode in deployment.
+违反时输出仍是看着合理的 metric 深度图 — 校准错误是部署中主导静默失败模式.
 
 ---
 
-## 6 · MoGe comparison (the relative-track contender)
+## 6 · MoGe 对比（relative-track 竞争者）
 
-[MoGe](./moge_dissection.md) (Microsoft 2024) is the closest relative-track competitor — affine-invariant geometric loss with a multi-task head (point + depth + normal). The contrast is sharp:
+[MoGe](./moge_dissection.md) (Microsoft 2024) 是 relative-track 最接近的竞争者 — affine-invariant 几何 loss + multi-task head（point + depth + normal）. 对比鲜明：
 
 | Axis | Metric3D | MoGe |
 |---|---|---|
-| Output scale | metric (meters) | affine-invariant |
+| Output scale | metric (米) | affine-invariant |
 | Needs intrinsics? | yes | no |
-| Best for | robotics with calibrated cam | photometric / scene understanding |
+| Best for | 有校准 cam 的机器人 | photometric / 场景理解 |
 | Multi-task head | depth + normal (v2) | point + depth + normal |
-| Failure if you violate the contract | wrong meters | misaligned scale at deploy |
+| Failure if you violate the contract | 错米 | 部署时 scale 不对齐 |
 
-**If you need meters: Metric3D. If you don't: MoGe is the geometry-rich relative-track answer.**
+**需米：Metric3D. 不需要：MoGe 是 geometry-rich 的 relative-track 答案.**
 
 ---
 
 ## 7 · 2-year outlook + falsifiable prediction
 
-The metric-monocular track is the one that gets deployed on robots. Expect intrinsics-free variants (UniDepth-lineage) to win on wild imagery, the canonical-camera trick to become a standard ingredient, and fusion with stereo + IMU to converge into VGGT-lineage feed-forward backbones.
+Metric-monocular 轨是部署到机器人上的那个. 预计 intrinsics-free 变体（UniDepth 谱系）在野外图像上赢，canonical-camera 技巧成标准成分，与 stereo + IMU 融合收敛到 VGGT 谱系 feed-forward 骨干.
 
-**Falsifiable prediction:** by 2027-06 a major manipulation product (Figure, 1X, Apptronik, or similar) will publicly disclose a Metric3D-lineage model in its perception stack. If all stay on RGB-D (RealSense / structured light) the prediction misses.
+**Falsifiable prediction:** 2027-06 前一个主要 manipulation 产品（Figure、1X、Apptronik 或类似）将公开披露其感知栈中的 Metric3D-lineage 模型. 若都留在 RGB-D（RealSense / structured light）则预测失败.
 
-**Interview Tip**: When asked "how do you get metric depth from a single RGB camera," the trap answer is "you can't." The right answer: *"Metric3D's canonical-camera transformation — surface the intrinsics as a network input, exploit focal-length equivariance."* Pair with a note that you need calibrated `K` and the result is silently wrong if `K` is wrong.
+**Interview Tip**: 被问 "怎么从单 RGB 相机得到 metric 深度"，陷阱答案是 "做不到". 正确答案：*"Metric3D 的 canonical-camera 变换 — 把内参作为网络输入显式化，利用 focal-length equivariance."* 加一句你需要校准 `K`，错 `K` 静默错.
 
 ---
 
 ## For the reader
 
-- **Manipulation engineer** — start here, not at Depth Anything. Calibrate your wrist cam and ship.
-- **Aerial engineer** — useful for slow-flight inspection; replace with stereo + VIO for racing or outdoor (see [`crossing/scale-comparison/`](../../crossing/scale-comparison/)).
-- **AD engineer** — useful as a metric pretrain; production still wants LiDAR + stereo.
-- **Researcher** — the canonical-camera trick is more general than depth. Anything geometry-aware can borrow it.
+- **Manipulation engineer** — 从这里起步，不是 Depth Anything. 校准 wrist cam 然后发.
+- **Aerial engineer** — 适合慢飞检测；竞速或户外换 stereo + VIO（见 [`crossing/scale-comparison/`](../../crossing/scale-comparison/)）.
+- **AD engineer** — 适合作为 metric 预训练；生产仍要 LiDAR + stereo.
+- **Researcher** — canonical-camera 技巧比深度更通用. 任何 geometry-aware 都能借.
 
 ---
 
@@ -157,8 +157,8 @@ The metric-monocular track is the one that gets deployed on robots. Expect intri
 - Metric3D v2 — Hu et al. 2024. https://arxiv.org/abs/2404.15506 `UNVERIFIED arXiv ID`
 - UniDepth — Piccinelli et al. *CVPR 2024*. https://arxiv.org/abs/2403.18913 `UNVERIFIED`
 - ZoeDepth — Bhat et al. 2023. https://arxiv.org/abs/2302.12288
-- MoGe — see [`moge_dissection.md`](./moge_dissection.md)
+- MoGe — 见 [`moge_dissection.md`](./moge_dissection.md)
 
 ## Boundary
 
-This file dissects Metric3D's canonical-camera contribution. Relative-depth comparison lives in [`depth_anything_v2_dissection.md`](./depth_anything_v2_dissection.md) and [`moge_dissection.md`](./moge_dissection.md). Cross-embodiment scale debate is [`crossing/scale-comparison/`](../../crossing/scale-comparison/). Bridge to VLA action heads is [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md) — note the `scale_flag` contract.
+本文解构 Metric3D 的 canonical-camera 贡献. Relative-depth 对比在 [`depth_anything_v2_dissection.md`](./depth_anything_v2_dissection.md) 和 [`moge_dissection.md`](./moge_dissection.md). 跨 embodiment scale 争论在 [`crossing/scale-comparison/`](../../crossing/scale-comparison/). 到 VLA action head 的桥在 [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md) — 注意 `scale_flag` 契约.
