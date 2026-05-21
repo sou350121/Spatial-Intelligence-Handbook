@@ -1,6 +1,6 @@
 # VLM Spatial Reasoning
 
-**Status:** v1 — opinionated draft. Capability claims marked `UNVERIFIED` where not personally measured.
+**Status:** v1.1 — seed zone → 完整 zone（2026-05-21 扩充：+ SpatialBot + 3DSRBench）。Capability claims marked `UNVERIFIED` where not personally measured.
 **TL;DR:** 通用 VLM（GPT-4V、Claude、Gemini、Qwen-VL）*默认是扁平的*——能命名物体，但无法可靠说出谁更近、距离多远、夹爪该往哪去。让 VLM 推理 3D 是一个训练问题，不是 prompt 问题。三种方法竞争：synthetic 空间 QA 的隐式预训练（SpatialVLM）、显式 caption / depth token（SpatialBot 血统）、3D-aware benchmark 训练。每种押在不同瓶颈上。
 
 ---
@@ -26,8 +26,10 @@
 | File | Topic | Tier |
 |---|---|---|
 | `spatialvlm_dissection.md` | Chen et al. CVPR 2024 — 2B 自动合成的空间 QA，"数据规模"论点 | ⚡ |
+| `spatialbot_dissection.md` | Cai et al. 2024 — depth map 当第二模态喂 VLM，3B `UNVERIFIED` 追平 GPT-4o depth tasks | ⚡ |
+| `3dsrbench_dissection.md` | Ma et al. ICCV 2025 — 2,772 题 4×12 子类 benchmark，旗舰 VLM 仅 49% real-split | 🔧 |
 
-`UNVERIFIED` SpatialBot、SpatialRGPT 与 benchmark-driven（SpatialBench / VSR）解构 queued for v2。
+Zone 从 seed（仅 SpatialVLM）扩为完整 zone：两路 model（implicit pretraining vs explicit depth tokens）+ 独立 benchmark 裁判。`UNVERIFIED` SpatialRGPT、ManipLLM、具身 VLA 联合训练 queued for v2。
 
 ## Cross-references
 

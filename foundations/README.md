@@ -2,7 +2,7 @@
 
 > **Foundations** 是跨 embodiment 共享的底层 — 3DGS / VGGT / Depth Foundation / 经典 SLAM 这些"工具箱"原语，无论你做 manipulation、aerial 还是 marine，最终都会回到这里。
 >
-> 目前收录 **65 篇深度解析** + **13 区导读**，是华语世界对空间智能底层最系统的拆解。
+> 目前收录 **69 篇深度解析** + **13 区导读**，是华语世界对空间智能底层最系统的拆解。
 >
 > **2026-05 重要更新（多轮叠加）**：
 > - 🔮 Feed-Forward 3D：+ VGGT-Ω + **MapAnything ★ (metric solved)** + 即将 Depth Anything 3
@@ -51,7 +51,7 @@
 | 📏 [Depth Foundation](depth-foundation/) | 单 RGB（DA v2 / Metric3D / MoGe）or stereo pair（FoundationStereo）| per-pixel depth map（**DA 相对 / Metric3D 米制**）| 点云 lift / 障碍物 / VLA 输入 |
 | 🎯 [Pose & Tracking](pose-tracking/) | RGB + 已知 mesh（FoundationPose）/ 视频流（RAFT, CoTracker）| **6D 物体 pose / 像素轨迹** | manipulation grasp / 多帧融合 / motion compensation |
 | 🌐 [Semantic 3D](semantic-3d/) | 3D 表示（点 / NeRF / 3DGS）+ 2D 特征（CLIP / SAM）| 语义 3D field（查询接口）| 语言-条件 manipulation / open-vocab seg / VLA prompt |
-| 🧠 [VLM Spatial](vlm-spatial-reasoning/) ⚠️ seed zone | RGB + 自然语言 query | 文本答案 / bounding box | 高层 planning prompt / 自然语言 grasp |
+| 🧠 [VLM Spatial](vlm-spatial-reasoning/) **3 篇 ✅** | RGB + 自然语言 query | 文本答案 / bounding box | 高层 planning prompt / 自然语言 grasp |
 | 🌍 [World Model](world-model/) | RGB + action sequence | predicted future video / state | sim2real 数据 / VLA 训练数据 / short-horizon planner |
 | 🎬 [Generative 3D Sim](generative-3d-sim/) | 真实 scene 重建（3DGS / NeRF）or mesh | 渲染 dataset / sim2real 视觉端 | policy training（manipulation / aerial）|
 | ⚛️ [Physics](physics/) ⚠️ seed zone | 3DGS + material 参数 | physics-aware 渲染（soft-body 重点）| 软体仿真视觉增强 |
@@ -630,7 +630,7 @@ VGGT → SpatialVLM → bridge-to-vla/3d_aware_vla
 
 &nbsp;
 
-**65** dissections · **13** zones · 部分由 [Pulsar](https://github.com/sou350121/Pulsar-KenVersion) 自动生成、部分人工撰写。
+**69** dissections · **13** zones · 部分由 [Pulsar](https://github.com/sou350121/Pulsar-KenVersion) 自动生成、部分人工撰写。
 
 **Recent additions (2026-05, multi-round)**:
 - 🔮 Feed-Forward 3D: + **VGGT-Ω** + **MapAnything ★** + DA3 (any-view generalist, 2025-11)
