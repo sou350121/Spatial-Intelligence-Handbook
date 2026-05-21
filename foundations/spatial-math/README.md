@@ -35,8 +35,9 @@
 | [`pose_graph_optimization.md`](./pose_graph_optimization.md) | 后 BA 阶段的闭环 —— g2o / GTSAM / Ceres 生态 | BA + 李群 |
 | [`bayesian_filtering_ekf_msckf.md`](./bayesian_filtering_ekf_msckf.md) ★ | EKF / UKF / MSCKF —— 为什么 OpenVINS 保留一窗口位姿而非 landmark | 线性代数复习 |
 | [`imu_preintegration_math.md`](./imu_preintegration_math.md) | Forster *T-RO 2017* —— 为什么 VINS-Mono 能在相机帧之间扔掉 IMU 样本 | SO(3) + EKF |
+| [`cross_domain_math_inspirations.md`](./cross_domain_math_inspirations.md) ★ NEW | **跨领域数学版图**：信息几何 / OT / certifiable SLAM / RKHS / equivariant DL / 等 10 条优化灵感 | 上面 6 篇 |
 
-★ = 只读三篇的话，读这几篇。
+★ = 只读三篇的话，读这几篇。**跨领域 inspiration 是 forward-looking 视角，不必读懂上面六篇也能看。**
 
 ---
 
@@ -49,6 +50,7 @@
 | 🌬️ 在读 OpenVINS / VINS-Mono 源码 | → `bayesian_filtering_ekf_msckf.md` + `imu_preintegration_math.md` |
 | 🎓 从 VGGT / feed-forward 3D 那边过来 | → 先看 `bundle_adjustment.md`，理解 VGGT 替换掉了什么 |
 | 🛠️ 生产环境调 quaternion sign flip bug | → `quaternions_and_rotations.md` §Hamilton-vs-JPL |
+| 🔭 想给下一代 SLAM / VIO 找 inspiration | → `cross_domain_math_inspirations.md`（10 条跨学科数学切口）|
 
 ---
 
