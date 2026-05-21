@@ -29,6 +29,103 @@
 
 &nbsp;
 
+## 🔍 一眼看清 13 区特性
+
+> *按 "做什么 / 输入输出 / 主要限制 / 何时选" 横向对比 — 找到自己要的那一行直接跳转。*
+
+| 区 | 主要工具 | 输入 → 输出 | 实时性 | Metric? | 训练成本 | **关键限制** ⚠️ | **何时选** ✅ |
+|---|---|---|:---:|:---:|---|---|---|
+| 🧮 [Math](spatial-math/) | SE(3) / BA / EKF / IMU preint | n/a (数学 toolkit) | — | — | — | 不是 dissection 工具 | 想吃透 SLAM / VIO 数学 |
+| 🗺️ [Classical SLAM](classical-slam/) | ORB-SLAM3 / DSO / LSD | RGB(+RGBD/stereo/IMU) → 6DoF pose + 稀疏 map | **30 Hz** ✅ | ✅ (with stereo/IMU) | 无 | 静态场景假设 / 白墙坍塌 / 动态物体污染 / 200 Hz aerial 不够快 | **室内 manipulation / RGBD / AR 多 session** |
+| 🔮 [Feed-Forward 3D](feed-forward-3d/) | VGGT / DUSt3R / MASt3R | N-view RGB → poses + depth + pointmaps + tracks | ~5 Hz (Orin distill ~10) | ❌ **un-metric** | 已训好（前向）| 200+ ms 延迟 / un-metric / N ≤ 30 / 边缘内存紧 | **离线 / 慢速 / 桌面环境替代 SfM** |
+| 💎 [3DGS family](3dgs-family/) | 3DGS / 4DGS / GS-SLAM / Mip-Splat | N-view + 相机姿态 → radiance field | per-scene 5–30 min 训 | ❌ | 每场景训 | 1-2 GB/场景存储 / loop closure 难（gaussians 不易重排）| **高保真渲染 / sim 数据 / 可检视的 3D primitive** |
+| 🔬 [NeRF family](nerf-family/) | NeRF / Instant-NGP / Mip-360 / Block-NeRF | N-view + 相机姿态 → radiance field | per-scene 30 min–hours | ❌ | 每场景训 | 训练慢 / 推理慢 / 但 quality 仍领先 ~1 dB | **离线高质量 / city-scale (Block-NeRF) / surface 重建** |
+| 📏 [Depth Foundation](depth-foundation/) | Depth Anything v2 / Metric3D / MoGe / FoundationStereo | 单 RGB → per-pixel depth | per-frame ~50 ms | DA: ❌ **相对** / Metric3D: ✅ | 已训好 | **"相对 vs 米制陷阱"** / >30m unbounded 崩 / 透明 / 镜面失败 | **任何要 depth 的下游 (manipulation / drone)** |
+| 🎯 [Pose & Tracking](pose-tracking/) | FoundationPose / MegaPose / RAFT / CoTracker | RGB + (可选 mesh) → 6D 物体 pose / 像素 tracks | per-frame ~50–100 ms | ✅ | 已训好 | 透明 / 镜面 / 极小物体 / OOD 物体 | **manipulation grasp / 多帧追踪 / arm robot** |
+| 🌐 [Semantic 3D](semantic-3d/) | LERF / OpenScene | 3D 表示 + 2D 特征 (CLIP/SAM) → 语义 3D field | LERF: 5 min 训 / OpenScene: 实时 | 视基底 | LERF 训 / OpenScene 不训 | LERF 每场景训 / 开集 query 有上限 / 几何精度受 lift 限 | **语言-条件 grasp / 房间级查询 / open-vocab seg** |
+| 🧠 [VLM Spatial Reasoning](vlm-spatial-reasoning/) | SpatialVLM / SpatialBot | RGB + 语言 query → 文本 / 边界框 | per-query 500 ms–数 s | n/a (高层) | 已训好 | **精确距离差** / occlusion 失败 / 慢 | **高层 spatial 问答 / planning prompts** |
+| 🌍 [World Model](world-model/) (decision-useful only) | Cosmos / Genie / Marble | RGB + action → predicted video / state | per-step 1–数 s | ❌ | 已训好 | **70% hype 被 PRD 打 ❌** / 仅 data factory 或 short-horizon planner | **sim2real 数据生成 / VLA 训练数据** |
+| 🎬 [Generative 3D Sim](generative-3d-sim/) | Splat-Sim / Aerial Gym / Mitsuba / nvdiffrast | 现有 scene / mesh → 渲染数据 | per-render（视方法） | n/a | 视方法 | 接触动力学要交给 Isaac / 真实 robot；只搞视觉 | **sim2real 视觉端 augmentation** |
+| ⚛️ [Physics](physics/) | PhysGaussian | 3DGS + material 参数 → 物理感知渲染 | per-scene | n/a | 训 | **仅 soft-body**，rigid contact 不行；material 参数手设 | **软体仿真视觉端** |
+| 📡 [Sensor Physics](sensor-physics/) ★ | NIR 850 / ToF / LiDAR 905-vs-1550 / IMU / Event / Radar / Stereo / Polarization / Allan variance | n/a (硬件物理) | — | — | — | **学界综述不写的硬约束** | **选 sensor / BoM 前必看 / 调试 sensor 失效** |
+
+&nbsp;
+
+### 🎯 快速决策树 (5 秒选区)
+
+```
+你的需求？
+│
+├─ 我要数学基础                        → 🧮 Math
+│
+├─ 我要 6DoF pose 估计 (实时控制)
+│   ├─ 室内 + RGBD / IMU 都有          → 🗺️ Classical SLAM (ORB-SLAM3)
+│   ├─ Aerial 200 Hz 控制环              → 🗺️ Classical SLAM (VINS-Fusion @ embodiments/aerial/vio/)
+│   └─ 桌面 / 慢速 / 离线              → 🔮 Feed-Forward 3D (VGGT)
+│
+├─ 我要 depth (per-pixel)
+│   ├─ 相对深度够用 (rendering)        → 📏 Depth Foundation (Depth Anything v2)
+│   ├─ 米制必需 (manipulation)         → 📏 Depth Foundation (Metric3D) 或 stereo
+│   └─ 大基线 outdoor                  → 📏 FoundationStereo + RTK
+│
+├─ 我要场景表示 (储存 / 可视化 / 编辑)
+│   ├─ 实时高保真                      → 💎 3DGS family
+│   ├─ 最高质量 (离线 OK)              → 🔬 NeRF family (Mip-NeRF 360)
+│   └─ City-scale                      → 🔬 Block-NeRF / Mega-NeRF
+│
+├─ 我要语义 (object / region / language)
+│   ├─ 物体 6D pose                    → 🎯 Pose & Tracking (FoundationPose)
+│   ├─ 语义 3D field                   → 🌐 Semantic 3D
+│   └─ 自然语言 query                  → 🧠 VLM Spatial Reasoning (SpatialVLM)
+│
+├─ 我要 sim2real / 训练数据
+│   ├─ 视觉 augmentation               → 🎬 Generative 3D Sim (Splat-Sim)
+│   ├─ 短期未来预测                    → 🌍 World Model (Genie)
+│   └─ 软体物体                        → ⚛️ Physics (PhysGaussian)
+│
+└─ 我要选 sensor / 做 BoM             → 📡 Sensor Physics (11 篇全集)
+```
+
+&nbsp;
+
+### 🚦 实时 vs 离线 × 米制 vs 非米制 (二维定位)
+
+```
+                       米制 (Metric) ✅
+                              │
+                              │
+   离线高质量                  │           实时米制
+   (offline)                   │           (production-ready)
+                              │
+   • Metric3D (单帧推理)       │      • 🗺️ Classical SLAM
+   • Mip-NeRF 360 surface      │        (ORB-SLAM3 + IMU/stereo)
+                              │      • 🎯 FoundationPose
+                              │      • 📏 stereo depth + RTK
+                              │
+   ────────────────────────────┼────────────────────────────────►
+                              │                                  实时 (≥30 Hz) ✅
+   • 🔬 NeRF / Instant-NGP     │      • 📏 Depth Anything v2
+   • 💎 3DGS / 4DGS            │      • 🌐 OpenScene
+   • 🔮 VGGT (large)           │      • 🎯 RAFT / CoTracker
+                              │      • 🔮 VGGT-distilled (~10 Hz)
+                              │
+   离线非米制                   │           实时相对
+   (offline, un-metric)        │           (real-time, relative)
+                              │
+                              │
+                       非米制 / 相对 ❌
+```
+
+&nbsp;
+
+> **读图秘诀**：你的应用控制环带宽（200 Hz aerial / 30 Hz manipulation / 几 Hz 离线）决定纵向位置；你能不能拿到 stereo / IMU / RTK 决定米制能不能给。**两轴交叉的那一象限 = 你该用的工具区。**
+
+&nbsp;
+
+---
+
+&nbsp;
+
 ## 🌍 世界地图
 
 ```mermaid
