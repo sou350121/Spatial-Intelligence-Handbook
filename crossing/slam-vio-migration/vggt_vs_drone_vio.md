@@ -1,25 +1,29 @@
-# Can VGGT Replace Drone VIO? (VGGT 能否取代无人机 VIO?)
+# Can VGGT (v1 + Ω) Replace Drone VIO? (VGGT 和 VGGT-Ω 能否取代无人机 VIO?)
 
-> **发布时间**: 2026-05-20（v1.1 backfill 2026-05-21；2026-05-21 翻译为简体中文）
-> **论文 / 模型**: VGGT（Wang et al., *CVPR 2025*）vs VINS-Fusion / OpenVINS / DROID-SLAM
-> **核心定位**: feed-forward 3D foundation model 能否在 aerial 平台取代紧耦合 VIO —— 以及为什么答案因 embodiment 而异。
+> **发布时间**: 2026-05-20（v1.1 backfill 2026-05-21；翻译为简体中文 2026-05-21；**v1.2 加入 VGGT-Ω 对比 2026-05-22**）
+> **论文 / 模型**: VGGT（Wang et al., *CVPR 2025*, [arXiv 2503.11651](https://arxiv.org/abs/2503.11651)）+ **VGGT-Ω**（Wang et al., 2026-05, [arXiv 2605.15195](https://arxiv.org/abs/2605.15195)）vs VINS-Fusion / OpenVINS / DROID-SLAM
+> **核心定位**: feed-forward 3D foundation model 能否在 aerial 平台取代紧耦合 VIO —— 以及为什么答案因 embodiment 而异。**Ω 出来之后答案变了吗？没变。**
 
-**Status:** v1.1 — opinionated draft。Backfilled to AGENTS.md 14-item dissection template 2026-05-21；翻译为简体中文 2026-05-21。`UNVERIFIED` 数字需 rig-side 验证。
+**Status:** v1.2 — VGGT-Ω 加入对比 2026-05-22。`UNVERIFIED` 数字需 rig-side 验证。
 **Wedge tier:** W1 · **Handbook flagship**
-**TL;DR:** 不行，2026 年内不行。差距不在精度，而在 **延迟、度量尺度、IMU 耦合**。真正出货的是混合架构（VGGT 当低速率几何锚点 + 经典 VIO 跑高速率状态），不是替换。
+**TL;DR:** **仍然不行**，2026 年内不行。VGGT-Ω 改了 training efficiency × data scale × dynamic scene 三件事 —— 但**没改 streaming / 没解 metric scale / 没改 inference latency budget**。差距仍是 *延迟、米制、IMU 耦合*。出货架构仍是混合（VGGT-Ω 当低速率几何锚 + 经典 VIO 跑高速率状态），不是替换。
 
-**X-Ray.** 无人机要在桨叶振动 IMU 的同时，给出 200 Hz、米制、sub-10 ms 的状态估计 —— 经典 VIO 就是为此手工调出来的。VGGT (2025) 单次前向就能从 N 帧 RGB 吐出位姿 + 稠密 3D：在桌面 / 地面环境几何上极漂亮，但**频率错、非米制、IMU 没耦合**。教训：feed-forward 3D 会比改写 aerial 内控环更早改写 manipulation / AD 的前端 —— 真正卡住的是 *operational envelope*（rate × latency × metric），不是精度。
+**X-Ray.** 无人机要在桨叶振动 IMU 的同时，给出 200 Hz、米制、sub-10 ms 的状态估计 —— 经典 VIO 就是为此手工调出来的。VGGT v1 (2025) 单次前向就能从 N 帧 RGB 吐出位姿 + 稠密 3D；VGGT-Ω (2026-05) 把它做得更高效（30% GPU 内存 + 15× 训练数据）并**首次支持动态场景**（Sintel 提升 77%）—— 但 *推理 envelope* 与 v1 同构：仍 batch、仍 un-metric、仍 100ms+ latency。教训：feed-forward 3D 谱系正在 efficiency × scale 两条轴上演进，但 *streaming + metric + IMU 耦合* 这三件**架构性事**它们没碰 —— 也就是 aerial 真正的墙。
 
 ## 📍 研究全景时间线
 
 ```
-2018       2020       2021         2024        2025          2026               2027?
-VINS-Mono ► OpenVINS ► DROID-SLAM ► DUSt3R ──► VGGT (CVPR) ► YOU ARE HERE ────► metric-aware FF
-(opt-VIO)  (MSCKF-VIO) (learned BA) (2-view FF) (N-view FF)   hybrid VGGT+VIO    + <20ms latency
-└─ classical tightly-coupled ─┘    └─ learned dense ─┘  └─ feed-forward foundation ─┘  └─ replacement?
+2018       2020       2021         2024        2025          2026-05      2026-05-22    2027?
+VINS-Mono ► OpenVINS ► DROID-SLAM ► DUSt3R ──► VGGT v1 ────► VGGT-Ω ────► YOU ARE HERE ► metric-aware FF
+(opt-VIO)  (MSCKF-VIO) (learned BA) (2-view FF) (CVPR best,  (1 head +     hybrid           + streaming
+                                                4-head batch) register    VGGT(-Ω) + VIO   + <20ms latency
+                                                + static)    attn, 30%                     + IMU coupling
+                                                             memory,
+                                                             动态原生 ★)
+└─ classical tightly-coupled ─┘    └─ learned ─┘  └─── feed-forward foundation 谱系 ──┘  └─ replacement?
 ```
 
-本 wedge 卡在 *learned-BA*（DROID-SLAM）与 *feed-forward foundation*（DUSt3R → VGGT）之间。问题：右向箭头能不能到达经典 VIO 自 2018 年以来占据的高速率 / 米制 / 紧 IMU 耦合区？时间轴短；operational gap 很宽。
+本 wedge 仍卡在 *learned-BA*（DROID-SLAM）与 *feed-forward foundation*（DUSt3R → VGGT v1 → **VGGT-Ω**）的迁移线上。**Ω 把谱系往右推一段（efficiency + dynamic），但没跨过最后一条沟 —— streaming + metric + IMU 耦合。** Operational gap 仍很宽，时间轴仍短。
 
 ---
 
@@ -50,10 +54,13 @@ controller_rate × latency_budget  ≥  visual_rate × inference_cost
 |---|---|---|
 | controller_rate | 30 Hz | 200 Hz |
 | latency_budget | 100 ms | 5 ms |
-| visual_rate | VGGT ~5 Hz ✅ | VGGT ~5 Hz ❌ |
+| visual_rate (v1) | VGGT v1 ~5 Hz ✅ | VGGT v1 ~5 Hz ❌ |
+| visual_rate (Ω) `UNVERIFIED` | VGGT-Ω ~8-10 Hz? ✅ | VGGT-Ω ~8-10 Hz? ❌ |
 | inference_cost | desktop GPU | Orin-class |
 
-左边是*预算*；右边是*账单*。VGGT 的账单按桌面 GPU 算；aerial 预算按 autopilot 算。两者 2026 不会相遇。
+左边是*预算*；右边是*账单*。Ω 把账单做小一些（register attention linear-in-N + 移除 high-res conv），但**没改变量级** —— 仍是桌面 GPU 账单 vs autopilot 预算。两者 2026 不会相遇。
+
+> **VGGT-Ω 的影响：** 30% 训练 GPU 内存提示**推理可能也轻一点**（`UNVERIFIED` ——论文未直接给 inference benchmark）。乐观估计 distilled Ω 在 Orin Nano 上跑到 ~10 Hz（vs v1 的 ~5 Hz）。**但 5 ms latency 的 aerial 控制环要求 200 Hz 视觉前端 —— 一个数量级的差距，Ω 没动。**
 
 ---
 
@@ -64,12 +71,17 @@ controller_rate × latency_budget  ≥  visual_rate × inference_cost
 | 前端 | visual_rate | latency | Effective | 判决 |
 |---|---|---|---|---|
 | **VINS-Fusion** | 30 Hz cam + 200 Hz IMU | ~5 ms / <1 ms | **200 Hz**, ≤10 ms | ✅ 出货 |
-| **VGGT-distilled** `UNVERIFIED` | ~10 Hz | 100 ms | **10 Hz**, 100 ms | ❌ 超预算 2× |
+| **VGGT v1 distilled** `UNVERIFIED` | ~10 Hz | 100 ms | **10 Hz**, 100 ms | ❌ 超预算 2× |
+| **VGGT-Ω distilled** `UNVERIFIED` | ~10-15 Hz? | 50-100 ms? | **10-15 Hz**, ~70 ms | ⚠️ 边缘临界 |
 
+算账：
 - VINS：`30 × 0.050 = 1.5 vs 30 × 0.005 = 0.15` → 10× 余量 → 出货。
-- VGGT：`30 × 0.050 = 1.5 vs 10 × 0.100 = 1.0` → 临界；桨叶抖动让它跌穿预算。
+- VGGT v1：`30 × 0.050 = 1.5 vs 10 × 0.100 = 1.0` → 临界；桨叶抖动让它跌穿预算。
+- **VGGT-Ω**：register attention linear-in-N + 训练 memory 30% 提示推理也可能~30-50% 提升。**乐观估计：** `1.5 vs 12 × 0.080 ≈ 0.96` → 仍在临界以内但更稳。**悲观估计：** Ω 的 inference latency 论文没披露，预期 v1 几乎不变 → 仍不行。
 
-位姿精度无关。**这就是为什么答案是不。**
+⚠️ **关键：Ω 改的层不解 §2 不等式的右侧 quadratic 项**。Register attention 把*跨帧 attention*的 quadratic 砍掉，但单帧的 encoder 仍要算；总 inference latency 主要 bottleneck 不在 cross-frame attention 而在 encoder + dense head。
+
+位姿精度无关。**v1 也好、Ω 也好，答案都是不**（除非 distill 到 <20 ms latency —— 这是论文 §9 的预测）。
 
 ---
 
@@ -88,21 +100,30 @@ controller_rate × latency_budget  ≥  visual_rate × inference_cost
 
 ---
 
-## 5 · VGGT 实际给什么
+## 5 · VGGT 谱系实际给什么（v1 + Ω 对比）
 
-VGGT（Wang 2025, CVPR best paper, Meta + Oxford）—— feed-forward transformer：N 帧 RGB → poses + depth + pointmaps + 2D tracks，单次前向。架构动作：**没有 per-scene 优化、没有 BA 循环、没有 IMU**。
+| Metric | VGGT v1 (CVPR 2025) | **VGGT-Ω (arXiv 2605, 2026-05)** | 改进? |
+|---|---|---|---|
+| 架构 | 4 separate heads | **1 dense head + multi-task** | ✅ 效率 |
+| Cross-frame attention | Global N×N | **Register attention (N × 16)** | ✅ memory/速度 |
+| GPU memory (training) | 100% baseline | **30%** | ✅ 训练 |
+| Supervised data 规模 | baseline | **15×** | ✅ 数据 |
+| Self-supervised on video | ❌ | ✅ | ✅ scale |
+| 动态场景 | ❌ 静态假设 | **✅ 原生支持** | ✅ 应用 |
+| Sintel camera estimation | baseline | **+77%** vs 之前 SOTA | ✅ benchmark |
+| **推理 latency (Orin Nano, distilled)** `UNVERIFIED` | 100-200 ms | **50-100 ms?** (`UNVERIFIED` —— Ω 论文未直接披露 inference latency) | ⚠️ 可能改但量级不变 |
+| **Streaming** | ❌ batch-only | ❌ **仍 batch-only** | ❌ **不改** |
+| **Metric scale** | ❌ un-metric | ❌ **仍 un-metric** | ❌ **不改** |
+| **IMU 耦合** | ❌ | ❌ | ❌ **不改** |
+| 抗振动训练先验 | ❌ | ❌ | ❌ **不改** |
 
-Orin Nano 上，FP16 + token reduction `UNVERIFIED`：
+**关键观察**：
 
-| Metric | VGGT-large | VGGT-distilled `UNVERIFIED` |
-|---|---|---|
-| Rate | ~5 Hz | ~10 Hz |
-| Latency | 200–400 ms | 100–200 ms |
-| Scale | Un-metric | Un-metric |
-| GPU mem | ~6 GB | ~3 GB |
-| EuRoC | ≈ VINS-Fusion | 2–4× error `UNVERIFIED` |
+1. ✅ Ω 在 *效率 × 训练数据 × 动态场景* 上是真升级 —— Sintel 77% 提升 + dynamic scene 是质变
+2. ❌ Ω **完全没碰** aerial 真正卡住的 4 条：streaming / metric / IMU coupling / 振动抗扰
+3. ⚠️ inference latency 期待 Ω 比 v1 略快（register attn linear-in-N），但量级不变（仍是 50-200 ms 而非 < 20 ms）
 
-良性轨迹上：VGGT 跟经典对得上。**它栽是栽在 operational envelope，不是 metric。**
+良性轨迹上：v1 和 Ω 都跟经典 VIO 对得上几何精度。**它们栽都栽在同一个 operational envelope，不是 metric。Ω 出来的事实改变不了这点。**
 
 ---
 
@@ -156,14 +177,18 @@ VGGT = 低速率、无漂移的几何锚；经典 VIO = 高速率米制状态。
 
 ### 7.1 Comparison & Interview Tip
 
-| 栈 | Rate | Latency | Metric? | IMU? | Aerial 2026? |
-|---|---|---|---|---|---|
-| VINS-Fusion / OpenVINS | 200 Hz | 5–15 ms | ✅ | 紧耦合 | ✅ |
-| DROID-SLAM | ~5 Hz | ~200 ms | 部分 | 弱 | ❌ |
-| VGGT (large) | ~5 Hz | 200–400 ms | ❌ | ❌ | ❌ |
-| VGGT-distilled + VIO hybrid | 200 Hz VIO / 5 Hz VGGT | 5–15 ms 经 VIO | ✅ 经 VIO | 经 VIO | ⚠️ 低速可 |
+| 栈 | Rate | Latency | Metric? | IMU? | 动态场景? | Aerial 2026? |
+|---|---|---|---|---|---|---|
+| VINS-Fusion / OpenVINS | 200 Hz | 5–15 ms | ✅ | 紧耦合 | OK | ✅ |
+| DROID-SLAM | ~5 Hz | ~200 ms | 部分 | 弱 | 弱 | ❌ |
+| VGGT v1 (large) | ~5 Hz | 200–400 ms | ❌ | ❌ | ❌ | ❌ |
+| **VGGT-Ω** `UNVERIFIED` | ~5-10 Hz? | 100-200 ms? | ❌ | ❌ | ✅ ★ | ❌ |
+| VGGT v1 distilled + VIO hybrid | 200 Hz VIO / 5 Hz v1 | 5–15 ms 经 VIO | ✅ 经 VIO | 经 VIO | ⚠️ 静态 | ⚠️ 低速可 |
+| **VGGT-Ω distilled + VIO hybrid** | 200 Hz VIO / ~10 Hz Ω | 5–15 ms 经 VIO | ✅ 经 VIO | 经 VIO | **✅** | ⚠️ 低速可（+巡检动态 OK） |
 
-> **🎤 Interview Tip.** "无人机上选 VGGT 还是 VINS-Fusion？" —— 正确答："**VINS-Fusion 跑控制环里，VGGT 当环外 relocalizer / 地图锚** —— 是混合架构题，不是替换题。" "直接用 VGGT" → 没算 rate × latency。"忽略 VGGT" → 把免费的漂移修正白送了。
+**Ω 对 hybrid 架构的真正贡献**：因为 Ω 原生支持动态场景，hybrid VGGT-Ω + VIO 现在能在 **行人 / 工地 / 仓库** 这种动态环境工作（v1 hybrid 在动态环境下静默漂移）。这是 **巡检 drone** 的真实改进。
+
+> **🎤 Interview Tip.** "VGGT-Ω 出来了，无人机要不要换？" —— 正确答："**Ω 改的是训练效率 + 数据规模 + 动态场景支持**，aerial inference envelope 一点没动 —— 仍是混合架构题，不是替换题。但如果你的无人机巡检场景动态环境多（工地、仓库、行人），**hybrid Ω + VIO 比 hybrid v1 + VIO 更稳**，因为 v1 在动态环境下静默退化。" 错答："Ω 更高效所以替换 VIO" —— Ω 改的层和 VIO 不在一个轴。
 
 ---
 
@@ -177,14 +202,21 @@ VGGT = 低速率、无漂移的几何锚；经典 VIO = 高速率米制状态。
 
 四件事都落地才会翻转：
 
-1. **VGGT 蒸馏到 Orin <20 ms latency** —— 现在蒸馏后 100–200 ms；还需 ~10× 压缩。2027 内有可能。
-2. **Metric-aware feed-forward 变体** —— 把 stereo / IMU 融进前向 pass。盯 π³ streaming。
-3. **抗振动前端** —— ViT 还没在高频运动模糊下调过。UZH RPG event camera = 对冲。
-4. **能容忍 20–40 ms 级联 latency 的控制器** —— RL policy (UZH 赛车) 已经能；PID 不行。
+1. **VGGT-Ω 后代蒸馏到 Orin <20 ms latency** —— 现在 Ω 训练 memory 是 v1 的 30%，提示推理也可能更轻；但实际 distilled 数字论文未披露，预期 50-100 ms 量级。还需 ~5× 进一步压缩到 < 20 ms。**2027 内可能。**
+2. **Metric-aware feed-forward 变体** —— 把 stereo / IMU / known scale anchor 融进前向 pass。**Ω 没做这件事 —— 这是下一篇论文的押注**。盯 π³ streaming / 任何"VGGT-Σ / VGGT-Metric"风格的后续。
+3. **Streaming feed-forward 3D** —— Ω 仍 batch-only。Register attention 天然适配 streaming（register 当 state cache），所以这是 Ω 架构留给后续的 hint。**[Streaming Visual Geometry Transformer](https://arxiv.org/abs/2507.11539) 这条路在走，但未到生产级。**
+4. **抗振动前端** —— ViT 类（含 v1 / Ω）还没在高频运动模糊下专项调过；Ω 的 self-supervised on unlabeled video **可能间接帮**（视频里有自然抖动）。UZH RPG event camera 仍是最强对冲。
+5. **能容忍 20–40 ms 级联 latency 的控制器** —— RL policy (UZH 赛车) 已经能；PID 不行。
 
-四条都可解。2026 没有任何一条到位。
+五条（v1.2 加 streaming 是第三条）都可解。Ω 解了"训练效率 + 动态场景"两件 *相关* 事但不在关键链上 —— **2026 没有任何一条核心条到位。**
 
-**Falsifiable prediction:** 2027-12 之前，会有一篇公开的无人机自主 stack 论文，用 VGGT 谱系模型当 *主*视觉前端 —— 但飞 <5 m/s 室内，不是 racing。任何"VGGT 这代在 Skydio 级户外任务上替代 VIO" 的主张都该被对赌反对。
+**Falsifiable predictions（v1.2 更新）**：
+
+1. **2027-06 前**：会出现 VGGT-Ω 衍生 streaming variant（可能叫 VGGT-Σ 或类似），把 batch 改成 increment-per-frame。Register attention 是 streaming 的天然 cache。
+2. **2027-12 前**：会有一篇公开的无人机自主 stack 论文，用 VGGT 谱系模型当 *主*视觉前端 —— 但飞 <5 m/s 室内 / 巡检，不是 racing。
+3. **2027-12 前不会发生**：VGGT 谱系（含 Ω 后代）成为 Skydio-class 户外 racing aerial 主前端 —— operational envelope 限制不在 Ω 改的层。
+
+任何"VGGT-Ω 在 Skydio 级户外任务上替代 VIO" 的主张都该被对赌反对。
 
 ---
 
@@ -200,14 +232,16 @@ VGGT = 低速率、无漂移的几何锚；经典 VIO = 高速率米制状态。
 
 ## References
 
-- VGGT — Wang et al. *CVPR 2025* [arXiv TBD]
+- VGGT v1 — Wang et al. *CVPR 2025 best paper* [arXiv:2503.11651](https://arxiv.org/abs/2503.11651)
+- **VGGT-Ω** — Wang et al. 2026-05 [arXiv:2605.15195](https://arxiv.org/abs/2605.15195) · 中文导读 [Alan Hou](https://alanhou.org/blog/arxiv-vggt-/)
 - VINS-Mono — Qin et al. *T-RO 2018* https://arxiv.org/abs/1708.03852
 - OpenVINS — Geneva et al. *ICRA 2020* https://arxiv.org/abs/1910.00298
 - DROID-SLAM — Teed & Deng *NeurIPS 2021* https://arxiv.org/abs/2108.10869
 - UZH RPG champion racing — Kaufmann et al. *Nature 2023* https://www.nature.com/articles/s41586-023-06419-4
-- π³ streaming feed-forward variant — TBD
+- Streaming Visual Geometry Transformer — [arXiv:2507.11539](https://arxiv.org/abs/2507.11539)（streaming 路线）
 - Skydio autonomy blog — https://www.skydio.com/blog
-- VGGT-Ω 后继 → [`foundations/feed-forward-3d/vggt_omega_dissection.md`](../../foundations/feed-forward-3d/vggt_omega_dissection.md)（v0.1 placeholder）
+- VGGT v1 完整解构 → [`foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../../foundations/feed-forward-3d/vggt_cvpr2025_dissection.md)
+- VGGT-Ω 完整解构 → [`foundations/feed-forward-3d/vggt_omega_dissection.md`](../../foundations/feed-forward-3d/vggt_omega_dissection.md)（v0.5 verified）
 
 ## Boundary
 
