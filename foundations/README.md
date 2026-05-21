@@ -51,10 +51,10 @@
 | 📏 [Depth Foundation](depth-foundation/) | 单 RGB（DA v2 / Metric3D / MoGe）or stereo pair（FoundationStereo）| per-pixel depth map（**DA 相对 / Metric3D 米制**）| 点云 lift / 障碍物 / VLA 输入 |
 | 🎯 [Pose & Tracking](pose-tracking/) | RGB + 已知 mesh（FoundationPose）/ 视频流（RAFT, CoTracker）| **6D 物体 pose / 像素轨迹** | manipulation grasp / 多帧融合 / motion compensation |
 | 🌐 [Semantic 3D](semantic-3d/) | 3D 表示（点 / NeRF / 3DGS）+ 2D 特征（CLIP / SAM）| 语义 3D field（查询接口）| 语言-条件 manipulation / open-vocab seg / VLA prompt |
-| 🧠 [VLM Spatial](vlm-spatial-reasoning/) | RGB + 自然语言 query | 文本答案 / bounding box | 高层 planning prompt / 自然语言 grasp |
+| 🧠 [VLM Spatial](vlm-spatial-reasoning/) ⚠️ seed zone | RGB + 自然语言 query | 文本答案 / bounding box | 高层 planning prompt / 自然语言 grasp |
 | 🌍 [World Model](world-model/) | RGB + action sequence | predicted future video / state | sim2real 数据 / VLA 训练数据 / short-horizon planner |
 | 🎬 [Generative 3D Sim](generative-3d-sim/) | 真实 scene 重建（3DGS / NeRF）or mesh | 渲染 dataset / sim2real 视觉端 | policy training（manipulation / aerial）|
-| ⚛️ [Physics](physics/) | 3DGS + material 参数 | physics-aware 渲染（soft-body 重点）| 软体仿真视觉增强 |
+| ⚛️ [Physics](physics/) ⚠️ seed zone | 3DGS + material 参数 | physics-aware 渲染（soft-body 重点）| 软体仿真视觉增强 |
 | 📡 [Sensor Physics ★](sensor-physics/) | （n/a — 硬件物理） | sensor 选型论证 / 物理硬约束 | BoM 决策 / 标定 / 失败诊断 |
 
 &nbsp;

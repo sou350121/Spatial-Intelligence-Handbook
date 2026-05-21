@@ -37,7 +37,7 @@
 | [`bayesian_filtering_ekf_msckf.md`](./bayesian_filtering_ekf_msckf.md) ★ | EKF / UKF / MSCKF —— 为什么 OpenVINS 保留一窗口位姿而非 landmark | 线性代数复习 |
 | [`camera_projection_view_geometry.md`](./camera_projection_view_geometry.md) ★ NEW | **相机视角的数学**：pinhole projection / 失真模型 / back-projection / epipolar / 三角化 / PnP / Zhang's calibration | SO(3) + 高中线代 |
 | [`imu_preintegration_math.md`](./imu_preintegration_math.md) | Forster *T-RO 2017* —— 为什么 VINS-Mono 能在相机帧之间扔掉 IMU 样本 | SO(3) + EKF |
-| [`cross_domain_math_inspirations.md`](./cross_domain_math_inspirations.md) ★ NEW | **跨领域数学版图**：信息几何 / OT / certifiable SLAM / RKHS / equivariant DL / 等 10 条优化灵感 | 上面 7 篇 |
+| [`cross_domain_math_inspirations.md`](./cross_domain_math_inspirations.md) ★ NEW | **跨领域数学版图**：信息几何 / OT / certifiable SLAM / RKHS / equivariant DL / 等 10 条优化灵感 | 上面 8 篇 |
 
 ★ = 只读三篇的话，读这几篇。**跨领域 inspiration 是 forward-looking 视角，不必读懂上面六篇也能看。**
 

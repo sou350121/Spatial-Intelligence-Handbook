@@ -79,6 +79,12 @@ Hartley & Zisserman *Multiple View Geometry* 2003 是规范教科书。**今天 
 
 ---
 
+### 1.4 ⚡ Eureka Moment
+
+> **投影 `π(X) = K · [R|t] · X / Z` 把 3D → 2D 的"丢失维度"包成一个 *除 Z*（透视除法）。所有 SLAM 反演（back-project / triangulate / PnP / BA）的难度都根源于：你只看到 (u, v)，丢掉的 Z 必须从其他线索（depth model / stereo baseline / multi-view 几何 / IMU scale anchor）补回来。**
+
+这是 spatial AI 的"原罪" —— 相机是 *4 维 (R, t) + 3 维 X = 7 个未知* 但只给 2D 像素观测；所有现代 SLAM / SfM / VGGT 都在用不同 prior 弥补 *被除掉的那个 Z*。
+
 ## 2 · 失真模型（真实镜头不是 pinhole）
 
 ### 2.1 Brown-Conrady 失真模型（最常用）
