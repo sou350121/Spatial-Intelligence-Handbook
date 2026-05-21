@@ -35,8 +35,9 @@
 | [`bundle_adjustment.md`](./bundle_adjustment.md) ★ | 每个 SLAM 背后的数学 —— cost、Jacobian 稀疏性、Schur complement、LM | SO(3) + quaternions |
 | [`pose_graph_optimization.md`](./pose_graph_optimization.md) | 后 BA 阶段的闭环 —— g2o / GTSAM / Ceres 生态 | BA + 李群 |
 | [`bayesian_filtering_ekf_msckf.md`](./bayesian_filtering_ekf_msckf.md) ★ | EKF / UKF / MSCKF —— 为什么 OpenVINS 保留一窗口位姿而非 landmark | 线性代数复习 |
+| [`camera_projection_view_geometry.md`](./camera_projection_view_geometry.md) ★ NEW | **相机视角的数学**：pinhole projection / 失真模型 / back-projection / epipolar / 三角化 / PnP / Zhang's calibration | SO(3) + 高中线代 |
 | [`imu_preintegration_math.md`](./imu_preintegration_math.md) | Forster *T-RO 2017* —— 为什么 VINS-Mono 能在相机帧之间扔掉 IMU 样本 | SO(3) + EKF |
-| [`cross_domain_math_inspirations.md`](./cross_domain_math_inspirations.md) ★ NEW | **跨领域数学版图**：信息几何 / OT / certifiable SLAM / RKHS / equivariant DL / 等 10 条优化灵感 | 上面 6 篇 |
+| [`cross_domain_math_inspirations.md`](./cross_domain_math_inspirations.md) ★ NEW | **跨领域数学版图**：信息几何 / OT / certifiable SLAM / RKHS / equivariant DL / 等 10 条优化灵感 | 上面 7 篇 |
 
 ★ = 只读三篇的话，读这几篇。**跨领域 inspiration 是 forward-looking 视角，不必读懂上面六篇也能看。**
 
@@ -48,7 +49,8 @@
 |---|---|
 | 🆕 SLAM 新手，**完全 0 数学基础** | → `rotation_intuition_primer.md`（手机翻转开始，30 分钟读完） |
 | 🆕 SLAM 新手，已会高中线代 | → `se3_so3_lie_groups_primer.md`（一切都堆在这上面） |
-| 🤖 在读 ORB-SLAM3 / colmap 源码 | → `bundle_adjustment.md` + `pose_graph_optimization.md` |
+| 📷 在做 calibration / 多视图 / PnP / triangulation | → `camera_projection_view_geometry.md`（相机投影 + 多视几何）|
+| 🤖 在读 ORB-SLAM3 / colmap 源码 | → `bundle_adjustment.md` + `pose_graph_optimization.md` + `camera_projection_view_geometry.md` |
 | 🌬️ 在读 OpenVINS / VINS-Mono 源码 | → `bayesian_filtering_ekf_msckf.md` + `imu_preintegration_math.md` |
 | 🎓 从 VGGT / feed-forward 3D 那边过来 | → 先看 `bundle_adjustment.md`，理解 VGGT 替换掉了什么 |
 | 🛠️ 生产环境调 quaternion sign flip bug | → `quaternions_and_rotations.md` §Hamilton-vs-JPL |
