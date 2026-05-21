@@ -53,23 +53,40 @@
 
 &nbsp;
 
-### 表 2 · 运行特性（实时性 / 米制 / 训练）
+### 表 2 · 运行特性（4 正交轴：推理 / 训练 / 硬件 / 米制）
 
-| 区 | **实时性** | **Metric?** | **训练成本** |
-|---|---|:---:|---|
-| 🧮 Math | — | — | — |
-| 🗺️ Classical SLAM | **30 Hz** ✅（aerial 不够）| ✅ with stereo/IMU | 无 |
-| 🔮 Feed-Forward 3D | ~5 Hz（Orin distill ~10）| ❌ un-metric | 已训好（前向）|
-| 💎 3DGS family | per-scene 训 5–30 min | ❌ | **每场景训** |
-| 🔬 NeRF family | per-scene 训 30 min–hours | ❌ | **每场景训** |
-| 📏 Depth Foundation | per-frame ~50 ms | DA ❌ / Metric3D ✅ | 已训好 |
-| 🎯 Pose & Tracking | per-frame ~50–100 ms | ✅ | 已训好 |
-| 🌐 Semantic 3D | LERF: 5 min 训 / OpenScene: 实时 | 视基底 | LERF 训 / OpenScene 不训 |
-| 🧠 VLM Spatial | per-query 500 ms–数 s | n/a（高层）| 已训好 |
-| 🌍 World Model | per-step 1–数 s | ❌ | 已训好 |
-| 🎬 Generative 3D Sim | per-render | n/a | 视方法 |
-| ⚛️ Physics | per-scene 训 | n/a | 训 |
-| 📡 Sensor Physics ★ | — | — | — |
+> *v2 重设计 — 之前 1 列混了"训练时间"和"推理时间"，现在分清。每个轴独立。*
+
+| 区 | **🏃 推理速率** | **🎓 训练模式** | **🖥️ 最低部署硬件** | **📐 米制输出** |
+|---|---|---|---|---|
+| 🧮 Math | n/a（数学 toolkit） | n/a（经典）| n/a | n/a |
+| 🗺️ Classical SLAM | **30 Hz** real-time | ❌ **无训练**（经典算法）| **CPU OK**（Jetson Nano 即可） | ✅ stereo/RGBD/IMU 给；**mono ❌**（scale drift） |
+| 🔮 Feed-Forward 3D (v1) | ~5 Hz / latency 100-200 ms | ❌ **已训好**（用 pretrained）| Orin Nano + 3GB 内存 | ❌ **un-metric**（需要外部 anchor） |
+| 🔮 Feed-Forward 3D (Ω) | ~10 Hz? `UNVERIFIED` | ❌ 已训好（**15× 数据 + 自监督**）| Orin Nano（memory 比 v1 省 30%）| ❌ un-metric |
+| 💎 3DGS family | **render: 60+ FPS** / 训练 5-30 min/scene | ✅ **每场景训**（per-scene fitting）| 1× consumer GPU (RTX 3090+) | ❌ 从上游 SfM 继承（COLMAP 米则米；VGGT 给则非米）|
+| 🔬 NeRF family | render: 0.1-30 FPS / 训练 30 min-hr/scene | ✅ **每场景训** | 1× consumer GPU | ❌ 同上（继承上游 SfM）|
+| 📏 Depth Foundation | per-frame ~50 ms | ❌ 已训好 | Orin Nano | **DA v2: ❌ 相对** / **Metric3D: ✅** / **FoundationStereo: ✅** |
+| 🎯 Pose & Tracking | per-frame ~50-100 ms | ❌ 已训好 | Orin / consumer GPU | ✅（FoundationPose 直接给 6D pose） |
+| 🌐 Semantic 3D | LERF: 训完 ~30 Hz / **OpenScene: 实时 lift** | **LERF: ✅ 每场景训** / **OpenScene: ❌ 不训** | LERF: 1 GPU 5 min/scene / OpenScene: edge OK | 视基底 3D 几何（米则米，相对则相对）|
+| 🧠 VLM Spatial | per-query 500 ms - 数 s | ❌ 已训好 | **A100 或 cloud API**（VLM 大模型）| n/a（语言/文本输出）|
+| 🌍 World Model | per-step 1-数 s | ❌ 已训好（大规模预训）| **A100+** 或 cloud | ❌ |
+| 🎬 Generative 3D Sim | 视方法（per-render varies）| 视方法（Splat-Sim 用现成 3DGS / Aerial Gym 用预训） | consumer GPU | n/a（生成数据，非状态估计）|
+| ⚛️ Physics (PhysGaussian) | per-scene 训 + render | ✅ 每场景训（材料参数手设） | 1× GPU | n/a |
+| 📡 Sensor Physics ★ | n/a（硬件物理）| n/a | n/a | n/a |
+
+&nbsp;
+
+> **读表秘诀**：
+> - **🏃 推理速率** = 你的应用控制环 / 任务每帧能给的预算
+> - **🎓 训练模式** = 上线前是不是要训（"每场景训" = production blocker；"已训好" = 直接用）
+> - **🖥️ 最低部署硬件** = 能不能跑在 Orin Nano (edge) / consumer GPU (workstation) / A100 (cloud)
+> - **📐 米制输出** = 下游能不能拿到米（manipulation grasp / drone control 需要；rendering / visualization 不需要）
+>
+> **常见误用警告**：
+> - 把 3DGS 当 "real-time 3D"（render 是实时，**训练每场景 5-30 min 不是**）
+> - 把 Depth Anything v2 当 "可以拿来 grasp"（**它是相对深度，Metric3D 才给米**）
+> - 把 SpatialVLM 当 "高精度 spatial"（**它给语言答案，不给度量**）
+> - 把 mono Classical SLAM 当 "完整 6DoF"（**mono scale drift；需要 stereo/RGBD/IMU**）
 
 &nbsp;
 
