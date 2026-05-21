@@ -181,7 +181,9 @@ graph TB
 
 **总计：~117 dissections · 27 功能簇 · 9 顶层目录 · 158 md 文件 (含 READMEs)**
 
-**Tier 1 logic 升级完成 (2026-05-22)** — AGENTS.md 5 类型文档分层 + vlm-spatial 1→3 + semantic-3d 2→4 + deployment 3→6 + 之前 multi-round (FF-3D 三件套, sensor-physics 7 桶, spatial-math 9 篇, depth comparison, IMU §6, cross-domain inspirations).
+**Tier 1 logic 升级完成 (2026-05-22)** — AGENTS.md 5 类型文档分层 + vlm-spatial 1→3 + semantic-3d 2→4 + deployment 3→6 + pose-tracking 4→8（vision tracking 全谱）+ 之前 multi-round (FF-3D 三件套, sensor-physics 7 桶, spatial-math 9 篇, depth comparison, IMU §6, cross-domain inspirations).
+
+**GitHub Failure Atlas (新, 2026-05-22)** — 10 个 zone-level `github_failure_atlas.md` 文件，扫 42 tools 的 open issues + PRs，分析 failure cases + project momentum + production guidance。覆盖：FF-3D / 3DGS / NeRF / Depth Foundation / Pose & Tracking / VLM Spatial / Semantic 3D / World Model / Classical SLAM / Aerial VIO 全 10 zones。
 
 ---
 
