@@ -39,13 +39,106 @@ keyframe-and-features 家族的顶点。*为什么室内 RGB-D / manipulation 5 
 
 ORB-SLAM3 之前的系统把 tracking 丢失当 session 结束。Atlas 重构这个语义：*N* 张不相连地图共存；闭环变成*地图合并*。这让 ORB-SLAM3 能部署到仓库巡检 / 多房间 AR。
 
-### 1.3 数据流
+### 1.3 数据流 —— 三线程 + Atlas 一张图
 
 ```
-   Cam + IMU → Tracking →(KFs)→ Local mapping →(KFs+DBoW2)→ Loop & merging → Atlas
-```
+                   ORB-SLAM3 三线程 + Atlas (shared data)
+                                                                            
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │   📷 Camera @ 30 Hz       📐 IMU @ 200 Hz                             │
+  │        │                       │                                      │
+  │        └───────┬───────────────┘                                      │
+  │                ▼                                                      │
+  │   ┌──────────────────────────────────────┐                            │
+  │   │  ① TRACKING  (实时 · ~17 ms/frame)   │                            │
+  │   │  • ORB 提取 (8 层金字塔 · ~1000 pt)  │                            │
+  │   │  • Match against local map           │                            │
+  │   │  • Motion-only BA  (固定地图、只调 T)│                            │
+  │   │  • KF 决策 (是否成为新关键帧)         │                            │
+  │   └──────────────┬───────────────────────┘                            │
+  │                  │ KFs (pose + features)                              │
+  │                  ▼                                                    │
+  │   ┌──────────────────────────────────────┐                            │
+  │   │  ② LOCAL MAPPING  (~5–10 Hz · 异步)  │                            │
+  │   │  • 插入新 KF                          │                            │
+  │   │  • Triangulate 新 map point          │                            │
+  │   │  • Local BA  (~20 covisible KFs 滑窗)│                            │
+  │   │  • Cull 冗余 KF + 漂移 map point      │                            │
+  │   └──────────────┬───────────────────────┘                            │
+  │                  │ KFs + DBoW2 BoW 向量                                │
+  │                  ▼                                                    │
+  │   ┌──────────────────────────────────────┐                            │
+  │   │  ③ LOOP & MERGING  (闭环触发 · 秒级) │                            │
+  │   │  • DBoW2 place recognition           │                            │
+  │   │  • Essential graph + Pose Graph Opt   │                            │
+  │   │  • Full BA  (跨 active map 全图)     │                            │
+  │   │  • Atlas merge  (跨 maps 合并)        │                            │
+  │   └──────────────┬───────────────────────┘                            │
+  │                  │ updates                                             │
+  │                  ▼                                                    │
+  │   ┌──────────────────────────────────────────────────────────────┐   │
+  │   │  📚 ATLAS  (3 线程共享数据)                                    │   │
+  │   │                                                                │   │
+  │   │   ┌────────┐  ┌────────┐  ┌────────┐                          │   │
+  │   │   │ Map A  │  │ Map B  │  │ Map C  │   ...                    │   │
+  │   │   │ active │  │ frozen │  │ frozen │                          │   │
+  │   │   │ KFs +  │  │ KFs +  │  │ KFs +  │                          │   │
+  │   │   │ points │  │ points │  │ points │                          │   │
+  │   │   │ DBoW2  │  │ DBoW2  │  │ DBoW2  │                          │   │
+  │   │   └────────┘  └────────┘  └────────┘                          │   │
+  │   │                                                                │   │
+  │   │   tracking lost ⇒ 新开 Map D；place reco hit ⇒ merge          │   │
+  │   └──────────────────────────────────────────────────────────────┘   │
+  │                                                                       │
+  └──────────────────────────────────────────────────────────────────────┘
 
-ORB 描述子贯穿三个线程 —— tracking 匹配、map-point 表示、DBoW2 向量。这就是为什么"把 ORB 换成 SuperPoint"很难：一种基元，三种独立用法。
+   ORB 描述子 (256-bit binary) 贯穿三线程：tracking 匹配 + map point 表示 + DBoW2 词袋向量
+   ⇒ "把 ORB 换成 SuperPoint" 难的原因：一种原语，三种独立用法。
+
+### 1.3.1 Atlas 救援 —— 从单图 SLAM 到多图 session
+
+```
+   传统 SLAM (ORB-SLAM 1/2 · 单图):
+   ──────────────────────────────────────────────────
+        Session start
+              ●─●─●─●─●─●     Map A
+                       │
+                       ▼  tracking 丢失 (绑架 / 黑屏 / 跑出去)
+                       💥
+                       └─►  SESSION END  (历史丢失)
+
+
+   ORB-SLAM3 with Atlas (多图共存):
+   ──────────────────────────────────────────────────
+        Session start
+              ●─●─●─●─●─●     Map A (active)
+                       │
+                       ▼  tracking 丢失
+                       
+                       🆕  New empty Map B (now active)
+                       │
+                       ●─●─●─●─●─●─●   Map B grows
+                                   │
+                                   ▼  DBoW2 place recognition
+                                   │
+                                   ✓  overlap detected with Map A!
+                                   │
+                                   ▼
+                          ╔═══════════════════╗
+                          ║   MERGE A ∪ B     ║
+                          ║   + full BA on    ║
+                          ║   combined essential║
+                          ║   graph           ║
+                          ╚═════════╤═════════╝
+                                    │
+                                    ▼
+              ●─●─●─●─●─●─●─●─●─●─●─●   Map AB (continued)
+              
+        Session continues, history preserved
+
+   💡 关键洞见：tracking 丢失 = 规划事件，不是 session 结束。
+   这让 ORB-SLAM3 能跑仓库巡检 + 多房间 AR + 长期 mapping 这种长 session 场景。
+```
 
 ---
 
@@ -62,6 +155,55 @@ T*  =  argmin_T   Σᵢ  ρ( ‖ π(T · Xᵢ) − uᵢ ‖_Σ )
 带 IMU 时：`J = J_visual + J_imu_preintegration + J_bias_walk`。manifold 上的 IMU 预积分（Forster 2015）把 IMU 当 "delta-pose factor" —— 这是 VINS / OpenVINS / ORB-SLAM3 共用同一个 factor-graph backend 的原因。
 
 **直觉:** mono 是尺度模糊 → 要 stereo / RGB-D / IMU 才能给出米。IMU 给出短期度量 + roll/pitch；相机修漂移；只有闭环能修长期 yaw / 位置。
+
+### 2.1 同一个公式，三个 BA 尺度
+
+```
+   ┌──────────────────────────────────────────────────────────────┐
+   │                                                              │
+   │   ① Motion-only BA            [Tracking 线程 · 每帧]          │
+   │      ╔══════════╗                                            │
+   │      ║  T_new   ║  ←  只调 1 个位姿 (新帧)                    │
+   │      ╚════╤═════╝                                            │
+   │           │  地图固定                                         │
+   │      ●─●─●─●─●─●  (map frozen)                               │
+   │                                                              │
+   │      ~5 ms/frame · 4 iter LM · 100s of features              │
+   │                                                              │
+   ├──────────────────────────────────────────────────────────────┤
+   │                                                              │
+   │   ② Local BA                 [Local mapping 线程 · 每 KF]    │
+   │                                                              │
+   │      ╔══════════════════════╗                                │
+   │      ║  ~20 covisible KFs   ║  ←  滑窗内全调                  │
+   │      ║    + their points     ║                                │
+   │      ╚════════╤═════════════╝                                │
+   │               │  Schur complement                            │
+   │      ●─●─●─●─[●─●─●─●─●─●]─●─●─●                              │
+   │               └─ window ──┘                                  │
+   │                                                              │
+   │      ~100 ms/KF · 几十 KF · 几千 features                    │
+   │                                                              │
+   ├──────────────────────────────────────────────────────────────┤
+   │                                                              │
+   │   ③ Full BA                  [Loop & merging 线程 · 闭环时]  │
+   │                                                              │
+   │      ╔══════════════════════════════════════════╗            │
+   │      ║      Active map 全部 KFs                  ║            │
+   │      ║      + 全部 map points                     ║            │
+   │      ║      + IMU residuals (如 VI)              ║            │
+   │      ╚════════╤═════════════════════════════════╝            │
+   │               │  Schur + PGO 配合                            │
+   │      ●─●─●─●─●─●─●─●─●─●─●─●─●  (全图 + 闭环约束都跑)         │
+   │                                                              │
+   │      几秒 · 闭环触发 · 1000s of KF, 100k+ points              │
+   │                                                              │
+   └──────────────────────────────────────────────────────────────┘
+
+   📌 同一个 `min Σ ‖u − π(T,X)‖²` 公式，三个时间尺度复用：
+      • 单帧 (实时)  → 滑窗 (异步) → 全图 (闭环)
+   ⇒ Schur complement 数学细节 → `foundations/spatial-math/bundle_adjustment.md`
+```
 
 ---
 
