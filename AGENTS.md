@@ -127,7 +127,7 @@ emoji 前缀，便于 `git log` 区分人工与自动：
 
 ## 内容与格式规范
 
-- **语言**：中英混排。foundations / crossing 优先英文（学术圈通用）；embodiments / deployment 偏中文（实战导向）；wedge / 旗舰文档 v1+ 中英都可，**保持单文档语言一致**
+- **语言**：中英混排。foundations / crossing 优先英文（学术圈通用）；embodiments / deployment 偏中文（实战导向）；wedge / 旗舰文档 v1+ 中英都可，**保持单文档语言一致**。中文 = **简体中文**，不接受繁体（代码 / 模型名 / 公司名 / arXiv ID / 一手 URL 保留英文原样）
 - **文件名**：`snake_case.md`
 - **公式**：theory 类文档**禁用 LaTeX**（GitHub 渲染不稳定）— 用代码块或 Unicode 纯文本
 - **引用**：必须给出来源链接（论文优先 arXiv ID / DOI；代码优先 GitHub / HuggingFace；数据手册可标 `UNVERIFIED, no DOI`）
@@ -135,45 +135,151 @@ emoji 前缀，便于 `git log` 区分人工与自动：
 
 ---
 
-## Wedge 文档写作模板（foundations / crossing / bridge-to-vla 通用）
+## Dissection 写作模板（foundations / embodiments / crossing / bridge-to-vla 深度文档通用）
 
-参考已落地 v1 范式 `crossing/slam-vio-migration/vggt_vs_drone_vio.md`：
+> 对齐 VLA-Handbook `theory/pi0_5_dissection.md` 范式。目标：把一篇文章写成 **"可面试复述、可工程落地、可快速定位"** 的结构化笔记，不是流水摘要。Spatial 这边的旗舰参考是 `crossing/slam-vio-migration/vggt_vs_drone_vio.md`。
 
-### 1) 文档头（必须）
+### 1) 开头固定结构（必须）
 
 ```
-# 标题（中文 或 English Title）
+# 中文标题 (English Title)
 
-**Status:** v0.1 / v1 — opinionated draft. Hyperparam / spec claims marked UNVERIFIED.
-**Wedge tier:** W1 / W2 / W3（W1 = 启动 5 篇之一；W2 = 次轮）
-**TL;DR:** 一句话写清这篇文档的非显然结论。
+> **发布时间**：YYYY-MM-DD（或论文年份 / 版本）
+> **论文 / 模型 / 项目名**：原始拼写保留英文
+> **核心定位**：一句话回答"它解决什么痛点 / 比谁强什么"
 
+1-2 句导语：先写痛点与结论（避免铺垫太长）。
+```
+
+紧接导语，**X-Ray 开场**（必须，2-3 句，非专家友好）— 回答：
+1. 这篇 / 这个工具解决什么问题？
+2. 发现了什么 / 提出了什么？
+3. 对 spatial / 具身 AI 研究者意味着什么？
+标准：任何聪明的非专家读完能复述核心。
+
+### 2) 推荐章节骨架（按需删减，保持顺序与命名风格）
+
+**📍 研究全景时间线**（X-Ray，放在 §1 之前）：用 ASCII 时间轴标出本文在研究演进中的位置，标注关键节点与本文局限。
+
+```
+## 1 · 核心架构 / 方法总览 (Overview / Architecture)
+### 1.1 系统对比概览 (System Component Comparison) — 表格：模块 / 输入输出 / 频率 / 训练-推理差异
+### 1.2 关键机制 (Key Mechanism) — 要点解释"为什么这样设计"；明确标 ⚡ Eureka Moment：THE 关键洞见一句话
+### 1.3 信息流 / 架构图 (Flow / Diagram) — ASCII 图 / 流程图代码块
+
+## 2 · 数学核心：X 如何实现 Y (Math Core)
+- 📌 **Napkin Formula** (X-Ray)：展开前先用一行公式 / 直觉句子捕捉本质
+- 目标 → 公式 → 变量说明（列表 / 小表格） → 直觉
+- 符号多时加 `> 符号与 X 论文 / 相关文档保持一致：...`
+
+## 3 · 带数字走一遍：玩具例子 (Worked Example)
+- 用 2D / 低维例子把损失、推理 / 采样或更新过程走一遍
+
+## 4 · 工程视角：快慢路径 / 训练-推理折中 (Engineering View)
+- 吞吐 / 延迟 / 步数 / 抖动 / 量化误差 / 内存 trade-off
+- 把公式落到控制频率、模块边界、部署约束
+
+## 5 · 数据与评测 (Data & Eval)
+- 数据组成 / 配比 / 标注类型 / 评测任务设置；避免只给结论不讲条件
+
+## 6 · 能力与失败模式 (Capabilities & Failure Modes)
+- "能做什么 / 不能做什么"讲具体（场景 + 原因）
+- **必须有子节**：隐含假设 (Hidden Assumptions) — 哪些假设不成立时方法就破
+
+## 7 · 与相关工作对比 (Comparison)
+- 表格对比同系列 / 基线：关注点 / 架构 / 训练方式 / 适用场景
+- 结尾放 **1 条面试 Tip**：一句话告诉读者被问到时怎么答
+```
+
+**文章末尾统一**：
+```
 ---
+[← Back to <module> README](./README.md)
 ```
 
-### 2) 推荐骨架（按需删减，但保持顺序）
+### 3) 表达与排版习惯（建议遵守）
 
-- `## 1 · Setup / Why this question is interesting` — 痛点 + 跨 embodiment 角度
-- `## 2 · Architecture / Mechanism` — 表格 + ASCII 图首选
-- `## 3 · The gap matrix / The comparison table` — **crossing 文档必须有**
-- `## 4 · Where it breaks` — 失败模式 + 具体场景
-- `## 5 · Hybrid / Deployment patterns` — 工程可落地的方案
-- `## 6 · 2-year outlook + falsifiable prediction` — **wedge 类必须有**至少 1 条可证伪预测
-- `## For the reader` — per-persona takeaways（manipulation engineer / aerial engineer / 等）
-- `## References` — 真实论文 + arXiv ID / 一手 URL
-- `## Boundary` — 与其他 handbook 文档的分工
+- **表格优先**：遇到"对比 / 模块职责 / 优缺点 / 超参"先用表格
+- **分层标题**：用 `##/###` 组织，避免大段无小标题正文
+- **术语一致**：同一概念中英文 / 缩写文内保持一致，首次出现给全称
+- **避免重复**：导语 / X-Ray 写过的结论，正文不要同句式复述；正文要新增信息（机制 / 变量 / 边界 / 数字 / 失败模式）
+- **引用就近但不过载**：关键结论附近放来源链接；同节反复引用同一来源可在节末用 `来源：...` 集中列出
+- **不确定就标注**：`TODO / 待证 / UNVERIFIED / 待补 citation` 明示，不编造指标
 
-### 3) 质量门槛
+### 4) 最小质量门槛（dissection 输出检查清单）
 
+- [ ] 开头有元信息块（发布时间 / 定位 / 一句话 takeaway）
+- [ ] **X-Ray 开场**（2-3 句，非专家读完能复述核心）
+- [ ] **研究全景时间线**（ASCII，标出本文在演进中的位置）
+- [ ] 至少 1 张架构 / 信息流图（ASCII 也算）
+- [ ] 至少 1 个"系统对比 / 组件对比"表格
+- [ ] **§1.2 明确标注 ⚡ Eureka Moment**（一句话）
+- [ ] **§2 有 Napkin Formula**（一行抓住本质）
+- [ ] "数学核心"包含：目标 → 公式 → 变量解释 → 直觉
+- [ ] 至少 1 个玩具例子 / 具体数值推导（可很小）
+- [ ] 工程视角（延迟 / 步数 / 抖动 / 部署约束）
+- [ ] **§6 有隐含假设子节** (Hidden Assumptions)
+- [ ] 与基线 / 同系列对比 + **1 条面试 Tip**
+- [ ] 文末有返回索引链接 + 关键引用链接
 - [ ] Status 行声明版本 + UNVERIFIED 政策
-- [ ] TL;DR 在第 1 屏内可读完
-- [ ] 至少 1 张架构 / 信息流图（ASCII 即可）
-- [ ] 至少 1 张对比表格
-- [ ] crossing 文档至少跨 3 embodiment
-- [ ] 至少 1 个具体数字（UNVERIFIED 也算）
-- [ ] 至少 1 条可证伪预测（wedge 类）
-- [ ] References 含真实 arXiv ID / DOI / 一手 URL
-- [ ] Boundary 段说明本文档与其他文档的分工
+
+### 5) Wedge / Crossing 文档额外要求
+
+`crossing/` 与旗舰 wedge（W1 / W2 标记）在上面 14 项之上**额外要求**：
+
+- [ ] **跨 ≥3 embodiment** 对比 — 不只 manipulation vs driving
+- [ ] **至少 1 个 SWaP-C / 延迟 / 范围数字**（UNVERIFIED 也算）
+- [ ] **falsifiable 2-year prediction** — 哪个日期、哪个具体事件可证伪本文判断
+- [ ] **`## Boundary` 段** — 指明 per-method 拆解去 `foundations/`、per-embodiment 实战去 `embodiments/`
+- [ ] **`## For the reader` per-persona 收尾** — manipulation / aerial / AD / marine engineer 分别一句
+
+### 6) code-notes 轻量模板（半自动代码级分析速记）
+
+未来 `embodiments/<x>/code-notes/` 或 `foundations/*/code-notes/` 收纳代码级速记，深度低于主目录 dissection：
+
+```
+# {项目名} — 代码级分析
+
+元信息：repo URL · 对应论文 · 团队 · 环境需求 · 复现难度 🟢🟡🔴
+
+## 架构概览
+一段话 + 可选 ASCII 图
+
+## 论文未提及的工程细节
+逐条列出（这是最核心的部分）
+
+## 与已知方法的对比
+可选，如有已分析的相关项目
+
+## 启发与可借鉴之处
+1-3 句
+
+[← Back to Code Notes Index](./README.md) · [← Back to <module>](../README.md)
+```
+
+**与主目录 dissection 的区别**：
+
+- **不要求**：数学推导、玩具例子、面试 Tip、X-Ray、Napkin Formula、Eureka Moment
+- **必须有**：repo 链接、工程细节、复现难度判断
+- 如某 code-note 值得升级为完整 dissection，移入主目录并补齐 14 项质量门槛
+
+### 7) 旧 wedge 版本回填政策
+
+2026-05-21 之前落地的 v1 wedge / dissection 可能未完全满足上述 14 项门槛（特别是 X-Ray、研究全景时间线、Eureka Moment、Napkin Formula、Hidden Assumptions、面试 Tip）。
+
+- v1 → v1.1 回填：人工编辑时**应当**补齐缺失项目
+- Moltbot 不允许自动改写既有 v1 内容（按权限矩阵）— 只能在 commit message 提示"v1 不全门槛 X，建议补"
+- 新 dissection（v1 首版）**必须**满足全部 14 项
+
+### 8) 旗舰参考
+
+写新 dissection 前**必读**：
+
+- `crossing/slam-vio-migration/vggt_vs_drone_vio.md` — Spatial 这边的旗舰范式（跨 embodiment + falsifiable prediction）
+- `foundations/feed-forward-3d/vggt_cvpr2025_dissection.md` — 单一工具 dissection 模板
+- VLA-Handbook 上游 `theory/pi0_5_dissection.md` — 教科书级模板（本仓 dissection 模板的来源）
+
+对照参考能直接复用结构而不每次造轮子。
 
 ---
 
