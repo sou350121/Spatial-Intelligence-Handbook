@@ -29,7 +29,8 @@
 
 | File | 一句话 | 依赖前置 |
 |---|---|---|
-| [`se3_so3_lie_groups_primer.md`](./se3_so3_lie_groups_primer.md) ★ | SO(3) / SE(3) / 李代数 exp-log map —— *所有*后续内容的前提 | 无 |
+| [`rotation_intuition_primer.md`](./rotation_intuition_primer.md) 🆕 **前置教学** | 从手机翻转 → 2D 旋转 → Euler / 旋转矩阵 / 轴-角 / 四元数 → 为什么需要李群 — 完全 0 SLAM 背景能读 | 高中线性代数 |
+| [`se3_so3_lie_groups_primer.md`](./se3_so3_lie_groups_primer.md) ★ | SO(3) / SE(3) / 李代数 exp-log map —— *所有*后续内容的前提 | 上一篇 rotation 直觉 |
 | [`quaternions_and_rotations.md`](./quaternions_and_rotations.md) | quaternion vs rotation matrix vs Euler —— Hamilton vs JPL 约定战争 | SO(3) primer |
 | [`bundle_adjustment.md`](./bundle_adjustment.md) ★ | 每个 SLAM 背后的数学 —— cost、Jacobian 稀疏性、Schur complement、LM | SO(3) + quaternions |
 | [`pose_graph_optimization.md`](./pose_graph_optimization.md) | 后 BA 阶段的闭环 —— g2o / GTSAM / Ceres 生态 | BA + 李群 |
@@ -45,7 +46,8 @@
 
 | 角色 | 入口 |
 |---|---|
-| 🆕 SLAM 新手，想要一篇 primer | → `se3_so3_lie_groups_primer.md`（一切都堆在这上面） |
+| 🆕 SLAM 新手，**完全 0 数学基础** | → `rotation_intuition_primer.md`（手机翻转开始，30 分钟读完） |
+| 🆕 SLAM 新手，已会高中线代 | → `se3_so3_lie_groups_primer.md`（一切都堆在这上面） |
 | 🤖 在读 ORB-SLAM3 / colmap 源码 | → `bundle_adjustment.md` + `pose_graph_optimization.md` |
 | 🌬️ 在读 OpenVINS / VINS-Mono 源码 | → `bayesian_filtering_ekf_msckf.md` + `imu_preintegration_math.md` |
 | 🎓 从 VGGT / feed-forward 3D 那边过来 | → 先看 `bundle_adjustment.md`，理解 VGGT 替换掉了什么 |
