@@ -31,23 +31,65 @@
 
 ## 🔍 一眼看清 13 区特性
 
-> *按 "做什么 / 输入输出 / 主要限制 / 何时选" 横向对比 — 找到自己要的那一行直接跳转。*
+> *分 3 张窄表 — GitHub 渲染友好。先看你想要的"上游 → 输出 → 下游"链；再查特性；最后看决策。*
 
-| 区 | 主要工具 | 输入 → 输出 | 实时性 | Metric? | 训练成本 | **关键限制** ⚠️ | **何时选** ✅ |
-|---|---|---|:---:|:---:|---|---|---|
-| 🧮 [Math](spatial-math/) | SE(3) / BA / EKF / IMU preint | n/a (数学 toolkit) | — | — | — | 不是 dissection 工具 | 想吃透 SLAM / VIO 数学 |
-| 🗺️ [Classical SLAM](classical-slam/) | ORB-SLAM3 / DSO / LSD | RGB(+RGBD/stereo/IMU) → 6DoF pose + 稀疏 map | **30 Hz** ✅ | ✅ (with stereo/IMU) | 无 | 静态场景假设 / 白墙坍塌 / 动态物体污染 / 200 Hz aerial 不够快 | **室内 manipulation / RGBD / AR 多 session** |
-| 🔮 [Feed-Forward 3D](feed-forward-3d/) | VGGT / DUSt3R / MASt3R | N-view RGB → poses + depth + pointmaps + tracks | ~5 Hz (Orin distill ~10) | ❌ **un-metric** | 已训好（前向）| 200+ ms 延迟 / un-metric / N ≤ 30 / 边缘内存紧 | **离线 / 慢速 / 桌面环境替代 SfM** |
-| 💎 [3DGS family](3dgs-family/) | 3DGS / 4DGS / GS-SLAM / Mip-Splat | N-view + 相机姿态 → radiance field | per-scene 5–30 min 训 | ❌ | 每场景训 | 1-2 GB/场景存储 / loop closure 难（gaussians 不易重排）| **高保真渲染 / sim 数据 / 可检视的 3D primitive** |
-| 🔬 [NeRF family](nerf-family/) | NeRF / Instant-NGP / Mip-360 / Block-NeRF | N-view + 相机姿态 → radiance field | per-scene 30 min–hours | ❌ | 每场景训 | 训练慢 / 推理慢 / 但 quality 仍领先 ~1 dB | **离线高质量 / city-scale (Block-NeRF) / surface 重建** |
-| 📏 [Depth Foundation](depth-foundation/) | Depth Anything v2 / Metric3D / MoGe / FoundationStereo | 单 RGB → per-pixel depth | per-frame ~50 ms | DA: ❌ **相对** / Metric3D: ✅ | 已训好 | **"相对 vs 米制陷阱"** / >30m unbounded 崩 / 透明 / 镜面失败 | **任何要 depth 的下游 (manipulation / drone)** |
-| 🎯 [Pose & Tracking](pose-tracking/) | FoundationPose / MegaPose / RAFT / CoTracker | RGB + (可选 mesh) → 6D 物体 pose / 像素 tracks | per-frame ~50–100 ms | ✅ | 已训好 | 透明 / 镜面 / 极小物体 / OOD 物体 | **manipulation grasp / 多帧追踪 / arm robot** |
-| 🌐 [Semantic 3D](semantic-3d/) | LERF / OpenScene | 3D 表示 + 2D 特征 (CLIP/SAM) → 语义 3D field | LERF: 5 min 训 / OpenScene: 实时 | 视基底 | LERF 训 / OpenScene 不训 | LERF 每场景训 / 开集 query 有上限 / 几何精度受 lift 限 | **语言-条件 grasp / 房间级查询 / open-vocab seg** |
-| 🧠 [VLM Spatial Reasoning](vlm-spatial-reasoning/) | SpatialVLM / SpatialBot | RGB + 语言 query → 文本 / 边界框 | per-query 500 ms–数 s | n/a (高层) | 已训好 | **精确距离差** / occlusion 失败 / 慢 | **高层 spatial 问答 / planning prompts** |
-| 🌍 [World Model](world-model/) (decision-useful only) | Cosmos / Genie / Marble | RGB + action → predicted video / state | per-step 1–数 s | ❌ | 已训好 | **70% hype 被 PRD 打 ❌** / 仅 data factory 或 short-horizon planner | **sim2real 数据生成 / VLA 训练数据** |
-| 🎬 [Generative 3D Sim](generative-3d-sim/) | Splat-Sim / Aerial Gym / Mitsuba / nvdiffrast | 现有 scene / mesh → 渲染数据 | per-render（视方法） | n/a | 视方法 | 接触动力学要交给 Isaac / 真实 robot；只搞视觉 | **sim2real 视觉端 augmentation** |
-| ⚛️ [Physics](physics/) | PhysGaussian | 3DGS + material 参数 → 物理感知渲染 | per-scene | n/a | 训 | **仅 soft-body**，rigid contact 不行；material 参数手设 | **软体仿真视觉端** |
-| 📡 [Sensor Physics](sensor-physics/) ★ | NIR 850 / ToF / LiDAR 905-vs-1550 / IMU / Event / Radar / Stereo / Polarization / Allan variance | n/a (硬件物理) | — | — | — | **学界综述不写的硬约束** | **选 sensor / BoM 前必看 / 调试 sensor 失效** |
+### 表 1 · 上游 → 输出 → 下游消费
+
+| 区 | **🔼 上游 (input)** | **📦 输出 (output)** | **🔽 下游 (consumer)** |
+|---|---|---|---|
+| 🧮 [Math](spatial-math/) | （n/a — 数学 primitives） | 公式 / 算法 toolkit | 所有 SLAM / VIO / BA / 3D 系统都引用 |
+| 🗺️ [Classical SLAM](classical-slam/) | 视频流 + IMU 流（在线） | **6DoF pose 轨迹 + 稀疏 map** | controller / motion planner / autonomy stack |
+| 🔮 [Feed-Forward 3D](feed-forward-3d/) | N 张 RGB（batch） | poses + dense depth + pointmaps + 2D tracks | 3DGS / NeRF init / SfM 替代 / manipulation 感知 |
+| 💎 [3DGS family](3dgs-family/) | **N RGB + 相机姿态**（COLMAP / VGGT 给）| 显式 radiance field（gaussian set，可编辑）| NVS 渲染 / sim2real 数据 / 3D 可视化 |
+| 🔬 [NeRF family](nerf-family/) | **N RGB + 相机姿态**（同 3DGS）| 隐式 radiance field（MLP / hash grid）| 同 3DGS，但更高质量更慢 |
+| 📏 [Depth Foundation](depth-foundation/) | 单 RGB（DA v2 / Metric3D / MoGe）or stereo pair（FoundationStereo）| per-pixel depth map（**DA 相对 / Metric3D 米制**）| 点云 lift / 障碍物 / VLA 输入 |
+| 🎯 [Pose & Tracking](pose-tracking/) | RGB + 已知 mesh（FoundationPose）/ 视频流（RAFT, CoTracker）| **6D 物体 pose / 像素轨迹** | manipulation grasp / 多帧融合 / motion compensation |
+| 🌐 [Semantic 3D](semantic-3d/) | 3D 表示（点 / NeRF / 3DGS）+ 2D 特征（CLIP / SAM）| 语义 3D field（查询接口）| 语言-条件 manipulation / open-vocab seg / VLA prompt |
+| 🧠 [VLM Spatial](vlm-spatial-reasoning/) | RGB + 自然语言 query | 文本答案 / bounding box | 高层 planning prompt / 自然语言 grasp |
+| 🌍 [World Model](world-model/) | RGB + action sequence | predicted future video / state | sim2real 数据 / VLA 训练数据 / short-horizon planner |
+| 🎬 [Generative 3D Sim](generative-3d-sim/) | 真实 scene 重建（3DGS / NeRF）or mesh | 渲染 dataset / sim2real 视觉端 | policy training（manipulation / aerial）|
+| ⚛️ [Physics](physics/) | 3DGS + material 参数 | physics-aware 渲染（soft-body 重点）| 软体仿真视觉增强 |
+| 📡 [Sensor Physics ★](sensor-physics/) | （n/a — 硬件物理） | sensor 选型论证 / 物理硬约束 | BoM 决策 / 标定 / 失败诊断 |
+
+&nbsp;
+
+### 表 2 · 运行特性（实时性 / 米制 / 训练）
+
+| 区 | **实时性** | **Metric?** | **训练成本** |
+|---|---|:---:|---|
+| 🧮 Math | — | — | — |
+| 🗺️ Classical SLAM | **30 Hz** ✅（aerial 不够）| ✅ with stereo/IMU | 无 |
+| 🔮 Feed-Forward 3D | ~5 Hz（Orin distill ~10）| ❌ un-metric | 已训好（前向）|
+| 💎 3DGS family | per-scene 训 5–30 min | ❌ | **每场景训** |
+| 🔬 NeRF family | per-scene 训 30 min–hours | ❌ | **每场景训** |
+| 📏 Depth Foundation | per-frame ~50 ms | DA ❌ / Metric3D ✅ | 已训好 |
+| 🎯 Pose & Tracking | per-frame ~50–100 ms | ✅ | 已训好 |
+| 🌐 Semantic 3D | LERF: 5 min 训 / OpenScene: 实时 | 视基底 | LERF 训 / OpenScene 不训 |
+| 🧠 VLM Spatial | per-query 500 ms–数 s | n/a（高层）| 已训好 |
+| 🌍 World Model | per-step 1–数 s | ❌ | 已训好 |
+| 🎬 Generative 3D Sim | per-render | n/a | 视方法 |
+| ⚛️ Physics | per-scene 训 | n/a | 训 |
+| 📡 Sensor Physics ★ | — | — | — |
+
+&nbsp;
+
+### 表 3 · 决定性因素（关键限制 / 何时选）
+
+| 区 | ⚠️ **关键限制（接受才能用）** | ✅ **何时选（决定性场景）** |
+|---|---|---|
+| 🧮 Math | 不是 dissection 工具 | 想吃透 SLAM / VIO 数学 |
+| 🗺️ Classical SLAM | 静态场景假设 / 白墙坍塌 / 200 Hz aerial 不够快 | 室内 manipulation / RGBD / AR 多 session |
+| 🔮 Feed-Forward 3D | 200+ ms 延迟 / un-metric / N ≤ 30 / 边缘内存紧 | 离线 / 慢速 / 桌面环境替代 SfM |
+| 💎 3DGS family | 1-2 GB/场景存储 / loop closure 难 | 高保真渲染 / sim 数据 / 可检视 3D primitive |
+| 🔬 NeRF family | 训练慢 / 推理慢 / 但 quality 仍领先 ~1 dB | 离线高质量 / city-scale (Block-NeRF) / surface 重建 |
+| 📏 Depth Foundation | **"相对 vs 米制"陷阱** / >30m 崩 / 透明镜面失败 | 任何要 depth 的下游 (manipulation / drone) |
+| 🎯 Pose & Tracking | 透明 / 镜面 / 极小物体 / OOD 物体 | manipulation grasp / 多帧追踪 |
+| 🌐 Semantic 3D | LERF 每场景训 / 开集 query 有上限 | 语言-条件 grasp / 房间级查询 |
+| 🧠 VLM Spatial | **精确距离差** / occlusion 失败 / 慢 | 高层 spatial 问答 / planning prompt |
+| 🌍 World Model | **70% hype 被 PRD 打 ❌** / 仅 data factory 或 short-horizon | sim2real 数据 / VLA 训练 |
+| 🎬 Generative 3D Sim | 接触动力学交给 Isaac / 只搞视觉 | sim2real 视觉端 augmentation |
+| ⚛️ Physics | **仅 soft-body**，rigid contact 不行 | 软体仿真视觉端 |
+| 📡 Sensor Physics ★ | **学界综述不写的硬约束** | 选 sensor / BoM 前必看 |
 
 &nbsp;
 

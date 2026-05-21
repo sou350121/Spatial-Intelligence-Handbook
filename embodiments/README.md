@@ -29,16 +29,57 @@
 
 ## 🔍 一眼看清 6 大 embodiment 特性
 
-> *按 "尺度 / 频率 / sensor / 关键限制 / 何时选" 横向对比 — 找到自己要的那一行直接跳转。*
+> *分 4 张窄表 — GitHub 渲染友好。看物理约束、上下游、sensor stack、决策。*
 
-| Embodiment | **尺度** | **控制频率** | **延迟预算** | 主要 spatial 任务 | 主要 sensor stack | SWaP-C 约束 | Metric? | **关键限制** ⚠️ | **何时选** ✅ |
-|---|:---:|:---:|:---:|---|---|---|:---:|---|---|
-| ✋ [Manipulation](manipulation/) | **1cm–1m** workspace | 30 Hz OK | 100 ms | object pose / grasp / contact-rich | wrist RGBD (D435) + IMU 可选 | cost-per-cell (~5% of $25-50k 臂) | ✅ 必需 | 透明 / 镜面 / 动态物体 / 杂乱场景 | 工厂 / 实验室 / 桌面任务 |
-| 🦿 [Humanoid / 足式](humanoid-legged/) | **1–3m** 全身 | 50–200 Hz | 5–50 ms | 全身姿态 + locomotion + 头部 gaze | head stereo + foot contact + multi-IMU | head weight + thermal (3-8%) | ✅ | 全身 IMU 累计漂移 / 动态平衡 / 跌倒 / 软组织撞击 | Unitree H1 / Figure 02 / 1X 风格 |
-| 🛒 [Ground Mobile (AGV)](ground-mobile/) | **1–50m** 室内 | 10–30 Hz | 50–100 ms | 室内 SLAM + obstacle avoid + VLN | 2D LiDAR + wheel odom + IMU + cam | cost + cert (10–20% of $5–30k) | ✅ | 仓库人多 / 玻璃门 / 不平地面 / GPS 不可用 | 仓储 / 室内服务 / 餐饮 / VLN agent |
-| 🚗 [Driving (AD)](driving/) | **5–200m** | 100 Hz | 10 ms | BEV / 占用网络 / lane / 物体 / 行为 | 多目 + 雷达 + (LiDAR 视厂家) | range + 集成 miles ($50k+ on $80k 车) | ✅ | 极端天气 / reflective road / 远距离感知 / 法规 / 集成测试 | 量产 AD / robotaxi / ADAS |
-| 🚁 [Aerial (Drone)](aerial/) ★ | **5–500m** 户外 | **200 Hz** ‼️ | **5 ms** ‼️ | VIO + 避障 + active tracking + on-board mapping | mono cam + IMU (+stereo if >800g) | **weight + power** (20–40% by weight) | ✅ (无 fallback) | **桨叶振动** / 风 / 电池续航 / sub-10 ms 强约束 | UZH 赛车 / Skydio 巡检 / DJI / Autel |
-| 🌊 [Marine (AUV/USV)](marine/) | **0.5–30m** visibility | 5 Hz | 200 ms | sonar-primary SLAM + DVL 死推 | DVL + multibeam sonar + FOG IMU (+ cam < 5m) | pressure + acoustic (30–50% of $50k–1M) | ✅ (DVL gives) | **视觉退化** / GPS 不可用 / 压力 / 声学多径 | 水下勘探 / 管线巡检 / 视觉-only 上限的 contrasting case |
+### 表 1 · 物理约束（尺度 / 频率 / latency / Metric）
+
+| Embodiment | **尺度** | **控制频率** | **延迟预算** | **Metric 需求** |
+|---|:---:|:---:|:---:|:---:|
+| ✋ [Manipulation](manipulation/) | 1cm–1m workspace | 30 Hz OK | 100 ms | ✅ 必需 |
+| 🦿 [Humanoid](humanoid-legged/) | 1–3m 全身 | 50–200 Hz | 5–50 ms | ✅ |
+| 🛒 [Ground Mobile](ground-mobile/) | 1–50m 室内 | 10–30 Hz | 50–100 ms | ✅ |
+| 🚗 [Driving](driving/) | 5–200m | 100 Hz | 10 ms | ✅ |
+| 🚁 [Aerial](aerial/) ★ | 5–500m 户外 | **200 Hz** ‼️ | **5 ms** ‼️ | ✅（无 fallback）|
+| 🌊 [Marine](marine/) | 0.5–30m visibility | 5 Hz | 200 ms | ✅（DVL 给）|
+
+&nbsp;
+
+### 表 2 · 上游 → 主要任务 → 下游消费
+
+| Embodiment | **🔼 上游 (input sensor)** | **🎯 主要 spatial 任务** | **🔽 下游 (consumer)** |
+|---|---|---|---|
+| ✋ Manipulation | wrist RGBD (D435) + arm encoders + IMU 可选 | object 6D pose / grasp planning / contact-rich | VLA policy（policy 在 [VLA-Handbook](https://github.com/sou350121/VLA-Handbook)）|
+| 🦿 Humanoid | head stereo + foot contact + multi-IMU 网 | 全身姿态 + locomotion + head gaze 双目标 | whole-body controller + reaching policy |
+| 🛒 Ground Mobile | 2D LiDAR + wheel odom + IMU + cam | 室内 SLAM + obstacle avoid + VLN | path planner + navigation policy |
+| 🚗 Driving | 多目 RGB + radar + (LiDAR 视厂家) + IMU + GNSS | BEV / 占用网络 / lane / 物体检测 | downstream perception → planner → controller |
+| 🚁 Aerial ★ | mono cam + IMU + (stereo if >800g) + 可选 GNSS | VIO + 避障 + active tracking + on-board mapping | 200 Hz autopilot 内控环 |
+| 🌊 Marine | DVL + multibeam sonar + FOG IMU + (cam < 5m visibility) | sonar-primary SLAM + DVL 死推 + 视觉辅助 | mission planner + 水下导航 |
+
+&nbsp;
+
+### 表 3 · SWaP-C 绑定（什么是 BoM 杀手）
+
+| Embodiment | **SWaP-C 主导约束** | **典型 BoM 占比** |
+|---|---|---|
+| ✋ Manipulation | cost-per-cell | ~5% of $25-50k 臂 |
+| 🦿 Humanoid | head weight + thermal | 3–8% of 全机 |
+| 🛒 Ground Mobile | cost + 认证 | 10–20% of $5–30k AGV |
+| 🚗 Driving | range + 集成 miles | $50k+ on $80k 车（LiDAR 一项占一半）|
+| 🚁 Aerial ★ | **weight + power** | **20–40% by weight**（最严苛）|
+| 🌊 Marine | pressure + acoustic | 30–50% of $50k–1M AUV |
+
+&nbsp;
+
+### 表 4 · 决定性因素（关键限制 / 何时选）
+
+| Embodiment | ⚠️ **关键限制（接受才能用）** | ✅ **何时选（决定性场景）** |
+|---|---|---|
+| ✋ Manipulation | 透明 / 镜面 / 动态物体 / 杂乱场景 | 工厂 / 实验室 / 桌面任务 |
+| 🦿 Humanoid | 全身 IMU 漂移 / 动态平衡 / 跌倒 / 软组织撞击 | Unitree H1 / Figure 02 / 1X 风格 |
+| 🛒 Ground Mobile | 仓库人多 / 玻璃门 / 不平地面 / GPS 不可用 | 仓储 / 室内服务 / 餐饮 / VLN |
+| 🚗 Driving | 极端天气 / reflective road / 远距离 / 法规 / miles | 量产 AD / robotaxi / ADAS |
+| 🚁 Aerial ★ | **桨叶振动** / 风 / 电池 / sub-10 ms 强约束 | UZH 赛车 / Skydio 巡检 / DJI / Autel |
+| 🌊 Marine | **视觉退化** / GPS 不可用 / 压力 / 声学多径 | 水下勘探 / 管线巡检 / contrasting case |
 
 &nbsp;
 
