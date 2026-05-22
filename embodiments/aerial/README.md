@@ -71,7 +71,21 @@
 
 ---
 
-## 5 · 与 `crossing/` 的边界
+## 5 · 教学基础 (Tutorial layer · HKUST ELEC5660 取材)
+
+aerial zone 既有 dissection 偏「现代开源库拆解」，**缺基础教材层**。以下 3 篇取材自 HKUST ELEC5660 *Introduction to Aerial Robotics* (Spring 2026, 沈劭劼主讲, BSD 3-Clause), 补齐基础到端到端 stack 的完整教学路径：
+
+| 文件 | 类型 | 涵盖 |
+|---|---|---|
+| [`dynamics_and_control_primer.md`](./dynamics_and_control_primer.md) **★ NEW** | primer | quadrotor 6-DoF EOM + ZXY Euler + quaternion-EOM normalization 技巧 + cascade PID + 各 frame 配置（hexa/octo/tilt-rotor）|
+| [`planning/min_snap_dissection.md`](./planning/min_snap_dissection.md) **★ NEW** | dissection (14 项) | differential flatness + 8 阶 polynomial + KKT closed-form QP + time allocation 策略 + min-snap vs MINCO/MPC/iLQR 对比 |
+| [`vio/ekf_from_scratch_dissection.md`](./vio/ekf_from_scratch_dissection.md) **★ NEW** | dissection (14 项) | 15-state EKF + 21-state augmented EKF 从零手写（与 OpenVINS / VINS-Fusion dissection 互补：他们拆库，本文教写）|
+
+**推荐阅读路径**：dynamics primer → min-snap dissection → vio/ekf from-scratch → vio/ 三栈 dissection（VINS-Fusion / OpenVINS / DROID-SLAM）→ 应用栈（active-tracking / obstacle-avoidance / on-board-mapping）。
+
+---
+
+## 6 · 与 `crossing/` 的边界
 
 铁律：**任何会被独立 embodiment 综述写出的内容，归本目录；只要话题在 ≥2 个实体上有可比答案，归 `crossing/`。**
 

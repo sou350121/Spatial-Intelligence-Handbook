@@ -27,6 +27,10 @@ This is why aerial state estimation gets its own folder rather than being absorb
 
 Each gets its own dissection because the failure modes are non-overlapping — pick by your CPU / GPU budget, your vibration profile, and how much loop-closure / relocalization tolerance you need.
 
+## 教学基础 (Tutorial layer · 配合上述三栈使用)
+
+- **[`ekf_from_scratch_dissection.md`](./ekf_from_scratch_dissection.md)** ⚡ NEW — 15-state EKF + 21-state augmented EKF 从零手写教程（取材 HKUST ELEC5660 L8-L9 + proj3, BSD 3-Clause）。**与上述三栈互补 — 它们是「拆库」，本文是「从零写自己的 estimator」**。读完你能：(a) 上 Jacobian / 协方差传播自己 onboard 的 sensor 组合；(b) 看懂 OpenVINS / VINS-Fusion 内部 trade-off 来自哪。
+
 > **2026-05 默认推 OpenVINS**（VINS-Fusion [#3](https://github.com/HKUST-Aerial-Robotics/VINS-Fusion/issues/3) global-optimization 自 2019 long-open、VINS-Mono 已 stale 无 ROS 2 port）。OpenVINS 是 aerial VIO 区**唯一仍正常维护的官方 repo**（2025-11 仍 push，issue 回复活跃）。详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
 
 ## Cross-references
