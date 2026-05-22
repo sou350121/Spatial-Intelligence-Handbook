@@ -80,6 +80,7 @@ aerial zone 既有 dissection 偏「现代开源库拆解」，**缺基础教材
 | [`dynamics_and_control_primer.md`](./dynamics_and_control_primer.md) **★ NEW** | primer | quadrotor 6-DoF EOM + ZXY Euler + quaternion-EOM normalization 技巧 + cascade PID + 各 frame 配置（hexa/octo/tilt-rotor）|
 | [`planning/min_snap_dissection.md`](./planning/min_snap_dissection.md) **★ NEW** | dissection (14 项) | differential flatness + 8 阶 polynomial + KKT closed-form QP + time allocation 策略 + min-snap vs MINCO/MPC/iLQR 对比 |
 | [`vio/ekf_from_scratch_dissection.md`](./vio/ekf_from_scratch_dissection.md) **★ NEW** | dissection (14 项) | 15-state EKF + 21-state augmented EKF 从零手写（与 OpenVINS / VINS-Fusion dissection 互补：他们拆库，本文教写）|
+| [`real_flight_production_gotchas.md`](./real_flight_production_gotchas.md) **★ NEW (16.6 KB)** | roadmap / runbook | 真机第一次飞起来踩什么坑：组装 / PX4 ESC / OptiTrack 三层 frame 转换 / IMU 抗桨噪 / time-sync / failsafe / sim2real gap — 取材 HKUST lab1/2/3 PDF + uav_ws/px4ctrl |
 
 **推荐阅读路径**：dynamics primer → min-snap dissection → vio/ekf from-scratch → vio/ 三栈 dissection（VINS-Fusion / OpenVINS / DROID-SLAM）→ 应用栈（active-tracking / obstacle-avoidance / on-board-mapping）。
 

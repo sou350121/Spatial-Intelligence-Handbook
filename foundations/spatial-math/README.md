@@ -38,8 +38,10 @@
 | [`camera_projection_view_geometry.md`](./camera_projection_view_geometry.md) ★ NEW | **相机视角的数学**：pinhole projection / 失真模型 / back-projection / epipolar / 三角化 / PnP / Zhang's calibration | SO(3) + 高中线代 |
 | [`imu_preintegration_math.md`](./imu_preintegration_math.md) | Forster *T-RO 2017* —— 为什么 VINS-Mono 能在相机帧之间扔掉 IMU 样本 | SO(3) + EKF |
 | [`cross_domain_math_inspirations.md`](./cross_domain_math_inspirations.md) ★ NEW | **跨领域数学版图**：信息几何 / OT / certifiable SLAM / RKHS / equivariant DL / 等 10 条优化灵感 | 上面 8 篇 |
+| [`rotation_reps_in_deep_learning_primer.md`](./rotation_reps_in_deep_learning_primer.md) **★ NEW** | **现代 AI 视角**：Zhou 2019 6D 连续旋转表达 / 为什么 quaternion 在 DL regression head 收敛慢 / Pose head 怎么选 | rotation primer + 任何 DL 训练经验 |
+| [`se3_equivariance_in_networks_primer.md`](./se3_equivariance_in_networks_primer.md) **★ NEW** | **现代 AI 视角**：Vector Neurons / TFN / SE(3)-Transformer / E3NN / Equivariant Diffusion Policy；为什么 sample efficiency 提升 5-10× | SO(3) primer + 表征学习基础 |
 
-★ = 只读三篇的话，读这几篇。**跨领域 inspiration 是 forward-looking 视角，不必读懂上面六篇也能看。**
+★ = 只读三篇的话，读这几篇。**跨领域 inspiration + 现代 AI 视角是 forward-looking 视角，不必读懂上面六篇也能看。**
 
 ---
 
