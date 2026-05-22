@@ -1,7 +1,7 @@
 # Sensor Physics (传感器物理)
 
 **Status:** v1.3 — 带立场的初稿。Datasheet 数字标 `UNVERIFIED` 需 spec-sheet 核对。
-**TL;DR:** Sensor 物理是本仓的**独家轴** — 学术综述写不出 BPF FWHM × VCSEL 热漂、Allan plot 谷底位置、76 GHz vs 905 nm 波长落进 Rayleigh / Mie 区的天气结果、drone 50 A ESC 电流 vs 50 µT 地磁场比、UWB 500 MHz BW 物理上比 WiFi 准 25× 的 Heisenberg-Gabor 限、LWIR 8-14 µm 透不过玻璃决定 Tesla 至今不加 thermal。这 23 篇覆盖具身 AI 真正承重的 sensor 决策物理 — 选错就是设计错了一整个 embodiment，而不是 algorithm 能补的。
+**TL;DR:** Sensor 物理是本仓的**独家轴** — 学术综述写不出 BPF FWHM × VCSEL 热漂、Allan plot 谷底位置、76 GHz vs 905 nm 波长落进 Rayleigh / Mie 区的天气结果、drone 50 A ESC 电流 vs 50 µT 地磁场比、UWB 500 MHz BW 物理上比 WiFi 准 25× 的 Heisenberg-Gabor 限、LWIR 8-14 µm 透不过玻璃决定 Tesla 至今不加 thermal。这 24 篇 + 1 决策矩阵覆盖具身 AI 真正承重的 sensor 决策物理 — 选错就是设计错了一整个 embodiment，而不是 algorithm 能补的。
 
 ---
 
@@ -18,7 +18,7 @@
 
 ---
 
-## 23 篇地图（v1.3 扩展）
+## 24 篇 + 决策矩阵地图（v1.4 扩展）
 
 按"主动光 → 几何 → 时间序列 → RGB 成像 → drone 专用 → 通用噪声框架 → 其他物理波"7 桶组织。
 

@@ -133,6 +133,9 @@
 
 **优化 payoff**：**数据效率 10× 提升**（教科书结论，未在 spatial AI verify）。VGGT-Ω 训练 15× 数据如果用 equivariant 架构可能只要 1.5×。**最被低估的下一代 architecture move**。
 
+> 🔗 **深拆**：本节是 inspiration 速览；完整的 VN / TFN / SE(3)-Transformer / E3NN / Equivariant Diffusion Policy 拆解 + 决策表见 [`se3_equivariance_in_networks_primer.md`](./se3_equivariance_in_networks_primer.md)。
+> 🔗 **配套**：rotation representation 在 DL 训练中怎么选（Zhou 2019 6D continuous） → [`rotation_reps_in_deep_learning_primer.md`](./rotation_reps_in_deep_learning_primer.md)。
+
 ---
 
 ## §6 · 信息论 active SLAM —— 选下个 view 该去哪

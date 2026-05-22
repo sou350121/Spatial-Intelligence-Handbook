@@ -251,6 +251,11 @@ EKF 能跑的前提（不成立时直接发散）：
 | **Vision outlier** | 一个错的 PnP 解 | 一帧把 position 拉跳几米 | χ² gating + medium-window history check |
 | **Out-of-order with 大 gap** | VO 比 IMU 晚 200+ ms | repropagate 太多 state 算不完 | drop 该量测或缩短 history |
 
+### 7.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+- **GitHub-validated**：from-scratch EKF 本身不是 GitHub repo，但 atlas 4 仓（VINS-Mono / VINS-Fusion / OpenVINS / DROID-SLAM）的失败模式**几乎逐条对应 §7 失败表**：Init 卡死 / 反复 restart（[VINS-Mono #475](https://github.com/HKUST-Aerial-Robotics/VINS-Mono/issues/475)·[#473](https://github.com/HKUST-Aerial-Robotics/VINS-Mono/issues/473) 初始 quaternion (0,1,0,0)）= §1 静止开机 / accel 方差不足；stationary drift（[VINS-Mono #462](https://github.com/HKUST-Aerial-Robotics/VINS-Mono/issues/462)·[#469](https://github.com/HKUST-Aerial-Robotics/VINS-Mono/issues/469)）= §7 "Bias never excited"；OpenVINS filter divergence after init（[#540](https://github.com/rpng/open_vins/issues/540) "extremely large IMU values"）= §7 "Large maneuver divergence"；OpenVINS Orin Nano segfault（[#514](https://github.com/rpng/open_vins/issues/514) YAML 与 IMU 采样率不匹配）= §9 真机 production gotchas；VINS-Fusion Ceres 2.2.0 数值不稳（[#246](https://github.com/HKUST-Aerial-Robotics/VINS-Fusion/issues/246)·[#275](https://github.com/HKUST-Aerial-Robotics/VINS-Fusion/issues/275)）= §7 "P explodes"；详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+- **GitHub-validated**：本 dissection 在 atlas 中作为 zone "选栈不看 EuRoC 名次"的**教学锚**被讨论，未有专属失败块；atlas Cross-Cutting 总结：**init 失败 / IMU bias 时间同步 / 单目 scale 收敛慢 / ROS 2 半成品 / 嵌入式 SoC 不够 / 自录数据 ≠ EuRoC** 六条共性 — 与 §6 Hidden Assumptions 七条假设互为镜像；Skydio 商用栈把这些外化为 "pre-flight wiggle"，学界跑 EuRoC 隐式满足、迁真机即暴露，正是本文 from-scratch EKF 路径的价值所在。
+
 ---
 
 ## 8 · 与 MSCKF / OpenVINS 对比

@@ -129,6 +129,11 @@ CoTracker3 *online* 用有界内存逐帧流出预测.
 
 这些破时，track 出来看着平滑但错 — 静默失败.
 
+### 6.2 GitHub-validated 失败模式（atlas 联动，2026-05）
+
+- **GitHub-validated**：长视频 memory 爆是 CoTracker 头号痛点 — 3 分钟视频在 Colab GPU OOM（[#51](https://github.com/facebookresearch/co-tracker/issues/51), 14 comments），用户提议分段 + 末帧延续但官方无回应；live video / streaming 应用支持弱（[#37](https://github.com/facebookresearch/co-tracker/issues/37) 21 comments·[#54](https://github.com/facebookresearch/co-tracker/issues/54)·[#123](https://github.com/facebookresearch/co-tracker/issues/123)），offline v2/v3 切换不清晰；稀疏单点 webcam 跟踪不稳（[#71](https://github.com/facebookresearch/co-tracker/issues/71)·[#24](https://github.com/facebookresearch/co-tracker/issues/24)），动物腿等高频运动易丢；ONNX 导出路径 [#10](https://github.com/facebookresearch/co-tracker/issues/10) 现状不明；Kubric 训练数据复现 [#8](https://github.com/facebookresearch/co-tracker/issues/8) 29 comments 起跳；商用 license 需求 [#31](https://github.com/facebookresearch/co-tracker/issues/31)。streaming memory API 是社区等待官方接管的下一波 PR 焦点，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+- **GitHub-validated**：CoTracker v3（2025）改善短时密集追踪，但 **长视频 + 稀疏点 + 实时 三交叉点仍缺**；本 dissection §6 "Online 容忍 streaming-buffer 延迟" / "大点集压力内存" 两条假设在 issue 区被直接量化暴露 — 30 Hz 控制紧 + Colab OOM 是部署侧最高 ROI 缺口。
+
 ---
 
 ## 7 · Comparison & interview tip

@@ -11,3 +11,7 @@ The gap between paper and production. Industry knows these; academia doesn't wri
 | `failure-modes/` | Camera-shift, vibration, backlight, reflection, transparency, weather, dust, underwater |
 
 Community field notes: drop a `community_field_notes_<topic>.md` next to the relevant subdir or at the root.
+
+## Embodiment-side production runbooks
+
+- **Aerial 真机 production gotchas** → [`embodiments/aerial/real_flight_production_gotchas.md`](../embodiments/aerial/real_flight_production_gotchas.md) — 组装 / PX4 ESC / OptiTrack 三层 frame / IMU 抗桨噪 / time-sync / failsafe / sim2real gap，取材 HKUST ELEC5660 lab1-3

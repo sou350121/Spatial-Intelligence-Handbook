@@ -127,6 +127,11 @@ web image ──► depth model (ZoeDepth/Metric3D) ──► dense metric depth
 
 **Interview Tip**："数据论文不是模型论文 —— 2B 自动合成 QA 才是贡献。在定性空间关系上用；任何 metric 任务把显式 depth token 拼上。纯 VLM 在遮挡与亚厘米精度上到顶。SpatialBot 是显式 depth-token 后继。"
 
+### 4.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+- **GitHub-validated**：SpatialVLM 是 Google DeepMind 论文 [arXiv:2401.12168](https://arxiv.org/abs/2401.12168)，**未发布官方训练代码或权重** `UNVERIFIED`（2026-05 GitHub 搜索仅返回学生项目与社区复刻）；继承"自动合成 spatial QA"思想的最活跃公开实现是 [`remyxai/VQASynth`](https://github.com/remyxai/VQASynth)（567★ / 2026-05-15 last push）；社区可见失败：复现版能力远低于论文（LLaVA backbone + ~10⁴ QA ≠ PaLI-X + 2B QA — 论文核心**规模论点**在小规模上根本测不到），Precise metric distance 严重偏差（网络图像 depth 是相对的；自动合成 templates 把 "0.4 m" 当 ground truth，但 ZoeDepth 在户外/反光面误差 >30% `UNVERIFIED`），遮挡场景 hallucination（监督源 seg + depth 在遮挡区本身 garbage in）；详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+- **GitHub-validated**：本 dissection §4.x "深度源误差（~10–20%）OK"、"开集分割够可靠"、"模板内措辞" 三条假设在 atlas 中被升级为 **结构性失败** — 隐式 QA 预训练 vs 推理期 depth 注入两条路线**至今无受控实验**，是 atlas 标为 "2026+ VLM 空间路线最重要的未做实验"；SpatialVLM 在 atlas 中 momentum 标 📖（论文级影响大，repo 级几乎零自有动量），社区借数据管线想法做下游 trainer。
+
 ---
 
 ## 5 · Bridge to VLA — the integration question

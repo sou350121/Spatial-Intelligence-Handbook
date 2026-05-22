@@ -105,6 +105,11 @@ LERF 是研究产物，不是部署产物。四种失败：
 
 置信被最弱一项限制——通常是 per-scene 训练。
 
+### 3.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+- **GitHub-validated**：LERF repo `kerrj/lerf` 在 2024-07-09 后**几乎冻结**（727★ · 34 open issue · 最近 push 已 1+ 年）— CLI 渲染 relevancy map 无 reference 路径（[#76](https://github.com/kerrj/lerf/issues/76)），nerfstudio 升级后依赖 broken（[#75](https://github.com/kerrj/lerf/issues/75) `No module named nerfstudio.viewer.viewer_elements`），3DGS 整合愿望无回应（[#86](https://github.com/kerrj/lerf/issues/86)）；waldo_kitchen Loc. Acc 论文报 0.955、社区复现降到 0.818（见 [LangSplat #60](https://github.com/minghanqin/LangSplat/issues/60) 跨仓比较），论文数字优化是 lucky seed `UNVERIFIED`；详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+- **GitHub-validated**：本 dissection §3.x 列出的 "CLIP 词表覆盖、per-scene 训练成本" 在 atlas 中被升级为 **结构性失败**：open-vocab 在 CLIP OOD 上稳定坍塌（compositional / negation / 罕见 attribute 全错），这不是 trick 没用，而是 CLIP image-text alignment 本身弱、lift 到 3D 不会变好；LERF 在 atlas 中的 momentum 标 📖（论文级 anchor 仍稳，repo 级几乎冻结），机器人团队的优选路线已转 OpenScene 血统。
+
 ---
 
 ## 4 · Robot relevance — language-conditioned manipulation

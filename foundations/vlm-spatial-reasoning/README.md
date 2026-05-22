@@ -36,7 +36,7 @@ Zone 从 seed（仅 SpatialVLM）扩为完整 zone：两路 model（implicit pre
 - 把语言 grounded 到几何的*另一种*方式（semantic 3D lifting）→ [`foundations/semantic-3d/`](../semantic-3d/README.md)
 - 空间推理 benchmark → [`benchmarks/reasoning/`](../../benchmarks/reasoning/)（TBD）
 - VLM 空间输出 → 策略动作 → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)（SpatialVLM caption 集成是逆向案例）
-- 跨具身体对比（"VLM as perception" vs "VLM + 显式 3D"）→ `crossing/representation-migration/`（TBD）
+- 跨具身体对比（"VLM as perception" vs "VLM + 显式 3D"）→ [`crossing/representation-migration/`](../../crossing/representation-migration/) — 已 2 篇（`3dgs_as_simulator_comparison.md` + `dense_vs_graph_registration.md`）
 
 ## Boundary
 

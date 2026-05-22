@@ -52,7 +52,7 @@ CLIP、SAM、DINO 都活在像素空间。机器人活在 metric 空间。每次
 | `langsplat_dissection.md` | Qin et al. CVPR 2024 Highlight — 3DGS feature field + scene autoencoder + SAM 三层级, 199× over LERF | ⚡ |
 | `sam3d_dissection.md` | SA3D / SAGA / SAM 3D Objects — promptable 路线三条（NeRF / 3DGS / image-to-3D, Meta 2025-11） | ⚡ |
 
-`UNVERIFIED` scene-graph dissection (ConceptGraphs / OVIR-3D), 4D LangSplat (CVPR 2025) queued for v2.
+> 4D LangSplat (CVPR 2025) queued for v2；ConceptGraphs / OVIR-3D / SG-Reg 详见下方 watch list。
 
 ---
 

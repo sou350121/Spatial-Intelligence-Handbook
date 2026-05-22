@@ -131,6 +131,11 @@ Two reasons it's in `embodiments/aerial/vio/` despite not shipping on aerial: **
 
 **Interview Tip**：被问 "DROID-SLAM 跟 VGGT 啥关系" 答 **"DROID 是可微 BA 的迭代版，VGGT 是把迭代抽掉的 feed-forward 版；两者都把 update 学出来，区别是迭代步数"**。能讲出"DROID 仍有几何归纳偏置（BA 层），VGGT 完全靠 transformer 学几何"加分。
 
+### 6.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+- **GitHub-validated**：DROID-SLAM repo `princeton-vl/DROID-SLAM`（2.6k★ · 100 open · last push 2025-05）失败模式**第一大宗是 GPU 环境装不上**而非算法本身：5070TI + CUDA + PyTorch 13.0（[#166](https://github.com/princeton-vl/DROID-SLAM/issues/166)）、lietorch 装不上（[#163](https://github.com/princeton-vl/DROID-SLAM/issues/163)）、Colab 跑挂（[#164](https://github.com/princeton-vl/DROID-SLAM/issues/164)）；训练 / fine-tune pipeline 卡（[#160](https://github.com/princeton-vl/DROID-SLAM/issues/160) 自数据 fine-tune 无 SLAM 输出·[#10](https://github.com/princeton-vl/DROID-SLAM/issues/10) mono training 18 comments·[#52](https://github.com/princeton-vl/DROID-SLAM/issues/52) `droid.pth` pretrained 15 comments）；学习派单目无 IMU lock → scale drift 结构性（[#102](https://github.com/princeton-vl/DROID-SLAM/issues/102) 6 reactions）；PyTorch/CUDA 升级后 inference unpack 塌（[#115](https://github.com/princeton-vl/DROID-SLAM/issues/115) 12 comments·[#159](https://github.com/princeton-vl/DROID-SLAM/issues/159)）；重建质量 vs paper demo（[#135](https://github.com/princeton-vl/DROID-SLAM/issues/135) "Sparse and Layered"）；详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+- **GitHub-validated**：本 dissection §4 "5 Hz on Orin / 200-400 ms latency / 6+ GB GPU" 表中"为什么 aerial 不能用"在 atlas 中被升级为 **学习派 SLAM "装环境就要一周"的隐藏成本** + Maintainer 不活跃但 repo 没死 ⚠️；研究重心已转 DUSt3R / VGGT；atlas 推荐 DROID 作为离线建图 back-end + 经典 front-end hybrid 合理但需自接，不上无人机主估计。
+
 ## References
 
 - DROID-SLAM — Teed & Deng. *NeurIPS 2021*. [arXiv 2108.10869](https://arxiv.org/abs/2108.10869)

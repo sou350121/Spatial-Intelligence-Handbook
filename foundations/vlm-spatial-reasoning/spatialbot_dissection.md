@@ -202,6 +202,11 @@ SA-1B            15,000   大规模 segment-anything subset
 
 **Interview Tip**："SpatialVLM 押数据规模，SpatialBot 押输入工程。3B SpatialBot 用 1/40000 的 spatial QA 数据追平更大 VLM，因为它不让 VLM 从 RGB 抽几何 —— 直接喂 depth 图。代价：传感器一坏整个 zone 失效，且会自信地把 depth 错值复述成 metric 答案。生产系统需要把它和深度可信度检查一起部署。"
 
+### 6.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+- **GitHub-validated**：SpatialBot repo `BAAI-DCAI/SpatialBot` 是 VLM 空间推理 lane 唯一可 git clone 的 baseline（344★ · 5 open · last push 2025-09-14）— 但 issue 区揭示**关键失败**：相对方位反过来（[#21](https://github.com/BAAI-DCAI/SpatialBot/issues/21) 7 comments，用户自家图片问 left/right 几乎稳定**反向**），自报 metric 与论文 Table 1 不一致（[#25](https://github.com/BAAI-DCAI/SpatialBot/issues/25) 内部前后矛盾），论文承诺的 Embodied SpatialBot CKPTs 至今未发（[#30](https://github.com/BAAI-DCAI/SpatialBot/issues/30)，下游 manipulation 复现最关键 artifact 缺位），batch inference 与 depth token 注入路径冲突机器人端 30 Hz 推理需自己改（[#5](https://github.com/BAAI-DCAI/SpatialBot/issues/5)），bbox/mask 坐标系（normalized vs raw）文档未给定式（[#23](https://github.com/BAAI-DCAI/SpatialBot/issues/23)·[#17](https://github.com/BAAI-DCAI/SpatialBot/issues/17)）；详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+- **GitHub-validated**：本 dissection §6.x "Depth API 调用机制可学" 假设在 issue 区被 [#21](https://github.com/BAAI-DCAI/SpatialBot/issues/21) 直接证伪 —— 训练数据视角分布偏差（俯视 vs 平视）+ depth token 注入**没有 viewpoint canonicalization**，oblique view 下 left/right 翻转 >50%；atlas 推荐这是被忽视的"具身 VLM 直接不可用"证据，可上升为 workshop paper systematic study。
+
 ---
 
 ## 7 · 与相关工作对比

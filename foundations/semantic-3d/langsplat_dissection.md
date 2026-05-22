@@ -160,6 +160,11 @@ LangSplat 延迟在两个时间尺度：
 
 最弱一项决定置信——通常是 per-scene 训练或 SAM 粒度。
 
+### 6.y · GitHub-validated 失败模式（atlas 联动，2026-05）
+
+- **GitHub-validated**：LangSplat repo `minghanqin/LangSplat` 是 zone 最活跃的传统路线（1045★ · 46 open issue · 2025-10 last push）但**reproducibility 危机**：中文复现者反馈"最终评估结果精确度很低"（[#82](https://github.com/minghanqin/LangSplat/issues/82) 4 comments，根因未结），waldo_kitchen Loc. Acc 论文 0.955 vs 自训 0.818 — gap 14 个百分点（[#60](https://github.com/minghanqin/LangSplat/issues/60)），diff_gaussian_rasterization CUDA build 失败（[#49](https://github.com/minghanqin/LangSplat/issues/49)·[#78](https://github.com/minghanqin/LangSplat/issues/78)），快速启动文档缺失（[#18](https://github.com/minghanqin/LangSplat/issues/18) 26 comments 起跳），3D-OVS 数据集复现失败（[#20](https://github.com/minghanqin/LangSplat/issues/20)）；详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+- **GitHub-validated**：本 dissection §2 "199× over LERF" 卖点在 atlas 中被指出是**口径错配** — 比较的是 query 阶段、不是端到端时长；真实 per-scene 端到端跑完是数小时级（3DGS base 重建 + 三层级 SAM mask 提取 + scene-specific autoencoder + CLIP 蒸馏），社区**未充分讨论**；本 dissection §6.x "能负担 per-scene 训练 + 24 GB VRAM" 假设在 issue 区被独立用户多次触发为部署阻断。
+
 ---
 
 ## 7 · 与相关工作对比 (Comparison)

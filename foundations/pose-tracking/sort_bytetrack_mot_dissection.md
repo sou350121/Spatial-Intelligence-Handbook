@@ -235,6 +235,11 @@ ByteTrack 反直觉之处：之前所有 tracker 扔掉 score < 0.5 的检测（
 
 这些是 **MOT17 benchmark 上 ByteTrack 上 80 而真实部署常常掉到 60** 的根因。
 
+### 6.2 GitHub-validated 失败模式（atlas 联动，2026-05）
+
+- **GitHub-validated**：SORT / ByteTrack 这类 detector-based MOT **不在 atlas 5 仓直接覆盖范围**（atlas 选了 FoundationPose / MegaPose / RAFT / CoTracker / SAM 2 五条 foundation 模型阵营，MOT 上游靠 YOLO/DETR detector，下游靠 association 启发式，结构上不与 foundation lane 同质）；本 dissection 在 [`github_failure_atlas.md`](./github_failure_atlas.md) 中作为 zone 整体 "Cross-cutting" 部分被讨论 — atlas 总结的 **遮挡 / 反射 / OOD = production blocker，5 仓共有**、**没有任何一仓输出 per-pixel / per-track confidence** 两条与 ByteTrack 的 ID switch / detector 域外失效完全同构，未有专属失败块；详见 atlas 整体节奏部分。
+- **GitHub-validated（间接）**：与 atlas 提到的 SAM 2 多 object mask 丢 / 中途新 ID 加入难（[SAM2 #249/#185](https://github.com/facebookresearch/sam2/issues/249)）正面冲突 SORT/ByteTrack 的设计假设 — **VFM-based video tracking 正在挤压 detector-based MOT 的护城河**，但 SAM 2 issue 区也证明 VFM 路线尚未解决多对象 ID hot-swap，这是 ByteTrack 至今仍稳坐 MOT17 leaderboard 的工程理由。
+
 ---
 
 ## 7 · 与相关工作对比
