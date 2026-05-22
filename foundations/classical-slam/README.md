@@ -30,6 +30,7 @@
 | [`direct_methods_dso_lsd.md`](./direct_methods_dso_lsd.md) | Engel 2014 / 2017 —— pixel intensity 直接法 vs feature matching 的根本分歧，何时赢何时输 |
 | [`slam_toolchain_ecosystem.md`](./slam_toolchain_ecosystem.md) | Kalibr / maplab / ROS2 —— 没人写论文但每个 deployment 都得用的工具链账本 |
 | [`pnp_dlt_primer.md`](./pnp_dlt_primer.md) **★ NEW** | PnP DLT 推导 + RANSAC failure 分析 —— SLAM/VIO 腰部问题完整 primer（取材 HKUST ELEC5660 L6 + Project 2, BSD 3-Clause）|
+| [`crossing/.../orb_slam3_vs_vins_fusion_code_comparison.md`](../../crossing/slam-vio-migration/orb_slam3_vs_vins_fusion_code_comparison.md) **★ NEW** | 代碼層對比：ORB-SLAM3 (map-centric library) vs VINS-Fusion (estimator-centric ROS stack) — 改前端/加 factor/multi-session 落點全表（在 crossing/ zone）|
 
 ---
 

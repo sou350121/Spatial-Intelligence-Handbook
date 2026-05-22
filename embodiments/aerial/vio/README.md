@@ -31,6 +31,10 @@ Each gets its own dissection because the failure modes are non-overlapping — p
 
 - **[`ekf_from_scratch_dissection.md`](./ekf_from_scratch_dissection.md)** ⚡ NEW — 15-state EKF + 21-state augmented EKF 从零手写教程（取材 HKUST ELEC5660 L8-L9 + proj3, BSD 3-Clause）。**与上述三栈互补 — 它们是「拆库」，本文是「从零写自己的 estimator」**。读完你能：(a) 上 Jacobian / 协方差传播自己 onboard 的 sensor 组合；(b) 看懂 OpenVINS / VINS-Fusion 内部 trade-off 来自哪。
 
+## 跨 zone 代碼層對比
+
+- **[`crossing/slam-vio-migration/orb_slam3_vs_vins_fusion_code_comparison.md`](../../../crossing/slam-vio-migration/orb_slam3_vs_vins_fusion_code_comparison.md)** ⚡ NEW — 從工程哲學到 main entry / pipeline / 前端 / 狀態 / 優化器 / IMU / 初始化 / 回環 8 維對照。讀完你能秒判：要改前端進哪 / 加 factor 進哪 / multi-session 為什麼選 ORB-SLAM3 / GPS fusion 為什麼選 VINS-Fusion。
+
 > **2026-05 默认推 OpenVINS**（VINS-Fusion [#3](https://github.com/HKUST-Aerial-Robotics/VINS-Fusion/issues/3) global-optimization 自 2019 long-open、VINS-Mono 已 stale 无 ROS 2 port）。OpenVINS 是 aerial VIO 区**唯一仍正常维护的官方 repo**（2025-11 仍 push，issue 回复活跃）。详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
 
 ## Cross-references
