@@ -5,6 +5,8 @@
 > **核心定位**：dissection 写"它声称做对了什么"；本图谱写"复现者实际撞了哪堵墙、维护者还在不在线、合理的 PR 方向是什么"
 
 **Status:** v1 — opinionated draft, 2026-05-21。所有 star / fork / issue 数字截取自 GitHub API 当日快照，标 `UNVERIFIED` 表示作者未亲自跑过复现。
+
+> 📅 数据首抓 2026-05-21 · 最後校對 2026-05-22 · 📊 跨 zone 全景: [`cheat-sheet/cross_zone_failure_atlas.md`](../../cheat-sheet/cross_zone_failure_atlas.md)
 **Coverage:** 3 工具 — SpatialVLM（Google DeepMind, 无独立官方 repo）/ SpatialBot（BAAI-DCAI）/ 3DSRBench（仅 project page + HF dataset）。
 
 ---

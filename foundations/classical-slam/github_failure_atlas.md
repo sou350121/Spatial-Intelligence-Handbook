@@ -6,6 +6,8 @@
 
 **Status:** v1 — 数字 / commit 时间均 `UNVERIFIED`，issue # + URL 为一手来源。属于 `*_ecosystem.md`，不走 14 项 dissection 门槛。
 
+> 📅 数据首抓 2026-05-21 · 最後校對 2026-05-22 · 📊 跨 zone 全景: [`cheat-sheet/cross_zone_failure_atlas.md`](../../cheat-sheet/cross_zone_failure_atlas.md)
+
 **X-Ray.** Paper 给的是受控数据集最佳数字；issue tracker 给的是真实用户踩了什么坑。五个工具 issue 反复浮现 tracking lost / 编译失败 / IMU init failure / 标定不收敛 —— 是 maintainer 几年没空回复的角落。选栈不看 EuRoC RMSE，看"这 repo 的 maintainer 现在还回 issue 吗"。
 
 ## Zone Summary

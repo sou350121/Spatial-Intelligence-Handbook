@@ -7,6 +7,8 @@
 
 **Status:** v1 — ecosystem register. 按「failure pattern → PR 方向 → momentum」三层. UNVERIFIED 用于用户自报偏差等不可二次验证数字.
 
+> 📅 数据首抓 2026-05-21 · 最後校對 2026-05-22 · 📊 跨 zone 全景: [`cheat-sheet/cross_zone_failure_atlas.md`](../../cheat-sheet/cross_zone_failure_atlas.md)
+
 **TL;DR:** 5 仓 issue 的痛点和 depth 阵营完全不同：**输入资产门槛（mesh / 第一帧 prompt）占 ~30%**、**memory / 长视频限制 ~25%**（SAM2 / CoTracker）、**部署摩擦（CUDA / build / ONNX）~25%**、**accuracy（遮挡 / 反光 / 大运动）~20%**. 维护者最高 ROI PR 不是改模型，而是**降低输入资产门槛 + 加 streaming memory 接口**.
 
 ### X-Ray (non-expert friendly)

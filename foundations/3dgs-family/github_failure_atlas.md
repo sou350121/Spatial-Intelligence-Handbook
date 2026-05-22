@@ -6,6 +6,8 @@
 
 **Status:** v1 — 数据快照 2026-05-21；所有未亲自跑 git 历史的 commit 频度均标 `UNVERIFIED`。
 
+> 📅 数据首抓 2026-05-21 · 最後校對 2026-05-22 · 📊 跨 zone 全景: [`cheat-sheet/cross_zone_failure_atlas.md`](../../cheat-sheet/cross_zone_failure_atlas.md)
+
 **X-Ray.** 三条规律: (1) 原版 3DGS 的 issue 长尾集中在 *Windows / CUDA / 安装*，是"算法成熟、工程长尾"的成熟项目特征；(2) 4DGS / GS-SLAM 这类衍生工作 issue 量看着不少（130 / 个位数），但近一年内活跃度断崖 — 典型的"paper 发完代码就半弃养"；(3) Mip-Splatting 是四件套里**最干净的**（31 open issues），但维护节奏明显放慢，issue 多为质量 / 渲染细节而非崩溃。
 
 ---

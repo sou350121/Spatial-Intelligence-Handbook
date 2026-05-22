@@ -67,16 +67,16 @@
 
 | Zone | Atlas 路径 | 最关键发现（一句话） |
 |---|---|---|
-| Feed-Forward 3D | `../foundations/feed-forward-3d/github_failure_atlas.md` | DUSt3R/MASt3R 2025-Q3 后被 Naver 自己后继吞并；momentum 全在 Meta 三件套（VGGT / VGGT-Ω / MapAnything） |
-| 3DGS Family | `../foundations/3dgs-family/github_failure_atlas.md` | 原版 22k★ + 45 open PR + HIP/AMD 移植在动；衍生 4DGS / GS-SLAM 寿命 ~18 个月即半弃养 |
-| NeRF Family | `../foundations/nerf-family/github_failure_atlas.md` | multinerf 2025-02-11 被 Google archived；NeRF 时代标志日；Block-NeRF 公开实现 gap 仍空缺 |
-| Classical SLAM | `../foundations/classical-slam/github_failure_atlas.md` | 5/5 repo 官方 commit 1-2 年前；Kalibr 是事实标准但官方不接 ROS 2；ORB-SLAM3 用户多 ≠ 维护强典型 |
-| Aerial VIO | `../embodiments/aerial/vio/github_failure_atlas.md` | OpenVINS 是 zone 唯一官方仍维护活跃；VINS-Fusion #3 loop closure bug 自 2019 open；DROID 5 Hz 不能做 aerial 实时 |
-| Depth Foundation | `../foundations/depth-foundation/github_failure_atlas.md` | 5 仓 ~40% issue 是"输出契约没读懂"；全部缺 confidence map；FoundationStereo #121 closed-without-fix 典型 |
-| Pose & Tracking | `../foundations/pose-tracking/github_failure_atlas.md` | 输入资产门槛是 #1 痛点（mesh/mask/grid 都得用户先提供）；SAM2 / CoTracker 缺 streaming memory API |
-| VLM Spatial Reasoning | `../foundations/vlm-spatial-reasoning/github_failure_atlas.md` | 三条线只有 SpatialBot 给了能 clone 的 baseline；SpatialVLM 无官方 repo；3DSRBench 仅 benchmark 无训练 |
-| Semantic 3D | `../foundations/semantic-3d/github_failure_atlas.md` | OpenScene 因外部 OpenSeg ckpt 链接死实质已死；SAM 3D Objects demo ≠ deploy；LangSplat "199× over LERF" 是 query 阶段口径错配 |
-| World Model | `../foundations/world-model/github_failure_atlas.md` | Cosmos 拆 14 子库（4 个活 / 10 个历史 + infra）；Genie 完全闭源；Marble 对机器人栈贡献近零；decision-useful 验证全社区都欠 |
+| Feed-Forward 3D | [`feed-forward-3d/github_failure_atlas.md`](../foundations/feed-forward-3d/github_failure_atlas.md) | DUSt3R/MASt3R 2025-Q3 后被 Naver 自己后继吞并；momentum 全在 Meta 三件套（VGGT / VGGT-Ω / MapAnything） |
+| 3DGS Family | [`3dgs-family/github_failure_atlas.md`](../foundations/3dgs-family/github_failure_atlas.md) | 原版 22k★ + 45 open PR + HIP/AMD 移植在动；衍生 4DGS / GS-SLAM 寿命 ~18 个月即半弃养 |
+| NeRF Family | [`nerf-family/github_failure_atlas.md`](../foundations/nerf-family/github_failure_atlas.md) | multinerf 2025-02-11 被 Google archived；NeRF 时代标志日；Block-NeRF 公开实现 gap 仍空缺 |
+| Classical SLAM | [`classical-slam/github_failure_atlas.md`](../foundations/classical-slam/github_failure_atlas.md) | 5/5 repo 官方 commit 1-2 年前；Kalibr 是事实标准但官方不接 ROS 2；ORB-SLAM3 用户多 ≠ 维护强典型 |
+| Aerial VIO | [`aerial/vio/github_failure_atlas.md`](../embodiments/aerial/vio/github_failure_atlas.md) | OpenVINS 是 zone 唯一官方仍维护活跃；VINS-Fusion #3 loop closure bug 自 2019 open；DROID 5 Hz 不能做 aerial 实时 |
+| Depth Foundation | [`depth-foundation/github_failure_atlas.md`](../foundations/depth-foundation/github_failure_atlas.md) | 5 仓 ~40% issue 是"输出契约没读懂"；全部缺 confidence map；FoundationStereo #121 closed-without-fix 典型 |
+| Pose & Tracking | [`pose-tracking/github_failure_atlas.md`](../foundations/pose-tracking/github_failure_atlas.md) | 输入资产门槛是 #1 痛点（mesh/mask/grid 都得用户先提供）；SAM2 / CoTracker 缺 streaming memory API |
+| VLM Spatial Reasoning | [`vlm-spatial-reasoning/github_failure_atlas.md`](../foundations/vlm-spatial-reasoning/github_failure_atlas.md) | 三条线只有 SpatialBot 给了能 clone 的 baseline；SpatialVLM 无官方 repo；3DSRBench 仅 benchmark 无训练 |
+| Semantic 3D | [`semantic-3d/github_failure_atlas.md`](../foundations/semantic-3d/github_failure_atlas.md) | OpenScene 因外部 OpenSeg ckpt 链接死实质已死；SAM 3D Objects demo ≠ deploy；LangSplat "199× over LERF" 是 query 阶段口径错配 |
+| World Model | [`world-model/github_failure_atlas.md`](../foundations/world-model/github_failure_atlas.md) | Cosmos 拆 14 子库（4 个活 / 10 个历史 + infra）；Genie 完全闭源；Marble 对机器人栈贡献近零；decision-useful 验证全社区都欠 |
 
 ---
 

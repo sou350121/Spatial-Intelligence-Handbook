@@ -7,6 +7,8 @@
 
 **Status:** v1 — ecosystem register. 按「failure pattern → PR 方向 → momentum」三层. UNVERIFIED 用于用户自报偏差等不可二次验证数字.
 
+> 📅 数据首抓 2026-05-21 · 最後校對 2026-05-22 · 📊 跨 zone 全景: [`cheat-sheet/cross_zone_failure_atlas.md`](../../cheat-sheet/cross_zone_failure_atlas.md)
+
 **TL;DR:** 5 仓 issue 表面是 bug，本质是**输出契约（relative/metric/affine-invariant）没被用户读懂** —— 占 ~40%；模型本质局限（透明/远场/synth→real）~30%；ONNX/TRT 摩擦 ~20%；时序/部署 ~10%. 维护者**最高 ROI 的 PR 不是改模型，而是 README 加 Output Contract 表 + 添加 confidence head**.
 
 ### X-Ray (non-expert friendly)

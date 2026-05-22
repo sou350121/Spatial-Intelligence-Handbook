@@ -6,6 +6,8 @@
 
 **Status:** v1 — 数据快照 2026-05-21；GitHub 数字（stars / forks / issue 编号）截止该日，所有未亲自跑 git 历史的 commit 频度均标 `UNVERIFIED`。
 
+> 📅 数据首抓 2026-05-21 · 最後校對 2026-05-22 · 📊 跨 zone 全景: [`cheat-sheet/cross_zone_failure_atlas.md`](../../cheat-sheet/cross_zone_failure_atlas.md)
+
 **X-Ray.** 把三件套+前驱 DUSt3R/MASt3R 谱系放一起看，会浮出三条规律：(1) Meta 三件套（VGGT, VGGT-Ω, MapAnything）momentum 在涨，issue 集中在 *OOM / scale ambiguity / 长视频*，是"能用但要解扩展"的烦恼；(2) 谱系祖先 DUSt3R / MASt3R 的 issue 集中在 *数据预处理 / 训练复现 / 文档 gap*，典型的"被取代之前最后一波用户"；(3) license 是真实部署决策点 — MapAnything Apache 2.0 vs DUSt3R/MASt3R CC-BY-NC-SA，决定能不能商用。
 
 ---

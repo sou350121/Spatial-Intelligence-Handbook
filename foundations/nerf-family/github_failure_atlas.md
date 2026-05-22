@@ -6,6 +6,8 @@
 
 **Status:** v1 — 数据快照 2026-05-21；所有未亲自跑 git 历史的 commit 频度均标 `UNVERIFIED`。
 
+> 📅 数据首抓 2026-05-21 · 最後校對 2026-05-22 · 📊 跨 zone 全景: [`cheat-sheet/cross_zone_failure_atlas.md`](../../cheat-sheet/cross_zone_failure_atlas.md)
+
 **X-Ray.** 三条规律: (1) 原版 NeRF (bmild/nerf) 和 nerf-pytorch 都已**事实归档** — issue 集中在数据集链接失效、TF 兼容、checkpoint 损坏，是历史文物维护模式；(2) multinerf (Google) 在 **2025-02-11 官方 archived**，最后的"质量 NeRF"参考实现进入只读状态；(3) Instant-NGP 仍由 NVIDIA 主动维护（2025-07 v2.0 release），但 issue 主轴变成 Windows + cmake/gcc 编译，已经是"被 3DGS 替代后的 niche 工具"；(4) Block-NeRF **没有官方公开 repo**，社区实现走 Nerfstudio，但 Nerfstudio 默认模型列表里**没有显式的 Block-NeRF**（待维护者后续确认）。
 
 ---

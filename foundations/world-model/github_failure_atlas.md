@@ -5,6 +5,8 @@
 > **核心定位**：dissection 写"它如何与策略闭合"；本图谱写"原始 repo 已 deprecate、生态拆 14 个子库、Genie 与 Marble 没 repo 可看的现实如何影响读者下一步"
 
 **Status:** v1 — opinionated draft, 2026-05-21。star / fork / issue 数字截取自 GitHub API 当日快照；产品级声称（Marble）标 `UNVERIFIED`。
+
+> 📅 数据首抓 2026-05-21 · 最後校對 2026-05-22 · 📊 跨 zone 全景: [`cheat-sheet/cross_zone_failure_atlas.md`](../../cheat-sheet/cross_zone_failure_atlas.md)
 **Scope tier 继承 README**：W2 lane，只看 decision-useful 那一片。
 
 ---

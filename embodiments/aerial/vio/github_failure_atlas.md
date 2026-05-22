@@ -6,6 +6,8 @@
 
 **Status:** v1 — 数字 / commit 时间均 `UNVERIFIED`，issue # + URL 一手来源。属 `*_ecosystem.md`，不走 14 项 dissection 门槛。与 [`foundations/classical-slam/github_failure_atlas.md`](../../../foundations/classical-slam/github_failure_atlas.md) 配套。
 
+> 📅 数据首抓 2026-05-21 · 最後校對 2026-05-22 · 📊 跨 zone 全景: [`cheat-sheet/cross_zone_failure_atlas.md`](../../../cheat-sheet/cross_zone_failure_atlas.md)
+
 **X-Ray.** Paper 报 EuRoC RMSE；issue tracker 报 "我装上自家四旋翼第一次起飞就发散"。四栈 issue 反复浮现：init 失败 / extrinsic 漂 / scale 收敛慢 / 振动污染 / GPU 跑不下 —— 与 dissection §6 Hidden Assumptions 一一对应。选栈不看 EuRoC 名次，看 "我家 IMU + 我家 prop + 我家 SoC，起飞前需要做几件事才不发散"。
 
 ## Zone Summary
