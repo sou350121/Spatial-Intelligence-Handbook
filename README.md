@@ -6,6 +6,9 @@
 
 姊妹仓库：[VLA-Handbook](https://github.com/sou350121/VLA-Handbook) · VLA 管 *action policy*，Spatial 管 *world representation*，两者交集是 **3D-aware VLA** — 见 [`bridge-to-vla/`](./bridge-to-vla/)。
 
+> ## 🚪 第一次來？看 [`ONBOARDING.md`](./ONBOARDING.md) — **5 分鐘** 找到你該讀的入口
+> 6 個場景分流（production / 範式 / paper idea / 學生 / 轉崗 / ML 研究員）+ 30 分鐘核心序列。
+
 &nbsp;
 
 ## 三句话说清楚这个 Handbook 的价值
@@ -360,6 +363,32 @@ crossing/sensor-stack-matrix
 ```
 
 [开始 →](./foundations/sensor-physics/) — 先吃透物理，再看跨 embodiment SWaP-C 矩阵
+
+&nbsp;
+
+### 🛬 第一次飛真機 — production 不踩坑（4 篇）
+
+```
+embodiments/aerial/dynamics_and_control_primer.md →
+embodiments/aerial/planning/min_snap_dissection.md →
+embodiments/aerial/vio/ekf_from_scratch_dissection.md →
+embodiments/aerial/real_flight_production_gotchas.md
+```
+
+[开始 →](./embodiments/aerial/dynamics_and_control_primer.md) — HKUST ELEC5660 全套 + 一手 lab gotchas（取材 BSD 3-Clause）
+
+&nbsp;
+
+### 🧠 ML 研究員 — 把 SE(3) / 3D 加進你的 model（4 篇）
+
+```
+foundations/spatial-math/rotation_reps_in_deep_learning_primer.md →
+foundations/spatial-math/se3_equivariance_in_networks_primer.md →
+foundations/feed-forward-3d/vggt_cvpr2025_dissection.md →
+bridge-to-vla/feature-cloud-to-action.md
+```
+
+[开始 →](./foundations/spatial-math/rotation_reps_in_deep_learning_primer.md) — 從 Zhou 2019 6D 開始，到 Equivariant Diffusion Policy
 
 &nbsp;
 
