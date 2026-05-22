@@ -54,12 +54,25 @@ CLIP、SAM、DINO 都活在像素空间。机器人活在 metric 空间。每次
 
 `UNVERIFIED` scene-graph dissection (ConceptGraphs / OVIR-3D), 4D LangSplat (CVPR 2025) queued for v2.
 
+---
+
+## Watch list — 已盯但未拆解 (v2 候選)
+
+> 半年內回看是否升級 dissection；目前因社群熱度 / 維護 / 通用性不足暫不拆。
+
+| Paper / Repo | 為什麼盯 | 為什麼還不拆 |
+|---|---|---|
+| **SG-Reg** ([arxiv 2504.14440](https://arxiv.org/abs/2504.14440), T-RO 2025, HKUST) | semantic scene graph **registration**（不是 retrieval / promptable）— 是 semantic-3d 第三條腿；3 個新意：FM-Fusion 自監督 GT / Triplet GNN 4-DoF invariance / **52 KB 帶寬論點**（multi-agent SLAM 主賣點） | [GitHub repo](https://github.com/HKUST-Aerial-Robotics/SG-Reg) 137★ / 3 open issues / 0 closed / 無 HF weights / GPLv3 / 數據鏈接失效（3RScan 已 deleted, #5）；社群影響力 < 學術影響力。跨表徵對比角度先寫在 [`crossing/representation-migration/dense_vs_graph_registration.md`](../../crossing/representation-migration/dense_vs_graph_registration.md) |
+| **ConceptGraphs** (ICRA 2024) | 跨 scene graph baseline | 雖在多篇 cite 但 deployable bar 未驗 |
+| **OVIR-3D** (CoRL 2023) | open-vocab 3D segmentation | 較老，新 SAM3D 部分取代 |
+
 ## Cross-references
 
 - VLM 侧推理（把语言 grounded 到几何的*另一种*方式）→ [`foundations/vlm-spatial-reasoning/`](../vlm-spatial-reasoning/README.md)
 - 特征所骑的底层几何 → [`foundations/feed-forward-3d/`](../feed-forward-3d/), [`foundations/3dgs-family/`](../3dgs-family/)
 - Semantic cloud → action → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)
-- 跨表示的跨具身体对比 → `crossing/representation-migration/`（TBD）
+- 跨表示的跨具身体对比 → [`crossing/representation-migration/dense_vs_graph_registration.md`](../../crossing/representation-migration/dense_vs_graph_registration.md)（**★ NEW** — 5 法配準對照）
+- Multi-agent SLAM 後端（loop closure 下一代）→ [`foundations/classical-slam/orb_slam3_dissection.md`](../classical-slam/orb_slam3_dissection.md)（傳統 Atlas multi-map 對照）
 
 ## Boundary
 
