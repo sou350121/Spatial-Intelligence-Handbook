@@ -217,4 +217,4 @@ Setup:  rover at (0, 0, 0) (unknown to solver)
 *2026-05-21. v1 初版。`UNVERIFIED` → v1.1 vendor primary 引用。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

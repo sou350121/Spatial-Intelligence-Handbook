@@ -187,4 +187,4 @@ graph TB
 
 ---
 
-[← Back to Handbook root](../README.md) · [← Back to Cheat Sheet](./README.md)
+[← Back to Handbook root](../README.md) · [← Back to Cheat Sheet](./overview.md)

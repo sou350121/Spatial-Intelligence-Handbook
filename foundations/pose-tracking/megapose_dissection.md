@@ -154,4 +154,4 @@ Pose 通过预测当前渲染与观测差异的**残差更新**迭代精化. Ren
 
 ---
 
-[← Back to README](./README.md)
+[← Back to README](./overview.md)

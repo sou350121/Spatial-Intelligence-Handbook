@@ -262,6 +262,6 @@ C 档在该平台**不可行**。这是为什么消费 drone（Skydio / Autel / 
 
 ---
 
-[← Back to Multi-Modal Sync README](./README.md)
+[← Back to Multi-Modal Sync README](./overview.md)
 
 ⚙️ 初稿由 Moltbot 自动生成 | 2026-05-21

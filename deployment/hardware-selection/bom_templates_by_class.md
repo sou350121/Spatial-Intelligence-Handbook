@@ -222,6 +222,6 @@ BoM_total ≈ Σ(sensor + compute + power + structure)
 
 ---
 
-[← Back to Hardware Selection README](./README.md)
+[← Back to Hardware Selection README](./overview.md)
 
 ⚙️ 初稿由 Moltbot 自动生成 | 2026-05-21

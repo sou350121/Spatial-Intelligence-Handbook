@@ -143,10 +143,10 @@ LERF 正好坐在 manipulation 策略想抓语义的位置上。集成故事：
 ## Cross-references
 
 - 融合替代方案 → [`openscene_dissection.md`](./openscene_dissection.md)
-- VLM 侧推理（绕过 field 训练）→ [`foundations/vlm-spatial-reasoning/`](../vlm-spatial-reasoning/README.md)
+- VLM 侧推理（绕过 field 训练）→ [`foundations/vlm-spatial-reasoning/`](../vlm-spatial-reasoning/overview.md)
 - 语义场如何喂 action head → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)
 - 底层 NeRF / 3DGS 表示 → [`foundations/3dgs-family/`](../3dgs-family/)
 
 ## Boundary
 
-本文专门解构 LERF。它**不**覆盖：semantic 3D 范式总览（→ [`README.md`](./README.md)）；OpenScene 风格 projection fusion（→ [`openscene_dissection.md`](./openscene_dissection.md)）；LangSplat / F-3DGS / 其它 3DGS 语言场（v2 在此 queue）；manipulation 侧策略集成（→ `embodiments/manipulation/`、`bridge-to-vla/`）；语义表示的跨具身体对比（→ `crossing/representation-migration/`，TBD）。
+本文专门解构 LERF。它**不**覆盖：semantic 3D 范式总览（→ [`README.md`](./overview.md)）；OpenScene 风格 projection fusion（→ [`openscene_dissection.md`](./openscene_dissection.md)）；LangSplat / F-3DGS / 其它 3DGS 语言场（v2 在此 queue）；manipulation 侧策略集成（→ `embodiments/manipulation/`、`bridge-to-vla/`）；语义表示的跨具身体对比（→ `crossing/representation-migration/`，TBD）。

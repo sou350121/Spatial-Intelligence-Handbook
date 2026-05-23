@@ -185,7 +185,7 @@ ORB-SLAM / VINS-Fusion / OpenVINS / Kalibr **全都有官方或社区维护的 R
 ## Boundary
 
 - **ORB-SLAM3 / DSO / 算法本体机制** → [`./orb_slam3_dissection.md`](./orb_slam3_dissection.md) · [`./direct_methods_dso_lsd.md`](./direct_methods_dso_lsd.md)
-- **aerial 严格 latency / IMU 工程实战** → [`embodiments/aerial/vio/`](../../embodiments/aerial/vio/README.md) — Kalibr / 时间同步实战在 aerial 那边有更深的栈
+- **aerial 严格 latency / IMU 工程实战** → [`embodiments/aerial/vio/`](../../embodiments/aerial/vio/overview.md) — Kalibr / 时间同步实战在 aerial 那边有更深的栈
 - **传感器 / IMU noise 物理底层** → [`foundations/sensor-physics/`](../sensor-physics/)
 - **跨 embodiment 时间同步 / 硬件 trigger** → [`deployment/`](../../deployment/)（如已存在对应文档）
 - **VGGT / feed-forward 不依赖 Kalibr** → [`foundations/feed-forward-3d/`](../feed-forward-3d/) — 但 hybrid stack 仍要
@@ -205,4 +205,4 @@ ORB-SLAM / VINS-Fusion / OpenVINS / Kalibr **全都有官方或社区维护的 R
 
 ---
 
-[← Back to Classical SLAM](./README.md)
+[← Back to Classical SLAM](./overview.md)

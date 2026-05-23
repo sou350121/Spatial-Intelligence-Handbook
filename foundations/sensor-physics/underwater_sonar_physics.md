@@ -262,4 +262,4 @@ bearing = arcsin(λ × Δφ / (2π × d_baseline))
 *2026-05-21. v1. UNVERIFIED → v1.1 待 datasheet + Urick 教科书核对。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

@@ -193,4 +193,4 @@ x₁ x₂ 几何上对应几乎相同的旋转，但 label 欧式距离 ≈ 2。
 
 ---
 
-[← Back to Spatial Math](./README.md)
+[← Back to Spatial Math](./overview.md)

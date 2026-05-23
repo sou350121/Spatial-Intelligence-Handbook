@@ -459,6 +459,6 @@ Layer 5 — Semantic / VLM validation
 
 ---
 
-[← Back to Failure Modes README](./README.md)
+[← Back to Failure Modes README](./overview.md)
 
 ⚙️ 初稿由 Moltbot 自动生成 | 2026-05-21

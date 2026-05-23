@@ -214,4 +214,4 @@ RS 可接受当且仅当：
 *2026-05-21. v1 first draft. UNVERIFIED → v1.2 datasheet 验证。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

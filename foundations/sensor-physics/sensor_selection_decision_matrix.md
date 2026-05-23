@@ -18,7 +18,7 @@
 | **Compute** | MCU STM32 | Jetson Orin Nano | x86 ws | Orin AGX×多 | Orin AGX×多 | low-power MCU |
 | **Size** | <30 mm | <80 mm | wrist-cam | hood/roof | head/waist 10 cm | watertight bottle |
 
-**关键观察**：(1) nano drone 几乎只看 weight × power — 加 10 g 等于减 10% flight time；(2) AD 几乎只看 range + 失败模式，weight/cost 可吸收；(3) manipulator 几乎只看 0-1 m 米制精度；(4) marine AUV 只看声学频段，光学 / 电磁全瞎。每个 sensor 的 SWaP-C 数字回 [`README.md`](./README.md) 24 篇 dissection。
+**关键观察**：(1) nano drone 几乎只看 weight × power — 加 10 g 等于减 10% flight time；(2) AD 几乎只看 range + 失败模式，weight/cost 可吸收；(3) manipulator 几乎只看 0-1 m 米制精度；(4) marine AUV 只看声学频段，光学 / 电磁全瞎。每个 sensor 的 SWaP-C 数字回 [`README.md`](./overview.md) 24 篇 dissection。
 
 ---
 
@@ -54,7 +54,7 @@
 | **Barometer** ([↗](./barometer_pressure_altimetry.md)) | MEMS 压力 + 温补 | -500 to 9000 m | 10-100 | <0.01 W | <0.5 g | $2-5 (BMP388) | 温漂 / 阵风 / HVAC | drone vertical mid-term ✓ ; 高动态<1 s ✗ |
 | **Ultrasonic** ([↗](./ultrasonic_acoustic_physics_for_robotics.md)) | 40 kHz airborne ToF | 0.05-4 m | 10-40 | 0.3-1 W | 5-20 g | $1-30 | 多径 / 软材吸收 / 风漂 | drone 起降/USS ✓ ; >5 m/风大 ✗ |
 
-23 行覆盖 12 个**主** sensor class（active-NIR / ToF / LiDAR 3 架构 / RGB GS+RS / stereo / event / IMU 3 等级 / GNSS 3 等级 / magnetometer / mmWave 2 频段 / UWB / thermal）+ drone 专用 barometer + ultrasonic。完整 SWaP-C 数字回各 dissection 与 [README.md](./README.md)。
+23 行覆盖 12 个**主** sensor class（active-NIR / ToF / LiDAR 3 架构 / RGB GS+RS / stereo / event / IMU 3 等级 / GNSS 3 等级 / magnetometer / mmWave 2 频段 / UWB / thermal）+ drone 专用 barometer + ultrasonic。完整 SWaP-C 数字回各 dissection 与 [README.md](./overview.md)。
 
 ---
 
@@ -233,4 +233,4 @@
 
 ---
 
-[← Back to Sensor Physics](./README.md)
+[← Back to Sensor Physics](./overview.md)

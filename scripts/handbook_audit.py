@@ -71,12 +71,12 @@ FOURTEEN_ITEM_MARKERS = {
 COUNT_README_RE = re.compile(r"13\s*zones?\s*·\s*(\d+)\s*篇")
 COUNT_FOUNDATIONS_RE = re.compile(r"(\d+)\s*篇深度解析")
 
-# 计数实际值：foundations 下所有 *.md，排除 README + atlas
+# 计数实际值：foundations 下所有 *.md，排除 overview/README + atlas
 def count_actual_foundations(repo_root: Path) -> int:
     found = repo_root / "foundations"
     cnt = 0
     for md in found.rglob("*.md"):
-        if md.name == "README.md":
+        if md.name in ("README.md", "overview.md"):
             continue
         if md.name == "github_failure_atlas.md":
             continue
@@ -259,7 +259,7 @@ def check_3_broken_links(repo_root: Path) -> CheckResult:
 
 def check_4_count_consistency(repo_root: Path) -> CheckResult:
     readme = read_text(repo_root / "README.md")
-    foundations_readme = read_text(repo_root / "foundations" / "README.md")
+    foundations_readme = read_text(repo_root / "foundations" / "overview.md")
 
     m_readme = COUNT_README_RE.search(readme)
     m_found = COUNT_FOUNDATIONS_RE.search(foundations_readme)
@@ -275,8 +275,8 @@ def check_4_count_consistency(repo_root: Path) -> CheckResult:
         return CheckResult(
             name="Count Consistency",
             status="FAIL",
-            summary="foundations/README.md 找不到 `NN 篇深度解析` 计数声明",
-            details=["  修复：在 foundations/README.md 顶部 keep `**NN 篇深度解析**` 行"],
+            summary="foundations/overview.md 找不到 `NN 篇深度解析` 计数声明",
+            details=["  修复：在 foundations/overview.md 顶部 keep `**NN 篇深度解析**` 行"],
         )
 
     declared_readme = int(m_readme.group(1))
@@ -376,9 +376,9 @@ def check_7_stale_todo(repo_root: Path) -> CheckResult:
     hits: list[str] = []
     target_files = [
         repo_root / "README.md",
-        repo_root / "foundations" / "README.md",
-        repo_root / "embodiments" / "README.md",
-        repo_root / "crossing" / "README.md",
+        repo_root / "foundations" / "overview.md",
+        repo_root / "embodiments" / "overview.md",
+        repo_root / "crossing" / "overview.md",
     ]
     for tf in target_files:
         if not tf.exists():

@@ -106,4 +106,4 @@
 
 ---
 
-[← Back to NeRF Family](./README.md)
+[← Back to NeRF Family](./overview.md)

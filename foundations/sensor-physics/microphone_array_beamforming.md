@@ -285,4 +285,4 @@ Drone propeller 在 50-2000 Hz 有特征 spectral signature。**counter-drone mi
 *2026-05-21. v1. UNVERIFIED → v1.1 待 ReSpeaker / Knowles / Infineon datasheet 核对。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

@@ -220,7 +220,7 @@ ViT-L > ViT-S 在 benchmark，但 **Metric3D ViT-L 在 4m 远距离反而比 ViT
 - Metric3D 完整 dissection → [`./metric3d_dissection.md`](./metric3d_dissection.md)
 - MoGe 完整 dissection → [`./moge_dissection.md`](./moge_dissection.md)
 - FoundationStereo 完整 dissection → [`./foundationstereo_dissection.md`](./foundationstereo_dissection.md)
-- VGGT / VGGT-Ω / MapAnything (feed-forward 3D 视角，含 depth) → [`../feed-forward-3d/README.md`](../feed-forward-3d/README.md)
+- VGGT / VGGT-Ω / MapAnything (feed-forward 3D 视角，含 depth) → [`../feed-forward-3d/README.md`](../feed-forward-3d/overview.md)
 - Stereo geometry physics → [`../sensor-physics/stereo_camera_geometry_physics.md`](../sensor-physics/stereo_camera_geometry_physics.md)
 - RGB 相机物理 (latest) → [`../sensor-physics/rgb_camera_imaging_pipeline.md`](../sensor-physics/rgb_camera_imaging_pipeline.md)
 - 跨 embodiment depth 选型对比 → [`../../crossing/sensor-stack-matrix/sensor_budget_matrix_v1.md`](../../crossing/sensor-stack-matrix/sensor_budget_matrix_v1.md)
@@ -240,4 +240,4 @@ ViT-L > ViT-S 在 benchmark，但 **Metric3D ViT-L 在 4m 远距离反而比 ViT
 
 ---
 
-[← Back to Depth Foundation](./README.md)
+[← Back to Depth Foundation](./overview.md)

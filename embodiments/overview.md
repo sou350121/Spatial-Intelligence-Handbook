@@ -298,10 +298,10 @@ graph TB
 | [aerial/README.md](aerial/) | 子区导读（8 个 axes）|
 | [aerial/vio/](aerial/vio/) | VINS-Mono / OpenVINS / DROID-SLAM 三大 VIO stack |
 | [aerial/event-camera/](aerial/event-camera/) | UZH RPG champion-level racing + event camera 物理 |
-| [aerial/obstacle-avoidance/README.md](aerial/obstacle-avoidance/README.md) | 两条 school（RL reactive vs classical planning）|
-| [aerial/active-tracking/README.md](aerial/active-tracking/README.md) | Skydio ActiveTrack + DJI ActiveTrack 反推 |
-| [aerial/on-board-mapping/README.md](aerial/on-board-mapping/README.md) | 3DGS on Jetson Orin + GNSS-denied long-range |
-| [aerial/sensor-stack/README.md](aerial/sensor-stack/README.md) | 250g / 800g / 1.5kg+ 三档 payload 的 sensor 选型 |
+| [aerial/obstacle-avoidance/README.md](aerial/obstacle-avoidance/overview.md) | 两条 school（RL reactive vs classical planning）|
+| [aerial/active-tracking/README.md](aerial/active-tracking/overview.md) | Skydio ActiveTrack + DJI ActiveTrack 反推 |
+| [aerial/on-board-mapping/README.md](aerial/on-board-mapping/overview.md) | 3DGS on Jetson Orin + GNSS-denied long-range |
+| [aerial/sensor-stack/README.md](aerial/sensor-stack/overview.md) | 250g / 800g / 1.5kg+ 三档 payload 的 sensor 选型 |
 
 </details>
 
@@ -413,4 +413,4 @@ marine/sensor_stack_underwater → underwater_slam_dvl_sonar
 
 ---
 
-[← Back to Handbook root](../README.md) · [→ foundations](../foundations/README.md) · [→ crossing (USP)](../crossing/README.md) · [→ bridge to VLA-Handbook](../bridge-to-vla/README.md)
+[← Back to Handbook root](../README.md) · [→ foundations](../foundations/overview.md) · [→ crossing (USP)](../crossing/overview.md) · [→ bridge to VLA-Handbook](../bridge-to-vla/overview.md)

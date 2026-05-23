@@ -118,7 +118,7 @@ aerial zone 既有 dissection 偏「现代开源库拆解」，**缺基础教材
 - 跨实体延迟与 feed-forward 3D 对照：[`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../crossing/slam-vio-migration/vggt_vs_drone_vio.md)
 - 跨实体 sensor 矩阵：[`crossing/sensor-stack-matrix/`](../../crossing/sensor-stack-matrix/)
 - 主动 NIR / 眼安全：[`foundations/sensor-physics/active_nir_850nm_for_embodied_ai.md`](../../foundations/sensor-physics/active_nir_850nm_for_embodied_ai.md)
-- 顶层实体地图：[`embodiments/README.md`](../README.md)
+- 顶层实体地图：[`embodiments/README.md`](../overview.md)
 
 ## Boundary
 

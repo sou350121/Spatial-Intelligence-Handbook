@@ -212,6 +212,6 @@ Isaac Sim / Gazebo / Flightmare 学的 controller / planner 搬上 ELEC5660 真�
 
 ---
 
-[← Back to Aerial README](./README.md)
+[← Back to Aerial README](./overview.md)
 
 ⚙️ 初稿由 Moltbot 自动生成 | 2026-05-22 | 取材 HKUST ELEC5660 lab1/lab2/lab3 (BSD 3-Clause)

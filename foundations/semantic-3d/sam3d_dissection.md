@@ -190,7 +190,7 @@ SAM 3D Objects:
 
 - Retrieval 路线对照 → [`langsplat_dissection.md`](./langsplat_dissection.md), [`openscene_dissection.md`](./openscene_dissection.md), [`lerf_dissection.md`](./lerf_dissection.md)
 - 底层 3DGS → [`foundations/3dgs-family/`](../3dgs-family/)
-- VLM 侧推理 → [`foundations/vlm-spatial-reasoning/`](../vlm-spatial-reasoning/README.md)
+- VLM 侧推理 → [`foundations/vlm-spatial-reasoning/`](../vlm-spatial-reasoning/overview.md)
 - 3D mask → action → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)
 
 ## Boundary
@@ -198,4 +198,4 @@ SAM 3D Objects:
 本文覆盖把 SAM 抬到 3D 的**三条 promptable 路线**。它**不**覆盖：retrieval 路线（→ `langsplat_dissection.md`、`openscene_dissection.md`）；SAM 2 视频追踪（→ 留 v2，VLA-Handbook 工具篇覆盖）；SAM 3 PCS 自身（2D / video，本仓 2D 视觉边界外）；mesh extraction from 3DGS（→ `foundations/3dgs-family/`）；具身侧策略集成（→ `embodiments/manipulation/`、`bridge-to-vla/`）。
 
 ---
-[← Back to semantic-3d README](./README.md)
+[← Back to semantic-3d README](./overview.md)

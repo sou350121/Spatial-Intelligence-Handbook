@@ -200,7 +200,7 @@ LangSplat 延迟在两个时间尺度：
 - 流式可部署对照 → [`openscene_dissection.md`](./openscene_dissection.md)
 - promptable 路线（点 / mask）→ [`sam3d_dissection.md`](./sam3d_dissection.md)
 - 底层 3DGS → [`foundations/3dgs-family/`](../3dgs-family/)
-- VLM 侧推理（非 field 路线）→ [`foundations/vlm-spatial-reasoning/`](../vlm-spatial-reasoning/README.md)
+- VLM 侧推理（非 field 路线）→ [`foundations/vlm-spatial-reasoning/`](../vlm-spatial-reasoning/overview.md)
 - 语义场 → action → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)
 
 ## Boundary
@@ -208,4 +208,4 @@ LangSplat 延迟在两个时间尺度：
 本文专门解构 LangSplat。它**不**覆盖：底层 3DGS（→ `foundations/3dgs-family/3dgs_original_dissection.md`）；LERF 范式（→ [`lerf_dissection.md`](./lerf_dissection.md)）；projection-fusion 路线（→ [`openscene_dissection.md`](./openscene_dissection.md)）；promptable 3D segmentation（→ [`sam3d_dissection.md`](./sam3d_dissection.md)）；feed-forward 语义场（v2 queue）；4D LangSplat 等动态扩展（v2 queue）；具身侧策略集成（→ `embodiments/manipulation/`、`bridge-to-vla/`）。
 
 ---
-[← Back to semantic-3d README](./README.md)
+[← Back to semantic-3d README](./overview.md)

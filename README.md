@@ -107,7 +107,7 @@ graph TD
 | [`sensor-physics/` 850nm NIR](./foundations/sensor-physics/) | ★ 独家轴 — 学界写不出的 SWaP-C 物理 |
 | [`spatial-math/` SE(3) primer](./foundations/spatial-math/) | 所有 SLAM/VIO 的数学骨架 |
 
-📂 **完整 13 zones 导览**：[`foundations/README.md`](./foundations/README.md) — explorer-map 风格，含 mermaid + persona + speed runs
+📂 **完整 13 zones 导览**：[`foundations/README.md`](./foundations/overview.md) — explorer-map 风格，含 mermaid + persona + speed runs
 
 </details>
 
@@ -508,4 +508,4 @@ CC BY 4.0 · 欢迎 Issue 和 PR：补论文解读 · 真机经验 · sensor 选
 
 &nbsp;
 
-[→ Foundations (工具箱)](./foundations/README.md) · [→ Crossing ★ USP](./crossing/) · [→ Embodiments](./embodiments/) · [→ Bridge to VLA-Handbook](./bridge-to-vla/) · [姊妹仓：VLA-Handbook](https://github.com/sou350121/VLA-Handbook)
+[→ Foundations (工具箱)](./foundations/overview.md) · [→ Crossing ★ USP](./crossing/) · [→ Embodiments](./embodiments/) · [→ Bridge to VLA-Handbook](./bridge-to-vla/) · [姊妹仓：VLA-Handbook](https://github.com/sou350121/VLA-Handbook)

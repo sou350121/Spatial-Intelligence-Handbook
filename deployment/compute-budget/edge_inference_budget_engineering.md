@@ -352,6 +352,6 @@ sudo tegrastats --interval 100
 
 ---
 
-[← Back to Compute Budget README](./README.md)
+[← Back to Compute Budget README](./overview.md)
 
 ⚙️ 初稿由 Moltbot 自动生成 | 2026-05-21

@@ -218,4 +218,4 @@ Bosch / Continental 是模块整合 + algorithm，NXP / Infineon / TI 是 RF chi
 *2026-05-21. v1 first draft. UNVERIFIED → v1.2 datasheet 验证。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

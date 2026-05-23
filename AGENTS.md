@@ -281,7 +281,7 @@ emoji 前缀，便于 `git log` 区分人工与自动：
 ## 启发与可借鉴之处
 1-3 句
 
-[← Back to Code Notes Index](./README.md) · [← Back to <module>](../README.md)
+[← Back to Code Notes Index](./README.md) · [← Back to <module>](../overview.md)
 ```
 
 **与主目录 dissection 的区别**：

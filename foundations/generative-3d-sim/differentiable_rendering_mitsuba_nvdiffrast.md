@@ -177,4 +177,4 @@ per-method 3DGS rasterizer 内部 → `foundations/3dgs-family/3dgs_original_dis
 
 **Status:** v1 (2026-05-21). UNVERIFIED policy applies to all timing / convergence numbers.
 
-[← Back to Generative 3D Sim](./README.md)
+[← Back to Generative 3D Sim](./overview.md)

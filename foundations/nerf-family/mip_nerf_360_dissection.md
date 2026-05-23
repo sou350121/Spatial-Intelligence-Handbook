@@ -201,4 +201,4 @@ MLP 只见过 `‖·‖ ≤ 2`. **天空是半径 2 处的薄壳** — 与建筑
 
 ---
 
-[← Back to NeRF Family README](./README.md)
+[← Back to NeRF Family README](./overview.md)

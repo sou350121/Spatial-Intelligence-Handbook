@@ -260,6 +260,6 @@ foundations/physics/
 
 ---
 
-[← Back to Foundations](../README.md) · [→ Generative 3D Sim (视觉端互补)](../generative-3d-sim/README.md) · [→ Spatial Math (上游数学)](../spatial-math/README.md) · [→ World Model (决策端)](../world-model/README.md)
+[← Back to Foundations](../overview.md) · [→ Generative 3D Sim (视觉端互补)](../generative-3d-sim/overview.md) · [→ Spatial Math (上游数学)](../spatial-math/overview.md) · [→ World Model (决策端)](../world-model/overview.md)
 
 *Zone landing page · 2026-05-22 expanded from seed.*

@@ -185,4 +185,4 @@ Table 内存: `L × T × F × 4 ≈ 67 MB`. MLP <1 MB.
 
 ---
 
-[← Back to NeRF Family README](./README.md)
+[← Back to NeRF Family README](./overview.md)

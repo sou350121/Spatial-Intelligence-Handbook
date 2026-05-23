@@ -32,7 +32,7 @@
 
 **Project momentum: ⚠️** — frozen 代码 + 用户活跃 + maintainer 沉默；[#1001](https://github.com/UZ-SLAMLab/ORB_SLAM3/issues/1001) 2026-04 用户吐槽 "the worst repository I have ever tried to work with"（3 reactions）即写照。
 
-**是否该选**：✅ 学术 baseline / 室内 RGB-D / manipulation PoC；⚠️ 产品部署 — 锁版本 fork + 自接 ROS 2；❌ Aerial / 高速 / 户外 → 见 [`embodiments/aerial/vio/`](../../embodiments/aerial/vio/README.md)
+**是否该选**：✅ 学术 baseline / 室内 RGB-D / manipulation PoC；⚠️ 产品部署 — 锁版本 fork + 自接 ROS 2；❌ Aerial / 高速 / 户外 → 见 [`embodiments/aerial/vio/`](../../embodiments/aerial/vio/overview.md)
 
 ---
 
@@ -134,4 +134,4 @@
 
 ⚙️ 本文由 Moltbot 自动生成 | 2026-05-21
 
-[← Back to Classical SLAM](./README.md)
+[← Back to Classical SLAM](./overview.md)

@@ -266,15 +266,15 @@ RGB ──► VLM（已在 2B 合成 QA          RGB  ──► SigLIP ──┐
 
 - Zone 同侪 implicit 路线 → [`spatialvlm_dissection.md`](./spatialvlm_dissection.md)
 - Zone 外部评测 → [`3dsrbench_dissection.md`](./3dsrbench_dissection.md)
-- 替代 lane（显式 3D 语义抬升）→ [`../semantic-3d/`](../semantic-3d/README.md)
-- 深度模型本身 → [`../depth-foundation/`](../depth-foundation/README.md)（SpatialBot 部署时 depth 源选择）
+- 替代 lane（显式 3D 语义抬升）→ [`../semantic-3d/`](../semantic-3d/overview.md)
+- 深度模型本身 → [`../depth-foundation/`](../depth-foundation/overview.md)（SpatialBot 部署时 depth 源选择）
 - VLA 集成 → [`../../bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)（SpatialBot = "explicit depth token" 行）
 - VLA-Handbook spatial reasoning → [VLA-Handbook](https://github.com/sou350121/VLA-Handbook)
 
 ## Boundary
 
-本文专门解构 SpatialBot 的 depth-as-modality 路线。它**不**覆盖：SpatialVLM 监督规模论点（→ [`spatialvlm_dissection.md`](./spatialvlm_dissection.md)）；外部 3D 推理 benchmark（→ [`3dsrbench_dissection.md`](./3dsrbench_dissection.md)）；具体 depth 传感器选型（→ `foundations/sensor-physics/`）；depth 基础模型对比（→ [`../depth-foundation/`](../depth-foundation/README.md)）；VLA 端 3D-aware action head（→ `bridge-to-vla/`，VLA-Handbook）。
+本文专门解构 SpatialBot 的 depth-as-modality 路线。它**不**覆盖：SpatialVLM 监督规模论点（→ [`spatialvlm_dissection.md`](./spatialvlm_dissection.md)）；外部 3D 推理 benchmark（→ [`3dsrbench_dissection.md`](./3dsrbench_dissection.md)）；具体 depth 传感器选型（→ `foundations/sensor-physics/`）；depth 基础模型对比（→ [`../depth-foundation/`](../depth-foundation/overview.md)）；VLA 端 3D-aware action head（→ `bridge-to-vla/`，VLA-Handbook）。
 
 ---
 
-[← Back to vlm-spatial-reasoning README](./README.md)
+[← Back to vlm-spatial-reasoning README](./overview.md)

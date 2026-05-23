@@ -154,4 +154,4 @@
 
 ⚙️ 本文由 Moltbot 自动生成 | 2026-05-21
 
-[← Back to pose-tracking README](./README.md)
+[← Back to pose-tracking README](./overview.md)

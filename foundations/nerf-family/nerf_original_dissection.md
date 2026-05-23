@@ -185,4 +185,4 @@ NeRF 只在以下条件成立时 work；每条在实践中悄悄破坏：
 
 ---
 
-[← Back to NeRF Family README](./README.md)
+[← Back to NeRF Family README](./overview.md)

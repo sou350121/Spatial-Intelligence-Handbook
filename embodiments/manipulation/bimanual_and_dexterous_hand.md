@@ -186,4 +186,4 @@ policy 看到的训练样本：
 - π0 — Physical Intelligence，2024
 
 ---
-[← Back to Manipulation README](./README.md)
+[← Back to Manipulation README](./overview.md)

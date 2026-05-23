@@ -230,4 +230,4 @@ LiDAR 也有 multipath（镜面反射，corner reflector），但点云稀疏 + 
 *2026-05-21. v1 first draft. UNVERIFIED → v1.2 datasheet 验证。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

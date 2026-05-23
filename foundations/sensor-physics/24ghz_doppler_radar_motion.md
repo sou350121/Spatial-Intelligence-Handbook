@@ -259,4 +259,4 @@ Doppler 物理对 24 GHz 特别合用：1 m/s 速度 → 音频频率，**便宜
 *2026-05-21. v1. UNVERIFIED → v1.1 待 chip datasheet 核对。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

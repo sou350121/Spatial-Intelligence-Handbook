@@ -215,6 +215,6 @@
 
 ---
 
-[← Back to Physics zone](./README.md) · [→ Primer (上游数学)](./rigid_body_dynamics_primer.md) · [→ MJX Dissection](./mujoco_mjx_dissection.md) · [→ Warp Dissection](./nvidia_warp_dissection.md) · [→ PhysGaussian (渲染端)](./physgaussian_dissection.md)
+[← Back to Physics zone](./overview.md) · [→ Primer (上游数学)](./rigid_body_dynamics_primer.md) · [→ MJX Dissection](./mujoco_mjx_dissection.md) · [→ Warp Dissection](./nvidia_warp_dissection.md) · [→ PhysGaussian (渲染端)](./physgaussian_dissection.md)
 
 *Comparison type · 表格主导 · 不走 dissection 14 项门槛 per AGENTS.md.*

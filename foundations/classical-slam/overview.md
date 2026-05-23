@@ -65,10 +65,10 @@
 ## Cross-references
 
 - [`foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../feed-forward-3d/vggt_cvpr2025_dissection.md) —— 这一区的"未来对偶面"
-- [`embodiments/aerial/vio/README.md`](../../embodiments/aerial/vio/README.md) —— aerial 严苛实时实战
+- [`embodiments/aerial/vio/README.md`](../../embodiments/aerial/vio/overview.md) —— aerial 严苛实时实战
 - [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../crossing/slam-vio-migration/vggt_vs_drone_vio.md) —— 跨 embodiment 跨范式旗舰
 - [`foundations/sensor-physics/`](../sensor-physics/) —— IMU / camera 信号源头
 
 ---
 
-[← Back to Foundations](../README.md) · [→ Crossing](../../crossing/README.md)
+[← Back to Foundations](../overview.md) · [→ Crossing](../../crossing/overview.md)

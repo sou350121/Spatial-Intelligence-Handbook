@@ -58,9 +58,14 @@ def humanize(name: str) -> str:
 
 
 def collect_md(d: Path) -> list[Path]:
-    """Return sorted .md files directly under d (non-recursive), README first."""
+    """Return sorted .md files directly under d (non-recursive), overview/README first.
+
+    Mintlify drops README.md silently, so most directories use overview.md as the
+    landing page. We sort overview.md (or README.md at repo root) first so it
+    becomes the directory's default landing page in sidebar.
+    """
     files = [p for p in d.glob("*.md") if p.stem not in EXCLUDE_PATTERNS]
-    files.sort(key=lambda p: (p.stem != "README", p.stem.lower()))
+    files.sort(key=lambda p: (p.stem not in ("overview", "README"), p.stem.lower()))
     return files
 
 

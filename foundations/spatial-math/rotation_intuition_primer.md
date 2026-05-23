@@ -371,4 +371,4 @@ Hamilton 1843 发明四元数，让 3D 旋转有了**最实用的表达**：
 - Sola (2017) *Quaternion kinematics for the error-state Kalman filter*. [arXiv 1711.02508](https://arxiv.org/abs/1711.02508) — 工程师视角，比教科书友好。
 - 3Blue1Brown video: *Visualizing quaternions* https://www.youtube.com/watch?v=d4EgbgTm0Bg — 视频直觉。
 
-[← Back to Spatial Math](./README.md)
+[← Back to Spatial Math](./overview.md)

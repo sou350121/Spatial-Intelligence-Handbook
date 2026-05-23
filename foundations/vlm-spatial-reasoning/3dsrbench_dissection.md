@@ -243,9 +243,9 @@ uncommon viewpoint 跌 13-19% 对各 embodiment 含义不同：
 
 - Zone 同侪 model dissection → [`spatialvlm_dissection.md`](./spatialvlm_dissection.md) · [`spatialbot_dissection.md`](./spatialbot_dissection.md)
 - 一般 VLM benchmark 体系 → [`../../benchmarks/reasoning/`](../../benchmarks/reasoning/)（TBD）
-- 视角鲁棒性也是 3D-aware backbone 的卖点 → [`../feed-forward-3d/`](../feed-forward-3d/README.md)
+- 视角鲁棒性也是 3D-aware backbone 的卖点 → [`../feed-forward-3d/`](../feed-forward-3d/overview.md)
 - VLA 端的 view 泛化 → [VLA-Handbook](https://github.com/sou350121/VLA-Handbook)（cross-embodiment view transfer）
-- Aerial 视角分布问题 → [`../../embodiments/aerial/`](../../embodiments/aerial/README.md)
+- Aerial 视角分布问题 → [`../../embodiments/aerial/`](../../embodiments/aerial/overview.md)
 
 ## Boundary
 
@@ -253,4 +253,4 @@ uncommon viewpoint 跌 13-19% 对各 embodiment 含义不同：
 
 ---
 
-[← Back to vlm-spatial-reasoning README](./README.md)
+[← Back to vlm-spatial-reasoning README](./overview.md)

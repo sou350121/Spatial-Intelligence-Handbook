@@ -250,4 +250,4 @@ n ≈ 2-4 (path loss exponent，与建筑材料相关)
 *2026-05-21. v1. UNVERIFIED → v1.1 待 3GPP / 802.11 spec 核对。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

@@ -44,6 +44,6 @@
 
 ---
 
-[← Back to Foundations](../README.md) · [→ World Model (sibling)](../world-model/README.md) · [→ 3DGS Family](../3dgs-family/README.md) · [→ Crossing: 3DGS-as-sim comparison](../../crossing/representation-migration/3dgs_as_simulator_comparison.md)
+[← Back to Foundations](../overview.md) · [→ World Model (sibling)](../world-model/overview.md) · [→ 3DGS Family](../3dgs-family/overview.md) · [→ Crossing: 3DGS-as-sim comparison](../../crossing/representation-migration/3dgs_as_simulator_comparison.md)
 
 *Last lane review: 2026-05-21.*

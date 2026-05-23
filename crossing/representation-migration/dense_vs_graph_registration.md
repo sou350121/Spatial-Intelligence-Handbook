@@ -173,7 +173,7 @@ bandwidth (log)    精度
 
 ## Cross-references
 
-- [`../../foundations/semantic-3d/README.md`](../../foundations/semantic-3d/README.md) — SG-Reg watch list
+- [`../../foundations/semantic-3d/README.md`](../../foundations/semantic-3d/overview.md) — SG-Reg watch list
 - [`../../foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../../foundations/feed-forward-3d/vggt_cvpr2025_dissection.md) — 不显式 SE(3) 的配准
 - [`../../foundations/classical-slam/orb_slam3_dissection.md`](../../foundations/classical-slam/orb_slam3_dissection.md) — loop closure 上下文
 - [`./3dgs_as_simulator_comparison.md`](./3dgs_as_simulator_comparison.md) — 同 zone comparison 范例
@@ -198,4 +198,4 @@ bandwidth (log)    精度
 
 ---
 
-[← Back to crossing/](../README.md)
+[← Back to crossing/](../overview.md)

@@ -150,7 +150,7 @@ DSO —— TUM mono + EuRoC：在友好序列上直接法 translational 比 feat
 ## Boundary
 
 - ORB-SLAM3 机制 → [`./orb_slam3_dissection.md`](./orb_slam3_dissection.md)。
-- Aerial 实时 VIO（VINS / OpenVINS / DROID） → [`embodiments/aerial/vio/`](../../embodiments/aerial/vio/README.md)。不重复。
+- Aerial 实时 VIO（VINS / OpenVINS / DROID） → [`embodiments/aerial/vio/`](../../embodiments/aerial/vio/overview.md)。不重复。
 - VGGT / feed-forward 3D 后继 → [`foundations/feed-forward-3d/`](../feed-forward-3d/)。
 - 光度 / 传感器标定流程 → [`./slam_toolchain_ecosystem.md`](./slam_toolchain_ecosystem.md)。
 
@@ -166,4 +166,4 @@ DSO —— TUM mono + EuRoC：在友好序列上直接法 translational 比 feat
 
 ---
 
-[← Back to Classical SLAM](./README.md)
+[← Back to Classical SLAM](./overview.md)

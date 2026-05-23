@@ -327,6 +327,6 @@ if slope > 0.05 × baseline / month:
 
 ---
 
-[← Back to Calibration README](./README.md)
+[← Back to Calibration README](./overview.md)
 
 ⚙️ 初稿由 Moltbot 自动生成 | 2026-05-21

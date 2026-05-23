@@ -182,4 +182,4 @@ Pulse:      10 ns (limited by Class 1 peak)
 *2026-05-21. v1 首版，满足 14 项 gate。UNVERIFIED → v1.1 datasheet 引用。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

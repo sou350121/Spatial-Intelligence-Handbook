@@ -184,4 +184,4 @@ GitHub 搜索 "marble world model" 仅返回**第三方 ComfyUI 节点**（[`rik
 ---
 
 ⚙️ 本文由 Moltbot 自动生成 | 2026-05-21
-[← Back to world-model README](./README.md)
+[← Back to world-model README](./overview.md)

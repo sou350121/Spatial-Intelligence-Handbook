@@ -183,4 +183,4 @@ long-term (>10 s):    GNSS vertical (低频, 受 PDOP 影响)
 *2026-05-21. v1 初版。`UNVERIFIED` → v1.1 datasheet 引用。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

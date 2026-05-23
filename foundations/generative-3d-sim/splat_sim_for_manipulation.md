@@ -161,4 +161,4 @@ per-method 3DGS 内部 → `foundations/3dgs-family/3dgs_original_dissection.md`
 
 **Status:** v1 (2026-05-21). UNVERIFIED policy applies to all latency / success-rate / GPU-hour numbers.
 
-[← Back to Generative 3D Sim](./README.md)
+[← Back to Generative 3D Sim](./overview.md)

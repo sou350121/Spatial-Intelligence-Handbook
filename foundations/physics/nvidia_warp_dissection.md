@@ -261,6 +261,6 @@ Differentiable physics 研究文献中，**Warp 与 DiffTaichi / Brax / Drake �
 
 ---
 
-[← Back to Physics zone](./README.md) · [→ Primer (上游)](./rigid_body_dynamics_primer.md) · [→ MuJoCo MJX Dissection](./mujoco_mjx_dissection.md) · [→ Differentiable Physics Comparison](./differentiable_physics_comparison.md)
+[← Back to Physics zone](./overview.md) · [→ Primer (上游)](./rigid_body_dynamics_primer.md) · [→ MuJoCo MJX Dissection](./mujoco_mjx_dissection.md) · [→ Differentiable Physics Comparison](./differentiable_physics_comparison.md)
 
 *Dissection type · 14-item template per AGENTS.md.*

@@ -304,7 +304,7 @@ HKUST sim 默认值（`proj1phase1/sim/model.py`，500 g class）：
 - 四元数 Hamilton vs JPL：[`foundations/spatial-math/quaternions_and_rotations.md`](../../foundations/spatial-math/quaternions_and_rotations.md)
 - 状态估计（cascade 输入端）：[`embodiments/aerial/vio/`](./vio/)
 - 轨迹规划（cascade 上游）：[`embodiments/aerial/planning/`](./planning/)
-- 跨实体控制频率对比：[`embodiments/aerial/README.md`](./README.md) §3
+- 跨实体控制频率对比：[`embodiments/aerial/README.md`](./overview.md) §3
 
 ## Boundary
 
@@ -328,4 +328,4 @@ HKUST sim 默认值（`proj1phase1/sim/model.py`，500 g class）：
 
 ---
 
-[← Back to Aerial](./README.md)
+[← Back to Aerial](./overview.md)

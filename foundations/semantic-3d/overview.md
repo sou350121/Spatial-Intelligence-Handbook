@@ -68,7 +68,7 @@ CLIP、SAM、DINO 都活在像素空间。机器人活在 metric 空间。每次
 
 ## Cross-references
 
-- VLM 侧推理（把语言 grounded 到几何的*另一种*方式）→ [`foundations/vlm-spatial-reasoning/`](../vlm-spatial-reasoning/README.md)
+- VLM 侧推理（把语言 grounded 到几何的*另一种*方式）→ [`foundations/vlm-spatial-reasoning/`](../vlm-spatial-reasoning/overview.md)
 - 特征所骑的底层几何 → [`foundations/feed-forward-3d/`](../feed-forward-3d/), [`foundations/3dgs-family/`](../3dgs-family/)
 - Semantic cloud → action → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)
 - 跨表示的跨具身体对比 → [`crossing/representation-migration/dense_vs_graph_registration.md`](../../crossing/representation-migration/dense_vs_graph_registration.md)（**★ NEW** — 5 法配準對照）

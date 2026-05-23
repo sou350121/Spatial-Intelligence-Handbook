@@ -9,7 +9,7 @@
 
 2025 年现成 VLM 的默认行为，是把图当 2D 语义场景。它会高准确率告诉你"there is a mug and a keyboard"，被问"mug 比 keyboard 更近吗？"或"mug 把手离桌面多少厘米？"时则失败——或自信地胡说。原因是结构性的：训练数据是来自网络的 image-caption 对，而网络 caption 是命名 caption，不是空间关系 caption。模型有特征能*回答*空间问题；只是从来没被*教过*把它们浮上来。
 
-这对机器人很重要，因为 VLM 是把语言目标接到感知系统上的最便宜接口。如果 VLM 能可靠回答"夹爪该往哪去？"，半个 semantic-3D 管线（见 [`foundations/semantic-3d/`](../semantic-3d/README.md)）就可以省掉。本 lane 的论文都回答一个问题：**鉴于单靠架构小技巧不够，如何让 VLM 给出 3D-grounded 答案？**
+这对机器人很重要，因为 VLM 是把语言目标接到感知系统上的最便宜接口。如果 VLM 能可靠回答"夹爪该往哪去？"，半个 semantic-3D 管线（见 [`foundations/semantic-3d/`](../semantic-3d/overview.md)）就可以省掉。本 lane 的论文都回答一个问题：**鉴于单靠架构小技巧不够，如何让 VLM 给出 3D-grounded 答案？**
 
 ## The 3 approaches
 
@@ -33,7 +33,7 @@ Zone 从 seed（仅 SpatialVLM）扩为完整 zone：两路 model（implicit pre
 
 ## Cross-references
 
-- 把语言 grounded 到几何的*另一种*方式（semantic 3D lifting）→ [`foundations/semantic-3d/`](../semantic-3d/README.md)
+- 把语言 grounded 到几何的*另一种*方式（semantic 3D lifting）→ [`foundations/semantic-3d/`](../semantic-3d/overview.md)
 - 空间推理 benchmark → [`benchmarks/reasoning/`](../../benchmarks/reasoning/)（TBD）
 - VLM 空间输出 → 策略动作 → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)（SpatialVLM caption 集成是逆向案例）
 - 跨具身体对比（"VLM as perception" vs "VLM + 显式 3D"）→ [`crossing/representation-migration/`](../../crossing/representation-migration/) — 已 2 篇（`3dgs_as_simulator_comparison.md` + `dense_vs_graph_registration.md`）

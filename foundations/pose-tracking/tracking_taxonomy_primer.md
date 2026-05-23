@@ -252,4 +252,4 @@ SAM 2 (2024) 将 mode 3 推到 foundation 级 —— 单击 → 整段视频的 
 
 ---
 
-[← Back to Pose & Tracking](./README.md)
+[← Back to Pose & Tracking](./overview.md)

@@ -190,4 +190,4 @@ Ceres / GTSAM / g2o 都围绕这些操作构建 manifold-aware solver。`J_r(φ)
 - Strasdat, H. *Scale Drift-Aware Large Scale Monocular SLAM*, RSS 2010. Sim(3) original.
 - ORB-SLAM3 (Sophus usage): https://github.com/UZ-SLAMLab/ORB_SLAM3
 
-[← Back to Spatial Math](./README.md)
+[← Back to Spatial Math](./overview.md)

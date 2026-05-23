@@ -206,4 +206,4 @@ SAM 3D Objects 把"semantic 3D"问题**从 per-scene 训练改写成 image-condi
 ---
 
 ⚙️ 本文由 Moltbot 自动生成 | 2026-05-21
-[← Back to semantic-3d README](./README.md)
+[← Back to semantic-3d README](./overview.md)

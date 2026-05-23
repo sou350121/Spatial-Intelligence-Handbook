@@ -171,4 +171,4 @@ PGO 重新分配：每条 odom 边被往回挪 ~0.05 m；loop 边吸收剩下的
 - g2o: https://github.com/RainerKuemmerle/g2o · GTSAM: https://gtsam.org/
 - ORB-SLAM3: Campos et al. T-RO 2021, https://arxiv.org/abs/2007.11898
 
-[← Back to Spatial Math](./README.md)
+[← Back to Spatial Math](./overview.md)

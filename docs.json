@@ -33,13 +33,13 @@
           {
             "group": "Overview",
             "pages": [
-              "foundations/README.md"
+              "foundations/overview.md"
             ]
           },
           {
             "group": "3dgs Family",
             "pages": [
-              "foundations/3dgs-family/README.md",
+              "foundations/3dgs-family/overview.md",
               "foundations/3dgs-family/3dgs_original_dissection.md",
               "foundations/3dgs-family/4dgs_dynamic_scenes.md",
               "foundations/3dgs-family/github_failure_atlas.md",
@@ -50,7 +50,7 @@
           {
             "group": "Classical Slam",
             "pages": [
-              "foundations/classical-slam/README.md",
+              "foundations/classical-slam/overview.md",
               "foundations/classical-slam/direct_methods_dso_lsd.md",
               "foundations/classical-slam/github_failure_atlas.md",
               "foundations/classical-slam/orb_slam3_dissection.md",
@@ -61,7 +61,7 @@
           {
             "group": "Depth Foundation",
             "pages": [
-              "foundations/depth-foundation/README.md",
+              "foundations/depth-foundation/overview.md",
               "foundations/depth-foundation/classical_stereo_primer.md",
               "foundations/depth-foundation/depth_anything_v2_dissection.md",
               "foundations/depth-foundation/depth_models_comparison.md",
@@ -74,7 +74,7 @@
           {
             "group": "Feed Forward 3d",
             "pages": [
-              "foundations/feed-forward-3d/README.md",
+              "foundations/feed-forward-3d/overview.md",
               "foundations/feed-forward-3d/github_failure_atlas.md",
               "foundations/feed-forward-3d/mapanything_dissection.md",
               "foundations/feed-forward-3d/vggt_cvpr2025_dissection.md",
@@ -84,7 +84,7 @@
           {
             "group": "Generative 3d Sim",
             "pages": [
-              "foundations/generative-3d-sim/README.md",
+              "foundations/generative-3d-sim/overview.md",
               "foundations/generative-3d-sim/aerial_gym_3dgs_sim2real.md",
               "foundations/generative-3d-sim/differentiable_rendering_mitsuba_nvdiffrast.md",
               "foundations/generative-3d-sim/splat_sim_for_manipulation.md"
@@ -93,7 +93,7 @@
           {
             "group": "Nerf Family",
             "pages": [
-              "foundations/nerf-family/README.md",
+              "foundations/nerf-family/overview.md",
               "foundations/nerf-family/block_nerf_large_scenes.md",
               "foundations/nerf-family/github_failure_atlas.md",
               "foundations/nerf-family/instant_ngp_dissection.md",
@@ -104,7 +104,7 @@
           {
             "group": "Physics",
             "pages": [
-              "foundations/physics/README.md",
+              "foundations/physics/overview.md",
               "foundations/physics/differentiable_physics_comparison.md",
               "foundations/physics/mujoco_mjx_dissection.md",
               "foundations/physics/nvidia_warp_dissection.md",
@@ -115,7 +115,7 @@
           {
             "group": "Pose Tracking",
             "pages": [
-              "foundations/pose-tracking/README.md",
+              "foundations/pose-tracking/overview.md",
               "foundations/pose-tracking/classical_visual_tracking_kcf_csrt.md",
               "foundations/pose-tracking/cotracker_and_tap_dissection.md",
               "foundations/pose-tracking/foundation_pose_dissection.md",
@@ -130,7 +130,7 @@
           {
             "group": "Semantic 3d",
             "pages": [
-              "foundations/semantic-3d/README.md",
+              "foundations/semantic-3d/overview.md",
               "foundations/semantic-3d/github_failure_atlas.md",
               "foundations/semantic-3d/langsplat_dissection.md",
               "foundations/semantic-3d/lerf_dissection.md",
@@ -141,7 +141,7 @@
           {
             "group": "Sensor Physics",
             "pages": [
-              "foundations/sensor-physics/README.md",
+              "foundations/sensor-physics/overview.md",
               "foundations/sensor-physics/24ghz_doppler_radar_motion.md",
               "foundations/sensor-physics/active_nir_850nm_for_embodied_ai.md",
               "foundations/sensor-physics/barometer_pressure_altimetry.md",
@@ -171,7 +171,7 @@
           {
             "group": "Spatial Math",
             "pages": [
-              "foundations/spatial-math/README.md",
+              "foundations/spatial-math/overview.md",
               "foundations/spatial-math/bayesian_filtering_ekf_msckf.md",
               "foundations/spatial-math/bundle_adjustment.md",
               "foundations/spatial-math/camera_projection_view_geometry.md",
@@ -188,7 +188,7 @@
           {
             "group": "Vlm Spatial Reasoning",
             "pages": [
-              "foundations/vlm-spatial-reasoning/README.md",
+              "foundations/vlm-spatial-reasoning/overview.md",
               "foundations/vlm-spatial-reasoning/3dsrbench_dissection.md",
               "foundations/vlm-spatial-reasoning/github_failure_atlas.md",
               "foundations/vlm-spatial-reasoning/spatialbot_dissection.md",
@@ -198,7 +198,7 @@
           {
             "group": "World Model",
             "pages": [
-              "foundations/world-model/README.md",
+              "foundations/world-model/overview.md",
               "foundations/world-model/genie_dissection.md",
               "foundations/world-model/github_failure_atlas.md",
               "foundations/world-model/marble_decision_view.md",
@@ -214,19 +214,19 @@
           {
             "group": "Overview",
             "pages": [
-              "embodiments/README.md"
+              "embodiments/overview.md"
             ]
           },
           {
             "group": "Aerial",
             "pages": [
-              "embodiments/aerial/README.md",
+              "embodiments/aerial/overview.md",
               "embodiments/aerial/dynamics_and_control_primer.md",
               "embodiments/aerial/real_flight_production_gotchas.md",
               {
                 "group": "Active Tracking",
                 "pages": [
-                  "embodiments/aerial/active-tracking/README.md"
+                  "embodiments/aerial/active-tracking/overview.md"
                 ]
               },
               {
@@ -238,13 +238,13 @@
               {
                 "group": "Obstacle Avoidance",
                 "pages": [
-                  "embodiments/aerial/obstacle-avoidance/README.md"
+                  "embodiments/aerial/obstacle-avoidance/overview.md"
                 ]
               },
               {
                 "group": "On Board Mapping",
                 "pages": [
-                  "embodiments/aerial/on-board-mapping/README.md"
+                  "embodiments/aerial/on-board-mapping/overview.md"
                 ]
               },
               {
@@ -256,13 +256,13 @@
               {
                 "group": "Sensor Stack",
                 "pages": [
-                  "embodiments/aerial/sensor-stack/README.md"
+                  "embodiments/aerial/sensor-stack/overview.md"
                 ]
               },
               {
                 "group": "Vio",
                 "pages": [
-                  "embodiments/aerial/vio/README.md",
+                  "embodiments/aerial/vio/overview.md",
                   "embodiments/aerial/vio/droid_slam_dissection.md",
                   "embodiments/aerial/vio/ekf_from_scratch_dissection.md",
                   "embodiments/aerial/vio/github_failure_atlas.md",
@@ -275,7 +275,7 @@
           {
             "group": "Driving",
             "pages": [
-              "embodiments/driving/README.md",
+              "embodiments/driving/overview.md",
               "embodiments/driving/bev_and_occupancy.md",
               "embodiments/driving/waymo_vs_tesla_doctrinal_split.md"
             ]
@@ -283,7 +283,7 @@
           {
             "group": "Ground Mobile",
             "pages": [
-              "embodiments/ground-mobile/README.md",
+              "embodiments/ground-mobile/overview.md",
               "embodiments/ground-mobile/agv_indoor_localization_stack.md",
               "embodiments/ground-mobile/vln_and_object_nav.md"
             ]
@@ -291,7 +291,7 @@
           {
             "group": "Humanoid Legged",
             "pages": [
-              "embodiments/humanoid-legged/README.md",
+              "embodiments/humanoid-legged/overview.md",
               "embodiments/humanoid-legged/unitree_h1_vs_figure_vs_1x.md",
               "embodiments/humanoid-legged/whole_body_spatial_perception.md"
             ]
@@ -299,7 +299,7 @@
           {
             "group": "Manipulation",
             "pages": [
-              "embodiments/manipulation/README.md",
+              "embodiments/manipulation/overview.md",
               "embodiments/manipulation/3d_feature_cloud_representations.md",
               "embodiments/manipulation/bimanual_and_dexterous_hand.md"
             ]
@@ -307,7 +307,7 @@
           {
             "group": "Marine",
             "pages": [
-              "embodiments/marine/README.md",
+              "embodiments/marine/overview.md",
               "embodiments/marine/sensor_stack_underwater.md",
               "embodiments/marine/underwater_slam_dvl_sonar.md"
             ]
@@ -321,7 +321,7 @@
           {
             "group": "Overview",
             "pages": [
-              "crossing/README.md"
+              "crossing/overview.md"
             ]
           },
           {
@@ -365,7 +365,7 @@
           {
             "group": "Overview",
             "pages": [
-              "cheat-sheet/README.md",
+              "cheat-sheet/overview.md",
               "cheat-sheet/cross_zone_failure_atlas.md",
               "cheat-sheet/functional_map.md",
               "cheat-sheet/representation_comparison.md",
@@ -381,27 +381,27 @@
           {
             "group": "Overview",
             "pages": [
-              "deployment/README.md"
+              "deployment/overview.md"
             ]
           },
           {
             "group": "Calibration",
             "pages": [
-              "deployment/calibration/README.md",
+              "deployment/calibration/overview.md",
               "deployment/calibration/sensor_calibration_drift_in_production.md"
             ]
           },
           {
             "group": "Compute Budget",
             "pages": [
-              "deployment/compute-budget/README.md",
+              "deployment/compute-budget/overview.md",
               "deployment/compute-budget/edge_inference_budget_engineering.md"
             ]
           },
           {
             "group": "Failure Modes",
             "pages": [
-              "deployment/failure-modes/README.md",
+              "deployment/failure-modes/overview.md",
               "deployment/failure-modes/field_failures_taxonomy.md",
               "deployment/failure-modes/sensor_silent_failure_patterns.md"
             ]
@@ -409,14 +409,14 @@
           {
             "group": "Hardware Selection",
             "pages": [
-              "deployment/hardware-selection/README.md",
+              "deployment/hardware-selection/overview.md",
               "deployment/hardware-selection/bom_templates_by_class.md"
             ]
           },
           {
             "group": "Multi Modal Sync",
             "pages": [
-              "deployment/multi-modal-sync/README.md",
+              "deployment/multi-modal-sync/overview.md",
               "deployment/multi-modal-sync/hardware_trigger_vs_ptp_vs_software.md"
             ]
           }
@@ -429,7 +429,7 @@
           {
             "group": "Overview",
             "pages": [
-              "benchmarks/README.md"
+              "benchmarks/overview.md"
             ]
           },
           {
@@ -477,7 +477,7 @@
           {
             "group": "Overview",
             "pages": [
-              "bridge-to-vla/README.md",
+              "bridge-to-vla/overview.md",
               "bridge-to-vla/3d_aware_vla.md",
               "bridge-to-vla/feature-cloud-to-action.md",
               "bridge-to-vla/neural_map_as_memory.md"
@@ -492,7 +492,7 @@
           {
             "group": "Overview",
             "pages": [
-              "companies/README.md",
+              "companies/overview.md",
               "companies/apple_vision.md",
               "companies/nvidia_cosmos.md",
               "companies/physical_intelligence.md",
@@ -511,7 +511,7 @@
           {
             "group": "Overview",
             "pages": [
-              "reports/README.md"
+              "reports/overview.md"
             ]
           }
         ]

@@ -145,4 +145,4 @@ SpatialBot 2024-06 ──► repo 活, 344★ ──► 2025-09 last push ──
 ---
 
 ⚙️ 本文由 Moltbot 自动生成 | 2026-05-21
-[← Back to vlm-spatial-reasoning README](./README.md)
+[← Back to vlm-spatial-reasoning README](./overview.md)

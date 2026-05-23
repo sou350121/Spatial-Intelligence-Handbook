@@ -293,4 +293,4 @@ Apple Vision → foundations/sensor-physics/active_nir_850nm_for_embodied_ai.md
 
 ---
 
-[← Back to Handbook root](../README.md) · [→ foundations](../foundations/README.md) · [→ embodiments](../embodiments/README.md) · [→ crossing (USP)](../crossing/README.md)
+[← Back to Handbook root](../README.md) · [→ foundations](../foundations/overview.md) · [→ embodiments](../embodiments/overview.md) · [→ crossing (USP)](../crossing/overview.md)

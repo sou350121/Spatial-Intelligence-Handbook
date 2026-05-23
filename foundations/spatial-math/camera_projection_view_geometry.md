@@ -332,7 +332,7 @@ Hartley & Zisserman *Multiple View Geometry* 2003 是规范教科书。**今天 
 
 → **MapAnything (3DV 2026)** 把 K 当可选输入，部分回归 classical 范式。
 
-→ 见 [feed-forward-3d/README.md](../feed-forward-3d/README.md) 三件套对照。
+→ 见 [feed-forward-3d/README.md](../feed-forward-3d/overview.md) 三件套对照。
 
 ---
 
@@ -374,7 +374,7 @@ Hartley & Zisserman *Multiple View Geometry* 2003 是规范教科书。**今天 
 - **RGB sensor 物理（CMOS / Bayer / lens）** → [`../sensor-physics/rgb_camera_imaging_pipeline.md`](../sensor-physics/rgb_camera_imaging_pipeline.md)
 - **stereo geometry physics** → [`../sensor-physics/stereo_camera_geometry_physics.md`](../sensor-physics/stereo_camera_geometry_physics.md)
 - **Rolling vs global shutter** → [`../sensor-physics/rolling_vs_global_shutter.md`](../sensor-physics/rolling_vs_global_shutter.md)
-- **VGGT / MapAnything 现代替代品** → [`../feed-forward-3d/README.md`](../feed-forward-3d/README.md)
+- **VGGT / MapAnything 现代替代品** → [`../feed-forward-3d/README.md`](../feed-forward-3d/overview.md)
 
 ---
 
@@ -391,4 +391,4 @@ Hartley & Zisserman *Multiple View Geometry* 2003 是规范教科书。**今天 
 
 ---
 
-[← Back to Spatial Math](./README.md)
+[← Back to Spatial Math](./overview.md)

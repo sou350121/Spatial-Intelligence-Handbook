@@ -165,4 +165,4 @@ BPF 必须 angle-of-incidence 稳定；进入宽 FOV 镜头的光线最大可达
 *2026-05-21. v1.1 backfill. UNVERIFIED → v1.2 datasheet 引用。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

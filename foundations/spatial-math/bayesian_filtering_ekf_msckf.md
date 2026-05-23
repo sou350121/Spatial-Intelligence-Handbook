@@ -187,4 +187,4 @@ x̂ ← x̂ + K(z - Hx̂)     P ← (I - KH) P
 - Sola, *Quaternion kinematics for error-state KF*, arXiv [1711.02508](https://arxiv.org/abs/1711.02508), 2017.
 - OpenVINS: https://github.com/rpng/open_vins · https://docs.openvins.com/
 
-[← Back to Spatial Math](./README.md)
+[← Back to Spatial Math](./overview.md)

@@ -300,7 +300,7 @@ VGGT-Ω 改的层与 aerial real-time VIO 替代题无关：
 
 ---
 
-[← Back to Feed-Forward 3D](./README.md)
+[← Back to Feed-Forward 3D](./overview.md)
 
 Sources:
 - [VGGT-Ω arXiv 2605.15195](https://arxiv.org/abs/2605.15195)

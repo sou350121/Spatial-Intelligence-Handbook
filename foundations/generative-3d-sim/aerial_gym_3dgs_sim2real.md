@@ -173,4 +173,4 @@ per-method 3DGS rasterization 细节 → `foundations/3dgs-family/3dgs_original_
 
 **Status:** v1 (2026-05-21). UNVERIFIED policy applies to all latency / success-rate / GPU-hour numbers.
 
-[← Back to Generative 3D Sim](./README.md)
+[← Back to Generative 3D Sim](./overview.md)

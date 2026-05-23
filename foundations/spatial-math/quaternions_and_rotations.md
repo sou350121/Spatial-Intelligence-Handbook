@@ -171,4 +171,4 @@ where cos θ = q0 · q1   (4D dot)
 - Hartley & Zisserman, *Multiple View Geometry*, 2nd ed., 2003 (Hamilton convention).
 - OpenVINS docs (JPL): https://docs.openvins.com/
 
-[← Back to Spatial Math](./README.md)
+[← Back to Spatial Math](./overview.md)

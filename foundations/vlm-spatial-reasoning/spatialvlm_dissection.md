@@ -163,11 +163,11 @@ web image ──► depth model (ZoeDepth/Metric3D) ──► dense metric depth
 
 ## Cross-references
 
-- 替代 lane（显式 3D 语义抬升）→ [`foundations/semantic-3d/`](../semantic-3d/README.md)，尤其 [`openscene_dissection.md`](../semantic-3d/openscene_dissection.md)
-- VLM lane 总览 → [`README.md`](./README.md)
+- 替代 lane（显式 3D 语义抬升）→ [`foundations/semantic-3d/`](../semantic-3d/overview.md)，尤其 [`openscene_dissection.md`](../semantic-3d/openscene_dissection.md)
+- VLM lane 总览 → [`README.md`](./overview.md)
 - VLA 集成 → [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md)（SpatialVLM = "captions" 行）
 - 消费空间 caption 的 3D-aware VLA → [VLA-Handbook](https://github.com/sou350121/VLA-Handbook)
 
 ## Boundary
 
-本文专门解构 SpatialVLM。它**不**覆盖：范式对比（→ [`README.md`](./README.md)）；SpatialBot / SpatialRGPT 的 depth-token 血统（v2 queue）；benchmark-driven 训练（→ `benchmarks/reasoning/`）；VLA 架构的 3D-encoder 侧（→ `bridge-to-vla/`，VLA-Handbook）；跨具身体评测（→ `crossing/representation-migration/`，TBD）。
+本文专门解构 SpatialVLM。它**不**覆盖：范式对比（→ [`README.md`](./overview.md)）；SpatialBot / SpatialRGPT 的 depth-token 血统（v2 queue）；benchmark-driven 训练（→ `benchmarks/reasoning/`）；VLA 架构的 3D-encoder 侧（→ `bridge-to-vla/`，VLA-Handbook）；跨具身体评测（→ `crossing/representation-migration/`，TBD）。

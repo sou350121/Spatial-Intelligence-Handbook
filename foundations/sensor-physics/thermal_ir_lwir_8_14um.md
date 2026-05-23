@@ -276,4 +276,4 @@ NETD 50 mK → SNR ≈ 300
 *2026-05-21. v1. UNVERIFIED → v1.1 待 FLIR datasheet 核对。*
 
 ---
-[← Back to sensor-physics README](./README.md)
+[← Back to sensor-physics README](./overview.md)

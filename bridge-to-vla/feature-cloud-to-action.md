@@ -146,4 +146,4 @@ Asked *"how do I plug a 3D encoder into my diffusion policy"*? — answer: **nor
 This doc lives on the seam. Does **not** dissect any single encoder (see `foundations/feed-forward-3d/`) or action head (see VLA-Handbook). *Last opinion update: 2026-05-21.*
 
 ---
-[← Back to bridge-to-vla README](./README.md)
+[← Back to bridge-to-vla README](./overview.md)

@@ -184,4 +184,4 @@ keyword 时自动加进候选；旗舰新 paper（如 MapAnything）由维护者
 
 ---
 
-[← Back to Foundations](../README.md) · [→ 3DGS family](../3dgs-family/README.md) · [→ NeRF family](../nerf-family/README.md) · [→ classical SLAM](../classical-slam/README.md)
+[← Back to Foundations](../overview.md) · [→ 3DGS family](../3dgs-family/overview.md) · [→ NeRF family](../nerf-family/overview.md) · [→ classical SLAM](../classical-slam/overview.md)

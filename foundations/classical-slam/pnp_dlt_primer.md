@@ -246,4 +246,4 @@ N = log(1 − p_conf) / log( 1 − (1 − ε)^k )
 
 ---
 
-[← Back to Classical SLAM](./README.md) · [→ ORB-SLAM3 Dissection](./orb_slam3_dissection.md)
+[← Back to Classical SLAM](./overview.md) · [→ ORB-SLAM3 Dissection](./orb_slam3_dissection.md)
