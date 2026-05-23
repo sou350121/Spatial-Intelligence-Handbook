@@ -8,8 +8,6 @@
 >
 > 不知道从哪开始？先选你的角色 ↓
 
-&nbsp;
-
 ## 🎭 你是谁？
 
 | | 角色 | 你的应用 | 👉 推荐起点 |
@@ -21,11 +19,7 @@
 | 🚁 | **无人机 / 空中机器人** ★ | UZH RPG / Skydio / DJI / Autel | → [aerial/](aerial/) — **维护者锚定方向**，8 个子目录最深 |
 | 🌊 | **水下机器人 / 海洋** | AUV / USV / 声呐 stack | → [marine/](marine/) — 极端 stress test，sonar-primary，视觉是辅助 |
 
-&nbsp;
-
 ---
-
-&nbsp;
 
 ## 🔍 一眼看清 6 大 embodiment 特性
 
@@ -42,8 +36,6 @@
 | 🚁 [Aerial](aerial/) ★ | 5–500m 户外 | **200 Hz** ‼️ | **5 ms** ‼️ | ✅（无 fallback）|
 | 🌊 [Marine](marine/) | 0.5–30m visibility | 5 Hz | 200 ms | ✅（DVL 给）|
 
-&nbsp;
-
 ### 表 2 · 上游 → 主要任务 → 下游消费
 
 | Embodiment | **🔼 上游 (input sensor)** | **🎯 主要 spatial 任务** | **🔽 下游 (consumer)** |
@@ -54,8 +46,6 @@
 | 🚗 Driving | 多目 RGB + radar + (LiDAR 视厂家) + IMU + GNSS | BEV / 占用网络 / lane / 物体检测 | downstream perception → planner → controller |
 | 🚁 Aerial ★ | mono cam + IMU + (stereo if >800g) + 可选 GNSS | VIO + 避障 + active tracking + on-board mapping | 200 Hz autopilot 内控环 |
 | 🌊 Marine | DVL + multibeam sonar + FOG IMU + (cam < 5m visibility) | sonar-primary SLAM + DVL 死推 + 视觉辅助 | mission planner + 水下导航 |
-
-&nbsp;
 
 ### 表 3 · SWaP-C 绑定（什么是 BoM 杀手）
 
@@ -68,8 +58,6 @@
 | 🚁 Aerial ★ | **weight + power** | **20–40% by weight**（最严苛）|
 | 🌊 Marine | pressure + acoustic | 30–50% of $50k–1M AUV |
 
-&nbsp;
-
 ### 表 4 · 决定性因素（关键限制 / 何时选）
 
 | Embodiment | ⚠️ **关键限制（接受才能用）** | ✅ **何时选（决定性场景）** |
@@ -80,8 +68,6 @@
 | 🚗 Driving | 极端天气 / reflective road / 远距离 / 法规 / miles | 量产 AD / robotaxi / ADAS |
 | 🚁 Aerial ★ | **桨叶振动** / 风 / 电池 / sub-10 ms 强约束 | UZH 赛车 / Skydio 巡检 / DJI / Autel |
 | 🌊 Marine | **视觉退化** / GPS 不可用 / 压力 / 声学多径 | 水下勘探 / 管线巡检 / contrasting case |
-
-&nbsp;
 
 ### 🎯 5 秒选 embodiment
 
@@ -112,8 +98,6 @@
     └─ 🌊 Marine
         (DVL 是真主角；视觉 95% 时间是装饰)
 ```
-
-&nbsp;
 
 ### 🚦 2D 定位：尺度 × 控制频率
 
@@ -154,11 +138,7 @@
 
 > **读图秘诀**：你的机器人物理形态决定 (尺度, 频率) 坐标 → 决定 sensor 选型 + spatial 模型选型。**aerial 是最难的角落**，所以这个 handbook 在 aerial 上写得深 1.5–2×。
 
-&nbsp;
-
 ---
-
-&nbsp;
 
 ## 🌍 世界地图
 
@@ -208,18 +188,11 @@ graph TB
 
 > **读图方式**：每个 embodiment 都从 `foundations/` 拉工具，到 `crossing/` 做对比；manipulation + humanoid 还会拉到 [`VLA-Handbook`](https://github.com/sou350121/VLA-Handbook) 接 policy。aerial / marine 是 sensor-physics 锚定（drone weight+power、marine acoustic）。
 
-&nbsp;
-
 ---
-
-&nbsp;
 
 ## 🏛️ 六大 embodiment 深读
 
-&nbsp;
-
-<details open>
-<summary><h3>✋ 1. <code>manipulation/</code> — 桌面 / 抓取 / 双臂 / 灵巧手 &nbsp;<code>2 篇</code></h3></summary>
+### ✋ 1. `manipulation/` — 桌面 / 抓取 / 双臂 / 灵巧手  `2 篇`
 
 **一句话**：spatial 这边只写 representation 侧（3D feature cloud, affordance, SAM 3D）；policy 在 [VLA-Handbook](https://github.com/sou350121/VLA-Handbook)。
 
@@ -227,16 +200,11 @@ graph TB
 
 | 推荐入口 | 说明 |
 |---------|------|
-| [manipulation/README.md](manipulation/) | 子区导读 |
+| [manipulation/](manipulation/) | 子区导读 |
 | [3d_feature_cloud_representations.md](manipulation/3d_feature_cloud_representations.md) | PointNet++ / SAM-3D / DINOv2 lifted 三谱系 |
 | [bimanual_and_dexterous_hand.md](manipulation/bimanual_and_dexterous_hand.md) | 双臂 task-space frame 解耦 + dexterous hand 触觉融合 |
 
-</details>
-
-&nbsp;
-
-<details>
-<summary><h3>🦿 2. <code>humanoid-legged/</code> — 全身 + 行走 + 平衡 &nbsp;<code>2 篇</code></h3></summary>
+### 🦿 2. `humanoid-legged/` — 全身 + 行走 + 平衡  `2 篇`
 
 **一句话**：humanoid 与 manipulation 的最大区别是**身体本身在 scene 里移动** — gaze 远 + 落脚近 是 spatial 推理的根本两难。
 
@@ -244,16 +212,11 @@ graph TB
 
 | 推荐入口 | 说明 |
 |---------|------|
-| [humanoid-legged/README.md](humanoid-legged/) | 子区导读 |
+| [humanoid-legged/](humanoid-legged/) | 子区导读 |
 | [whole_body_spatial_perception.md](humanoid-legged/whole_body_spatial_perception.md) | 全身 spatial 感知（head + foot 双视点）|
 | [unitree_h1_vs_figure_vs_1x.md](humanoid-legged/unitree_h1_vs_figure_vs_1x.md) | 三家 humanoid 公司的 spatial stack 对比 |
 
-</details>
-
-&nbsp;
-
-<details>
-<summary><h3>🛒 3. <code>ground-mobile/</code> — AGV / 室内 / VLN &nbsp;<code>2 篇</code></h3></summary>
+### 🛒 3. `ground-mobile/` — AGV / 室内 / VLN  `2 篇`
 
 **一句话**：mass-market AGV 锁死在 2D LiDAR + AMCL 是 BOM 决定的工程现实；3D / 神经 SLAM 在仓储是过度工程。
 
@@ -261,16 +224,11 @@ graph TB
 
 | 推荐入口 | 说明 |
 |---------|------|
-| [ground-mobile/README.md](ground-mobile/) | 子区导读 |
+| [ground-mobile/](ground-mobile/) | 子区导读 |
 | [agv_indoor_localization_stack.md](ground-mobile/agv_indoor_localization_stack.md) | 室内 AGV 全 stack 拆解 |
 | [vln_and_object_nav.md](ground-mobile/vln_and_object_nav.md) | VLN + ObjectNav 三种范式（modular vs end-to-end vs language-conditioned）|
 
-</details>
-
-&nbsp;
-
-<details>
-<summary><h3>🚗 4. <code>driving/</code> — BEV / 占用网络 / Waymo vs Tesla &nbsp;<code>2 篇</code></h3></summary>
+### 🚗 4. `driving/` — BEV / 占用网络 / Waymo vs Tesla  `2 篇`
 
 **一句话**：**严格不写 AD 综述** — 只写 spatial primitive。BEV / occupancy / world model 是这边的 3 个 axis。
 
@@ -278,16 +236,11 @@ graph TB
 
 | 推荐入口 | 说明 |
 |---------|------|
-| [driving/README.md](driving/) | 子区导读 + AD 综述边界声明 |
+| [driving/](driving/) | 子区导读 + AD 综述边界声明 |
 | [bev_and_occupancy.md](driving/bev_and_occupancy.md) | BEVFormer / Tesla Occupancy Network 完整拆解 |
 | [waymo_vs_tesla_doctrinal_split.md](driving/waymo_vs_tesla_doctrinal_split.md) | 两条道路的认识论之争（sensor physics 真值 vs data-scale 真值）|
 
-</details>
-
-&nbsp;
-
-<details>
-<summary><h3>🚁 5. <code>aerial/</code> ★ — Drone 维护者锚定 &nbsp;<code>9 篇 · 1.5-2× 深度</code></h3></summary>
+### 🚁 5. `aerial/` ★ — Drone 维护者锚定  `9 篇 · 1.5-2× 深度`
 
 **一句话**：aerial 是 spatial intelligence 最严苛的角落 — 200 Hz / 5 ms / 米制 / 抗振动同时要满足 — 任何不满足都不能上控制环。
 
@@ -295,7 +248,7 @@ graph TB
 
 | 推荐入口 | 说明 |
 |---------|------|
-| [aerial/README.md](aerial/) | 子区导读（8 个 axes）|
+| [aerial/](aerial/) | 子区导读（8 个 axes）|
 | [aerial/vio/](aerial/vio/) | VINS-Mono / OpenVINS / DROID-SLAM 三大 VIO stack |
 | [aerial/event-camera/](aerial/event-camera/) | UZH RPG champion-level racing + event camera 物理 |
 | [aerial/obstacle-avoidance/README.md](aerial/obstacle-avoidance/overview.md) | 两条 school（RL reactive vs classical planning）|
@@ -303,12 +256,7 @@ graph TB
 | [aerial/on-board-mapping/README.md](aerial/on-board-mapping/overview.md) | 3DGS on Jetson Orin + GNSS-denied long-range |
 | [aerial/sensor-stack/README.md](aerial/sensor-stack/overview.md) | 250g / 800g / 1.5kg+ 三档 payload 的 sensor 选型 |
 
-</details>
-
-&nbsp;
-
-<details>
-<summary><h3>🌊 6. <code>marine/</code> — AUV / USV / 声呐 stack &nbsp;<code>2 篇 · contrasting case</code></h3></summary>
+### 🌊 6. `marine/` — AUV / USV / 声呐 stack  `2 篇 · contrasting case`
 
 **一句话**：marine 是 spatial intelligence 的**真正 stress test** — 视觉退化、GPS 不可用、声学主导 — 任何在水下能 work 的方法都是真鲁棒。
 
@@ -316,23 +264,15 @@ graph TB
 
 | 推荐入口 | 说明 |
 |---------|------|
-| [marine/README.md](marine/) | 子区导读 |
+| [marine/](marine/) | 子区导读 |
 | [sensor_stack_underwater.md](marine/sensor_stack_underwater.md) | DVL 是 marine "GNSS"，multibeam / side-scan 声呐 stack |
 | [underwater_slam_dvl_sonar.md](marine/underwater_slam_dvl_sonar.md) | 水下 SLAM 完整拆解（视觉辅助 < 5m，sonar 主导）|
 
-</details>
-
-&nbsp;
-
 ---
-
-&nbsp;
 
 ## ⚡ Speed Runs
 
 > *没时间读所有 embodiment？选最相关的 1-2 个深读，其他靠 crossing/ 对比补全。*
-
-&nbsp;
 
 ### 🏃 "我做 drone 产品" (Aerial focus)
 ```
@@ -372,11 +312,7 @@ marine/sensor_stack_underwater → underwater_slam_dvl_sonar
 + foundations/sensor-physics/ (声学 / DVL 物理)
 ```
 
-&nbsp;
-
 ---
-
-&nbsp;
 
 ## 🏆 Achievements
 
@@ -388,16 +324,9 @@ marine/sensor_stack_underwater → underwater_slam_dvl_sonar
 | 🌊 | **Marine Realist** | 读完 marine/ 全部 + 理解为什么视觉-only 在水下输 |
 | 👑 | **Full Atlas** | 6 个 embodiment 都读完 + 5 个 crossing wedge 都读完 |
 
-&nbsp;
-
 ---
 
-&nbsp;
-
-<details>
-<summary>📊 Stats</summary>
-
-&nbsp;
+### 📊 Stats
 
 **6 个 embodiment**·**19 篇 dissection**·aerial 9 篇（维护者锚定）
 
@@ -406,10 +335,6 @@ marine/sensor_stack_underwater → underwater_slam_dvl_sonar
 - 跨 embodiment 对比走 `crossing/`（5 wedges, USP）
 - manipulation / humanoid 的 policy 在姊妹仓 [VLA-Handbook](https://github.com/sou350121/VLA-Handbook)
 - BoM / 标定 / 失败模式 in `deployment/`
-
-</details>
-
-&nbsp;
 
 ---
 
