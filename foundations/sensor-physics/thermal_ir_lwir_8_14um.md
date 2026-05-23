@@ -58,7 +58,7 @@ Peak wavelength (Wien displacement):
 |---|---|---|---|---|---|
 | **Microbolometer (VOx/a-Si)** | LWIR 8-14 µm | 非冷却 | 30-50 mK | $200-2k | 民用 thermal camera |
 | **Cooled InSb** | MWIR 3-5 µm | -200°C Stirling | 5-15 mK | $20-100k | 科研 / 军用 |
-| **Cooled HgCdTe** | LWIR/MWIR 可调 | -200°C | <5 mK | $50-200k | 高端军用 / 天文 |
+| **Cooled HgCdTe** | LWIR/MWIR 可调 | -200°C | &lt;5 mK | $50-200k | 高端军用 / 天文 |
 | **Pyroelectric (PIR)** | broadband | 无 | mK 级 motion only | $1 | 运动检测 (不成像) |
 
 ### 1.2 关键机制：Microbolometer

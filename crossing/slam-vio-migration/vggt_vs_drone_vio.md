@@ -70,7 +70,7 @@ controller_rate × latency_budget  ≥  visual_rate × inference_cost
 
 | 前端 | visual_rate | latency | Effective | 判决 |
 |---|---|---|---|---|
-| **VINS-Fusion** | 30 Hz cam + 200 Hz IMU | ~5 ms / <1 ms | **200 Hz**, ≤10 ms | ✅ 出货 |
+| **VINS-Fusion** | 30 Hz cam + 200 Hz IMU | ~5 ms / &lt;1 ms | **200 Hz**, ≤10 ms | ✅ 出货 |
 | **VGGT v1 distilled** `UNVERIFIED` | ~10 Hz | 100 ms | **10 Hz**, 100 ms | ❌ 超预算 2× |
 | **VGGT-Ω distilled** `UNVERIFIED` | ~10-15 Hz? | 50-100 ms? | **10-15 Hz**, ~70 ms | ⚠️ 边缘临界 |
 
@@ -81,7 +81,7 @@ controller_rate × latency_budget  ≥  visual_rate × inference_cost
 
 ⚠️ **关键：Ω 改的层不解 §2 不等式的右侧 quadratic 项**。Register attention 把*跨帧 attention*的 quadratic 砍掉，但单帧的 encoder 仍要算；总 inference latency 主要 bottleneck 不在 cross-frame attention 而在 encoder + dense head。
 
-位姿精度无关。**v1 也好、Ω 也好，答案都是不**（除非 distill 到 <20 ms latency —— 这是论文 §9 的预测）。
+位姿精度无关。**v1 也好、Ω 也好，答案都是不**（除非 distill 到 &lt;20 ms latency —— 这是论文 §9 的预测）。
 
 ---
 
@@ -93,7 +93,7 @@ controller_rate × latency_budget  ≥  visual_rate × inference_cost
 |---|---|---|
 | **Rate ≥ 100 Hz** | 级联姿态控制器带宽 | 200 Hz |
 | **Latency ≤ 10 ms** | Cam → 估计 → 控制器 → 电机 | 5–15 ms 调好的 VINS |
-| **米制 (Metric scale)** | 位置以米计；油门用 m/s² | init 后 <2% 误差 |
+| **米制 (Metric scale)** | 位置以米计；油门用 m/s² | init 后 &lt;2% 误差 |
 | **抗桨叶 IMU 干扰** | 桨叶 100–400 Hz 激发 IMU | 减震 + 1 kHz IMU + 带通 |
 
 参考栈：**VINS-Mono / Fusion**（Qin 2018, HKUST）紧耦合 opt-VIO；**OpenVINS**（Geneva 2020, UDel）MSCKF，Skydio 系；**DROID-SLAM**（Teed 2021）学习式稠密 BA，Orin 上 ~5 Hz `UNVERIFIED`，没 first-class IMU。这是 VGGT 要清的栏。
@@ -121,7 +121,7 @@ controller_rate × latency_budget  ≥  visual_rate × inference_cost
 
 1. ✅ Ω 在 *效率 × 训练数据 × 动态场景* 上是真升级 —— Sintel 77% 提升 + dynamic scene 是质变
 2. ❌ Ω **完全没碰** aerial 真正卡住的 4 条：streaming / metric / IMU coupling / 振动抗扰
-3. ⚠️ inference latency 期待 Ω 比 v1 略快（register attn linear-in-N），但量级不变（仍是 50-200 ms 而非 < 20 ms）
+3. ⚠️ inference latency 期待 Ω 比 v1 略快（register attn linear-in-N），但量级不变（仍是 50-200 ms 而非 &lt; 20 ms）
 
 良性轨迹上：v1 和 Ω 都跟经典 VIO 对得上几何精度。**它们栽都栽在同一个 operational envelope，不是 metric。Ω 出来的事实改变不了这点。**
 
@@ -202,7 +202,7 @@ VGGT = 低速率、无漂移的几何锚；经典 VIO = 高速率米制状态。
 
 四件事都落地才会翻转：
 
-1. **VGGT-Ω 后代蒸馏到 Orin <20 ms latency** —— 现在 Ω 训练 memory 是 v1 的 30%，提示推理也可能更轻；但实际 distilled 数字论文未披露，预期 50-100 ms 量级。还需 ~5× 进一步压缩到 < 20 ms。**2027 内可能。**
+1. **VGGT-Ω 后代蒸馏到 Orin &lt;20 ms latency** —— 现在 Ω 训练 memory 是 v1 的 30%，提示推理也可能更轻；但实际 distilled 数字论文未披露，预期 50-100 ms 量级。还需 ~5× 进一步压缩到 &lt; 20 ms。**2027 内可能。**
 2. **Metric-aware feed-forward 变体** —— 把 stereo / IMU / known scale anchor 融进前向 pass。**Ω 没做这件事 —— 这是下一篇论文的押注**。盯 π³ streaming / 任何"VGGT-Σ / VGGT-Metric"风格的后续。
 3. **Streaming feed-forward 3D** —— Ω 仍 batch-only。Register attention 天然适配 streaming（register 当 state cache），所以这是 Ω 架构留给后续的 hint。**[Streaming Visual Geometry Transformer](https://arxiv.org/abs/2507.11539) 这条路在走，但未到生产级。**
 4. **抗振动前端** —— ViT 类（含 v1 / Ω）还没在高频运动模糊下专项调过；Ω 的 self-supervised on unlabeled video **可能间接帮**（视频里有自然抖动）。UZH RPG event camera 仍是最强对冲。
@@ -213,7 +213,7 @@ VGGT = 低速率、无漂移的几何锚；经典 VIO = 高速率米制状态。
 **Falsifiable predictions（v1.2 更新）**：
 
 1. **2027-06 前**：会出现 VGGT-Ω 衍生 streaming variant（可能叫 VGGT-Σ 或类似），把 batch 改成 increment-per-frame。Register attention 是 streaming 的天然 cache。
-2. **2027-12 前**：会有一篇公开的无人机自主 stack 论文，用 VGGT 谱系模型当 *主*视觉前端 —— 但飞 <5 m/s 室内 / 巡检，不是 racing。
+2. **2027-12 前**：会有一篇公开的无人机自主 stack 论文，用 VGGT 谱系模型当 *主*视觉前端 —— 但飞 &lt;5 m/s 室内 / 巡检，不是 racing。
 3. **2027-12 前不会发生**：VGGT 谱系（含 Ω 后代）成为 Skydio-class 户外 racing aerial 主前端 —— operational envelope 限制不在 Ω 改的层。
 
 任何"VGGT-Ω 在 Skydio 级户外任务上替代 VIO" 的主张都该被对赌反对。

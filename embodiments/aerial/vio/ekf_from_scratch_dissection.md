@@ -233,7 +233,7 @@ EKF 能跑的前提（不成立时直接发散）：
 2. **Bias 是 random walk** — 实际 bias 含低频温度漂移，random walk 只在 ~1 min 量级对
 3. **小姿态扰动下线性化 OK** — 30°/s 缓飞行 OK；> 200°/s 急机动需 UKF / iterated EKF
 4. **量测模型可微** — EKF 把 PnP/VO 当各向同性高斯量测，忽略 marker 边缘视场的方向性
-5. **time-sync 完美** — IMU 与 cam < 1ms；硬件 trigger 不到位时 RMSE 上升数倍 `UNVERIFIED`
+5. **time-sync 完美** — IMU 与 cam &lt; 1ms；硬件 trigger 不到位时 RMSE 上升数倍 `UNVERIFIED`
 6. **gravity 方向已知** — world z 对齐重力，初始化静止估
 7. **state 高斯近似** — 大不确定下后验非高斯，EKF 强制塌成高斯会丢信息（粒子滤波解此，L9 后半）
 
@@ -270,7 +270,7 @@ EKF 能跑的前提（不成立时直接发散）：
 
 **Eureka link**：HKUST 的 augmented state 是 MSCKF stochastic cloning 的 "1-clone 简化版"——把 N 个 clones 简化为单个 keyframe snapshot。这个 simplification 牺牲了多观测一致性（MSCKF 一个 feature 跨 N 帧的约束），但换来代码量从 3K 行降到 250 行、能在一学期内手推完毕。
 
-**面试 Tip**：被问到 "为什么不直接用滑窗优化" 时，答 **"single-core latency budget on 2-4W SoC"**——MSCKF 谱系单核 < 5ms / frame `UNVERIFIED`、VINS-Fusion 需要 2+ 核同等精度。无人机的 SoC 还要跑 attitude control / ESC / radio / video encoding，CPU 配额是工程上限。
+**面试 Tip**：被问到 "为什么不直接用滑窗优化" 时，答 **"single-core latency budget on 2-4W SoC"**——MSCKF 谱系单核 &lt; 5ms / frame `UNVERIFIED`、VINS-Fusion 需要 2+ 核同等精度。无人机的 SoC 还要跑 attitude control / ESC / radio / video encoding，CPU 配额是工程上限。
 
 ---
 

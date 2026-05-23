@@ -20,7 +20,7 @@
 
 | 平台档 | 典型 SoC | 持续 GPU 功耗 | 现实可行的板载建图 |
 |---|---|---|---|
-| Racing FPV (<300 g) | 自制 MCU + 可选 Nano | <5 W to GPU | 无地图。只跑 VIO 状态。 |
+| Racing FPV (&lt;300 g) | 自制 MCU + 可选 Nano | &lt;5 W to GPU | 无地图。只跑 VIO 状态。 |
 | Cinematography (300–800 g, Skydio 级) | Jetson Orin Nano `UNVERIFIED` | ~10 W | 局部 occupancy + 稀疏 landmark；3DGS 仅限小场景 + 室内 |
 | Inspection / mapping (800–1500 g, Autel EVO / DJI Matrice 3D) | Orin NX 或 AGX Orin `UNVERIFIED` | 25–60 W | LiDAR SLAM (FAST-LIO2) +（可选）落地时周期性 3DGS |
 | Industrial mapping (>1.5 kg, DJI Matrice 350 RTK, Wingtra) | AGX Orin 或 x86 companion | 60 W+ | 全 LiDAR + 摄影测量；3DGS 通常在地面站后处理 |
@@ -38,7 +38,7 @@
 
 - **纹理丰富。** 无特征墙 / 雪 / 开阔水面会让它崩（与单目 VIO 崩的原因相同）。
 - **颜色是交付物的一部分。** 立面巡检、植被健康、考古遗址——LiDAR 不捕获反照率。
-- **范围有界（典型作业距表面 <50 m）。** 长距户外 3DGS 在板载飞行速度下未被证明 `UNVERIFIED`。
+- **范围有界（典型作业距表面 &lt;50 m）。** 长距户外 3DGS 在板载飞行速度下未被证明 `UNVERIFIED`。
 - **无人机有时间停留。** 3DGS 质量受停留时间限制；快速掠过比缓慢绕飞产出差。
 
 3DGS *输*给 LiDAR SLAM 的情况：

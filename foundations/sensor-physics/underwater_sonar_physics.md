@@ -179,14 +179,14 @@ bearing = arcsin(λ × Δφ / (2π × d_baseline))
 
 **能做什么.** 50-1000 m 距离的可靠测距 / mapping；不受光照影响；穿浑浊水（视觉死的地方声呐还在工作）；DVL 给水下 odometry 唯一可信 velocity。
 
-**不能做什么.** cm 级 absolute position（需 USBL + DVL fusion）；空气中工作；快速控制 loop（声速延迟）；近距离 (<2 m) — 多径主导。
+**不能做什么.** cm 级 absolute position（需 USBL + DVL fusion）；空气中工作；快速控制 loop（声速延迟）；近距离 (&lt;2 m) — 多径主导。
 
 ### Hidden Assumptions
 
 - **温/盐/深 SVP 已知或可测.** 没 CTD 探头的便宜 AUV 在 thermocline 下精度爆炸
 - **海底反射 strong enough.** 极软泥 / 中水层（midwater）DVL 测不到底 → 退化到 "water track" 模式精度 10×
 - **声学环境干净.** 港口背景噪声 / 船只 / 海洋哺乳动物声 → SNR 暴跌
-- **multipath 不极端.** 浅水 (<10 m) 声呐回波叠加水面反射 → ghost target
+- **multipath 不极端.** 浅水 (&lt;10 m) 声呐回波叠加水面反射 → ghost target
 - **温度补偿实时.** AUV 下潜 100 m 跨 10°C 温差，c 变化 ~3% → 距离测量直接错 3%
 
 **失败模式：**
@@ -206,7 +206,7 @@ bearing = arcsin(λ × Δφ / (2π × d_baseline))
 |---|---|---|
 | 介质 | 空气 (c=343 m/s) | 水 (c=1500 m/s) |
 | 频段 | 40 kHz 主 | 100-1000 kHz |
-| 距离 | <5 m | 10-1000 m |
+| 距离 | &lt;5 m | 10-1000 m |
 | 衰减 | ~1 dB/m @ 40 kHz | 1-100 dB/km |
 | 阵列规模 | 单 transducer | 16-512 element array |
 | Cost | $5 module | $50k-$200k |

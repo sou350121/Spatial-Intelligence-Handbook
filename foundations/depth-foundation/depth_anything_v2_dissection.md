@@ -140,7 +140,7 @@ DINOv2 骨干 + 62M 互联网蒸馏让 DA v2 对*常见域*惊人稳定，脱分
 | **玻璃 / 水 / 镜面** | v2 比 v1 显著好（DA-2K transparent_reflective 桶 >10% vs Marigold） — 但**未根治**：玻璃后被"看穿"到背景 | 玻璃桌面 grasp 抓"穿"；镜子里场景被当真深度 |
 | **遮挡 / partial visibility** | 中（边界比 v1 锐） | 半遮挡物向可见部分插值 |
 | **OOD 域（水下 / 内窥镜 / 显微）** | ❌ 静默崩 | 62M 语料未覆盖；输出"干净"但物理无意义 |
-| **输入分辨率** | 默认 518（短边）；测试时可上采得更细，>1024 收益递减 `UNVERIFIED 曲线` | <256 丢细物；>1024 显存爆无增益 |
+| **输入分辨率** | 默认 518（短边）；测试时可上采得更细，>1024 收益递减 `UNVERIFIED 曲线` | &lt;256 丢细物；>1024 显存爆无增益 |
 | **训练分布外类别** | ❌ 假信号 | 医学 / 科学图给非零 disparity，需 OOD 守门 |
 
 **对策**：(a) OOD 用 DINOv2 feature distance 守门；(b) 玻璃 / 镜面接 stereo / ToF 二次确认；(c) 视频用 temporal 变体. 来源：[Roboflow DA-2K](https://blog.roboflow.com/depth-estimation-models/)、[DA-2K README](https://github.com/DepthAnything/Depth-Anything-V2/blob/main/DA-2K.md).
@@ -184,7 +184,7 @@ DINOv2 骨干 + 62M 互联网蒸馏让 DA v2 对*常见域*惊人稳定，脱分
 - **不是 v2 metric 后续，而是 any-view generalist**：单图 / 立体 / 多视角 / 视频统一；
 - 架构反而更简：单一 plain DINOv2 transformer + 单一 depth-ray 预测（去掉多任务）；
 - vs VGGT：相机位姿 +44.3%、几何 +25.1%（团队自报，独立复现 `UNVERIFIED`）；
-- 2025-12-11 追加 **DA3-Streaming**：<12 GB GPU 处理长视频；
+- 2025-12-11 追加 **DA3-Streaming**：&lt;12 GB GPU 处理长视频；
 - **吸收 VGGT 谱系** — 印证 §16 时间线判断方向，但比预测的"metric fine-tune"路径更激进.
 
 **对 §6 prediction 的影响**：DA v2 metric 变体（VKITTI / Hypersim）已在 2024 仓内；DA3 走"多视角统一"而非"单目 metric". 判定：预测*精神*命中（轨迹收敛），*形式*偏离 — 留 2027 重评. 来源：[DA3 项目页](https://depth-anything-3.github.io/)、[GitHub](https://github.com/ByteDance-Seed/Depth-Anything-3).

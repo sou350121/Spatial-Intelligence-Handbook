@@ -57,12 +57,12 @@ BoM_total ≈ Σ(sensor + compute + power + structure)
 | 项目 | Vendor / 型号 | 单价 | 重量 | 功耗 |
 |---|---|---|---|---|
 | RGBD 前向 | RealSense D435 | $300 | 70 g | 3.5 W |
-| IMU 板载 | Bosch BMI270 | $3 | <1 g | <5 mW |
+| IMU 板载 | Bosch BMI270 | $3 | &lt;1 g | &lt;5 mW |
 | 超声 ×4 | HC-SR04 | $5/颗 | 10 g/颗 | 0.5 W |
 | 主控 | Raspberry Pi 5（8 GB） | $80 | 50 g | 6 W |
-| 轮编码器 ×2 | quadrature | $20/颗 | 20 g/颗 | <1 W |
+| 轮编码器 ×2 | quadrature | $20/颗 | 20 g/颗 | &lt;1 W |
 | 电池 + 结构 / 线材 | 3S 5000 mAh LiPo + 杂项 | ~$70 | 400 g + — | — |
-| **合计** | | **~$520** | ~600 g | **<15 W avg** |
+| **合计** | | **~$520** | ~600 g | **&lt;15 W avg** |
 
 价格 2026-05 零售快照 `UNVERIFIED`。D435 在 0.5–5 m 室内可当稀疏 2D 虚拟激光雷达，跳 LiDAR；IMU 板载即可；超声补 D435 FOV 外侧方；不通过 SEMI S2。详见 `foundations/sensor-physics/active_nir_850nm_for_embodied_ai.md`。
 
@@ -75,8 +75,8 @@ BoM_total ≈ Σ(sensor + compute + power + structure)
 | 项目 | Vendor / 型号 | 单价 | 重量 | 功耗 |
 |---|---|---|---|---|
 | Mono GS | OmniVision OV9281 / Arducam | $80 | 5 g | 0.5 W |
-| IMU | BMI270 / ICM-42688 | $5 | <1 g | <5 mW |
-| 气压计 | BMP388 | $5 | <1 g | <1 mW |
+| IMU | BMI270 / ICM-42688 | $5 | &lt;1 g | &lt;5 mW |
+| 气压计 | BMP388 | $5 | &lt;1 g | &lt;1 mW |
 | GPS | u-blox NEO-M9 | $40 | 8 g | 0.2 W |
 | 飞控 | Betaflight F7 | $60 | 8 g | 1 W |
 | ESC + 电机 + 桨 | 2207 1750KV ×4 | $200 | ~120 g | 视油门 |
@@ -108,7 +108,7 @@ BoM_total ≈ Σ(sensor + compute + power + structure)
 | 机架 + 云台 | 13" 折叠 + 2 轴 | $500 | 600 g | 1 W |
 | **avionics 合计** | | **~$4,080** | ~2.9 kg | ~30 W |
 
-`UNVERIFIED`。Mid-360 是 2025 年才让 1.5 kg 级 LiDAR 现实化的关键（VLP-16 580 g vetoed）。下视 stereo 用于 <5 m 着陆 / 避障；前向 mono 用于 5–50 m。RGBD 跳过——户外 850 nm 2 m 外被太阳压住。硬件触发同步必须（`deployment/multi-modal-sync/`）。
+`UNVERIFIED`。Mid-360 是 2025 年才让 1.5 kg 级 LiDAR 现实化的关键（VLP-16 580 g vetoed）。下视 stereo 用于 &lt;5 m 着陆 / 避障；前向 mono 用于 5–50 m。RGBD 跳过——户外 850 nm 2 m 外被太阳压住。硬件触发同步必须（`deployment/multi-modal-sync/`）。
 
 ---
 
@@ -154,7 +154,7 @@ BoM_total ≈ Σ(sensor + compute + power + structure)
 
 `UNVERIFIED`。science-grade AUV 配置常突破 $1M。
 
-**设计点**：光学不是主感知（NIR <1 m 被吸收）。DVL 是底面速度唯一来源；丢 DVL 等于丢 INS anchor。FOG 必须；MEMS 在 4 小时任务里漂到不可用。详见 `crossing/sensor-stack-matrix/sensor_budget_matrix_v1.md` §3。
+**设计点**：光学不是主感知（NIR &lt;1 m 被吸收）。DVL 是底面速度唯一来源；丢 DVL 等于丢 INS anchor。FOG 必须；MEMS 在 4 小时任务里漂到不可用。详见 `crossing/sensor-stack-matrix/sensor_budget_matrix_v1.md` §3。
 
 ---
 

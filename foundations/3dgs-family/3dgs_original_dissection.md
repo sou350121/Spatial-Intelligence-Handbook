@@ -10,7 +10,7 @@
 
 ### X-Ray (non-expert friendly)
 
-(a) NeRF 给了你一个可微分 3D 场景，但需要数小时训练、渲染 <1 FPS — 在 30 Hz 感知环路内毫无用处。(b) 3DGS 保留可微分契约（梯度从像素回流），但把 MLP 丢掉，换成数百万个显式 anisotropic ellipsoid，由 CUDA rasterizer 实时 splat。(c) 对空间 AI 工程师：3D 场景变成*可检查 asset* — 像 point cloud 一样可以剪枝、编辑、移植，这正是机器人地图编辑器或 sim-to-real pipeline 需要的。
+(a) NeRF 给了你一个可微分 3D 场景，但需要数小时训练、渲染 &lt;1 FPS — 在 30 Hz 感知环路内毫无用处。(b) 3DGS 保留可微分契约（梯度从像素回流），但把 MLP 丢掉，换成数百万个显式 anisotropic ellipsoid，由 CUDA rasterizer 实时 splat。(c) 对空间 AI 工程师：3D 场景变成*可检查 asset* — 像 point cloud 一样可以剪枝、编辑、移植，这正是机器人地图编辑器或 sim-to-real pipeline 需要的。
 
 ### 📍 Research Landscape Timeline
 
@@ -82,7 +82,7 @@ NeRF 给了你可微分场景表示，但要付出数小时训练 + 每帧数秒
 | Opacity LR | ~0.05 `UNVERIFIED` | α 更新 |
 | SH degree | 0 → 3 (warmup) | 颜色表达力 |
 
-单卡 A6000 上报告训练时间：在 Mip-NeRF360 场景上达到 SIGGRAPH 质量约 ~30 分钟 `UNVERIFIED — 随场景复杂度变化`。同硬件下推理：1080p 100+ FPS。对照 NeRF（数小时训练、<1 FPS 渲染），"100× 加速" 实际是 "训练 100× + 渲染 100× 同时成立"。
+单卡 A6000 上报告训练时间：在 Mip-NeRF360 场景上达到 SIGGRAPH 质量约 ~30 分钟 `UNVERIFIED — 随场景复杂度变化`。同硬件下推理：1080p 100+ FPS。对照 NeRF（数小时训练、&lt;1 FPS 渲染），"100× 加速" 实际是 "训练 100× + 渲染 100× 同时成立"。
 
 ## 3.5 · Worked example — 桌上的一个马克杯
 
@@ -112,7 +112,7 @@ NeRF 给了你可微分场景表示，但要付出数小时训练 + 每帧数秒
 
 - **Good COLMAP init** — SfM points 播种 gaussian set；在无纹理 / 运动模糊场景下 COLMAP 失败，gaussians 永远不收敛。
 - **Static scene during capture** — 拍 30 张照片期间任何动的物体都会产生 floater 或拖影。
-- **Sufficient training views** — 稀疏覆盖（房间 <20 张）会留下欠约束的 gaussian，训练视角看着 OK，novel view 一塌糊涂。
+- **Sufficient training views** — 稀疏覆盖（房间 &lt;20 张）会留下欠约束的 gaussian，训练视角看着 OK，novel view 一塌糊涂。
 - **Single camera scale (no zoom)** — vanilla 3DGS 对尺度变化 aliasing；Mip-Splatting 是修复。
 - **Disk and VRAM headroom** — 1–2 GB 场景必须能进 GPU 内存才能渲染；mobile / Jetson 部署需压缩。
 

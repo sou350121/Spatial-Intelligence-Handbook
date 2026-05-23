@@ -185,7 +185,7 @@ HEIGHT       LOCATION         ORIENTATION         MULTI-OBJECT
 | Benchmark | 题数 | 核心 | 视角对照 | 局限 |
 |---|---|---|---|---|
 | **3DSRBench** | 2,772 | 4×12 类，view robust | ✅ common/uncommon | MCQ 而非 metric |
-| BLINK (depth subset) | <500 | 多任务，含 depth point | ❌ | 题量小 |
+| BLINK (depth subset) | &lt;500 | 多任务，含 depth point | ❌ | 题量小 |
 | VSR (Visual Spatial Reasoning) | ~10k | 2D 关系，二选一 | ❌ | 偏 2D，非 3D |
 | CV-Bench | ~2.6k | counting / depth / distance | ❌ | 视角不对照 |
 | SpatialBench (SpatialBot 自带) | ~100 图 | depth API 友好 | ❌ | model-paired, 小 |

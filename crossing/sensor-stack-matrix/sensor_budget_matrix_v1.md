@@ -45,7 +45,7 @@ SWaP-C decisions are **ratios, not absolute prices**. A $4k LiDAR is "cheap" on 
 | Humanoid | head weight + thermal | 3–8% |
 | Ground (AGV) | cost + cert | 10–20% of $5–30k |
 | Driving (L4) | range + integration miles | $50k+ on $80k vehicle |
-| Aerial (<3kg) | **weight + power** | 20–40% by weight |
+| Aerial (&lt;3kg) | **weight + power** | 20–40% by weight |
 | Marine (AUV) | pressure + acoustic | 30–50% of $50k–1M |
 
 ## 2 · The matrix, expanded
@@ -58,8 +58,8 @@ Cells: **status** · *reason* · number.
 | **Humanoid** | **core** · *peripheral* | **core** · *only metric primitive fitting the head* | sometimes · *torso, not face* | sometimes · *H1 ships one; 500g tolerated* | **core** · *>12 IMUs typical* | rare · *head thermal* | research | rare |
 | **Ground (AGV)** | **core** · *cheapest primitive, $30* | **core** · *ZED-class <$500* | sometimes · *indoor only* | **core outdoor** · *Hokuyo $1.5k cert; Velodyne 580g/8W `UNVERIFIED`* | **core** · *only dead-reckoning under shelves* | rare | rare | sometimes · *ultrasonic <$5* |
 | **Driving (AD)** | **core** · *lights/signs/lanes* | sometimes · *Tesla yes; Waymo no* | **rare** · *breaks past 5m; target 50–200m* | **core Waymo / never Tesla** · *128-beam $8–80k, 1–3kg/15–30W `UNVERIFIED`* | **core** · *auto-grade $50–500; +FOG $5–20k tunnels* | rare | research | rare · *parking only* |
-| **Aerial (<3kg)** | **core** · *FPV = platform's eyes, 5–15g* | sometimes · *Skydio yes; racing no* | **rare** · *active illum = power suicide; §3.1* | sometimes · *Livox 500g/10W flies on 3kg+ only* | **core** · *only >100Hz path <1g cost; BMI270 0.5g/<5mW* | rare | research · *UZH RPG* | sometimes · *altimeter <5m* |
-| **Marine (AUV)** | sometimes · *<5m visibility* | sometimes · *photogrammetry* | rare · *NIR absorbed <1m* | rare · *blue-green $200k+* | **core** · *FOG mandatory; KVH 1750 $15k/700g `UNVERIFIED`* | rare · *physics forbids* | rare | **core** · *DVL+multibeam+side-scan = the whole stack; AURELION ACOSTRA `UNVERIFIED, no DOI`* |
+| **Aerial (&lt;3kg)** | **core** · *FPV = platform's eyes, 5–15g* | sometimes · *Skydio yes; racing no* | **rare** · *active illum = power suicide; §3.1* | sometimes · *Livox 500g/10W flies on 3kg+ only* | **core** · *only >100Hz path &lt;1g cost; BMI270 0.5g/&lt;5mW* | rare | research · *UZH RPG* | sometimes · *altimeter &lt;5m* |
+| **Marine (AUV)** | sometimes · *&lt;5m visibility* | sometimes · *photogrammetry* | rare · *NIR absorbed &lt;1m* | rare · *blue-green $200k+* | **core** · *FOG mandatory; KVH 1750 $15k/700g `UNVERIFIED`* | rare · *physics forbids* | rare | **core** · *DVL+multibeam+side-scan = the whole stack; AURELION ACOSTRA `UNVERIFIED, no DOI`* |
 
 ---
 
@@ -69,7 +69,7 @@ Cells: **status** · *reason* · number.
 
 A D435 is 70g/3W. On a Skydio 2+ (800g) tolerable; on a 250g cinewhoop it's 28% of all-up weight and >10% of battery — *before* the projector helps, because **outdoor sunlight saturates the 850nm pattern within 2m** (see `foundations/sensor-physics/active_nir_850nm_for_embodied_ai.md`). Pay weight indoors, get nothing outdoors.
 
-Deeper: on a 3kg quad, every 100g costs 30–60s of hover `UNVERIFIED`. A 500g active-illumination rig = ~2 min lost on a 12-min mission, for a sensor working only in 0.5–3m — drones fly 5–50m. The Venn diagram is empty. Pattern: **mono RGB + IMU + ultrasonic <5m + (optional) downward stereo**. Active depth reserved for indoor inspection drones >1.5kg.
+Deeper: on a 3kg quad, every 100g costs 30–60s of hover `UNVERIFIED`. A 500g active-illumination rig = ~2 min lost on a 12-min mission, for a sensor working only in 0.5–3m — drones fly 5–50m. The Venn diagram is empty. Pattern: **mono RGB + IMU + ultrasonic &lt;5m + (optional) downward stereo**. Active depth reserved for indoor inspection drones >1.5kg.
 
 ### 3.2 Why AD almost never uses RGBD
 
@@ -94,13 +94,13 @@ Where this matrix would break:
 - **Embodiment classes are fixed.** Hybrid duty cycles (teleop humanoid indoor + walking outdoor) collapse here; re-classify if needed.
 - **Payload class dominates compute class.** Sub-100g nano drones flip this — compute weight rivals sensor weight.
 - **Vendor SKU prices stable.** Hesai/Innoviz moved 3× downward in 24 months; "$8–80k LiDAR" is a 2026 snapshot, not a law.
-- **Underwater visibility physics holds.** Turbid coastal vs clear blue shifts "<5m visibility" by an order of magnitude.
+- **Underwater visibility physics holds.** Turbid coastal vs clear blue shifts "&lt;5m visibility" by an order of magnitude.
 - **AD long range is a hard requirement.** Geofenced low-speed AD (campus shuttle, mining truck) unlocks cheaper RGBD-class stacks.
 - **`UNVERIFIED` numbers within 2×.** Order-of-magnitude is load-bearing; 5×-off vendor spec may flip individual verdicts — the *pattern* (Sensor #3 splits embodiments) does not.
 
 ## 6 · "Always" / "Never" per embodiment
 
-Manipulation: RGBD wrist / never LiDAR. Humanoid: stereo head + multi-IMU / never active NIR on head. Ground: 2D safety LiDAR + wheel IMU / never FOG. Driving: front mono + radar + IMU / never RGBD. Aerial <3kg: IMU + mono FPV / never RGBD. Marine: FOG IMU + DVL / never RGB-only.
+Manipulation: RGBD wrist / never LiDAR. Humanoid: stereo head + multi-IMU / never active NIR on head. Ground: 2D safety LiDAR + wheel IMU / never FOG. Driving: front mono + radar + IMU / never RGBD. Aerial &lt;3kg: IMU + mono FPV / never RGBD. Marine: FOG IMU + DVL / never RGB-only.
 
 ## 7 · Decision tree — embodiment + budget → starter stack
 
@@ -112,14 +112,14 @@ Manipulation: RGBD wrist / never LiDAR. Humanoid: stereo head + multi-IMU / neve
 
 ## 8 · Falsifiable 2-year prediction
 
-**By 2028-05-21**, ≥1 commercial sub-3kg drone will ship with an integrated <100g solid-state automotive-derived LiDAR (Hesai/Innoviz/Aeva lineage) at <$2k retail, flipping the aerial "LiDAR rare" cell to "sometimes" for the 1–3kg class. Falsified if no such SKU exists at that date.
+**By 2028-05-21**, ≥1 commercial sub-3kg drone will ship with an integrated &lt;100g solid-state automotive-derived LiDAR (Hesai/Innoviz/Aeva lineage) at <$2k retail, flipping the aerial "LiDAR rare" cell to "sometimes" for the 1–3kg class. Falsified if no such SKU exists at that date.
 
 ## 9 · For the reader (per-persona)
 
 - **Manipulation engineer:** stop benchmarking LiDAR; RGBD wrist + IMU is your stack — argue resolution, not range.
 - **Aerial engineer:** every 100g = 30–60s of hover; reject active-NIR on outdoor sub-3kg platforms.
 - **AD engineer:** RGBD is not "cheap LiDAR" — different range regime. Stereo+radar+mono-ML (Tesla) vs LiDAR-primary (Waymo).
-- **Marine engineer:** acoustic (DVL + multibeam) is *the* stack; treat RGB/NIR as <5m clear-water special cases.
+- **Marine engineer:** acoustic (DVL + multibeam) is *the* stack; treat RGB/NIR as &lt;5m clear-water special cases.
 
 ## 10 · Interview Tip
 

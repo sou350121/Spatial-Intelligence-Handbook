@@ -56,7 +56,7 @@ S2 = I_45° - I_135°                            # 45° vs 135°
 S3 ≈ 0 (大多数情况，圆偏振 sensor 才测)
 ```
 
-代价：空间分辨率减半（2×2 block → 1 polarization sample），fill factor 略降，对准精度要 < 0.1° otherwise crosstalk。
+代价：空间分辨率减半（2×2 block → 1 polarization sample），fill factor 略降，对准精度要 &lt; 0.1° otherwise crosstalk。
 
 ⚡ **Eureka Moment.** 偏振相机不是"加滤镜"，是把"四帧不同 polarizer 角度照片"压进**单次曝光的单 sensor** — 这让动态场景的偏振成像变得可行。Lucid Phoenix 之前的偏振相机必须机械旋转 polarizer 拍四张，无法用于运动机器人；像素级 polarizer 让 robotics 落地。
 

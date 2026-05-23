@@ -106,7 +106,7 @@ Jetson / 手机, 不能 sparse conv      ─► TEASER++ (CPU OK) 或 SG-Reg
 | symmetric (对称走廊/圆桌) | ❌ | ❌ | ❌ | ⚠️ | ⚠️ |
 | textureless (白墙) | ❌ | ⚠️ | ⚠️ | ⚠️ | ✅ 不依赖纹理 |
 | large viewpoint gap (>120°) | ⚠️ | ❌ | ❌ | ✅ 设计目标 | ✅ 物体不变 |
-| low overlap (<30%) | ⚠️ | ❌ | ✅ 3DLoMatch | ✅ | ✅ |
+| low overlap (&lt;30%) | ⚠️ | ❌ | ✅ 3DLoMatch | ✅ | ✅ |
 | dynamic objects (人/椅换位) | ⚠️ | ❌ | ❌ | ❌ | ⚠️ |
 | 跨域 (室内训→室外用) | ✅ 无训练 | ❌ | ❌ | ⚠️ | ❌ caption 偏 |
 | OOD 语义类别 | n/a | n/a | n/a | n/a | ❌ BERT OOD |

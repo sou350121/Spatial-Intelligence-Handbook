@@ -66,7 +66,7 @@
 | 模型 | **近 (0-1m)** | **中 (1-30m)** | **远 (30-100m)** | **超远 (>100m)** | **物理上限** |
 |---|---|---|---|---|---|
 | **DA v2** | ⚠️ (相对，无 metric) | ✅ 主战场 | ⚠️ (依训练分布) | ❌ sky clip hack | KITTI variant **80m** (训练 ceiling) |
-| **Metric3D v2** | ✅ benchmark OK / ⚠️ 实测崩 | ⚠️ **4m 已开始 419% off** | ❌ | ❌ | 室内训练偏，户外 normal 标注 <20K |
+| **Metric3D v2** | ✅ benchmark OK / ⚠️ 实测崩 | ⚠️ **4m 已开始 419% off** | ❌ | ❌ | 室内训练偏，户外 normal 标注 &lt;20K |
 | **MoGe v1** | ✅ 近距离强（multi-scale loss）| ✅ 主战场 | ⚠️ sky head 工程 hack | ❌ | sphere scale α=1/64 是 ceiling |
 | **MoGe-2** | ✅ + metric | ✅ + metric | `UNVERIFIED` | ❌ | TBD |
 | **FoundationStereo** | ✅ (baseline 5cm @ 0.2-3m) | ✅ (baseline 20cm @ 3-30m) | ⚠️ (baseline 60cm @ 20-80m) | ❌ baseline 物理限制 | `ε_Z = Z²·ε_d/(f·B)` 二次律崩 |
@@ -120,7 +120,7 @@
 | Metric3D v2 (ViT-g) | **0.067** | — | **0.051** | **2.403** | benchmark 最强 metric, 但 in-the-wild 419% off |
 | MoGe v1 | — | — | point error **6.43** | (vs 9.86 baseline) | 21 datasets 平均 |
 | MoGe-2 | `UNVERIFIED` | — | — | — | 2025-07 新出 |
-| FoundationStereo | — | — | — | <2% @ 2m (D435 实测) | Middlebury+ETH3D 1st |
+| FoundationStereo | — | — | — | &lt;2% @ 2m (D435 实测) | Middlebury+ETH3D 1st |
 | DA 3 | `UNVERIFIED` | — | — | — | vs VGGT pose **+44.3%**, geo **+25.1%** |
 
 ⚠️ **Benchmark 数字 ≠ 实际**。Metric3D NYUv2 AbsRel=0.067 但 in-the-wild 4m 实距给 20.7m（419% off）—— **benchmark 与生产环境差一个数量级**。
@@ -138,7 +138,7 @@
 | **Metric3D v2** | ViT-L > ViT-S 在 benchmark | **远端 ViT-L 反而比 ViT-S 更差 ★** | 同上 (违反直觉) |
 | **MoGe v1** | 21 datasets 平均强 | sky region 是工程 clip hack | 论文 §6 承认 |
 | **FoundationStereo** | Middlebury+ETH3D 1st | **没有 confidence map / occlusion mask ★** | GitHub repo |
-| **FoundationStereo** | 实验室 <2% @ 2m | drone ~0.024m/m flown calibration drift | 推测 |
+| **FoundationStereo** | 实验室 &lt;2% @ 2m | drone ~0.024m/m flown calibration drift | 推测 |
 
 &nbsp;
 

@@ -39,7 +39,7 @@
 
 **(c) Eye safety — IEC 60825-1.** MPE 在 700 nm 以后陡升；cornea+lens 透过且眨眼反射不再触发。850 nm 在 100 ms 曝光下，Class 1 的时间平均上限约 1 mW/cm² `UNVERIFIED`；940 nm 大约宽松 2×；1550 nm 宽松 ~1000×（cornea+lens 几乎全吸收）— 这就是 1550 nm LiDAR 可以打到 kilowatt 的根本原因。
 
-⚡ **Eureka Moment.** 850-vs-940 厂商分岔是**暴露时长**之争，不是性能之争 — 脉冲 <10 ms 偶发观看者 = 850 nm，连续观看者 = 940 nm。其他所有轴都是这个选择的下游。
+⚡ **Eureka Moment.** 850-vs-940 厂商分岔是**暴露时长**之争，不是性能之争 — 脉冲 &lt;10 ms 偶发观看者 = 850 nm，连续观看者 = 940 nm。其他所有轴都是这个选择的下游。
 
 ---
 
@@ -54,7 +54,7 @@
 | **1380 nm** | ~0% Si | 最强 dip | 很宽松 | InGaAs | 大气，非 depth |
 | **1550 nm** | 0% Si | strong | 宽松 ~1000× | InGaAs 50–100× | **车载 flash LiDAR** |
 
-预测厂商选择的规则：脉冲 <10 ms、偶发对人 → 850 nm（找回 QE）；连续对人眼 → 940 nm（用 QE 税换累积剂量）。**Apple 选 940 nm 是因为连续佩戴下安全预算会累积，不是为了性能。**
+预测厂商选择的规则：脉冲 &lt;10 ms、偶发对人 → 850 nm（找回 QE）；连续对人眼 → 940 nm（用 QE 税换累积剂量）。**Apple 选 940 nm 是因为连续佩戴下安全预算会累积，不是为了性能。**
 
 ---
 
@@ -78,7 +78,7 @@ Aperture stop: 7 mm (IEC pupil model)
 
 ## 4 · 实战硬件类型 (Hardware archetypes in the wild)
 
-**Structured light.** VCSEL 投射伪随机点阵；单 camera 读取形变。Kinect v1 (PrimeSense, 850 nm), Face ID (940 nm, ~30k dots)。dense depth，无时间混叠。户外迅速失效，realistic projector power 下距离上限 <4 m。
+**Structured light.** VCSEL 投射伪随机点阵；单 camera 读取形变。Kinect v1 (PrimeSense, 850 nm), Face ID (940 nm, ~30k dots)。dense depth，无时间混叠。户外迅速失效，realistic projector power 下距离上限 &lt;4 m。
 
 **ToF.** Modulated illuminator + demodulating pixel 量相位延迟。Kinect v2 (850 nm CW), iPhone LiDAR (940 nm pulsed SPAD), 车载 flash LiDAR (1550 nm InGaAs SPAD, kW peak)。对无纹理表面有效。多径、调制 wraparound、耗电。
 
@@ -116,7 +116,7 @@ BPF 必须 angle-of-incidence 稳定；进入宽 FOV 镜头的光线最大可达
 
 - **Si-sensor 可得性。** 850 nm QE ≥35% 的 commodity CMOS 持续量产。供应冲击会把 BOM 推向 InGaAs。
 - **BPF 角度稳定性。** 宽 FOV 镜头 (≤60° HFOV) 配的 BPF 在 30° AOI 下蓝移不超过几 nm。Fisheye 会打破。
-- **VCSEL 热包络。** 外壳保持 emitter <60°C；户外曝晒会让 BPF / VCSEL 漂移失配。
+- **VCSEL 热包络。** 外壳保持 emitter &lt;60°C；户外曝晒会让 BPF / VCSEL 漂移失配。
 - **多机器人非协调情况罕见。** 一间房内没有 5 台 RealSense；一旦不成立，cross-talk 主导。
 - **Solar baseline。** AM1.5 户外；高原或雪地高反照率可令环境光翻倍。
 - **光学元件供应。** Narrow BPF + 850 nm VCSEL 维持 commodity；供应冲击会把产品迁到 808 nm 或 940 nm。
@@ -127,10 +127,10 @@ BPF 必须 angle-of-incidence 稳定；进入宽 FOV 镜头的光线最大可达
 
 | Embodiment | Band pick | 选这个波段的 one driver | 为什么不选别的 |
 |---|---|---|---|
-| **Manipulation (tabletop)** | 850 nm active stereo | <2 m 工作空间，BOM 容得下 projector，室内环境光 | 940 nm 浪费 QE；1550 nm BOM 不可能 |
+| **Manipulation (tabletop)** | 850 nm active stereo | &lt;2 m 工作空间，BOM 容得下 projector，室内环境光 | 940 nm 浪费 QE；1550 nm BOM 不可能 |
 | **Drone** | 通常 passive（不开主动） | 1–3 W projector 税咬死 250 g 功率预算 | 850 nm 只在室内/暮光合理（Skydio） |
 | **AR / VR headset** | 940 nm eye-tracking | 连续暴露剂量预算累积 | 850 nm Class 1 在 5 cm 裕量太紧 |
-| **Phone face auth** | 940 nm structured light | on-skin 连续；<30 cm 距离 | 850 nm 需更低功率 → 点数减少 |
+| **Phone face auth** | 940 nm structured light | on-skin 连续；&lt;30 cm 距离 | 850 nm 需更低功率 → 点数减少 |
 | **Automotive long-range** | 1550 nm SPAD | kW peak 仍 Class 1；>200 m | 905 nm 在保险杠处 Class 3R；850 nm 距离受限 |
 
 经验：在 headset，**暴露时长**主导；在机器人，**环境光排除**主导。

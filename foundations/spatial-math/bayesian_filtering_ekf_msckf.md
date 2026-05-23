@@ -162,7 +162,7 @@ x̂ ← x̂ + K(z - Hx̂)     P ← (I - KH) P
 | 滑窗优化 | 在线但接近离线精度的 VIO（VINS-Mono） |
 | iSAM2 | factor-graph 平滑 |
 
-> **🎤 Interview Tip.** "Skydio / OpenVINS 为什么用 MSCKF 而不是 BA？" —— 强答："状态有界、更新时间确定。MSCKF 在状态里保留过去位姿的滑窗，观测时通过 null-space 投影把 landmark 边际化掉 —— 每个特征对窗口内位姿做联合贡献，状态不膨胀。每次更新 `O(N³)`，N≈20，Orin 上 < 10 ms。滑窗优化器每 iter 重新线性化（更准）但有不确定的长尾延迟，不适合 200 Hz 控制。" 加分："Jacobian 是 production bug 的高发面 —— 每个 MSCKF 实现都从 OpenVINS 源抄是有原因的。"
+> **🎤 Interview Tip.** "Skydio / OpenVINS 为什么用 MSCKF 而不是 BA？" —— 强答："状态有界、更新时间确定。MSCKF 在状态里保留过去位姿的滑窗，观测时通过 null-space 投影把 landmark 边际化掉 —— 每个特征对窗口内位姿做联合贡献，状态不膨胀。每次更新 `O(N³)`，N≈20，Orin 上 &lt; 10 ms。滑窗优化器每 iter 重新线性化（更准）但有不确定的长尾延迟，不适合 200 Hz 控制。" 加分："Jacobian 是 production bug 的高发面 —— 每个 MSCKF 实现都从 OpenVINS 源抄是有原因的。"
 
 ---
 

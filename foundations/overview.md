@@ -431,7 +431,7 @@ NVIDIA Cosmos 是 sim2real *data factory* (Transfer > Predict > Reason)。Genie 
 
 | 推荐入口 | 说明 |
 |---------|------|
-| [NVIDIA Cosmos](world-model/nvidia_cosmos_dissection.md) | sim2real 数据工厂；预测 2027-12 真机 contact-rich 任务提升 < 15% |
+| [NVIDIA Cosmos](world-model/nvidia_cosmos_dissection.md) | sim2real 数据工厂；预测 2027-12 真机 contact-rich 任务提升 &lt; 15% |
 | [Genie / Genie 2](world-model/genie_dissection.md) | 推理时 planner 而非训练源；latent action 接地是未解 |
 | [Marble (decision view)](world-model/marble_decision_view.md) | 显式 in-scope / out-of-scope 表 — 拒绝大部分功能 |
 

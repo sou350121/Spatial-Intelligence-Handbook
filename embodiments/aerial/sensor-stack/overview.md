@@ -23,7 +23,7 @@
 
 | Payload class | 起飞重量 | 代表机型 | 典型传感栈 | 主导自主能力 | 客户类 |
 |---|---|---|---|---|---|
-| **Racing FPV** | <300 g | DJI Avata 2 (`UNVERIFIED` 重量), UZH 自制 | Mono cam + IMU + 气压计 (+ 可选 event) | VIO @ 200 Hz；reactive policy | 玩家 / 研究 |
+| **Racing FPV** | &lt;300 g | DJI Avata 2 (`UNVERIFIED` 重量), UZH 自制 | Mono cam + IMU + 气压计 (+ 可选 event) | VIO @ 200 Hz；reactive policy | 玩家 / 研究 |
 | **Cinematography** | 300–800 g | Skydio 2+, DJI Air 3, Autel EVO Lite+ | Surround stereo (4–6 cam) + IMU + 下视 stereo / TOF + GNSS | Obstacle avoidance + ActiveTrack | 消费 / 创作者 |
 | **Cinematography Pro / Light Inspection** | 800–1500 g | Skydio X10, DJI Mavic 3 Enterprise, Autel EVO Max 4T | 上 + 多目 stereo + IMU + 主动 TOF + thermal (可选) + GNSS-RTK | 长续航跟踪 + 半结构化巡检 | 企业 / 公共安全 |
 | **Inspection / Mapping** | 1.5–3 kg | DJI Matrice 3D / 3DT, Autel EVO Max 4T 重载, Skydio Dock for Enterprise | Stereo + IMU + LiDAR (Livox Mid-360 级) + RGB inspection cam + GNSS-RTK | LiDAR SLAM 测绘 + 离线 3DGS | 测绘 / 基础设施巡检 |
@@ -139,8 +139,8 @@
 ## 6 · 2027 前会变的
 
 - **Event camera 价格下穿 $500** — 触发消费机以"高速 / 低光选配"出货 (`UNVERIFIED`)。
-- **固态 LiDAR 重量 <150 g** — 让 800 g 电影机第一次能负担 LiDAR；改 Skydio X10 / DJI Mavic Pro 档的栈结构。
-- **VGGT 级 feed-forward 3D 在 Orin Nano 上 <50 ms** — 低端机第一次有 "feed-forward 全局重定位" 选项（见 [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../../crossing/slam-vio-migration/vggt_vs_drone_vio.md)）。
+- **固态 LiDAR 重量 &lt;150 g** — 让 800 g 电影机第一次能负担 LiDAR；改 Skydio X10 / DJI Mavic Pro 档的栈结构。
+- **VGGT 级 feed-forward 3D 在 Orin Nano 上 &lt;50 ms** — 低端机第一次有 "feed-forward 全局重定位" 选项（见 [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../../crossing/slam-vio-migration/vggt_vs_drone_vio.md)）。
 - **主动 NIR flood 眼安全 LED 模块小型化** — 室内黑暗巡检栈第一次可工业化。
 
 **可证伪预测：** 2027-06 之前会有一台 800 g 级机首次出货前视 LiDAR——但只在企业 SKU，不在消费 SKU。

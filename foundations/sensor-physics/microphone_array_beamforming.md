@@ -167,7 +167,7 @@ output = w_MVDR' × x(t)
 **Spatial aliasing 检查:**
 - 邻 mic 间距 ≈ 2 × r × sin(30°) = 4 cm
 - Aliasing 限频率: f_max = c / (2 × 4 cm) = 4.3 kHz
-- ⚠️ 4 kHz 以上有空间 aliasing — 但语音信息 80% 集中在 <4 kHz，OK
+- ⚠️ 4 kHz 以上有空间 aliasing — 但语音信息 80% 集中在 &lt;4 kHz，OK
 
 **Power.** ADC 6 路 + DSP processing ~200 mW；Always-on wake word detection ~50 mW (low-power DSP)。
 
@@ -216,7 +216,7 @@ output = w_MVDR' × x(t)
 
 ### Hidden Assumptions
 
-- **声源远场 (plane wave).** <0.5 m 近场需要球面波修正
+- **声源远场 (plane wave).** &lt;0.5 m 近场需要球面波修正
 - **静止声源 or 慢速.** 快速移动声源（车）TDoA 不稳定
 - **mic 已 calibrated.** mic 间 gain mismatch 1 dB → DOA bias 几度
 - **房间不极端混响.** 浴室 / 教堂 / 阶梯井 RT60 >1 s → GCC-PHAT 大幅退化

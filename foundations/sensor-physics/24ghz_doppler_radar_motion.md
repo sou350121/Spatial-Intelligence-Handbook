@@ -170,7 +170,7 @@ Doppler 物理对 24 GHz 特别合用：1 m/s 速度 → 音频频率，**便宜
 
 **功耗 (24 GHz CW vs PCR):**
 - CW Doppler (always on): ~50-200 mW
-- Pulsed coherent (PCR, sub-Hz duty): <1 mW average（battery-powered IoT 可行）
+- Pulsed coherent (PCR, sub-Hz duty): &lt;1 mW average（battery-powered IoT 可行）
 - vs PIR ~10 µW, ultrasonic ~50 mW
 
 **Antenna PCB.** 24 GHz patch antenna 在 FR4 板上可以做 — vs 76 GHz 需要专用高频材料（Rogers RO4350）。**这降低 PCB cost 10×.**
@@ -217,10 +217,10 @@ Doppler 物理对 24 GHz 特别合用：1 m/s 速度 → 音频频率，**便宜
 
 | Sensor | 检测原理 | 隐私 | Power | Cost | 距离 | 区分人/动物 |
 |---|---|---|---|---|---|---|
-| **PIR** | 温度变化 | ★★ | µW | $0.5 | <8 m | 弱 |
-| **Ultrasonic (40 kHz)** | 距离变化 | ★★ | 50 mW | $5 | <5 m | 不能 |
-| **24 GHz Doppler** | 速度 | ★★★ | 50-200 mW | $5-30 | <20 m | 弱 |
-| **60 GHz Soli** | 高分辨率 motion | ★★★ | ~50 mW | $20-50 | <2 m | 中（手势） |
+| **PIR** | 温度变化 | ★★ | µW | $0.5 | &lt;8 m | 弱 |
+| **Ultrasonic (40 kHz)** | 距离变化 | ★★ | 50 mW | $5 | &lt;5 m | 不能 |
+| **24 GHz Doppler** | 速度 | ★★★ | 50-200 mW | $5-30 | &lt;20 m | 弱 |
+| **60 GHz Soli** | 高分辨率 motion | ★★★ | ~50 mW | $20-50 | &lt;2 m | 中（手势） |
 | **76 GHz** | range + velocity | ★★★ | 1-3 W | $80-200 | 200 m | 中 |
 | **Thermal camera** | 体温 | ★★ | 0.5 W | $200+ | 50 m | 强 |
 | **RGB camera** | 视觉 | ★ | 1 W | $20+ | 100 m | 强 |

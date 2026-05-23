@@ -15,7 +15,7 @@ Depth foundation models — Depth Anything v1/v2 (Yang et al. 2024), Marigold (K
 - a drone above tree canopy at 80 m AGL (5–500 m, no ground truth available)
 - an AUV in 4 m visibility green water (0.5–30 m, particulate scatter)
 
-The reason isn't laziness — it's that *no single embodiment owns all four regimes*. Manipulation researchers care about <2 m. AD researchers care about 5–80 m. Drone and marine engineers don't trust monocular depth at all. The result is that "depth foundation model" surveys treat the failure modes as embodiment-specific quirks rather than what they actually are: **a single relative-vs-metric trap that takes a different shape at each scale band**.
+The reason isn't laziness — it's that *no single embodiment owns all four regimes*. Manipulation researchers care about &lt;2 m. AD researchers care about 5–80 m. Drone and marine engineers don't trust monocular depth at all. The result is that "depth foundation model" surveys treat the failure modes as embodiment-specific quirks rather than what they actually are: **a single relative-vs-metric trap that takes a different shape at each scale band**.
 
 That is exactly the kind of cross-cut that lives in `crossing/`.
 
@@ -65,7 +65,7 @@ Read this matrix **vertically** — each column is one embodiment's complete dep
 
 Depth Anything v1/v2 outputs **relative inverse depth**. To use it on a robot you must metric-anchor it — typically via a sparse depth source (LiDAR, stereo, RealSense IR projector). The anchor recovers shift and scale.
 
-This works wonderfully at <2 m where:
+This works wonderfully at &lt;2 m where:
 - The anchor is dense (a RealSense D435 fires ~300k points per frame `UNVERIFIED`).
 - The relative-depth prediction is locally consistent (small scene, lots of pixels per surface).
 - A 2% scale error means 4 mm at 0.2 m — invisible to a parallel-jaw gripper.
@@ -121,9 +121,9 @@ What would close the gap?
 1. **Sensor-conditioned depth foundation** — feed the model not just RGB but a sparse depth prior + intrinsics + an embodiment flag. Metric3D v2 is a half-step in this direction.
 2. **Sky / ground prior decoupling** — current models fight over sky pixels. Explicit sky segmentation as a side head would help drone and AD long-range stability.
 3. **Particulate / atmospheric awareness** — train on synthetic fog / haze / underwater scatter (Aerial Gym + UWSim lineages). The 2026 data does not exist at scale.
-4. **<10 ms inference** — distilled depth models for the drone latency budget. Plausible but not free.
+4. **&lt;10 ms inference** — distilled depth models for the drone latency budget. Plausible but not free.
 
-**Falsifiable prediction:** before 2027-12, a single depth foundation model will ship that produces *metric* depth with <5% error on (a) NYUv2-style indoor, (b) KITTI-style driving, **and** (c) drone-above-canopy at 50 m AGL. It will not be a scaled-up Depth Anything; it will explicitly consume a sparse range prior. Bet against any paper claiming "monocular metric depth across all scales" without an active-range input.
+**Falsifiable prediction:** before 2027-12, a single depth foundation model will ship that produces *metric* depth with &lt;5% error on (a) NYUv2-style indoor, (b) KITTI-style driving, **and** (c) drone-above-canopy at 50 m AGL. It will not be a scaled-up Depth Anything; it will explicitly consume a sparse range prior. Bet against any paper claiming "monocular metric depth across all scales" without an active-range input.
 
 ---
 

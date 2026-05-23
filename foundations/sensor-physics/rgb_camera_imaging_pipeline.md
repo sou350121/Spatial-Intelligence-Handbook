@@ -85,11 +85,11 @@ RGB 相机是具身 AI 里最便宜也最被低估的 sensor — 一颗 $5 的 O
 
 | 模型 | 适用 FOV | 参数 | 公式（径向） |
 |---|---|---|---|
-| **Pinhole + Brown-Conrady** | <90° | k1, k2, k3, p1, p2 | `r' = r·(1 + k1·r² + k2·r⁴ + k3·r⁶) + tangential` |
+| **Pinhole + Brown-Conrady** | &lt;90° | k1, k2, k3, p1, p2 | `r' = r·(1 + k1·r² + k2·r⁴ + k3·r⁶) + tangential` |
 | **Fisheye Kannala-Brandt** | 90–200° | k1, k2, k3, k4 | `θ' = θ·(1 + k1·θ² + k2·θ⁴ + k3·θ⁶ + k4·θ⁸)` |
 | **Omnidirectional MEI / Scaramuzza** | 360° (catadioptric) | poly + mirror geom | 多项式 + 反射面 |
 
-**Brown-Conrady.** OpenCV / ROS 默认，<90° FOV 精度高。radial k1 (barrel/pincushion)，tangential p1/p2 (lens-sensor tilt)。手机相机 k1 ≈ -0.2~-0.3；工业镜头 ≈ -0.05。
+**Brown-Conrady.** OpenCV / ROS 默认，&lt;90° FOV 精度高。radial k1 (barrel/pincushion)，tangential p1/p2 (lens-sensor tilt)。手机相机 k1 ≈ -0.2~-0.3；工业镜头 ≈ -0.05。
 
 **Kannala-Brandt fisheye.** 用 θ (入射角) 建模 — >90° FOV 必须用，r 在 90° 发散。Drone 向下 / FPV 几乎全 fisheye；**Brown-Conrady 拟合 fisheye 边缘累积 5–10 px reprojection error** → VIO 失稳。
 

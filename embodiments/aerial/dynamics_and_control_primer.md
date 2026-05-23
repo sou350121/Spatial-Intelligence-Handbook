@@ -234,7 +234,7 @@ HKUST sim 默认值（`proj1phase1/sim/model.py`，500 g class）：
 按破坏严重程度排序：
 
 1. **小角度近似（外环 xy → φ/θ 反解）**。`φ_c = ...sin ψ − ...cos ψ` 是**线性化版**——超过 ±30° 时偏离精确反解 ≥5%。Race quad / agile flight 必须用 [Lee et al. 2010 SE(3) controller](https://arxiv.org/abs/1003.2005) 替代。
-2. **无风 / 无地效**。Newton 方程假设外力仅重力 + 推力。低空 (<1 桨径) 地效让有效推力 +5-15%（UNVERIFIED）。强阵风 (>5 m/s) 需外环加 disturbance observer。
+2. **无风 / 无地效**。Newton 方程假设外力仅重力 + 推力。低空 (&lt;1 桨径) 地效让有效推力 +5-15%（UNVERIFIED）。强阵风 (>5 m/s) 需外环加 disturbance observer。
 3. **对称惯量 `I_b = diag, I_xx ≈ I_yy`**。X 机架成立。但**载荷不对称**（挂相机/抓手）让非对角项出现 → `ω×I·ω` 放大 → roll/pitch 串扰。
 4. **电机响应是最快的（dominant pole）**。若 `τ_m` 接近内环周期，时间尺度分离失效。出货飞控 ESC 必须 ≥4× 内环带宽（race quad 用 BLHeli_32 就是这理由）。
 5. **位置/姿态可观且 IMU 不饱和**。VIO 失锁 / IMU 桨叶噪声饱和时，两环输入崩——见 [`vio/`](./vio/) "四条非协商约束"。

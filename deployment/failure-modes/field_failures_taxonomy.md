@@ -87,7 +87,7 @@ field_failure = paper_assumption_broken
 
 **物理**：阳光 1 kW/m² floor 在 850 nm 仍 ~500 W/m² `UNVERIFIED`；几瓦 NIR projector 2 m 外信噪比塌。RGB AE 在 130+ dB 室外动态范围下要不过曝要不全黑。
 
-**症状**：D435 户外 >2 m 蜂窝噪声 + 空洞；RGB 直方图 >10% 在 255 或 <5；feature 数量骤降。
+**症状**：D435 户外 >2 m 蜂窝噪声 + 空洞；RGB 直方图 >10% 在 255 或 &lt;5；feature 数量骤降。
 
 **偵测**：`sat_high > 0.10 or sat_low > 0.30` → `EXPOSURE_OUT_OF_RANGE`；`depth_valid_ratio < 0.4` → `ACTIVE_DEPTH_DEGRADED`。
 
@@ -155,15 +155,15 @@ field_failure = paper_assumption_broken
 
 ## 9 · Failure #8 — 水下
 
-**物理**：水折射使针孔模型失效（须建 housing port 折射模型）；NIR <1 m 被吸收；可见光 <5 m（浑浊 <1 m）；声呐主导。
+**物理**：水折射使针孔模型失效（须建 housing port 折射模型）；NIR &lt;1 m 被吸收；可见光 &lt;5 m（浑浊 &lt;1 m）；声呐主导。
 
-**症状**：针孔 calibration 残差 systematic bend；RGB <5 m 外看不到；浮游生物 = false acoustic returns。
+**症状**：针孔 calibration 残差 systematic bend；RGB &lt;5 m 外看不到；浮游生物 = false acoustic returns。
 
 **偵测**：visibility 透射率作 prior；acoustic + optical fusion 一致性。
 
 **缓解**：整套设计就不一样——multibeam sonar 主 + DVL 速度锚 + FOG IMU + 光学辅助（详见 `deployment/hardware-selection/bom_templates_by_class.md` BoM #5）。浅水可见区用光学；浑浊 / 深水纯 acoustic。
 
-**真实案例**：科研 AUV 视觉 SLAM 在 5 m 后崩；fix：视觉 SLAM 限 <3 m，主导航交给 sonar+DVL+FOG。
+**真实案例**：科研 AUV 视觉 SLAM 在 5 m 后崩；fix：视觉 SLAM 限 &lt;3 m，主导航交给 sonar+DVL+FOG。
 
 ---
 

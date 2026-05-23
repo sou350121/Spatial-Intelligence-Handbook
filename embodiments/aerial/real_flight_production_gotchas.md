@@ -115,7 +115,7 @@ lab3 是 ELEC5660 闭环最关键一步：**关 OptiTrack，全靠 onboard RealS
 
 ### 5.1 不要直接切换 — hand-hold 渐进
 
-lab3 §"Suggested Workflow" 五步（炸机概率从 ~80% 压到 ~5% `UNVERIFIED`）：(1) **手持 VO** 测 RealSense 驱动 / VO 初始化（USB 3.0 带宽不够 → frame drop → init 失败）；(2) **手持 EKF** 测协方差 / IMU bias / 时间同步收敛；(3) **手飞 + EKF 可视化**（不闭环），看 EKF vs OptiTrack 偏差（典型 <0.1 m `UNVERIFIED`）；(4) **EKF hover**；(5) **EKF + trajectory**。
+lab3 §"Suggested Workflow" 五步（炸机概率从 ~80% 压到 ~5% `UNVERIFIED`）：(1) **手持 VO** 测 RealSense 驱动 / VO 初始化（USB 3.0 带宽不够 → frame drop → init 失败）；(2) **手持 EKF** 测协方差 / IMU bias / 时间同步收敛；(3) **手飞 + EKF 可视化**（不闭环），看 EKF vs OptiTrack 偏差（典型 &lt;0.1 m `UNVERIFIED`）；(4) **EKF hover**；(5) **EKF + trajectory**。
 
 ### 5.2 切换瞬间的炸机模式
 

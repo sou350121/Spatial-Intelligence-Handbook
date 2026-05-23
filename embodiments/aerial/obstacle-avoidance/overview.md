@@ -30,7 +30,7 @@ Roomba 可以停、AGV 可以停、汽车也可以停（刹车距离长但动作
 | 主要传感 | Event camera + RGB + IMU（UZH）；RGB-D + IMU（Loquercio） | Stereo + IMU +（有时）下视 TOF |
 | 规划 horizon | ~0.1 s（网络内反应） | 1–3 s（MPC / B-spline） |
 | Replan rate | 隐式（策略前馈） | 5–30 Hz `UNVERIFIED` |
-| 计算占用 | Jetson Orin Nano 上推理 <50 ms `UNVERIFIED` | AGX 上 map update 10–30 ms + plan 5–15 ms `UNVERIFIED` |
+| 计算占用 | Jetson Orin Nano 上推理 &lt;50 ms `UNVERIFIED` | AGX 上 map update 10–30 ms + plan 5–15 ms `UNVERIFIED` |
 | 运行包络 | 5–25 m/s，赛道式（已知 gate / 场景类） | 0.5–8 m/s，**未知**环境 |
 | 失败模式 | OOD 场景；无 introspection | Plan infeasibility；地图陈旧；ESDF 空洞 |
 | 用于电影摄影？ | 否（抖动、不擅长 target-following） | 是（Skydio 实际产品） |
@@ -72,7 +72,7 @@ Roomba 可以停、AGV 可以停、汽车也可以停（刹车距离长但动作
 
 | 速度区间 | 主要障碍类 | 最低传感 | 通常被忽略的 |
 |---|---|---|---|
-| 悬停 / <2 m/s（巡检） | 墙、脚手架、电线、人 | Stereo 或 LiDAR | 树叶摆动、扬尘 |
+| 悬停 / &lt;2 m/s（巡检） | 墙、脚手架、电线、人 | Stereo 或 LiDAR | 树叶摆动、扬尘 |
 | 电影摄影 2–8 m/s | 树、枝、建筑、人、地形 | Stereo + 下视 TOF + IMU | 电线（常漏）、细叶 |
 | 竞速 10–25 m/s（已知赛道） | Gate、赛道障碍、地面 | Event + RGB + IMU | 一切不在赛线上的东西 |
 | 户外巡航 8–15 m/s | 高压线、树、地形 | Stereo + IMU + (理想: thermal) | 鸟、碎屑 |

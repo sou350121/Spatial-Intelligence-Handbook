@@ -29,7 +29,7 @@ Z   = f · B / d                  ← 经典立体深度公式
 
 **(1) Depth 与 disparity 反比放大**：`∂Z/∂d = −Z²/(f·B)`。`Z` 一倍 → `∂Z/∂d` 四倍。"近距精、远距糊"是 *结构性* 问题，不是工程问题。
 
-**(2) Baseline 决定可用 range 上限** — 远处 disparity → 0。亚像素 refinement 推到 ~0.1 px 是物理极限。给定亚像素精度 `Δd`：`Z_max ≈ √(f·B/Δd)`。要测远 → 加 baseline 或加 focal（FoV 变窄）。`UNVERIFIED` 常引数字：RealSense D435 baseline 5 cm → 有效 < 3 m；ZED 2 baseline 12 cm → ~10 m；KITTI rig baseline 54 cm → ~80 m。
+**(2) Baseline 决定可用 range 上限** — 远处 disparity → 0。亚像素 refinement 推到 ~0.1 px 是物理极限。给定亚像素精度 `Δd`：`Z_max ≈ √(f·B/Δd)`。要测远 → 加 baseline 或加 focal（FoV 变窄）。`UNVERIFIED` 常引数字：RealSense D435 baseline 5 cm → 有效 &lt; 3 m；ZED 2 baseline 12 cm → ~10 m；KITTI rig baseline 54 cm → ~80 m。
 
 **(3) Baseline / occlusion trade-off** — baseline 越大测远越准，但 occlusion 区域多、匹配失败区扩大。drone 端 SWaP 再压一层 baseline 上限。
 
@@ -156,8 +156,8 @@ KITTI 排行榜上 deep model 在 5+ 年前已越过 SGM。**但**：
 |---|---|---|
 | KITTI 精度 | 中等 | SOTA |
 | Textureless | 雪花 | 学习先验补 — 可能"幻觉" |
-| 延迟 (Jetson Orin Nano) | < 10 ms (HW 加速) `UNVERIFIED` | ~50 ms+ |
-| 内存 | < 100 MB | GPU + 模型 ~GB |
+| 延迟 (Jetson Orin Nano) | &lt; 10 ms (HW 加速) `UNVERIFIED` | ~50 ms+ |
+| 内存 | &lt; 100 MB | GPU + 模型 ~GB |
 | Confidence map | 默认有 (LR-check, speckle mask) | 多数模型*不*给 — 隐含失败 |
 | OOD | 慢慢糟 | 可能突然 catastrophic |
 | 嵌入式默认 | ✅ OAK-D / RealSense / ZED mini | 仅高端 (Jetson Orin) |

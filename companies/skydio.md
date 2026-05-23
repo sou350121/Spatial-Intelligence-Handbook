@@ -64,7 +64,7 @@ See `crossing/slam-vio-migration/vggt_vs_drone_vio.md` for why this configuratio
 
 ## 3 · Public engineering blog evidence
 
-Themes that recur: **calibration is the actual product** — multi-camera + factory + in-field re-calibration get the most engineering attention, obstacle-map accuracy is dominated by calibration drift, not algorithm choice. **Learned components inside a classical scaffold** — detection / segmentation / tracking are NN-based; state estimator + obstacle map are classical / probabilistic. **Latency in milliseconds** — flight at 36 mph (~16 m/s) implies <10 ms control-loop decisions. **Failure modes are the curriculum** — fog / sun glare / featureless walls get engineering posts. Canonical entry: https://www.skydio.com/blog.
+Themes that recur: **calibration is the actual product** — multi-camera + factory + in-field re-calibration get the most engineering attention, obstacle-map accuracy is dominated by calibration drift, not algorithm choice. **Learned components inside a classical scaffold** — detection / segmentation / tracking are NN-based; state estimator + obstacle map are classical / probabilistic. **Latency in milliseconds** — flight at 36 mph (~16 m/s) implies &lt;10 ms control-loop decisions. **Failure modes are the curriculum** — fog / sun glare / featureless walls get engineering posts. Canonical entry: https://www.skydio.com/blog.
 
 ---
 
@@ -90,11 +90,11 @@ Five lessons:
 
 设 X10-级无人机户外 8 m/s 飞行 + 避障，反推可行栈：
 
-1. **延迟** — 16 m/s 时 1 米决策距离 ~62 ms；扣控制+通信 ~30 ms，感知必须 < 30 ms。
+1. **延迟** — 16 m/s 时 1 米决策距离 ~62 ms；扣控制+通信 ~30 ms，感知必须 &lt; 30 ms。
 2. **算力** — Jetson Orin AGX ~275 TOPS INT8；分给 detection / depth / VIO 每项 < ~90 TOPS。
 3. **VGGT 测试** — Orin 蒸馏后 ~5 Hz N=4，**不满足高频 VIO** → 不能做主估计器。
 4. **可行栈** — 经典 stereo VIO 50–100 Hz + 学习型 detection 25–30 Hz + obstacle map ~10 Hz；VGGT 仅作离线 relocalization。
-5. **校准** — 360° 6 相机出厂 + 现场 < 1 px reproj error，工程量超过算法本身。
+5. **校准** — 360° 6 相机出厂 + 现场 &lt; 1 px reproj error，工程量超过算法本身。
 
 结论：**VGGT 进入空中的路径是 relocalizer，不是主估计器**（见 `crossing/slam-vio-migration/vggt_vs_drone_vio.md`）。
 

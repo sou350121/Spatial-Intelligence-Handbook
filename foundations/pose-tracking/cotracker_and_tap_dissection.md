@@ -109,7 +109,7 @@ CoTracker3 *online* 用有界内存逐帧流出预测.
 
 ## 5 · Data & eval
 
-**TAP-Vid** 是经典：Kinetics、DAVIS、RGB-Stacking 子集 + 手标 GT track + visibility. 指标：Average Jaccard、位置精度（δ_avg < 5 px）、遮挡精度. CoTracker 训在 **Kubric**（程序生成合成）上，TAP-Vid + DAVIS 评估 — 大幅击败 TAP-Net `UNVERIFIED`.
+**TAP-Vid** 是经典：Kinetics、DAVIS、RGB-Stacking 子集 + 手标 GT track + visibility. 指标：Average Jaccard、位置精度（δ_avg &lt; 5 px）、遮挡精度. CoTracker 训在 **Kubric**（程序生成合成）上，TAP-Vid + DAVIS 评估 — 大幅击败 TAP-Net `UNVERIFIED`.
 
 ---
 

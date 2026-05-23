@@ -51,8 +51,8 @@
 |---|---|---|
 | 感测原理 | Coriolis on vibrating mass | Sagnac on fiber coil |
 | 成本 | ~$3 | ~$15k |
-| 重量 | <1 g | 500–1000 g |
-| 功率 | <10 mW | 5–15 W |
+| 重量 | &lt;1 g | 500–1000 g |
+| 功率 | &lt;10 mW | 5–15 W |
 | Bias instability (gyro) | 0.5°/s `UNVERIFIED` | 0.05°/hr `UNVERIFIED` |
 | ARW (angle random walk) | 0.007°/√Hz | 0.012°/√hr |
 | Scale-factor stability | ~0.1% | ~5 ppm |
@@ -149,18 +149,18 @@ MEMS-vs-FOG 决策只在下列条件成立时稳定：
 
 | Embodiment | IMU pick | 原因 |
 |---|---|---|
-| **Manipulation** | MEMS BMI270 ($3) | 静态底座；视觉反馈主导；无 aiding 周期 <10 s |
+| **Manipulation** | MEMS BMI270 ($3) | 静态底座；视觉反馈主导；无 aiding 周期 &lt;10 s |
 | **Humanoid** | 多颗 MEMS（通常 >12） | per-joint 感测；靠运动链聚合 |
 | **Ground AGV** | MEMS + 轮速里程计 | 轮速编码器每米 aid；MEMS 足够 |
 | **Drone (consumer)** | MEMS + GNSS + visual | 全 aid 可得；MEMS 没问题；FOG 重量不可行 |
 | **AD 乘用车** | auto-grade MEMS ($50–500) | GNSS + visual aid；隧道靠短时 MEMS dead-reckon |
 | **AD L4 + 隧道 >5 min** | MEMS + 偶尔 tactical-grade 或 FOG 混合 | 无 aiding 隧道时长重要 |
-| **AUV** | **FOG 必备 (KVH 1750)** | 水下无 aiding 数小时；物理禁止 GNSS，视觉 <5 m |
+| **AUV** | **FOG 必备 (KVH 1750)** | 水下无 aiding 数小时；物理禁止 GNSS，视觉 &lt;5 m |
 | **Aerospace 惯导** | RLG ($50k+) | 数小时到数天无 aiding，超出 FOG 包络 |
 
 经验：按**无 aiding 任务时长**选 IMU class，不要按"质量"。Drone 不需要 FOG；AUV 需要。
 
-**🎙️ Interview Tip.** 被问"这台 drone 需要 FOG 吗"？— 反问的第一句是 *"最长无 aiding 段是几秒？"* <30 s GNSS gap 用 MEMS + 好 VIO 就够。如果你 bound 不住（采矿隧道、AUV 任务），上 FOG。回答"FOG 永远更好"的人在卖 FOG。
+**🎙️ Interview Tip.** 被问"这台 drone 需要 FOG 吗"？— 反问的第一句是 *"最长无 aiding 段是几秒？"* &lt;30 s GNSS gap 用 MEMS + 好 VIO 就够。如果你 bound 不住（采矿隧道、AUV 任务），上 FOG。回答"FOG 永远更好"的人在卖 FOG。
 
 ---
 

@@ -112,7 +112,7 @@ Pose 通过预测当前渲染与观测差异的**残差更新**迭代精化. Ren
 
 **Capabilities.** 带 mesh 的 novel-object 泛化 ✅. 杂乱场景 ✅（给定 2D 检测）. 多 instance pose（独立处理 crop）✅.
 
-**Failure modes.** 边缘硬件上非实时. 重遮挡（<30% 可见）→ refiner 吃力 `UNVERIFIED threshold`. 对称无纹理物体：旋转歧义.
+**Failure modes.** 边缘硬件上非实时. 重遮挡（&lt;30% 可见）→ refiner 吃力 `UNVERIFIED threshold`. 对称无纹理物体：旋转歧义.
 
 ### 6.x GitHub 实地失败（atlas 联动）
 

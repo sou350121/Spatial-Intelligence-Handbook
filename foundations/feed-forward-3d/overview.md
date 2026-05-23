@@ -91,7 +91,7 @@
 |---|:---:|:---:|:---:|---|
 | **Streaming** (frame-by-frame, 非 batch) | ❌ | ❌ | ❌ | 2027? `streaming VGT` 路线 |
 | **Native IMU 耦合** | ❌ | ❌ | ❌ | 2027-12 前 |
-| **Edge real-time (Orin <20ms)** | ❌ | ⚠️ | ❌ | 2028+ (quant + arch 改) |
+| **Edge real-time (Orin &lt;20ms)** | ❌ | ⚠️ | ❌ | 2028+ (quant + arch 改) |
 | **抗振动 (aerial) 训练先验** | ❌ | ❌ | ❌ | 与 event camera fuse |
 
 **关键含义**：feed-forward 3D 谱系在 2025-2026 取得了 metric + efficiency + dynamic 三个轴的进展，**但 aerial 实时控制环的硬约束（streaming + IMU + sub-10ms latency）一个也没解**。所以 [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../crossing/slam-vio-migration/vggt_vs_drone_vio.md) 结论：hybrid VGGT(任意变体) + 经典 VIO，**不是替换** — 仍成立。

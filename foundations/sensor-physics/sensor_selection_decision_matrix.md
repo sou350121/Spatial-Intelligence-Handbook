@@ -12,11 +12,11 @@
 
 | 轴 | nano drone ≤250 g | 巡检 drone 1-5 kg | manipulator | AD car | humanoid | marine AUV |
 |---|---|---|---|---|---|---|
-| **Weight** | **<5 g 关键** | <100 g | 不敏感 | 不敏感 | <500 g | 浮力中性 |
-| **Power** | <1 W (200 mAh) | <5 W | wall power | 12 V ECU | 24 V battery | ~50 Wh/km |
+| **Weight** | **&lt;5 g 关键** | &lt;100 g | 不敏感 | 不敏感 | &lt;500 g | 浮力中性 |
+| **Power** | &lt;1 W (200 mAh) | &lt;5 W | wall power | 12 V ECU | 24 V battery | ~50 Wh/km |
 | **Cost** | <$50 BOM | <$500 | <$2k (D435) | <$5k OK | <$2k | <$50k OK |
 | **Compute** | MCU STM32 | Jetson Orin Nano | x86 ws | Orin AGX×多 | Orin AGX×多 | low-power MCU |
-| **Size** | <30 mm | <80 mm | wrist-cam | hood/roof | head/waist 10 cm | watertight bottle |
+| **Size** | &lt;30 mm | &lt;80 mm | wrist-cam | hood/roof | head/waist 10 cm | watertight bottle |
 
 **关键观察**：(1) nano drone 几乎只看 weight × power — 加 10 g 等于减 10% flight time；(2) AD 几乎只看 range + 失败模式，weight/cost 可吸收；(3) manipulator 几乎只看 0-1 m 米制精度；(4) marine AUV 只看声学频段，光学 / 电磁全瞎。每个 sensor 的 SWaP-C 数字回 [`README.md`](./overview.md) 24 篇 dissection。
 
@@ -32,7 +32,7 @@
 |---|---|---|---|---|---|---|---|---|
 | **Active-NIR 850 nm** ([↗](./active_nir_850nm_for_embodied_ai.md)) | VCSEL flood + NIR cam + BPF | 0.1-5 m | 30-90 | 1-5 W | 5-30 g | $20-100 | 强日光 + 镜面饱和 | 室内/暮光 ✓ ; 正午 ✗ |
 | **ToF Phase-CW** ([↗](./tof_physics_for_embodied_ai.md)) | 调制相位测距 (Kinect/L515) | 0.3-5 m | 30 | 2-5 W | 20-50 g | $50-300 | wrap-around / 多径 / 阳光 | 室内 wrist depth ✓ ; >5 m ✗ |
-| **ToF dToF (SPAD)** | ns 脉冲 + SPAD 计时 (iPhone) | 0.3-10 m | 30 | 0.5-3 W | <5 g | $5-30 | pile-up / 弱反射 | mobile ✓ ; 工业级 grasp ✗ |
+| **ToF dToF (SPAD)** | ns 脉冲 + SPAD 计时 (iPhone) | 0.3-10 m | 30 | 0.5-3 W | &lt;5 g | $5-30 | pile-up / 弱反射 | mobile ✓ ; 工业级 grasp ✗ |
 | **LiDAR 905 nm 机械** ([↗](./lidar_physics_905_vs_1550.md)) | Si APD + 旋转扫描 | 30-150 m | 10-20 | 8-20 W | 600-1000 g | $1-10k | 轴承寿命 / 雨雪 Mie | 测绘 ✓ ; 量产 AD ✗ |
 | **LiDAR 905 nm 半固态** | MEMS/OPA + Si APD (AT128) | 100-200 m | 10 | 8-15 W | 300-700 g | $1-4k | FOV 窄 / 反射率敏感 | 乘用车 AD ✓ ; nano drone ✗ |
 | **LiDAR 1550 nm FMCW** | InGaAs SPAD + chirp 多普勒 | 200-500 m | 10 | 15-30 W | 800-2000 g | $5-20k | 单像素 50-100× Si cost | 卡车/远距 ✓ ; cost-bound ✗ |
@@ -40,18 +40,18 @@
 | **RGB RS** ([↗](./rolling_vs_global_shutter.md)) | rolling shutter readout | passive | 30-60 | 同上 | 同上 | 更便宜 | jello / fast yaw 几何崩 | static ✓ ; drone racing ✗ |
 | **Stereo (passive)** ([↗](./stereo_camera_geometry_physics.md)) | `Z=fB/d` 三角 | baseline×(10-100) | 30-60 | 2-5 W | 50-150 g | $200-2k | textureless / 标定漂 / 曝光不对称 | manipulation/drone 避障 ✓ ; >100 m/白墙 ✗ |
 | **Event Camera (DVS)** ([↗](./event_camera_dvs_physics.md)) | 异步 per-pixel log-intensity | passive, ~1 µs | 异步 | 0.1-1 W | 30-100 g | $1-3k (Prophesee) | 静态没事件 / 生态嫩 | HDR/高速/低光 ✓ ; 量产认证 ✗ |
-| **IMU MEMS** ([↗](./imu_physics_and_noise_model.md)) | Coriolis MEMS + 加速度计 | proprio | 100-1000 | <0.1 W | <5 g | $1-10 (BMI270) | bias drift / 振动 / 温漂；60 s ≈ 18 m | 全 embodiment baseline ✓ ; 长时单用 ✗ |
+| **IMU MEMS** ([↗](./imu_physics_and_noise_model.md)) | Coriolis MEMS + 加速度计 | proprio | 100-1000 | &lt;0.1 W | &lt;5 g | $1-10 (BMI270) | bias drift / 振动 / 温漂；60 s ≈ 18 m | 全 embodiment baseline ✓ ; 长时单用 ✗ |
 | **IMU tactical** | Honeywell HG4930 级 | proprio | 200-2000 | 1-3 W | 100-200 g | $3-10k | 振动 / 寿命 | 巡航 / AGV ✓ ; 消费品 ✗ |
 | **IMU FOG** | Sagnac 光纤干涉, BI 0.05°/hr | proprio | 100-200 | 3-10 W | 500-1500 g | $10k-100k | 体积大 / 需温稳 | 真值 / 潜艇 ✓ ; weight-bound ✗ |
-| **GNSS L1 single** ([↗](./gnss_multi_constellation_rtk.md)) | 单频 code phase | global, 5-10 m | 1-10 | 0.1-0.3 W | <10 g | $10-30 | 峡谷/多径/电离层 | 户外 baseline ✓ ; 室内 ✗ |
+| **GNSS L1 single** ([↗](./gnss_multi_constellation_rtk.md)) | 单频 code phase | global, 5-10 m | 1-10 | 0.1-0.3 W | &lt;10 g | $10-30 | 峡谷/多径/电离层 | 户外 baseline ✓ ; 室内 ✗ |
 | **GNSS multi-band RTK** | 双频 + base + carrier (F9P) | 1-5 cm | 5-20 | 0.5-2 W | 30-100 g | $200-1k | base 失联即回退 | 测绘/commercial drone ✓ ; 室内 ✗ |
 | **GNSS PPP** | 多频 + precise products | ~10 cm, 收敛 30 min | 1 | 0.5-2 W | ~RTK | $1k-5k | 收敛慢 | marine/静态 ✓ ; 实时机动 ✗ |
-| **Magnetometer** ([↗](./magnetometer_geomagnetic_field.md)) | Hall/fluxgate 测地磁 | yaw global | 10-100 | <0.05 W | <1 g | $1-30 | 硬/软铁；50 A ESC vs 50 µT | drone yaw ✓ ; 钢梁/电流附近 ✗ |
+| **Magnetometer** ([↗](./magnetometer_geomagnetic_field.md)) | Hall/fluxgate 测地磁 | yaw global | 10-100 | &lt;0.05 W | &lt;1 g | $1-30 | 硬/软铁；50 A ESC vs 50 µT | drone yaw ✓ ; 钢梁/电流附近 ✗ |
 | **mmWave 77 GHz AD** ([↗](./mmwave_radar_physics_for_ad.md)) | FMCW + MIMO 阵列 | 5-300 m | 10-30 | 5-15 W | 200-500 g | $500-3k 模组 | 角分辨率 ~0.5° / 金属混叠 | AD/浓雾穿透 ✓ ; 室内 dense ✗ |
 | **mmWave 24 GHz** ([↗](./24ghz_doppler_radar_motion.md)) | K-band CW/FMCW | 0.5-20 m | 10-50 | 0.3-2 W | 5-30 g | $5-50 | 角分辨率粗 / 频段限带宽 | smart home / 廉价防撞 ✓ ; AD ✗ |
-| **UWB** ([↗](./uwb_ultra_wideband_positioning.md)) | 500 MHz 脉冲 + DS-TWR | 0.1-50 m, σ ≈ 3 cm | 10-100 | RX 150 mW peak | <5 g | $3-8 chip / $30-50 anchor | 多径 / NLOS bias / 需 anchor | 室内 cm/swarm ✓ ; 户外大场景 ✗ |
+| **UWB** ([↗](./uwb_ultra_wideband_positioning.md)) | 500 MHz 脉冲 + DS-TWR | 0.1-50 m, σ ≈ 3 cm | 10-100 | RX 150 mW peak | &lt;5 g | $3-8 chip / $30-50 anchor | 多径 / NLOS bias / 需 anchor | 室内 cm/swarm ✓ ; 户外大场景 ✗ |
 | **Thermal IR LWIR** ([↗](./thermal_ir_lwir_8_14um.md)) | microbolometer 被动黑体 | 0-100 m | 9-60 (export) | 0.5-2 W | 5-100 g | $100-3k (Boson+) | 不透玻璃 / 热饱和 / FFC 1 s 盲 | 夜视/烟雾/救援 ✓ ; 透玻璃 ✗ |
-| **Barometer** ([↗](./barometer_pressure_altimetry.md)) | MEMS 压力 + 温补 | -500 to 9000 m | 10-100 | <0.01 W | <0.5 g | $2-5 (BMP388) | 温漂 / 阵风 / HVAC | drone vertical mid-term ✓ ; 高动态<1 s ✗ |
+| **Barometer** ([↗](./barometer_pressure_altimetry.md)) | MEMS 压力 + 温补 | -500 to 9000 m | 10-100 | &lt;0.01 W | &lt;0.5 g | $2-5 (BMP388) | 温漂 / 阵风 / HVAC | drone vertical mid-term ✓ ; 高动态&lt;1 s ✗ |
 | **Ultrasonic** ([↗](./ultrasonic_acoustic_physics_for_robotics.md)) | 40 kHz airborne ToF | 0.05-4 m | 10-40 | 0.3-1 W | 5-20 g | $1-30 | 多径 / 软材吸收 / 风漂 | drone 起降/USS ✓ ; >5 m/风大 ✗ |
 
 23 行覆盖 12 个**主** sensor class（active-NIR / ToF / LiDAR 3 架构 / RGB GS+RS / stereo / event / IMU 3 等级 / GNSS 3 等级 / magnetometer / mmWave 2 频段 / UWB / thermal）+ drone 专用 barometer + ultrasonic。完整 SWaP-C 数字回各 dissection 与 [README.md](./overview.md)。
@@ -63,11 +63,11 @@
 > 每个 use case 给"最小 viable stack"（去掉 1 项就有 spec 跑不到）+ 可选增强 + **明确点名不要选的 sensor**。
 
 ### 3.1 · 250 g 微型 drone 室内 SLAM (Crazyflie / Skydio nano)
-**约束**: weight <5 g/sensor, power <1 W, cost <$50。**Stack**: IMU MEMS (BMI270) + monochrome GS camera + 单点 NIR ToF / optical flow PMW3901 + barometer (BMP388)。**不要**: ✗ LiDAR (≥300 g 超 weight budget 60×) / ✗ RTK GNSS (室内无信号 + 30 g) / ✗ thermal IR (cost + FFC 不划算)。
+**约束**: weight &lt;5 g/sensor, power &lt;1 W, cost <$50。**Stack**: IMU MEMS (BMI270) + monochrome GS camera + 单点 NIR ToF / optical flow PMW3901 + barometer (BMP388)。**不要**: ✗ LiDAR (≥300 g 超 weight budget 60×) / ✗ RTK GNSS (室内无信号 + 30 g) / ✗ thermal IR (cost + FFC 不划算)。
 参考: [imu](./imu_physics_and_noise_model.md) + [optical_flow](./optical_flow_sensor_pmw3901.md) + [rolling_vs_global_shutter](./rolling_vs_global_shutter.md) + [`embodiments/aerial/sensor-stack/`](../../embodiments/aerial/sensor-stack/)
 
 ### 3.2 · 1.5 kg 巡检 drone 户外 (DJI M300 / Skydio X10)
-**约束**: weight <100 g/sensor, power <5 W, cost <$500。**Stack**: IMU (ICM-42688) + GS stereo (D435) + RTK GNSS (F9P) + magnetometer (RM3100, 远 ESC) + barometer。**可选**: 16-line LiDAR (~600 g) for terrain following / 77 GHz mmWave (~50 g) for BVLOS 浓雾备份。
+**约束**: weight &lt;100 g/sensor, power &lt;5 W, cost <$500。**Stack**: IMU (ICM-42688) + GS stereo (D435) + RTK GNSS (F9P) + magnetometer (RM3100, 远 ESC) + barometer。**可选**: 16-line LiDAR (~600 g) for terrain following / 77 GHz mmWave (~50 g) for BVLOS 浓雾备份。
 参考: [stereo](./stereo_camera_geometry_physics.md) + [gnss](./gnss_multi_constellation_rtk.md) + [magnetometer](./magnetometer_geomagnetic_field.md) + [`embodiments/aerial/long-range-slam/`](../../embodiments/aerial/long-range-slam/) + [`embodiments/aerial/obstacle-avoidance/`](../../embodiments/aerial/obstacle-avoidance/)
 
 ### 3.3 · 室内 manipulation wrist (Franka / UR / xArm)
@@ -79,7 +79,7 @@
 参考: [lidar](./lidar_physics_905_vs_1550.md) + [mmwave](./mmwave_radar_physics_for_ad.md) + [thermal_ir](./thermal_ir_lwir_8_14um.md) + [`embodiments/driving/`](../../embodiments/driving/)
 
 ### 3.5 · Marine surface / underwater AUV
-**物理约束**: 水下光 + 电磁 (>500 MHz) 全衰减。**Surface USV**: GNSS RTK + tactical IMU + RGB。**Underwater AUV**: DVL + tactical/FOG IMU + multibeam/side-scan sonar + USBL/LBL acoustic positioning。**不要 (物理)**: ✗ LiDAR (水中 <10 m 衰减完) / ✗ mmWave / UWB (水导体) / ✗ thermal IR (表面下完全无用)。
+**物理约束**: 水下光 + 电磁 (>500 MHz) 全衰减。**Surface USV**: GNSS RTK + tactical IMU + RGB。**Underwater AUV**: DVL + tactical/FOG IMU + multibeam/side-scan sonar + USBL/LBL acoustic positioning。**不要 (物理)**: ✗ LiDAR (水中 &lt;10 m 衰减完) / ✗ mmWave / UWB (水导体) / ✗ thermal IR (表面下完全无用)。
 参考: [underwater_sonar](./underwater_sonar_physics.md) + [`embodiments/marine/sensor_stack_underwater.md`](../../embodiments/marine/sensor_stack_underwater.md) + [`embodiments/marine/underwater_slam_dvl_sonar.md`](../../embodiments/marine/underwater_slam_dvl_sonar.md)
 
 ### 3.6 · Humanoid (Unitree H1 / Figure 02 / 1X NEO)
@@ -118,9 +118,9 @@
 
 | Grade | Bias instability | Weight | Cost | 60 s drift (位置) `UNVERIFIED` |
 |---|---|---|---|---|
-| Consumer MEMS (BMI270) | 0.5°/s `UNVERIFIED` | <5 g | $1-10 | ~18 m |
+| Consumer MEMS (BMI270) | 0.5°/s `UNVERIFIED` | &lt;5 g | $1-10 | ~18 m |
 | Tactical (HG4930) | 0.05°/hr `UNVERIFIED` | 100-200 g | $3-10k | ~几 m |
-| FOG (KVH 1750) | 0.05°/hr `UNVERIFIED` | 500-1500 g | $10k-100k | <1 m |
+| FOG (KVH 1750) | 0.05°/hr `UNVERIFIED` | 500-1500 g | $10k-100k | &lt;1 m |
 
 数字回 [imu](./imu_physics_and_noise_model.md) §3。**关键 trade-off**：consumer MEMS 已经能跑 manipulation / 消费 drone；tactical 在 GNSS-denied 巡航中是 must-have；FOG 在自动驾驶量产车上完全不现实（weight × cost 都炸）— 只用在 robotaxi 数据采集车做 ground truth。
 
@@ -128,7 +128,7 @@
 
 | 等级 | 精度 | 收敛时间 | base station? | 适用 |
 |---|---|---|---|---|
-| L1 single | 5-10 m | <1 s | no | 消费 drone / 农业 baseline |
+| L1 single | 5-10 m | &lt;1 s | no | 消费 drone / 农业 baseline |
 | Multi-band RTK | 1-5 cm | 5-30 s + carrier lock | **yes** | 测绘 / 建筑 / commercial drone |
 | PPP | ~10 cm | 30 min | no (用 precise products) | marine / 静态 / 农业 |
 
@@ -143,8 +143,8 @@
 | 扰动 | RGB | Stereo | Active-NIR | ToF | 905 nm LiDAR | mmWave | UWB | IMU | GNSS | Mag | Thermal IR | Sonar |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | **正午阳光 dazzle** | ❌ | ❌ | ⚠️ (BPF 救) | ⚠️ | ⚠️ (ambient) | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ | ✅ |
-| **雨 10 mm/hr** | ⚠️ | ⚠️ | ⚠️ | ⚠️ | ❌ Mie scatter | ✅ 衰减 <3 dB | ⚠️ | ✅ | ⚠️ multipath | ✅ | ⚠️ | n/a |
-| **浓雾 (能见 <50 m)** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (77 GHz 穿透 30-100×) | ⚠️ | ✅ | ⚠️ | ✅ | ⚠️ (湿) | n/a |
+| **雨 10 mm/hr** | ⚠️ | ⚠️ | ⚠️ | ⚠️ | ❌ Mie scatter | ✅ 衰减 &lt;3 dB | ⚠️ | ✅ | ⚠️ multipath | ✅ | ⚠️ | n/a |
+| **浓雾 (能见 &lt;50 m)** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (77 GHz 穿透 30-100×) | ⚠️ | ✅ | ⚠️ | ✅ | ⚠️ (湿) | n/a |
 | **textureless 白墙 / 雪地** | ⚠️ | ❌ disparity 没了 | ✅ (project pattern) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ (温度均匀) | n/a |
 | **镜面反射 / 玻璃** | ⚠️ | ❌ | ❌ (specular 不返回) | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ (不透玻璃) | n/a |
 | **GNSS spoofing / 城市峡谷** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | n/a |
@@ -152,7 +152,7 @@
 | **UWB 多径 / NLOS** | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ | ❌ bias | ✅ | ✅ | ✅ | ✅ | n/a |
 | **桨叶振动 (200-2000 Hz)** | ⚠️ (motion blur) | ⚠️ | ⚠️ | ⚠️ | ⚠️ | ✅ | ✅ | ❌ aliasing + bias | ✅ | ⚠️ | ⚠️ | n/a |
 | **>30°C 热漂 / 太阳曝晒** | ✅ | ⚠️ baseline drift | ⚠️ VCSEL 漂 0.06 nm/°C | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ bias temp | ✅ | ⚠️ | ⚠️ FFC pause | ✅ |
-| **水下 / 透过水面** | ❌ <10 m | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ⚠️ | ❌ | ✅ 唯一 |
+| **水下 / 透过水面** | ❌ &lt;10 m | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ⚠️ | ❌ | ✅ 唯一 |
 | **强 fluorescent 闪烁 (400 Hz)** | ⚠️ (banding) | ⚠️ | ⚠️ (Phase-CW 拍频 ghost) | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 **5 个跨 sensor 的"协同崩"模式**（设计时务必加冗余）：

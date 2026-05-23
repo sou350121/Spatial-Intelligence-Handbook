@@ -37,7 +37,7 @@
 
 | 模型 / 任务 | 输入 | 显存（FP16） | 桌面延迟 | Orin AGX 延迟 | Orin NX 延迟 | Orin Nano 延迟 |
 |---|---|---|---|---|---|---|
-| **3DGS 渲染**（10 万 splats） | 相机位姿 | ~2 GB | <5 ms | ~10 ms | ~20 ms | ~50 ms |
+| **3DGS 渲染**（10 万 splats） | 相机位姿 | ~2 GB | &lt;5 ms | ~10 ms | ~20 ms | ~50 ms |
 | **3DGS 渲染**（1 M splats） | 相机位姿 | ~8 GB | ~15 ms | ~40 ms | OOM 风险 | OOM |
 | **VGGT-large**（N=8 views） | RGB | ~6 GB | ~50 ms | ~200 ms | ~400 ms | 不可行 |
 | **VGGT-distilled** `UNVERIFIED` | RGB | ~3 GB | ~25 ms | ~100 ms | ~200 ms | ~400 ms（边缘可行） |
@@ -45,7 +45,7 @@
 | **Depth Foundation**（V2 large） | RGB 单图 | ~3 GB | ~30 ms | ~80 ms | ~150 ms | 边界可行 |
 | **VLM 空间推理**（7B Q4） | RGB + prompt | ~5 GB | ~200 ms / 100 tok | ~600 ms | ~1.5 s | 不可行 |
 | **VLM 空间推理**（72B） | RGB + prompt | ~40 GB | ~1 s / 100 tok | 不可行（显存） | 不可行 | 不可行 |
-| **VINS-Mono / OpenVINS** | RGB + IMU | <500 MB | <10 ms | <10 ms | <15 ms | <20 ms |
+| **VINS-Mono / OpenVINS** | RGB + IMU | &lt;500 MB | &lt;10 ms | &lt;10 ms | &lt;15 ms | &lt;20 ms |
 | **BEVFormer-base** | 6 cam | ~6 GB | ~50 ms | ~200 ms | ~400 ms | 不可行 |
 | **Occupancy network**（AD 量产） | 6–8 cam | ~8 GB | ~70 ms | ~250 ms | OOM 风险 | 不可行 |
 

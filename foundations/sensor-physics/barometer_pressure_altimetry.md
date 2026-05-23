@@ -2,7 +2,7 @@
 
 > **发布时间**：2026-05-21
 > **范围**：`foundations/sensor-physics/` — barometric formula / MEMS pressure sensor / drone altitude EKF input
-> **核心定位**：drone 高度估计的"沉默主力" — GNSS 在 vertical 上误差 ~3× horizontal，barometer 是<10s 时间尺度上**唯一**可信的 vertical 信号；但被温度 / 风 / HVAC 三种噪声严重污染，工程账学界几乎从不写
+> **核心定位**：drone 高度估计的"沉默主力" — GNSS 在 vertical 上误差 ~3× horizontal，barometer 是&lt;10s 时间尺度上**唯一**可信的 vertical 信号；但被温度 / 风 / HVAC 三种噪声严重污染，工程账学界几乎从不写
 
 **Status:** v1 — opinionated draft，按 AGENTS.md 14 项 dissection 模板撰写，2026-05-21。标 `UNVERIFIED` 的数字需 datasheet 交叉核对。
 **Wedge tier:** sensor-physics expansion（E 桶 drone stack 第 1 篇）
@@ -31,7 +31,7 @@
 
 📌 **Napkin Formula**：`P(h) = P₀ · exp(-M·g·h / (R·T))`，其中 M=空气摩尔质量 0.02897 kg/mol，g=9.81 m/s²，R=8.314，T=温度(K)。**近地 1 hPa ≈ 8.4 m altitude**（at sea level, 15°C），这是工程界用的快速换算。
 
-**(a) 等温大气近似.** 上述公式假定 T 不随高度变。低空（<2 km）误差 <2%。高空必须用 ICAO 标准大气模型（lapse rate 6.5 K/km in troposphere）。
+**(a) 等温大气近似.** 上述公式假定 T 不随高度变。低空（&lt;2 km）误差 &lt;2%。高空必须用 ICAO 标准大气模型（lapse rate 6.5 K/km in troposphere）。
 
 **(b) 实际 sensor 量测物理.** MEMS piezoresistive die — 一片硅膜片在压力下应变，膜下方掺杂电阻形成 Wheatstone 桥；压差 → 应变 → 电阻变化 → 电压。Sensitivity ~25 µV/V/Pa typical。24-bit ΔΣ ADC 把噪声压到 1–2 Pa rms → ~10–20 cm altitude resolution `UNVERIFIED`。
 
@@ -174,7 +174,7 @@ long-term (>10 s):    GNSS vertical (低频, 受 PDOP 影响)
 ## Boundary
 
 - `gnss_multi_constellation_rtk.md` — GNSS vertical 误差性质
-- `range_finder_for_drone_altitude.md` — 近地 altitude (<8 m) 替代
+- `range_finder_for_drone_altitude.md` — 近地 altitude (&lt;8 m) 替代
 - `imu_physics_and_noise_model.md` — IMU accel 双积分边界
 - `crossing/sensor-stack-matrix/sensor_budget_matrix_v1.md` — 跨 embodiment baro 取舍
 - `embodiments/aerial/sensor-stack/` — drone baro 集成实战

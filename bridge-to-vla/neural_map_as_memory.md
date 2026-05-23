@@ -6,7 +6,7 @@
 
 **Status:** v1.1 — opinionated draft. Backfilled to AGENTS.md 14-item dissection template 2026-05-21. Production-deployment claims (Figure, 1X) marked `UNVERIFIED`.
 **Wedge tier:** W1 · **Handbook flagship bridge doc**
-**TL;DR:** LLM context windows can't hold a kitchen layout. Neural maps — SemanticSLAM-style metric-semantic graphs, 3DGS as scene memory, scene-graph-as-text — are the long-horizon memory substrate VLA agents actually need. The hard part isn't building the map; it's making it **queryable** by a language policy in <100 ms.
+**TL;DR:** LLM context windows can't hold a kitchen layout. Neural maps — SemanticSLAM-style metric-semantic graphs, 3DGS as scene memory, scene-graph-as-text — are the long-horizon memory substrate VLA agents actually need. The hard part isn't building the map; it's making it **queryable** by a language policy in &lt;100 ms.
 
 ### X-Ray (non-expert friendly)
 
@@ -44,15 +44,15 @@ They aren't competing for the same niche — they compete for the same *role* (l
 
 > 📌 **Napkin Formula**: `memory_useful = queryable × fresh × spatial × language-native`. Each lineage maxes a subset and fails another — SemanticSLAM is queryable+fresh+spatial but not language-native; 3DGS is spatial+viewpoint but slow to update; text-graph is language-native+cheap but loses geometry. The hybrid stack is *the product of subsets*, not a single representation.
 
-> ⚡ **Eureka Moment**: **The memory representation is not the bottleneck — the query latency budget is**. A 1 GB scene graph that answers "where is the red mug?" in 5 seconds is useless; a 100 KB summary that answers in 30 ms wins. This flips the entire research agenda: the right question is not "what is the best representation" but "what is the *indexed* form that supports <50 ms semantic + <200 ms geometric queries with <100 ms freshness checks?" Hybrid stacks win not because they store more, but because they *route queries to the cheapest substrate per query type*.
+> ⚡ **Eureka Moment**: **The memory representation is not the bottleneck — the query latency budget is**. A 1 GB scene graph that answers "where is the red mug?" in 5 seconds is useless; a 100 KB summary that answers in 30 ms wins. This flips the entire research agenda: the right question is not "what is the best representation" but "what is the *indexed* form that supports &lt;50 ms semantic + &lt;200 ms geometric queries with &lt;100 ms freshness checks?" Hybrid stacks win not because they store more, but because they *route queries to the cheapest substrate per query type*.
 
 ## 2.5 · Worked Example — "find my keys", 5 query types
 
 5-min kitchen mission, sequential queries:
 
-1. **Q1 ("Where last saw keys?")** — semantic lookup → text-graph index, <30 ms.
-2. **Q2 ("Path couch → counter?")** — traversability → SemanticSLAM A*, <200 ms.
-3. **Q3 ("Counter state fresh?")** — timestamp lookup, <10 ms; if stale, re-perceive.
+1. **Q1 ("Where last saw keys?")** — semantic lookup → text-graph index, &lt;30 ms.
+2. **Q2 ("Path couch → counter?")** — traversability → SemanticSLAM A*, &lt;200 ms.
+3. **Q3 ("Counter state fresh?")** — timestamp lookup, &lt;10 ms; if stale, re-perceive.
 4. **Q4 ("Back of counter view?")** — 3DGS local patch render, 200–800 ms; else "go look."
 5. **Write-back ("moved keys to table at t=4:32")** — update all three: graph edge, timestamp, 3DGS patch flagged stale.
 
@@ -77,7 +77,7 @@ Nothing covers all four. **The deployable architecture is hybrid: SemanticSLAM b
 
 ## 4 · The latency budget
 
-Long-horizon VLA won't tolerate a 5-second scene-graph query. Practical budgets `UNVERIFIED`: Q1 instance lookup <50 ms (asked mid-action); Q2 path-feasibility <200 ms (pre-planning); Q3 freshness <100 ms (pre-reuse); Q4 view synthesis 200–1000 ms (offline / pre-plan). This rules out **naive LLM-over-text** for Q1 / Q3 — LLM inference is too slow. The text scene graph has to be *indexed* (vector search + structured key lookup), not dumped into context.
+Long-horizon VLA won't tolerate a 5-second scene-graph query. Practical budgets `UNVERIFIED`: Q1 instance lookup &lt;50 ms (asked mid-action); Q2 path-feasibility &lt;200 ms (pre-planning); Q3 freshness &lt;100 ms (pre-reuse); Q4 view synthesis 200–1000 ms (offline / pre-plan). This rules out **naive LLM-over-text** for Q1 / Q3 — LLM inference is too slow. The text scene graph has to be *indexed* (vector search + structured key lookup), not dumped into context.
 
 ---
 

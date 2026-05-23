@@ -40,7 +40,7 @@
 |---|---|---|---|---|
 | **Clear** | >10 m visibility (Mediterranean, tropical) | Mild blue-green absorption | Standard monocular / stereo VO with color correction | Long-range texture (still attenuated) |
 | **Turbid** | 1–5 m (coastal, post-storm, estuary) | Strong scattering | Short-baseline stereo + DVL fusion | Monocular VO; long-baseline stereo |
-| **ROV-pipeline / dark** | <1 m or active light dominated | Total ambient loss; sensor sees only what its light reaches | Active acoustic (sonar / DVL); proprioception; structured light short-range | Any passive RGB |
+| **ROV-pipeline / dark** | &lt;1 m or active light dominated | Total ambient loss; sensor sees only what its light reaches | Active acoustic (sonar / DVL); proprioception; structured light short-range | Any passive RGB |
 
 AQUALOC 跨 tier 1 与 2。SubPipe 是 tier 3 数据集（ROV 检查照明 + 近距贴管）。报 "AQUALOC trajectory ATE" 而不说哪条序列毫无意义 — 港湾片段和深海考古片段是不同的问题。
 
@@ -50,7 +50,7 @@ AQUALOC 跨 tier 1 与 2。SubPipe 是 tier 3 数据集（ROV 检查照明 + 近
 
 陆上 SLAM 基准（EuRoC、TUM-RGBD、KITTI）会饱和，是因为十年间几十种方法在同一数据上竞争。水下 SLAM 没有这种密度：
 
-- 任一年内在 AQUALOC 上报结果的方法数：大概 <10 `UNVERIFIED`。
+- 任一年内在 AQUALOC 上报结果的方法数：大概 &lt;10 `UNVERIFIED`。
 - 在 SubPipe 上报结果的更少。
 - 数据集 *和* 该数据集上的 SOTA 方法常出自同一实验室。
 

@@ -38,7 +38,7 @@ GNSS 是户外定位的物理基础——卫星发射的精确时间戳，receiv
 
 **(c) 测距类型**：
 - **Pseudorange** — code correlation，1 chip = 300 m，noise σ ~3 m
-- **Carrier phase** — 载波相位，λ_L1 = 19 cm，相位 noise <1 cm，但有 integer ambiguity (`N`)
+- **Carrier phase** — 载波相位，λ_L1 = 19 cm，相位 noise &lt;1 cm，但有 integer ambiguity (`N`)
 - RTK = carrier phase + ambiguity resolution
 
 ⚡ **Eureka Moment.** GPS 不是测**位置**，是测**到 4 颗卫星的距离**。位置是约束推断 — 卫星几何（DOP）决定误差放大率。同样测距 noise，PDOP=2 时位置 σ=6 m，PDOP=6 时位置 σ=18 m。城市峡谷只有头顶 4 颗 → PDOP=10+ → 几乎无定位能力。
@@ -68,7 +68,7 @@ GNSS 是户外定位的物理基础——卫星发射的精确时间戳，receiv
 
 **多径**：信号反射后到达 → 测距引入偏差。L1 比 L2 / L5 受多径影响更小（chip rate）→ 实战 receiver 用 multi-frequency cross-check 减权多径。
 
-⚡ **多频是消费级 RTK 的关键**：单频 RTK 收敛需 30 min，双频 (L1+L2) 收敛 <1 min，三频 (L1+L2+L5) <30 s。u-blox F9P 选三频是 cm-级实时定位的关键。
+⚡ **多频是消费级 RTK 的关键**：单频 RTK 收敛需 30 min，双频 (L1+L2) 收敛 &lt;1 min，三频 (L1+L2+L5) &lt;30 s。u-blox F9P 选三频是 cm-级实时定位的关键。
 
 ---
 
@@ -83,7 +83,7 @@ GNSS 是户外定位的物理基础——卫星发射的精确时间戳，receiv
 
 **ambiguity resolution** — 把 `N` 从 float 解（连续浮点）固定到 integer 是 RTK 的核心难度。LAMBDA 算法 (Teunissen) 是标准方法。
 
-**Real-time 链路**：base station 通过 RTCM3 protocol 把观测值发给 rover (NTRIP over 4G / radio / Wi-Fi)。延迟 <2 s 才有意义。
+**Real-time 链路**：base station 通过 RTCM3 protocol 把观测值发给 rover (NTRIP over 4G / radio / Wi-Fi)。延迟 &lt;2 s 才有意义。
 
 **精度**：固定后 H σ ~1 cm + 1 ppm × baseline，V σ ~2 cm + 1 ppm × baseline。50 km baseline 退化到 ~5 cm。
 
@@ -139,7 +139,7 @@ Setup:  rover at (0, 0, 0) (unknown to solver)
 | **山谷 / 峡谷** | NLOS 边卫星丢失 | 地形遮挡 |
 | **靠近高大金属物（船 / 桥）** | 多径主导 | 反射 |
 
-**drone 实战**：起飞前等 GNSS 锁定 ≥8 颗卫星、HDOP<2，否则不解锁。飞行中 GNSS quality monitor 触发 RTL (return-to-launch) 或 position hold loss。
+**drone 实战**：起飞前等 GNSS 锁定 ≥8 颗卫星、HDOP&lt;2，否则不解锁。飞行中 GNSS quality monitor 触发 RTL (return-to-launch) 或 position hold loss。
 
 ---
 
@@ -160,11 +160,11 @@ Setup:  rover at (0, 0, 0) (unknown to solver)
 - **≥4 颗卫星可见.** Dropout 时 fix 完全消失（不只是降级）。
 - **几何 DOP 合理.** 城市峡谷 PDOP>10 时 fix 仍然 valid bit = 1，但精度可能 50 m。
 - **电离层 / 对流层在 single freq 时可建模.** 太阳活动峰 / 磁暴破之。
-- **RTK base 位置已知 + 链路 <2 s 延迟.** 链路丢 → 退化到 PPP / standalone。
+- **RTK base 位置已知 + 链路 &lt;2 s 延迟.** 链路丢 → 退化到 PPP / standalone。
 - **No spoofing / jamming.** 民用环境通常成立，受关注地区不一定。
 - **Receiver thermal stable.** 温度跳变期间 oscillator 漂移导致瞬态精度下降。
 - **EKF 信任 GNSS innovation.** 多径产生 outlier 不被 reject 时 fix 漂数十米。
-- **Time tag accurate.** GNSS 与其他 sensor 时间同步精度 < 10 ms (高速 drone 严格 < 1 ms)。
+- **Time tag accurate.** GNSS 与其他 sensor 时间同步精度 &lt; 10 ms (高速 drone 严格 &lt; 1 ms)。
 
 ---
 

@@ -114,7 +114,7 @@ policy 看到的训练样本：
 |---|---|---|---|
 | RGB-D | 30 Hz | 30-50 ms | 硬件时间戳 |
 | 触觉（GelSight 12) | 60-200 Hz | 5-15 ms | USB timestamp + 软对齐 |
-| 关节本体感受 | 500-1000 Hz | <1 ms | EtherCAT |
+| 关节本体感受 | 500-1000 Hz | &lt;1 ms | EtherCAT |
 | Action 输出 | 20-50 Hz | — | policy 频率 |
 
 实战痛点：触觉传感器走 USB，时间戳抖动 5-10 ms。policy 训练时若不做软对齐（按最近邻插值到 visual frame），触觉 channel 等于噪声，policy 学会忽略它。debug 信号是"训练 loss 下降，但消融触觉性能不变"——这是触觉**对齐失败**的标志，不是触觉无用的证据。
@@ -172,7 +172,7 @@ policy 看到的训练样本：
 ## For the reader
 
 - **Manipulation engineer**：先把 task-space frame 加进 policy，再考虑触觉——前者 ROI 高一个数量级。
-- **Dexterous hand engineer**：手指 FK 标定先做到 <1 mm，否则触觉等于噪声。
+- **Dexterous hand engineer**：手指 FK 标定先做到 &lt;1 mm，否则触觉等于噪声。
 - **VLA researcher**：跨 embodiment policy 想接灵巧手，本体感受 + 触觉的 token 化 schema 现在没人统一。
 - **数据 engineer**：双臂 teleop 数据 task-space 表达可省 2-3× 数据量；ALOHA-style leader-follower rig 同步精度 >5 ms 时数据已经不可用。
 

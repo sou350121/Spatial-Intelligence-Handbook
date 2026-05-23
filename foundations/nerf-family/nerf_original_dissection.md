@@ -143,7 +143,7 @@ NeRF 训练是*尴尬地 per-scene*：跨场景零权重迁移. Feed-forward 3D 
 NeRF 只在以下条件成立时 work；每条在实践中悄悄破坏：
 
 - **Static scene** — 每个像素必须对应同一世界. 动的人、风中树叶 → 破. (D-NeRF, HyperNeRF 修复.)
-- **Dense, calibrated views** — 需要 COLMAP 精确的 per-image 位姿. <10 张图就崩. (PixelNeRF、feed-forward 3D 修复.)
+- **Dense, calibrated views** — 需要 COLMAP 精确的 per-image 位姿. &lt;10 张图就崩. (PixelNeRF、feed-forward 3D 修复.)
 - **Single bounded volume** — 模型在单位立方体内查询；天空 / 远建筑 → 垃圾. (Mip-NeRF 360 修复.)
 - **Lambertian-ish lighting** — 强镜面、透明玻璃 → view-dir MLP 补不了. (Ref-NeRF 部分修复.)
 - **Per-scene training 可接受** — 假设每个 asset 数小时是可接受的. 机器人从未接受. (Instant-NGP 修速度；feed-forward 3D 修 "per-scene 本身".)
@@ -162,7 +162,7 @@ NeRF 只在以下条件成立时 work；每条在实践中悄悄破坏：
 | Aspect | NeRF | Instant-NGP | Mip-NeRF 360 | 3DGS |
 |---|---|---|---|---|
 | Training | 1–2 days | ~5 min | ~7h `UNVERIFIED` | ~30 min |
-| Render | <1 FPS | ~10 FPS | <1 FPS | 100+ FPS |
+| Render | &lt;1 FPS | ~10 FPS | &lt;1 FPS | 100+ FPS |
 | Scene scale | Bounded | Bounded | Unbounded | Bounded |
 | Editable? | No | No | No | Yes |
 | Best for | Teaching | Fast experiments | Quality bench | Robotics |

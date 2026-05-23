@@ -42,7 +42,7 @@ The consequences:
 | Property | Frame camera | Event camera |
 |---|---|---|
 | Output rate | 30–240 Hz frame | 0 to 100s of M events/s (data-rate adaptive) |
-| Latency from photon to readable | 30 ms (frame) | <1 ms (event) `UNVERIFIED` |
+| Latency from photon to readable | 30 ms (frame) | &lt;1 ms (event) `UNVERIFIED` |
 | Dynamic range | ~60 dB | 120+ dB `UNVERIFIED` |
 | Motion blur | ∝ exposure × speed | ≈ 0 (per-event, no integration window) |
 | Static scene | full frame | nothing (no events) |

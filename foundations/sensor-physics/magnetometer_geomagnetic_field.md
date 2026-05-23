@@ -87,7 +87,7 @@ Setup:  DJI / PX4 类 drone，BMM150 magnetometer，校准目标 hard iron offse
 - A ∈ R³ˣ³ symmetric positive definite → eigen-decompose → soft iron correction R = A^(1/2) → store
 - 校准后 `B_corrected = R · (B_meas - C)` → 落在半径 r 的球面
 
-**实战结果**：好的校准 → residual <1 µT rms → yaw error <2°。差校准（旋转不充分 / 旁边有钢椅）→ residual >5 µT → yaw error >10° → drone 起飞 toilet bowl。
+**实战结果**：好的校准 → residual &lt;1 µT rms → yaw error &lt;2°。差校准（旋转不充分 / 旁边有钢椅）→ residual >5 µT → yaw error >10° → drone 起飞 toilet bowl。
 
 **Pi PX4 工具**：QGroundControl "Compass Calibration" 实现这个流程，30 秒采样 + ellipsoid fit on-board。
 

@@ -184,7 +184,7 @@ if peak_accel > 5g and duration < 50ms:
 
 数量级 `UNVERIFIED`：
 
-- 高品质环氧（如 Henkel Hysol EA 9396）：6 个月蠕变 <100 ppm
+- 高品质环氧（如 Henkel Hysol EA 9396）：6 个月蠕变 &lt;100 ppm
 - 普通 UV 胶：6 个月蠕变 500–2000 ppm
 - 塑料 holder 蠕变：6 个月可达 0.05–0.2°（极端）
 
@@ -209,7 +209,7 @@ if slope > 0.05 × baseline / month:
 
 | 变量 | 倾向离线（L1+L2） | 倾向在线（L3） |
 |---|---|---|
-| 任务时长 | <1 hr | >4 hr |
+| 任务时长 | &lt;1 hr | >4 hr |
 | 动态范围 | 低（AGV、桌面） | 高（drone、人形） |
 | 可中断窗口 | 有（起飞前、回坞） | 无（持续作业） |
 | 温度梯度 | 小（室内） | 大（户外） |
@@ -295,7 +295,7 @@ if slope > 0.05 × baseline / month:
 
 ## 10 · 2-year outlook + 可证伪预测
 
-**可证伪预测：** 到 2027-12 前，至少一家消费 / 商用 drone 厂商会公开「30 秒任务起飞前自然场景自动标定」功能，精度接近 Kalibr 板标（残差 <0.5 px），且不依赖云端。如果到那时点没有，「标定板捆绑」仍将是 drone fleet 维护的瓶颈。
+**可证伪预测：** 到 2027-12 前，至少一家消费 / 商用 drone 厂商会公开「30 秒任务起飞前自然场景自动标定」功能，精度接近 Kalibr 板标（残差 &lt;0.5 px），且不依赖云端。如果到那时点没有，「标定板捆绑」仍将是 drone fleet 维护的瓶颈。
 
 支持线索：(a) VGGT / DUSt3R 类 feed-forward 几何方法已经能在任意场景做 bundle adjustment 初值；(b) Skydio / DJI 已有内部 hot-recal；(c) NVIDIA Isaac 框架提供 reference implementation。反对线索：精度差距、户外极端光照、跌落场景下的几何先验失效。
 

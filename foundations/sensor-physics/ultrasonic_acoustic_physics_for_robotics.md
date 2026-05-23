@@ -9,7 +9,7 @@
 
 ### X-Ray opening (非专家友好)
 
-(a) 40 kHz 超声在空气中波长 ~8.6 mm，HC-SR04 / MaxBotix EZ 这种 $5 模块靠"发射 40 kHz pulse → 等待 echo → 飞行时间 × 声速 ÷ 2 = 距离"工作。(b) Tesla 车用超声、drone 下视 altimeter、Roomba 边缘检测都用它，因为它 **<5 m 准、低成本、独立于光照**；但比 LiDAR / ToF 慢 100×（声速 343 m/s vs 光速 3 × 10⁸ m/s）。(c) 对 sensor 工程师：超声的失败模式（multipath、温度漂、物体尺度不足 ½ λ）和 LiDAR 几乎是镜像 — 把这两个对照看，会理解为什么 robotics 通常**两者都装**。
+(a) 40 kHz 超声在空气中波长 ~8.6 mm，HC-SR04 / MaxBotix EZ 这种 $5 模块靠"发射 40 kHz pulse → 等待 echo → 飞行时间 × 声速 ÷ 2 = 距离"工作。(b) Tesla 车用超声、drone 下视 altimeter、Roomba 边缘检测都用它，因为它 **&lt;5 m 准、低成本、独立于光照**；但比 LiDAR / ToF 慢 100×（声速 343 m/s vs 光速 3 × 10⁸ m/s）。(c) 对 sensor 工程师：超声的失败模式（multipath、温度漂、物体尺度不足 ½ λ）和 LiDAR 几乎是镜像 — 把这两个对照看，会理解为什么 robotics 通常**两者都装**。
 
 ### 📍 研究全景时间线 (Research Landscape Timeline)
 
@@ -50,7 +50,7 @@ c_sound (空气) ≈ 331.3 × √(T_K / 273) ≈ 343 m/s @ 20°C
 | **piezo transducer (TX)** | 40 kHz drive signal | acoustic pulse | 共振频率窄 |
 | **piezo transducer (RX)** | echo | electrical signal | 同 TX 同频（多数 module 同一个） |
 | **timing circuit** | TX start + RX threshold | t_flight (µs) | 关键精度 |
-| **温度补偿** | T sensor | c_sound | <1% 误差需 ±5°C 测温 |
+| **温度补偿** | T sensor | c_sound | &lt;1% 误差需 ±5°C 测温 |
 
 ### 1.2 关键机制
 
@@ -110,7 +110,7 @@ c(T, RH) ≈ 331.3 × √(T_K / 273) × (1 + 0.0016 × RH%)   (近似)
 | `f` | 工作频率 | 25 / 40 / 58 / 200 kHz 商用档 |
 | `r_obj` | 物体特征尺寸 | <λ/2 时几乎不反射 |
 
-**直觉**：物体特征尺寸 < 4.3 mm（半波长）时反射弱 → 行人脚、电线、栅栏几乎"隐形"。这是物理。
+**直觉**：物体特征尺寸 &lt; 4.3 mm（半波长）时反射弱 → 行人脚、电线、栅栏几乎"隐形"。这是物理。
 
 ---
 
@@ -146,9 +146,9 @@ t_flight = 2 × Z / c = 0.1 / 343 ≈ 291 µs
 
 **Automotive tier.** Bosch USS（超声泊车）/ Valeo PSS — embedded 在保险杠内，多 module 飞行时间编码区分（避免相互串扰），距离 0.2–5.5 m，温度补偿 + EMC 抗扰。Tesla / 大众 / 丰田 全用。
 
-**Drone altimeter.** DJI / Autel / Skydio 下视超声 + barometer + ToF 融合 — altitude <5 m 用超声主导，>5 m 切到 ToF / barometer / vision。低于 30 cm 进入"哨兵"模式准备触地。
+**Drone altimeter.** DJI / Autel / Skydio 下视超声 + barometer + ToF 融合 — altitude &lt;5 m 用超声主导，>5 m 切到 ToF / barometer / vision。低于 30 cm 进入"哨兵"模式准备触地。
 
-**MEMS 新一代.** Chirp `CH101`/`CH201` (TDK 收购)、Vesper VM — 整片 MEMS + ASIC，<$3，<0.5 W，正在替代 piezo discrete。
+**MEMS 新一代.** Chirp `CH101`/`CH201` (TDK 收购)、Vesper VM — 整片 MEMS + ASIC，<$3，&lt;0.5 W，正在替代 piezo discrete。
 
 ---
 
@@ -156,13 +156,13 @@ t_flight = 2 × Z / c = 0.1 / 343 ≈ 291 µs
 
 | Sensor | 速度 | 近距精度 | 远距 | 透气 ✓ vs 灰尘 / 雾 | Cost |
 |---|---|---|---|---|---|
-| **超声 40 kHz** | <5 m, 33 Hz | ±2 mm | 弱 | **透灰尘 / 雾** | $1–100 |
-| **ToF (VL53L5CX)** | <4 m, 60 Hz | ±5 mm | 弱 | 雾衰减 | $5–20 |
+| **超声 40 kHz** | &lt;5 m, 33 Hz | ±2 mm | 弱 | **透灰尘 / 雾** | $1–100 |
+| **ToF (VL53L5CX)** | &lt;4 m, 60 Hz | ±5 mm | 弱 | 雾衰减 | $5–20 |
 | **905 nm LiDAR** | 0.5–150 m, 10–20 Hz | ±2 cm | 强 | 雨雾散射 | $1k–10k |
 | **Barometer** | 任意高度 | ±10 cm | 强 | OK | $1–10 |
 | **Stereo camera** | 0.3–30 m, 30 Hz | depth-dependent | 中 | OK | $200–1k |
 
-**drone altimeter** 通常是 4 个一起：超声 (<5 m) + ToF (<4 m) + barometer (>5 m) + downward stereo (整段)。任何一个单独都不可靠 — 这种冗余设计是产品级 drone 与 hobby drone 的分水岭。
+**drone altimeter** 通常是 4 个一起：超声 (&lt;5 m) + ToF (&lt;4 m) + barometer (>5 m) + downward stereo (整段)。任何一个单独都不可靠 — 这种冗余设计是产品级 drone 与 hobby drone 的分水岭。
 
 ---
 
@@ -178,7 +178,7 @@ t_flight = 2 × Z / c = 0.1 / 343 ≈ 291 µs
 
 **Compressor / vacuum / industrial ultrasonic.** 工厂里大量超声噪声（cleaning bath, leak detector @ 40 kHz）— AGV 在工业场景超声会**被自己周围的设备喂错距离**。
 
-**小物体 / 细电线.** 电线、栅栏、桌椅腿（直径 <4 mm）几乎不反射超声 → drone 撞电线是经典事故。这是物理（波长 8.6 mm）决定的，不是 algorithm 能补。
+**小物体 / 细电线.** 电线、栅栏、桌椅腿（直径 &lt;4 mm）几乎不反射超声 → drone 撞电线是经典事故。这是物理（波长 8.6 mm）决定的，不是 algorithm 能补。
 
 ### Hidden Assumptions
 
@@ -195,7 +195,7 @@ t_flight = 2 × Z / c = 0.1 / 343 ≈ 291 µs
 
 LiDAR 也有 multipath（镜面反射，corner reflector），但点云稀疏 + 飞行时间精度 ns 级让 multipath echo 在时间上分得开；超声**慢 10⁶×**，echo 在 ms 时间窗内挤在一起 — 这就是为什么超声 multipath 是工程难点而 LiDAR multipath 是论文题目。
 
-**🎙️ Interview Tip.** 被问"为什么 Tesla 把超声砍掉又加回来"？— 一句话：**vision-only 在低速近距停车场景（<5 m、低光、灰尘、玻璃边缘）物理上填不掉超声的 ±2 cm 精度 + 光照独立性 — 砍掉省下 ~$50/车，加回是因为售后反馈 + 法规**（欧洲 EuroNCAP 要求 360° low-speed sensing）。
+**🎙️ Interview Tip.** 被问"为什么 Tesla 把超声砍掉又加回来"？— 一句话：**vision-only 在低速近距停车场景（&lt;5 m、低光、灰尘、玻璃边缘）物理上填不掉超声的 ±2 cm 精度 + 光照独立性 — 砍掉省下 ~$50/车，加回是因为售后反馈 + 法规**（欧洲 EuroNCAP 要求 360° low-speed sensing）。
 
 ---
 

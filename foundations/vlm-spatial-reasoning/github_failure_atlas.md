@@ -98,7 +98,7 @@ SpatialBot 2024-06 ──► repo 活, 344★ ──► 2025-09 last push ──
 
 - **不存在 PR 直接路径**（无 repo）。可做的二阶贡献：
   - **新 repo**：开源一个 "3DSRBench-trainer" — 给定任意 VLM 与 HF dataset，跑标准化 fine-tune harness，输出可对比数字。仓库化 community baseline。
-  - **新 benchmark zone**（spatial-handbook 内部）：把 3DSRBench 的 4×12 sub-axis 拆开，**逐 sub-axis** 画一张"VLM 能力图"——目前社区只引用 overall 49%，掩盖了某些 sub-axis 已经 ~75% / 某些 sub-axis 仍 <20% 的真实分布。
+  - **新 benchmark zone**（spatial-handbook 内部）：把 3DSRBench 的 4×12 sub-axis 拆开，**逐 sub-axis** 画一张"VLM 能力图"——目前社区只引用 overall 49%，掩盖了某些 sub-axis 已经 ~75% / 某些 sub-axis 仍 &lt;20% 的真实分布。
   - **实验**：拿 SpatialBot vs SpatialVLM 复现版 vs GPT-4o，在每个 sub-axis 上跑同一题，发布 sub-axis 胜负矩阵。是 2026 上半年最高 ROI 的实验之一。
 
 ### Momentum: ⚡（benchmark 影响力大，社区会 cite；自有 repo 维护几乎为零 — 论文作者把 artifact 放 HF + project page 就当结束）

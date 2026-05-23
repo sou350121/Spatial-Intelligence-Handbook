@@ -74,7 +74,7 @@
 | **canonical 假设破** | [#17](https://github.com/YvanYin/Metric3D/issues/17)·[#95](https://github.com/YvanYin/Metric3D/issues/95) | canonical camera 假设（focal=1000 px）违反时无 fallback |
 | **fine-tune shape mismatch** | [#156](https://github.com/YvanYin/Metric3D/issues/156)·[#91](https://github.com/YvanYin/Metric3D/issues/91) | 自定义 KITTI-like 训练失败 |
 | **ONNX 动态 shape** | [#117](https://github.com/YvanYin/Metric3D/issues/117)·[#126](https://github.com/YvanYin/Metric3D/issues/126) | dynamic batch 边角 case |
-| **老 GPU 不支持** | [#81](https://github.com/YvanYin/Metric3D/issues/81) | sm<70 跑不通 |
+| **老 GPU 不支持** | [#81](https://github.com/YvanYin/Metric3D/issues/81) | sm&lt;70 跑不通 |
 
 **关键洞察**：Metric3D 的 metric 能力依赖「输入已 rescale 到 canonical focal length (~1000 px)」假设. 真实焦距偏离 canonical 时输入被静默 rescale 错 —— 输出仍像 metric 但米数错. #38 的「5m → 16.5m」几乎对应 `(520/260)² ≈ 4` 量级偏差 —— 不是模型学错，是 canonical 假设的几何代价.
 

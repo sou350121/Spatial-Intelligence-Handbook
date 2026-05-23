@@ -89,7 +89,7 @@ feature = concat_L trilerp(table[indices_L])
 | F (feat dim) | 2 | MLP 组合 |
 | N_min, N_max | 16, 2048 | 分辨率范围 |
 
-Table 内存: `L × T × F × 4 ≈ 67 MB`. MLP <1 MB.
+Table 内存: `L × T × F × 4 ≈ 67 MB`. MLP &lt;1 MB.
 
 ### 2.2 为什么冲突可行
 
@@ -161,7 +161,7 @@ Table 内存: `L × T × F × 4 ≈ 67 MB`. MLP <1 MB.
 
 | Method | Where work goes | Lego training | Render |
 |---|---|---|---|
-| NeRF (2020) | Deep MLP | ~1 day | <1 FPS |
+| NeRF (2020) | Deep MLP | ~1 day | &lt;1 FPS |
 | Plenoxels (2021) | Dense voxels, no MLP | ~10 min | ~15 FPS |
 | TensoRF (2022) | Low-rank tensor | ~30 min | ~5 FPS |
 | **Instant-NGP** | Hash grid + tiny MLP | **~5 min** | **~10 FPS** |

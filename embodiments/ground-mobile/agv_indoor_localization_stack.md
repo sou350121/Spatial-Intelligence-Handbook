@@ -60,7 +60,7 @@
 ⚡ **Eureka Moment**：仓储地面**平整 + 高度信息不参与决策**，2D 切片足够描述 navigable space——3D 是过度工程。这是 spatial researcher 最容易忽略的工程现实：**够用即停**。
 
 具体逻辑链：
-1. 仓储地面公差 <5 cm，AGV 底盘可吸收
+1. 仓储地面公差 &lt;5 cm，AGV 底盘可吸收
 2. 障碍物（货架 / 人 / 叉车）在 0-2 m 高度有截面 → 2D 切片必检出
 3. 货架顶部 / 天花板 → 与导航无关
 4. 因此 2D 切片完全捕获 "navigable space" 的信息
@@ -106,7 +106,7 @@
 - Resampling：粒子有效数 N_eff 低于阈值时触发
 - 关键限制：**需要初始位姿** 或 全局重定位（kidnapped robot 问题）
 
-数值直觉：1000 粒子 + 50 ms scan-match → 20 Hz 输出。仓储平面 10000 m² 全局重定位 < 5 s `UNVERIFIED`。
+数值直觉：1000 粒子 + 50 ms scan-match → 20 Hz 输出。仓储平面 10000 m² 全局重定位 &lt; 5 s `UNVERIFIED`。
 
 ---
 

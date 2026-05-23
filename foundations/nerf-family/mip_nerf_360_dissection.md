@@ -116,7 +116,7 @@ MLP 只见过 `‖·‖ ≤ 2`. **天空是半径 2 处的薄壳** — 与建筑
 | Metric | NeRF | Mip-NeRF 360 |
 |---|---|---|
 | Training | ~1 day | ~7h `UNVERIFIED` (TPU v3) |
-| Render | <1 FPS | <1 FPS |
+| Render | &lt;1 FPS | &lt;1 FPS |
 | PSNR (Mip360 bench) | ~22 dB | **~28 dB** |
 | LPIPS | ~0.45 | **~0.25** |
 | Reproducible? | Yes (PyTorch) | Painful; ref is JAX |
@@ -169,7 +169,7 @@ MLP 只见过 `‖·‖ ≤ 2`. **天空是半径 2 处的薄壳** — 与建筑
 - 可编辑：3DGS.
 - 存储：可比（~500 MB）.
 
-电影 VFX 离线后院重建 → Mip-NeRF 360. 机器人需 <10 ms 渲染 → 3DGS + Mip-Splatting.
+电影 VFX 离线后院重建 → Mip-NeRF 360. 机器人需 &lt;10 ms 渲染 → 3DGS + Mip-Splatting.
 
 ---
 
@@ -180,7 +180,7 @@ MLP 只见过 `‖·‖ ≤ 2`. **天空是半径 2 处的薄壳** — 与建筑
 | Anti-aliased | No | Yes | Yes | Yes | Partial |
 | Unbounded | No | No | **Yes** | Yes | Limited |
 | Training | 1d | 1d | 7h | 5h `UNVERIFIED` | 30m |
-| Render | <1 | <1 | <1 | ~1 | 100 FPS |
+| Render | &lt;1 | &lt;1 | &lt;1 | ~1 | 100 FPS |
 | PSNR Mip360 | 22 | 24 | 27.7 | **28.5** | 27.4 |
 
 > **🎤 Interview tip.** "若 Mip-NeRF 360 在质量上仍 SOTA，为什么 3DGS 赢了部署？" — 正确答案：*"质量不是单一数字 — 对机器人，'渲染速率 × 可编辑性 × 存储' 压倒 'PSNR 最后 1 dB'. Mip-NeRF 360 仍赢离线重建 benchmark；3DGS 赢是因其 primitive 匹配机器人操作约束（可检查、快、可编辑）. 二者共存."* 错答："3DGS 就是更好". 在机器人在意的轴上更好，不是在这篇论文引入的 benchmark 上.

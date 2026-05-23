@@ -84,7 +84,7 @@ All rows ▓▓▓▓▓▓░░░░░░░░░░░░░ ────r
 | 符号 | 含义 | 典型值 |
 |---|---|---|
 | `v_image` | 物体在 image plane 速度 (pixels/s) | 取决于运动与深度 |
-| `t_readout` | 整帧扫描时间 | RS: 10–30 ms，fast GS-CMOS: <100 µs |
+| `t_readout` | 整帧扫描时间 | RS: 10–30 ms，fast GS-CMOS: &lt;100 µs |
 | `f` | focal length (pixels) | 500–2000 |
 | `V_world` | 物体在世界坐标速度 (m/s) | drone 10 m/s, 行人 1.5 m/s |
 | `Z` | 物体深度 (m) | 1–100 |
@@ -125,7 +125,7 @@ t_readout:    5 ms（中速 RS）
 
 **Hybrid HDR RS+GS.** Sony `IMX490` (8 MP automotive)、`IMX390` — 在 RS 架构上加 dual-conversion-gain，HDR 性能极佳，但**仍是 RS**（车载 ADAS 接受 RS artifacts 是常见误解 — 其实大多数车载场景速度低 + 长焦让 δ 落在 sub-pixel）。
 
-**Fast-readout RS as GS approximation.** 一些 sensor 提供"line-by-line"高速 readout (~100–500 µs/frame)，名义上仍 RS 但 δ <1 pixel 在多数场景。Skydio 早期款用过类似策略。
+**Fast-readout RS as GS approximation.** 一些 sensor 提供"line-by-line"高速 readout (~100–500 µs/frame)，名义上仍 RS 但 δ &lt;1 pixel 在多数场景。Skydio 早期款用过类似策略。
 
 ---
 
@@ -136,7 +136,7 @@ t_readout:    5 ms（中速 RS）
 | **iPhone / 消费手机** | RS | 静态拍照 + ML 后处理 deskew；BOM 主导 |
 | **Drone racing (>30 m/s)** | **GS 强制** | δ > 10 pixel @ RS，VIO 不闭 |
 | **Skydio / cinewhoop drone** | GS preferred | 10–15 m/s + VIO 几何要求 |
-| **iRobot / AGV** | RS OK | <1 m/s 速度，δ <0.1 pixel |
+| **iRobot / AGV** | RS OK | &lt;1 m/s 速度，δ &lt;0.1 pixel |
 | **Manipulation arm** | **GS 强制** | 手抓快速运动 + 标定要求 |
 | **Tesla / Waymo 车载** | RS 可接受 | f × V/Z 在远距下小，且 ML 后处理 |
 | **Event camera 对比基准** | **GS 强制** | event-based 是 sub-µs，RS 完全失语 |
@@ -161,8 +161,8 @@ t_readout:    5 ms（中速 RS）
 
 RS 可接受当且仅当：
 
-- **曝光时间 ≪ 帧周期。** t_exposure < 1 ms 时 RS 内部曝光重叠最小。
-- **场景速度 < 1 px/ms in image space。** 取决于 f, V, Z 组合。
+- **曝光时间 ≪ 帧周期。** t_exposure &lt; 1 ms 时 RS 内部曝光重叠最小。
+- **场景速度 &lt; 1 px/ms in image space。** 取决于 f, V, Z 组合。
 - **后处理可补偿。** 已知 IMU 数据可做 RS-aware bundle adjustment（学术工作很多）。
 - **机械振动频率 << 行频。** 不与 readout 共振。
 - **没有 sub-pixel feature 需求。** SLAM / VIO / photogrammetry 都不允许。
@@ -178,8 +178,8 @@ RS 可接受当且仅当：
 |---|---|---|---|
 | **RS CMOS** | ❌ 行扫描 | 10–30 ms / frame | 消费 / 慢速 |
 | **GS CMOS** | ✅ 全帧 | 1–30 ms / frame | 工业 / drone / 机器人 |
-| **Event camera (DVS)** | N/A (per-pixel async) | <1 µs | 极速运动、ultra-low-latency |
-| **SPAD array (ToF)** | ✅ photon-level GS | <1 ns gating | depth、low-light |
+| **Event camera (DVS)** | N/A (per-pixel async) | &lt;1 µs | 极速运动、ultra-low-latency |
+| **SPAD array (ToF)** | ✅ photon-level GS | &lt;1 ns gating | depth、low-light |
 
 **🎙️ Interview Tip.** 被问"为什么 Skydio 用 GS、iPhone 用 RS"？— 一句话：**Skydio 在 10–20 m/s 飞 + 跑 VIO，RS skew δ > 1 pixel 让 VIO 数学不闭；iPhone 静态拍照 + ML 后处理 deskew，RS 的 SNR 优势压过 skew 代价**。决策不是"哪个更好"，是 `f × V / Z × t_readout` 这个 napkin 公式的输出。
 
@@ -187,7 +187,7 @@ RS 可接受当且仅当：
 
 ## 8 · For the reader (per-persona)
 
-- **Aerial engineer** — 任何带 VIO 的 drone 强制 GS（IMX900 / IMX264 class）。例外只在 <2 m/s hover-only inspection drone。
+- **Aerial engineer** — 任何带 VIO 的 drone 强制 GS（IMX900 / IMX264 class）。例外只在 &lt;2 m/s hover-only inspection drone。
 - **Manipulation engineer** — 手抓 + 标定都要 GS，IMX174 / IMX250 是工业默认。RS 在标定棋盘上会引入系统误差 ~1 mm @ 1 m。
 - **AD engineer** — RS 在远距长焦下可用，但 LED flicker + 隧道动态范围一起逼你考虑 IMX490 hybrid，**不是单选 RS / GS**。
 - **Headset / AR-VR** — eye-tracking GS 强制（眼球扫视 ~600°/s），passthrough RS 凑合（用 IMU + ML 后处理）。

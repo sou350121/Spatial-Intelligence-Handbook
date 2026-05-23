@@ -109,7 +109,7 @@ Figure 02:
 
 | 公司 | 感知 | 决策 |
 |---|---|---|
-| Unitree | LiDAR 直接给楼梯几何，深度误差 <2 cm `UNVERIFIED` | MPC 步态控制器优化落脚 |
+| Unitree | LiDAR 直接给楼梯几何，深度误差 &lt;2 cm `UNVERIFIED` | MPC 步态控制器优化落脚 |
 | Figure | 6 cam 多视图三角化 → 占用网络输出 voxel grid | neural policy 端到端输出步态 |
 | 1X | stereo cam + 单目深度 NN | end-to-end policy（可能不显式建楼梯模型） |
 
@@ -123,7 +123,7 @@ Figure 02:
 |---|---|---|---|
 | 传感器重量 (头+躯干) | ~1.5 kg `UNVERIFIED` | ~0.8 kg | ~0.3 kg |
 | 传感器功耗 | ~30 W | ~15 W | ~8 W |
-| 传感器 BOM 占比 | 20-30% of $ | 10-20% | <10% |
+| 传感器 BOM 占比 | 20-30% of $ | 10-20% | &lt;10% |
 | 视觉处理延迟 | 30-50 ms（LiDAR fusion） | 50-100 ms（多目） | 30-80 ms |
 | 失效模式 | LiDAR 失灵 → 严重 | cam 失灵 → 严重 | cam 失灵 → 软外壳兜底 |
 | 部署门槛 | 工业接受 | 工厂 / 仓储接受 | 家用接受（外观自然） |

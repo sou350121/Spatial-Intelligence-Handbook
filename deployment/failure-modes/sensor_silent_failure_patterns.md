@@ -363,7 +363,7 @@ Layer 5 — Semantic / VLM validation
 
 | Layer | 频率 | 算力开销 | 偵测延迟 |
 |---|---|---|---|
-| L1 | 每帧 | 微 | <1 ms |
+| L1 | 每帧 | 微 | &lt;1 ms |
 | L2 | 1 Hz | 微 | 1–10 s |
 | L3 | 10 Hz | 中 | 0.1–1 s |
 | L4 | 1/min | 微 + 数据库 | 分钟 |

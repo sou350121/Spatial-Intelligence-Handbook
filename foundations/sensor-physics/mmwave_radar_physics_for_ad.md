@@ -153,9 +153,9 @@ Bosch / Continental 是模块整合 + algorithm，NXP / Infineon / TI 是 RF chi
 | 天气 | 905 nm LiDAR 性能 | 76 GHz Radar 性能 | radar 优势 |
 |---|---|---|---|
 | **晴天** | 200 m @ 10% reflectivity | 200 m @ 10 m² RCS | 持平 |
-| **雨 10 mm/hr** | 距离衰减 50–80% `UNVERIFIED` (Mie scattering) | 衰减 <3 dB → 距离 ~80% | ~10× |
-| **雾 50 m 能见度** | 距离 < 30 m | 几乎无衰减 | ~5× |
-| **雪（湿）** | 距离衰减 60–90%，且 false return 多 | 衰减 <5 dB | ~10–30× |
+| **雨 10 mm/hr** | 距离衰减 50–80% `UNVERIFIED` (Mie scattering) | 衰减 &lt;3 dB → 距离 ~80% | ~10× |
+| **雾 50 m 能见度** | 距离 &lt; 30 m | 几乎无衰减 | ~5× |
+| **雪（湿）** | 距离衰减 60–90%，且 false return 多 | 衰减 &lt;5 dB | ~10–30× |
 | **灰尘（工地）** | 严重 false return | 几乎不可见 | dominant |
 | **白车 backlit by sun** | OK | OK | 持平 |
 | **黑色衣服 / 低 albedo 行人** | OK (NIR active) | RCS 极小，分类困难 | LiDAR 优 |

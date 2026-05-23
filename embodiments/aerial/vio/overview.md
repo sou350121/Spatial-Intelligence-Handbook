@@ -14,7 +14,7 @@ A tabletop SfM pipeline can take 100 ms and nobody dies. A drone at 15 m/s in a 
 |---|---|---|
 | State rate ≥ 100 Hz | Cascaded attitude controller bandwidth | 200 Hz on tuned stacks `UNVERIFIED` |
 | End-to-end latency ≤ 10 ms | Camera → estimate → controller → motor | 5–15 ms VINS-Fusion / OpenVINS `UNVERIFIED` |
-| Metric scale, no fallback | Position controller integrates in meters; throttle compensates gravity in m/s² | <2% scale error post-init |
+| Metric scale, no fallback | Position controller integrates in meters; throttle compensates gravity in m/s² | &lt;2% scale error post-init |
 | IMU saturation / aliasing | Props excite IMU at 100–400 Hz | Mechanical isolators + 1 kHz IMU + bandpass |
 
 This is why aerial state estimation gets its own folder rather than being absorbed into a generic SLAM section. The constraints that matter here — vibration, latency budget, controller coupling — never show up in a manipulation benchmark.

@@ -71,9 +71,9 @@
    匈牙利算法 (Hungarian, O(n³)) 找最小总 cost 的一一配对           
 ```
 
-- **核心算法**: Hungarian / Munkres assignment (1955)；O(n³)，n 通常 <100 所以 ms 级
+- **核心算法**: Hungarian / Munkres assignment (1955)；O(n³)，n 通常 &lt;100 所以 ms 级
 - **替代**: 贪心 IoU > 阈值（SORT 早期），或学到的 attention（Transformer tracker）
-- **关键参数**: cost threshold（IoU < 0.3 视为不匹配 → 新建 track）
+- **关键参数**: cost threshold（IoU &lt; 0.3 视为不匹配 → 新建 track）
 
 ### 2.2 运动模型 (Motion Model)
 
@@ -112,7 +112,7 @@
 | 长窗 (~100 帧) | tracklet 重链接 | 离线视频分析 | global tracking |
 | 全视频 | offline / batch | 数据集标注 | CoTracker, TAP-Net |
 
-**注意**: online ≠ real-time。Online 指"只看过去"，real-time 指"每帧延迟 < 1/FPS"。CoTracker 是 online 但不 real-time（>100 ms/frame）。
+**注意**: online ≠ real-time。Online 指"只看过去"，real-time 指"每帧延迟 &lt; 1/FPS"。CoTracker 是 online 但不 real-time（>100 ms/frame）。
 
 ---
 

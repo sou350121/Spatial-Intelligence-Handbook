@@ -6,7 +6,7 @@
 
 **Status:** v1 — opinionated draft。具体抖动 / 偏置 / 漂移数字标 `UNVERIFIED`，需以平台实测为准。
 **Wedge tier:** N/A（deployment 工程文）
-**TL;DR:** 同步不是「越严越好」，是「匹配平台动态」。Drone 250°/s 角速度下 1 ms 偏置 = 0.25° 旋转误差；AGV 1°/s 角速度下 1 ms 偏置 = 0.001°——同样的偏置，一个毁 VIO，一个完全无感。本文把「硬件触发 < 0.1 ms」「PTP 1–10 µs」「软件时间戳 1–100 ms」三档落到具体平台与算法的容忍度上。
+**TL;DR:** 同步不是「越严越好」，是「匹配平台动态」。Drone 250°/s 角速度下 1 ms 偏置 = 0.25° 旋转误差；AGV 1°/s 角速度下 1 ms 偏置 = 0.001°——同样的偏置，一个毁 VIO，一个完全无感。本文把「硬件触发 &lt; 0.1 ms」「PTP 1–10 µs」「软件时间戳 1–100 ms」三档落到具体平台与算法的容忍度上。
 
 ### X-Ray 开场（非专家友好）
 
@@ -42,7 +42,7 @@ angular_error_per_ms = ω × 1ms
 
 | 维度 | A. 硬件触发 | B. PTP / gPTP | C. 软件时间戳 |
 |---|---|---|---|
-| 时钟偏置 `UNVERIFIED` | <0.1 ms | 1–10 µs | 1–10 ms 初始 |
+| 时钟偏置 `UNVERIFIED` | &lt;0.1 ms | 1–10 µs | 1–10 ms 初始 |
 | 抖动 `UNVERIFIED` | µs 级 | µs–ms 级 | 10–100 ms |
 | 漂移 | 零（同源） | 网络 / 温度 | 晶振 + USB / 串口缓冲 |
 | 硬件要求 | MCU/FPGA + 触发线 | PTP-aware NIC + PHY | 任意 |
@@ -76,7 +76,7 @@ angular_error_per_ms = ω × 1ms
 
 ### 2.2 优点
 
-- **物理上同源**：所有 sensor 在同一脉冲沿采样，偏置纯由信号传输 + sensor 内部延迟决定，常 <100 µs。
+- **物理上同源**：所有 sensor 在同一脉冲沿采样，偏置纯由信号传输 + sensor 内部延迟决定，常 &lt;100 µs。
 - **不需要 PTP 网络**：单板 / 单 MCU 即可。
 - **可观性强**：示波器一接就能验。
 
@@ -224,7 +224,7 @@ C 档在该平台**不可行**。这是为什么消费 drone（Skydio / Autel / 
 
 ## 7 · 隐含假设（Hidden Assumptions）
 
-- **`UNVERIFIED` 数字 ±2× 容差。** A < 0.1 ms / C 1–10 ms 的 *级差* 是结论；个别 SKU 实测可能落在边界外。
+- **`UNVERIFIED` 数字 ±2× 容差。** A &lt; 0.1 ms / C 1–10 ms 的 *级差* 是结论；个别 SKU 实测可能落在边界外。
 - **同步 ≠ 标定。** 时间对齐了，外参也得对——两者共轭但不等价；详见 `deployment/calibration/`。
 - **rolling shutter 仍然有内部时延曲线。** 即便硬件触发，rolling shutter 整帧扫描期间 sensor 还在动；GS 优先。
 - **PTP 软件实现退化到 ms 级**——必须硬件 stamp。

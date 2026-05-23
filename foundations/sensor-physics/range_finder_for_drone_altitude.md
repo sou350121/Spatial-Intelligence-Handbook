@@ -2,7 +2,7 @@
 
 > **发布时间**：2026-05-21
 > **范围**：`foundations/sensor-physics/` — drone 起降 / 室内悬停 / terrain following 近地测距三种物理对比
-> **核心定位**：drone <8 m altitude 是 barometer 失效 / GNSS vertical 不够准的盲区——range finder 是唯一可信信号；但三种物理（acoustic / NIR ToF / mmWave）在不同表面 / 距离 / 天气下成功率天差地远，工程账学界从不写
+> **核心定位**：drone &lt;8 m altitude 是 barometer 失效 / GNSS vertical 不够准的盲区——range finder 是唯一可信信号；但三种物理（acoustic / NIR ToF / mmWave）在不同表面 / 距离 / 天气下成功率天差地远，工程账学界从不写
 
 **Status:** v1 — opinionated draft，按 AGENTS.md 14 项 dissection 模板撰写，2026-05-21。标 `UNVERIFIED` 的数字需 datasheet 交叉核对。
 **Wedge tier:** sensor-physics expansion（E 桶 drone stack 第 5 篇）
@@ -37,9 +37,9 @@ drone 在地面 ±8 m 范围内：barometer 受 prop wash 扰、GNSS vertical σ
 | 物理 | acoustic pulse 40 kHz | NIR laser pulse 905 nm | FMCW 60 GHz radar |
 | 速度 | 声速 343 m/s | 光速 3e8 m/s | 光速 3e8 m/s |
 | 范围 | 0.02–4 m (室内 OK, 户外退化) | 0.1–12 m (TFmini-S), 0.04–4 m (VL53L1X) | 0–50 m (60 GHz) |
-| 精度 `UNVERIFIED` | ±1 cm < 2 m | ±1 cm < 6 m | ±5 cm typical, ±0.5 cm peak |
+| 精度 `UNVERIFIED` | ±1 cm &lt; 2 m | ±1 cm &lt; 6 m | ±5 cm typical, ±0.5 cm peak |
 | 视野角 | 30° 锥 | 2–3° narrow beam | 30–80° (天线设计) |
-| 功耗 | <10 mW | 50–500 mW | 50–200 mW |
+| 功耗 | &lt;10 mW | 50–500 mW | 50–200 mW |
 | 价格 | $2 (HC-SR04) – $50 (MaxBotix) | $5 (VL53L1X) – $50 (TFmini-S) | $10 (A121) – $50 (IWR6843) |
 | 失败表面 | 软织物 / 棉花 / 海绵（吸声） | 草地（光散射穿透） / 黑漆 (低反射) | 平静水面（specular 单点反射） |
 | 天气 | 强风噪声 / 暴雨吸收 | 浓雾 / 暴雨 / 强阳光（环境 NIR） | 全天候 ✓ |
@@ -75,11 +75,11 @@ drone 在地面 ±8 m 范围内：barometer 受 prop wash 扰、GNSS vertical σ
 - 窄 beam (2–3°) → terrain following 中精确锁定地面
 - 高频更新 (50–100 Hz)
 - 小 (15x15 mm)
-- 准 (±1 cm < 6 m)
+- 准 (±1 cm &lt; 6 m)
 
 **缺陷**：
 - **草地透射**：905 nm 在叶片之间散射，echo 时间分布宽 → peak 不显著 → 误读"草顶"或"草下"。
-- **黑色 / 低反射表面**：黑漆 / 沥青 / 黑布 反射率 <5% → range 缩到 1–2 m。
+- **黑色 / 低反射表面**：黑漆 / 沥青 / 黑布 反射率 &lt;5% → range 缩到 1–2 m。
 - **倾斜表面**：法线偏 >30° → 反射不返回，丢失 echo。
 - **暴雨 / 浓雾**：水滴散射 → range 缩 30–50%。
 - **强阳光**：阳光中 NIR 分量 ~50 W/m² (AM1.5) → SPAD 饱和，需要窄带 BPF + 短曝光保护。
@@ -95,7 +95,7 @@ drone 在地面 ±8 m 范围内：barometer 受 prop wash 扰、GNSS vertical σ
 **物理**：FMCW 60 GHz chirp → mixer → IF beat frequency ∝ range → FFT。
 
 **优势**：
-- **全天候**：水 / 雾 / 雪 / 烟 吸收 60 GHz <1 dB/km → 暴雨 / 沙尘暴正常工作
+- **全天候**：水 / 雾 / 雪 / 烟 吸收 60 GHz &lt;1 dB/km → 暴雨 / 沙尘暴正常工作
 - **长距**：60 GHz altimeter 能打 50 m
 - **range + Doppler**：副产品给 vertical velocity（drone 降落判断）
 - **不受 sun NIR**
@@ -151,7 +151,7 @@ altitude  source                          band valid
 1. 高度 >8 m：barometer + GNSS vertical
 2. 高度 8 m → 3 m：触发 range finder fusion，innovation gating 一致性检查
 3. 高度 3 m → 0.5 m：range finder 主导，barometer 仅 sanity
-4. 高度 <0.5 m：range finder + 视觉 ground tracking + IMU 触地检测
+4. 高度 &lt;0.5 m：range finder + 视觉 ground tracking + IMU 触地检测
 5. 触地：spring-load 检测 motor disarm
 
 **为什么需要切换**：barometer prop wash 噪声越靠近地面越严重；range finder 在 >10 m 信号微弱或超量程。
@@ -166,7 +166,7 @@ altitude  source                          band valid
 - **Range finder 看到的就是地面.** vegetation / 雪 / 水面下方 differ。
 - **Sensor 没被 prop wash 灰尘遮蔽.** 起飞前 5 s sensor 透镜需保持清洁。
 - **EKF 信任 range innovation.** 高度跳变（飞过高物 / 屋顶边缘）outlier rejection 必须正确。
-- **Sensor 与 IMU 时间同步 <10 ms.** 高速 vertical motion 时关键。
+- **Sensor 与 IMU 时间同步 &lt;10 ms.** 高速 vertical motion 时关键。
 
 ---
 
@@ -178,7 +178,7 @@ altitude  source                          band valid
 | **Drone (户外硬地起降)** | TFmini-S NIR ToF | ±1 cm 精度 + 4 m 范围 |
 | **Drone (户外 grass / 雪 / 水面)** | Acconeer A121 60 GHz | vegetation 穿透 + 全天候 |
 | **Drone (商用 mapping)** | TFmini-S + 60 GHz hybrid | 冗余 + cross-check |
-| **Nano drone (<100 g)** | VL53L1X 唯一 | 重量限 |
+| **Nano drone (&lt;100 g)** | VL53L1X 唯一 | 重量限 |
 | **AGV (室内)** | 2D lidar 不需要单线 range finder | 2D lidar 已覆盖 |
 | **AD car (parking)** | USS + radar | low-speed close-range |
 | **Manipulation (wrist)** | RGBD (RealSense) 不用单线 | RGBD 已覆盖 |

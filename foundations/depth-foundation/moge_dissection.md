@@ -155,7 +155,7 @@ MoGe 输出 **up-to-global-(scale, Z-shift)** 的 3D point map（论文将 affin
 
 | Range | 典型场景 | 主要误差来源 | Affine-invariant 精度（直觉） |
 |---|---|---|---|
-| 近 (<1 m) | 桌面操作 / 抓取 | 相机近平面、镜头径向畸变、对焦模糊 | 三 head 都较稳；normal 边缘清晰. `UNVERIFIED, no per-range breakdown in paper` |
+| 近 (&lt;1 m) | 桌面操作 / 抓取 | 相机近平面、镜头径向畸变、对焦模糊 | 三 head 都较稳；normal 边缘清晰. `UNVERIFIED, no per-range breakdown in paper` |
 | 中 (1–5 m) | 室内房间、走廊 | 训练分布主力（ScanNet / Hypersim 等） | MoGe sweet spot，论文 6.43 average rel error 主要由此段贡献. ref §Experiments |
 | 远 (5–30 m) | 户外街景、广场 | 远距离 disparity 极小、纹理压缩 | depth head 较稳，point map Z 维度方差扩大；normal 在远端噪声放大 |
 | 超远 (>30 m / sky) | 户外天空、远山 | "infinity region" 无 finite point | MoGe **专门有 mask head**（[v1 §3.3](https://arxiv.org/abs/2410.19115)）预测 sky / infinity binary mask + SegFormer label，避免给天空赋大值污染前景几何 |

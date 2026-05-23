@@ -191,8 +191,8 @@ P_rect = R_rect × K × R⁻¹ × K⁻¹ × P_raw
 
 - **极线几何成立。** L/R 内外参标定准确；机械形变 < 标定容忍。
 - **Texture 充足。** disparity matcher 至少需要 ~5–10% scene 有可识别 texture。
-- **亚像素精度受 SNR 限。** σ_d 不能 < 0.05 px（光子 shot noise 下限）。
-- **同步精度。** L/R 帧时间差 < 100 µs（否则运动场景中物体在两帧已经位移）。
+- **亚像素精度受 SNR 限。** σ_d 不能 &lt; 0.05 px（光子 shot noise 下限）。
+- **同步精度。** L/R 帧时间差 &lt; 100 µs（否则运动场景中物体在两帧已经位移）。
 - **静态场景假设。** L/R 同时拍摄，否则动态物体 disparity 错误。
 - **rectification 假设畸变可建模。** 鱼眼镜头边缘 disparity 完全失语。
 - **f, B 数值已知。** 出厂标定的 baseline 在跌落 / 温度循环后会漂。
@@ -203,10 +203,10 @@ P_rect = R_rect × K × R⁻¹ × K⁻¹ × P_raw
 
 | Depth sensor | 工作机制 | 远距能力 | 近距 (cm) | Texture 需求 |
 |---|---|---|---|---|
-| **Passive stereo** | 几何 + 自然 texture | 限 baseline | <0.5 m 死区 | 强 |
-| **Active stereo (D435)** | 几何 + projector texture | <4 m 室外 | 0.2 m | 弱（projector 补） |
-| **Structured light** | 几何 + dot pattern | <2 m | 0.05 m | 不需要 |
-| **ToF (Kinect v2)** | 相位调制 | <8 m | 0.3 m | 不需要 |
+| **Passive stereo** | 几何 + 自然 texture | 限 baseline | &lt;0.5 m 死区 | 强 |
+| **Active stereo (D435)** | 几何 + projector texture | &lt;4 m 室外 | 0.2 m | 弱（projector 补） |
+| **Structured light** | 几何 + dot pattern | &lt;2 m | 0.05 m | 不需要 |
+| **ToF (Kinect v2)** | 相位调制 | &lt;8 m | 0.3 m | 不需要 |
 | **LiDAR** | TOF 单束扫描 | 50–200 m | 0.5 m | 不需要 |
 | **Monocular ML depth** | 神经网络先验 | 任意（scale 模糊） | 任意 | 弱 |
 

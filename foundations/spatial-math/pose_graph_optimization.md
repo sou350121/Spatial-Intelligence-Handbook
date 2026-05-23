@@ -105,7 +105,7 @@ PGO 重新分配：每条 odom 边被往回挪 ~0.05 m；loop 边吸收剩下的
 
 **iSAM2 (Kaess 2012)** 维护一棵 Bayes tree，只对受影响变量重新线性化。单次更新成本 `O(log N)`，而朴素重解是 `O(N²)` `UNVERIFIED`。
 
-**旋钮:** Ω（按边类型）、闭环边上的 Huber / Cauchy loss（防假阳性 loop）、10–50 次 GN（一般 <20 收敛）、固定第一个节点（gauge）。
+**旋钮:** Ω（按边类型）、闭环边上的 Huber / Cauchy loss（防假阳性 loop）、10–50 次 GN（一般 &lt;20 收敛）、固定第一个节点（gauge）。
 
 **栈位置:** Local BA → 产关键帧位姿 → PGO（带 DBoW2 / NetVLAD 的 loop 边）→ 修正后的位姿。ORB-SLAM3 Atlas 在跨地图 loop 时再加 multi-map 合并。
 

@@ -8,7 +8,7 @@
 **Wedge tier:** W1 · *Pre-deep* 时代的 visual tracker 工程默认；仍占据 OpenCV `legacy` namespace.
 **TL;DR.** 2010 年 Bolme 用 FFT 在频域学一个 correlation filter，让追踪在桌面 CPU 上跑到 ~669 FPS（论文宣称 `UNVERIFIED`）. Henriques 把它 kernel 化（KCF），用 circulant matrix 数学技巧让训练样本 "免费". Lukežič 2017 给 channel + spatial reliability 加成（CSRT），目前是 OpenCV 里 *non-deep* CPU tracker 的默认推荐. 当今仍在用 — drone 嵌入式 / 监控 / Pi 类项目里 GPU 是 luxury.
 
-**X-Ray.** Deep tracker 之前，"我要 bounding box 跟一帧到下一帧" 的工程答案是 **correlation filter**：把 patch 当做模板，在新一帧上做 cross-correlation（FFT 加速），找峰值即新位置. KCF 加 kernel trick + HOG channel，CSRT 加遮挡可靠性 mask. 这条线即"轻量 visual tracking"族 — 2017 后被 SiamFC / SiamRPN 等 deep tracker 在精度上超越，但在 CPU-only / <50 ms / 无 model download 的部署上**至今没有真正替代品**.
+**X-Ray.** Deep tracker 之前，"我要 bounding box 跟一帧到下一帧" 的工程答案是 **correlation filter**：把 patch 当做模板，在新一帧上做 cross-correlation（FFT 加速），找峰值即新位置. KCF 加 kernel trick + HOG channel，CSRT 加遮挡可靠性 mask. 这条线即"轻量 visual tracking"族 — 2017 后被 SiamFC / SiamRPN 等 deep tracker 在精度上超越，但在 CPU-only / &lt;50 ms / 无 model download 的部署上**至今没有真正替代品**.
 
 ---
 
@@ -74,7 +74,7 @@ MOSSE ──► CSK ──────► KCF / DCF ───► SRDCF ──►
    f̂  =  (ĝ ⊙ x̂*) / (x̂ ⊙ x̂* + λ)
 ```
 
-频域 ridge regression 闭式解：filter `f̂`（hat = FFT）= 期望响应 `ĝ` 与训练 patch 共轭 `x̂*` 的逐元素乘积，除以 `|x̂|² + λ`. **一次 FFT、一次逐元素除法、一次 IFFT**. 在 64×64 patch 上单 CPU 核 < 1 ms `UNVERIFIED`.
+频域 ridge regression 闭式解：filter `f̂`（hat = FFT）= 期望响应 `ĝ` 与训练 patch 共轭 `x̂*` 的逐元素乘积，除以 `|x̂|² + λ`. **一次 FFT、一次逐元素除法、一次 IFFT**. 在 64×64 patch 上单 CPU 核 &lt; 1 ms `UNVERIFIED`.
 
 | Symbol | Meaning |
 |---|---|
@@ -115,7 +115,7 @@ MOSSE ──► CSK ──────► KCF / DCF ───► SRDCF ──►
 
 1. **首帧训练.** Crop patch → HOG (16×16×31) → FFT per-channel → 共轭乘 ĝ → 除 |x̂|²+λ → `f̂_c` 一组. ~2 ms `UNVERIFIED`.
 2. **下一帧.** 在上一位置 ±1.5× bbox 搜索区 crop → HOG → FFT → ⊙ 共轭 `f̂_c` → IFFT → response map. ~1.5 ms `UNVERIFIED`.
-3. **峰值定位.** `argmax(response)` 给 cell-level 位置；亚像素用 paraboloid fit. 位移误差 < 1 px.
+3. **峰值定位.** `argmax(response)` 给 cell-level 位置；亚像素用 paraboloid fit. 位移误差 &lt; 1 px.
 4. **在线更新.** 用新 patch 算新 `f̂_c'`，按 `f̂_c ← (1−η) f̂_c + η f̂_c'`（η ≈ 0.02）. ~2 ms `UNVERIFIED`.
 
 桌面 i7 单线程 KCF 全帧约 ~5 ms，~200 FPS `UNVERIFIED`. CSRT 因 channel reliability + 大搜索区，约 ~30 ms / ~30 FPS `UNVERIFIED`. **零 GPU、零 model download**.
@@ -142,7 +142,7 @@ MOSSE ──► CSK ──────► KCF / DCF ───► SRDCF ──►
 
 | 场景 | 为什么仍选 CSRT | 替代品 |
 |---|---|---|
-| Raspberry Pi / Jetson Nano drone follow `UNVERIFIED` | Deep tracker (Siam) 在 CPU < 5 FPS；CSRT 仍 ~20 FPS | SiamFC TVM 量化 `UNVERIFIED` |
+| Raspberry Pi / Jetson Nano drone follow `UNVERIFIED` | Deep tracker (Siam) 在 CPU &lt; 5 FPS；CSRT 仍 ~20 FPS | SiamFC TVM 量化 `UNVERIFIED` |
 | 监控 NVR 多路并发 | 每路独立线程 0.5 core 即跑 | YOLO + ByteTrack（per-frame 检测重） |
 | OpenCV 教学 / 原型 | 一行 `cv2.TrackerCSRT_create()`，零模型文件 | — |
 | ROS workshops / 工业 visual servo PoC | 不需要 PyTorch / CUDA 栈 | — |
@@ -201,8 +201,8 @@ MOSSE ──► CSK ──────► KCF / DCF ───► SRDCF ──►
 
 | Tracker | Year | Family | LaSOT AUC `UNVERIFIED` | CPU? | Model size |
 |---|---|---|---|---|---|
-| KCF | 2014 | Correlation filter | ~17% | ✅ | < 10 KB filter |
-| CSR-DCF (CSRT) | 2017 | CF + reliability | ~24% | ✅ | < 50 KB |
+| KCF | 2014 | Correlation filter | ~17% | ✅ | &lt; 10 KB filter |
+| CSR-DCF (CSRT) | 2017 | CF + reliability | ~24% | ✅ | &lt; 50 KB |
 | SiamFC | 2016 | Siamese CNN | ~33% | marginal | ~5 MB |
 | SiamRPN++ | 2019 | Siamese + RPN | ~50% | ❌ | ~50 MB |
 | STARK | 2021 | Transformer | ~67% | ❌ | ~30 MB |

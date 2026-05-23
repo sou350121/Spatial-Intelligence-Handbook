@@ -81,7 +81,7 @@ Single-shot CNN regression 让网络一口气学一切 — 匹配、平滑、遮
 1. **Encode features.** 1/8 分辨率 2 个 map. ~5 ms `UNVERIFIED`.
 2. **Build corr volume.** ~150×47 × 150×47 ≈ 5e7 entries 一次 matmul. ~10 ms `UNVERIFIED`.
 3. **Initialize.** `f_0 = 0`.
-4. **Iterate** `t = 0..11`: 在当前 flow 周围 lookup 7×7 corr patch，GRU 产出 `Δf`（几迭代后 <1 px）. ~1.5 ms × 12 ≈ 18 ms `UNVERIFIED`.
+4. **Iterate** `t = 0..11`: 在当前 flow 周围 lookup 7×7 corr patch，GRU 产出 `Δf`（几迭代后 &lt;1 px）. ~1.5 ms × 12 ≈ 18 ms `UNVERIFIED`.
 5. **Upsample.** Convex 1/8 → 全分辨率. ~3 ms.
 
 桌面每对总 ~40 ms `UNVERIFIED`. KITTI EPE ~1.5 px `UNVERIFIED`. FlowNet2 single-shot 花更多且输精度.

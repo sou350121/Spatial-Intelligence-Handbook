@@ -106,7 +106,7 @@ NeRF   DROID   DA-β   3DGS   DA-v2  VGGT   (consolidation)
 | 发布 | 一行话 |
 |---|---|
 | Cosmos-1.1（NVIDIA）`UNVERIFIED` | World model + tokenizer 平台迭代；等独立 benchmark。 |
-| 继续的 VGGT distillation 工作 `UNVERIFIED — 多组` | 比赛把 VGGT 类延迟压到 <20 ms；这就是无人机翻盘的解锁。见 [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../crossing/slam-vio-migration/vggt_vs_drone_vio.md) §7。 |
+| 继续的 VGGT distillation 工作 `UNVERIFIED — 多组` | 比赛把 VGGT 类延迟压到 &lt;20 ms；这就是无人机翻盘的解锁。见 [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../crossing/slam-vio-migration/vggt_vs_drone_vio.md) §7。 |
 | ARKit + 空间锚点 SDK 成熟（Apple）| 更多应用上线；尚无机器人级 SDK 发布。 |
 | （Open watchlist）Tesla model card 发布 | 截至 2026-05 未发生。若发生，"occupancy network" 从传说升至可验证。 |
 

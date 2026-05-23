@@ -45,7 +45,7 @@
 | 🛒 Ground Mobile | 2D LiDAR + wheel odom + IMU + cam | 室内 SLAM + obstacle avoid + VLN | path planner + navigation policy |
 | 🚗 Driving | 多目 RGB + radar + (LiDAR 视厂家) + IMU + GNSS | BEV / 占用网络 / lane / 物体检测 | downstream perception → planner → controller |
 | 🚁 Aerial ★ | mono cam + IMU + (stereo if >800g) + 可选 GNSS | VIO + 避障 + active tracking + on-board mapping | 200 Hz autopilot 内控环 |
-| 🌊 Marine | DVL + multibeam sonar + FOG IMU + (cam < 5m visibility) | sonar-primary SLAM + DVL 死推 + 视觉辅助 | mission planner + 水下导航 |
+| 🌊 Marine | DVL + multibeam sonar + FOG IMU + (cam &lt; 5m visibility) | sonar-primary SLAM + DVL 死推 + 视觉辅助 | mission planner + 水下导航 |
 
 ### 表 3 · SWaP-C 绑定（什么是 BoM 杀手）
 
@@ -260,13 +260,13 @@ graph TB
 
 **一句话**：marine 是 spatial intelligence 的**真正 stress test** — 视觉退化、GPS 不可用、声学主导 — 任何在水下能 work 的方法都是真鲁棒。
 
-**关键限制**：视觉吸收 + 散射（<5m visibility）、GPS 不可用、声学多径、压力下 sensor 受限、单 mission $50k-1M 部署成本。
+**关键限制**：视觉吸收 + 散射（&lt;5m visibility）、GPS 不可用、声学多径、压力下 sensor 受限、单 mission $50k-1M 部署成本。
 
 | 推荐入口 | 说明 |
 |---------|------|
 | [marine/](marine/) | 子区导读 |
 | [sensor_stack_underwater.md](marine/sensor_stack_underwater.md) | DVL 是 marine "GNSS"，multibeam / side-scan 声呐 stack |
-| [underwater_slam_dvl_sonar.md](marine/underwater_slam_dvl_sonar.md) | 水下 SLAM 完整拆解（视觉辅助 < 5m，sonar 主导）|
+| [underwater_slam_dvl_sonar.md](marine/underwater_slam_dvl_sonar.md) | 水下 SLAM 完整拆解（视觉辅助 &lt; 5m，sonar 主导）|
 
 ---
 
