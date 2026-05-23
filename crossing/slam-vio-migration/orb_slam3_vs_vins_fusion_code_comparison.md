@@ -340,9 +340,9 @@ ORB-SLAM3 也可擴展，但會進入 map/keyframe/BA/loop 耦合，修改成本
 
 代碼路徑與類名引自上游 repo 公開 master：
 
-- ORB-SLAM3: <https://github.com/UZ-SLAMLab/ORB_SLAM3>
+- ORB-SLAM3: https://github.com/UZ-SLAMLab/ORB_SLAM3
   - `src/System.cc` · `include/Tracking.h` · `include/Atlas.h` · `include/Optimizer.h`
-- VINS-Fusion: <https://github.com/HKUST-Aerial-Robotics/VINS-Fusion>
+- VINS-Fusion: https://github.com/HKUST-Aerial-Robotics/VINS-Fusion
   - `vins_estimator/src/rosNodeTest.cpp` · `vins_estimator/src/estimator/estimator.h` · `vins_estimator/src/estimator/estimator.cpp` · `vins_estimator/src/estimator/parameters.h` · `vins_estimator/src/featureTracker/feature_tracker.cpp`
 
 ---

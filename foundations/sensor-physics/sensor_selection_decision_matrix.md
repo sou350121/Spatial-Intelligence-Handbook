@@ -14,7 +14,7 @@
 |---|---|---|---|---|---|---|
 | **Weight** | **&lt;5 g 关键** | &lt;100 g | 不敏感 | 不敏感 | &lt;500 g | 浮力中性 |
 | **Power** | &lt;1 W (200 mAh) | &lt;5 W | wall power | 12 V ECU | 24 V battery | ~50 Wh/km |
-| **Cost** | <$50 BOM | <$500 | <$2k (D435) | <$5k OK | <$2k | <$50k OK |
+| **Cost** | &lt;$50 BOM | &lt;$500 | &lt;$2k (D435) | &lt;$5k OK | &lt;$2k | &lt;$50k OK |
 | **Compute** | MCU STM32 | Jetson Orin Nano | x86 ws | Orin AGX×多 | Orin AGX×多 | low-power MCU |
 | **Size** | &lt;30 mm | &lt;80 mm | wrist-cam | hood/roof | head/waist 10 cm | watertight bottle |
 
@@ -63,15 +63,15 @@
 > 每个 use case 给"最小 viable stack"（去掉 1 项就有 spec 跑不到）+ 可选增强 + **明确点名不要选的 sensor**。
 
 ### 3.1 · 250 g 微型 drone 室内 SLAM (Crazyflie / Skydio nano)
-**约束**: weight &lt;5 g/sensor, power &lt;1 W, cost <$50。**Stack**: IMU MEMS (BMI270) + monochrome GS camera + 单点 NIR ToF / optical flow PMW3901 + barometer (BMP388)。**不要**: ✗ LiDAR (≥300 g 超 weight budget 60×) / ✗ RTK GNSS (室内无信号 + 30 g) / ✗ thermal IR (cost + FFC 不划算)。
+**约束**: weight &lt;5 g/sensor, power &lt;1 W, cost &lt;$50。**Stack**: IMU MEMS (BMI270) + monochrome GS camera + 单点 NIR ToF / optical flow PMW3901 + barometer (BMP388)。**不要**: ✗ LiDAR (≥300 g 超 weight budget 60×) / ✗ RTK GNSS (室内无信号 + 30 g) / ✗ thermal IR (cost + FFC 不划算)。
 参考: [imu](./imu_physics_and_noise_model.md) + [optical_flow](./optical_flow_sensor_pmw3901.md) + [rolling_vs_global_shutter](./rolling_vs_global_shutter.md) + [`embodiments/aerial/sensor-stack/`](../../embodiments/aerial/sensor-stack/)
 
 ### 3.2 · 1.5 kg 巡检 drone 户外 (DJI M300 / Skydio X10)
-**约束**: weight &lt;100 g/sensor, power &lt;5 W, cost <$500。**Stack**: IMU (ICM-42688) + GS stereo (D435) + RTK GNSS (F9P) + magnetometer (RM3100, 远 ESC) + barometer。**可选**: 16-line LiDAR (~600 g) for terrain following / 77 GHz mmWave (~50 g) for BVLOS 浓雾备份。
+**约束**: weight &lt;100 g/sensor, power &lt;5 W, cost &lt;$500。**Stack**: IMU (ICM-42688) + GS stereo (D435) + RTK GNSS (F9P) + magnetometer (RM3100, 远 ESC) + barometer。**可选**: 16-line LiDAR (~600 g) for terrain following / 77 GHz mmWave (~50 g) for BVLOS 浓雾备份。
 参考: [stereo](./stereo_camera_geometry_physics.md) + [gnss](./gnss_multi_constellation_rtk.md) + [magnetometer](./magnetometer_geomagnetic_field.md) + [`embodiments/aerial/long-range-slam/`](../../embodiments/aerial/long-range-slam/) + [`embodiments/aerial/obstacle-avoidance/`](../../embodiments/aerial/obstacle-avoidance/)
 
 ### 3.3 · 室内 manipulation wrist (Franka / UR / xArm)
-**约束**: 0-1 m 米制精度 <few mm。**Stack**: active stereo RGBD (D435) + RGB GS + force-torque (非本目录)。**可选**: ToF (L515, 已 EOL) for dense / event camera for 高速 dynamic grasp / Azure Kinect for 离线 calibration。**不要**: ✗ LiDAR (overkill + sparse) / ✗ GNSS / mmwave / UWB (室内有 frame)。
+**约束**: 0-1 m 米制精度 &lt;few mm。**Stack**: active stereo RGBD (D435) + RGB GS + force-torque (非本目录)。**可选**: ToF (L515, 已 EOL) for dense / event camera for 高速 dynamic grasp / Azure Kinect for 离线 calibration。**不要**: ✗ LiDAR (overkill + sparse) / ✗ GNSS / mmwave / UWB (室内有 frame)。
 参考: [tof](./tof_physics_for_embodied_ai.md) + [stereo](./stereo_camera_geometry_physics.md) + [active_nir](./active_nir_850nm_for_embodied_ai.md) + [`embodiments/manipulation/3d_feature_cloud_representations.md`](../../embodiments/manipulation/3d_feature_cloud_representations.md)
 
 ### 3.4 · AD-class 高速车 (Waymo / Mobileye)

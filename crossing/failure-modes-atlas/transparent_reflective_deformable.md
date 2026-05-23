@@ -114,7 +114,7 @@ The cells where TRD forces a new sensor are *exactly* the cells where SWaP-C / c
 
 What changes by 2027:
 
-1. **Polarization cameras drop to <$500** — would let humanoid and ground AGV adopt them as standard. Plausible by 2027.
+1. **Polarization cameras drop to &lt;$500** — would let humanoid and ground AGV adopt them as standard. Plausible by 2027.
 2. **Imaging radar with cm-class resolution** — would let drone and AD handle TRD without the polarization workaround. Multiple vendors (Arbe, Mobileye, Texas Instruments) targeting this; 2027 ship date plausible.
 3. **TRD-aware foundation depth models** — train on synthetic transparent/reflective/deformable data. The data does not exist at scale; ClearGrasp (Sajjan et al. 2020) and DexNerf are seeds.
 4. **VLM understands "this is a window"** — semantic prior bypasses the perception problem. Today's VLMs (Gemini, GPT-4V) already do this with surprising reliability; integrating into the perception loop is the open problem.

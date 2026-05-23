@@ -115,7 +115,7 @@ Waymo 的 LiDAR 直接给出 3D 点云，但**仍然需要类似的占用表达*
 
 | 维度 | Waymo | Tesla |
 |---|---|---|
-| 单车硬件 BOM | $100k+ `UNVERIFIED` | <$5k `UNVERIFIED` |
+| 单车硬件 BOM | $100k+ `UNVERIFIED` | &lt;$5k `UNVERIFIED` |
 | 地图更新成本 | 高（专车定期扫描） | 0（无 HD map） |
 | 新城市开通 | 数月 | 即时（OTA） |
 | 算力（车端） | 自研 SoC + redundant | HW4 ~150 W `UNVERIFIED` |

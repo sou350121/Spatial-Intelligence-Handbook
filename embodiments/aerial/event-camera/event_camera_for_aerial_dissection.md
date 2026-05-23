@@ -111,7 +111,7 @@ Honest read: event cameras solve real problems but alternatives are usually chea
 
 What would change the picture by 2028 `UNVERIFIED`:
 
-- Event sensor cost dropping to <$500 (current trajectory plausible).
+- Event sensor cost dropping to &lt;$500 (current trajectory plausible).
 - A productized event-VIO stack with the polish of OpenVINS or VINS-Fusion (no sign yet).
 - A foundation model lineage analogous to VGGT but native to event streams (research-stage).
 

@@ -145,7 +145,7 @@ DS-TWR with DW1000 (`UNVERIFIED` from Qorvo datasheet)：
 
 **延迟.** DS-TWR 4 anchor 串行 ~5–10 ms per cycle（4 次握手）→ 100 Hz 极限；并行多址 → 200 Hz+。EKF 配合 IMU 给最终 200–500 Hz pose。
 
-**Cost.** Qorvo DW3000 ~$3–5 / Decawave DW1000 ~$5–8 `UNVERIFIED`；anchor 套件 ~$30–50；完整 4-anchor 仓库系统 BOM <$200。比 Vicon 便宜 1000×，比 LiDAR SLAM 便宜 50×。
+**Cost.** Qorvo DW3000 ~$3–5 / Decawave DW1000 ~$5–8 `UNVERIFIED`；anchor 套件 ~$30–50；完整 4-anchor 仓库系统 BOM &lt;$200。比 Vicon 便宜 1000×，比 LiDAR SLAM 便宜 50×。
 
 **Range.** 室内 LOS ~50 m / NLOS（穿一面墙）~10–20 m / NLOS（多面墙）&lt;10 m。AirTag 标称 9 m。
 

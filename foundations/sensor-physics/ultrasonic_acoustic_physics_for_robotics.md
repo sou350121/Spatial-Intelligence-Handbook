@@ -148,7 +148,7 @@ t_flight = 2 × Z / c = 0.1 / 343 ≈ 291 µs
 
 **Drone altimeter.** DJI / Autel / Skydio 下视超声 + barometer + ToF 融合 — altitude &lt;5 m 用超声主导，>5 m 切到 ToF / barometer / vision。低于 30 cm 进入"哨兵"模式准备触地。
 
-**MEMS 新一代.** Chirp `CH101`/`CH201` (TDK 收购)、Vesper VM — 整片 MEMS + ASIC，<$3，&lt;0.5 W，正在替代 piezo discrete。
+**MEMS 新一代.** Chirp `CH101`/`CH201` (TDK 收购)、Vesper VM — 整片 MEMS + ASIC，&lt;$3，&lt;0.5 W，正在替代 piezo discrete。
 
 ---
 
@@ -202,7 +202,7 @@ LiDAR 也有 multipath（镜面反射，corner reflector），但点云稀疏 + 
 ## 8 · For the reader (per-persona)
 
 - **Drone engineer** — 下视超声 + ToF + barometer + stereo 四件套是产品级 altimeter，单 USS 不可信。注意 propeller wash 干扰 80%+ 油门下。
-- **AGV / Roomba engineer** — 360° 超声 ring 是经典 cliff / wall 检测，cost <$50 全套。注意工厂超声噪声场景。
+- **AGV / Roomba engineer** — 360° 超声 ring 是经典 cliff / wall 检测，cost &lt;$50 全套。注意工厂超声噪声场景。
 - **AD engineer** — USS 是**低速停车专用**，不参与高速决策。Tesla 反转印证了它在 BOM 里的最小价值是不可削减。
 - **Manipulation engineer** — 超声在桌面几乎无用（cone 太宽、小物体不反射），跳过。
 - **Marine engineer** — 空气超声与水下 sonar 是**两个完全不同物种**，本文不适用，参考 marine 专文（水声 c ≈ 1500 m/s，4× 空气）。

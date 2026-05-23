@@ -155,7 +155,7 @@ Doppler 物理对 24 GHz 特别合用：1 m/s 速度 → 音频频率，**便宜
 - 5 m 距离 → SNR ~15 dB （边缘）
 - 透薄塑料 / 木门 OK（穿一层墙），透厚混凝土不行
 
-**典型 module BOM**: chip $5 + antenna PCB $1 + MCU $2 + housing $5 = **<$15 完整产品** vs PIR sensor $0.5 但功能少很多。
+**典型 module BOM**: chip $5 + antenna PCB $1 + MCU $2 + housing $5 = **&lt;$15 完整产品** vs PIR sensor $0.5 但功能少很多。
 
 ---
 

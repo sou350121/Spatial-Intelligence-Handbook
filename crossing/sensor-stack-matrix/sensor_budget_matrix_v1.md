@@ -56,7 +56,7 @@ Cells: **status** · *reason* · number.
 |---|---|---|---|---|---|---|---|---|
 | **Manipulation** | sometimes · *wrist fallback* | **core** · *5–10cm baseline* | **core** · *D435 default; 5–80cm matches workspace, 70g/$300* | **rare** · *adds nothing sub-1m* | **core** · *BMI270 ~$3* | sometimes · *shiny parts* | rare | rare |
 | **Humanoid** | **core** · *peripheral* | **core** · *only metric primitive fitting the head* | sometimes · *torso, not face* | sometimes · *H1 ships one; 500g tolerated* | **core** · *>12 IMUs typical* | rare · *head thermal* | research | rare |
-| **Ground (AGV)** | **core** · *cheapest primitive, $30* | **core** · *ZED-class <$500* | sometimes · *indoor only* | **core outdoor** · *Hokuyo $1.5k cert; Velodyne 580g/8W `UNVERIFIED`* | **core** · *only dead-reckoning under shelves* | rare | rare | sometimes · *ultrasonic <$5* |
+| **Ground (AGV)** | **core** · *cheapest primitive, $30* | **core** · *ZED-class &lt;$500* | sometimes · *indoor only* | **core outdoor** · *Hokuyo $1.5k cert; Velodyne 580g/8W `UNVERIFIED`* | **core** · *only dead-reckoning under shelves* | rare | rare | sometimes · *ultrasonic &lt;$5* |
 | **Driving (AD)** | **core** · *lights/signs/lanes* | sometimes · *Tesla yes; Waymo no* | **rare** · *breaks past 5m; target 50–200m* | **core Waymo / never Tesla** · *128-beam $8–80k, 1–3kg/15–30W `UNVERIFIED`* | **core** · *auto-grade $50–500; +FOG $5–20k tunnels* | rare | research | rare · *parking only* |
 | **Aerial (&lt;3kg)** | **core** · *FPV = platform's eyes, 5–15g* | sometimes · *Skydio yes; racing no* | **rare** · *active illum = power suicide; §3.1* | sometimes · *Livox 500g/10W flies on 3kg+ only* | **core** · *only >100Hz path &lt;1g cost; BMI270 0.5g/&lt;5mW* | rare | research · *UZH RPG* | sometimes · *altimeter &lt;5m* |
 | **Marine (AUV)** | sometimes · *&lt;5m visibility* | sometimes · *photogrammetry* | rare · *NIR absorbed &lt;1m* | rare · *blue-green $200k+* | **core** · *FOG mandatory; KVH 1750 $15k/700g `UNVERIFIED`* | rare · *physics forbids* | rare | **core** · *DVL+multibeam+side-scan = the whole stack; AURELION ACOSTRA `UNVERIFIED, no DOI`* |
@@ -112,7 +112,7 @@ Manipulation: RGBD wrist / never LiDAR. Humanoid: stereo head + multi-IMU / neve
 
 ## 8 · Falsifiable 2-year prediction
 
-**By 2028-05-21**, ≥1 commercial sub-3kg drone will ship with an integrated &lt;100g solid-state automotive-derived LiDAR (Hesai/Innoviz/Aeva lineage) at <$2k retail, flipping the aerial "LiDAR rare" cell to "sometimes" for the 1–3kg class. Falsified if no such SKU exists at that date.
+**By 2028-05-21**, ≥1 commercial sub-3kg drone will ship with an integrated &lt;100g solid-state automotive-derived LiDAR (Hesai/Innoviz/Aeva lineage) at &lt;$2k retail, flipping the aerial "LiDAR rare" cell to "sometimes" for the 1–3kg class. Falsified if no such SKU exists at that date.
 
 ## 9 · For the reader (per-persona)
 
