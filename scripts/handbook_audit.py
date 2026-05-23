@@ -400,6 +400,92 @@ def check_7_stale_todo(repo_root: Path) -> CheckResult:
 # ----------------------------------------------------------------------
 
 
+def check_8_mintlify_nav_coverage(repo_root: Path) -> CheckResult:
+    """每个 repo 内 .md 必须出现在 docs.json nav；docs.json 引用的 page 必须存在。
+
+    跳过：repo_root 下 LOGIC_AUDIT_* / docs.json 不存在时（INFO）。
+    """
+    import json
+
+    docs_json = repo_root / "docs.json"
+    if not docs_json.exists():
+        return CheckResult(
+            name="Mintlify Nav",
+            status="INFO",
+            summary="docs.json 不存在；跳过（如未设置 Mintlify 部署可忽略）",
+            details=[],
+        )
+
+    try:
+        cfg = json.loads(docs_json.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        return CheckResult(
+            name="Mintlify Nav",
+            status="FAIL",
+            summary=f"docs.json 解析失败：{e}",
+            details=[],
+        )
+
+    # Walk nav, collect all string page ids
+    nav_pages: set[str] = set()
+
+    def walk(node):
+        if isinstance(node, str):
+            nav_pages.add(node)
+        elif isinstance(node, dict):
+            for k in ("pages", "groups", "tabs"):
+                if k in node:
+                    for child in node[k]:
+                        walk(child)
+        elif isinstance(node, list):
+            for child in node:
+                walk(child)
+
+    walk(cfg.get("navigation", {}))
+
+    # All md files in repo (excl. some)
+    excluded_stems = {"LOGIC_AUDIT_2026-05-22"}
+    repo_md: set[str] = set()
+    for md in repo_root.rglob("*.md"):
+        if ".git" in md.parts:
+            continue
+        if md.stem in excluded_stems:
+            continue
+        repo_md.add(str(md.relative_to(repo_root).with_suffix("")))
+
+    missing_in_nav = sorted(repo_md - nav_pages)
+    missing_files = sorted(nav_pages - repo_md)
+
+    details = []
+    if missing_in_nav:
+        details.append(f"  {len(missing_in_nav)} md not in docs.json nav:")
+        for p in missing_in_nav[:10]:
+            details.append(f"    - {p}")
+        if len(missing_in_nav) > 10:
+            details.append(f"    ... and {len(missing_in_nav) - 10} more")
+    if missing_files:
+        details.append(f"  {len(missing_files)} nav entries with no matching file:")
+        for p in missing_files[:10]:
+            details.append(f"    - {p}")
+        if len(missing_files) > 10:
+            details.append(f"    ... and {len(missing_files) - 10} more")
+
+    if missing_in_nav or missing_files:
+        return CheckResult(
+            name="Mintlify Nav",
+            status="FAIL",
+            summary=f"{len(missing_in_nav)} orphan md + {len(missing_files)} dangling nav entries — run `python3 scripts/gen_mintlify_nav.py > docs.json`",
+            details=details,
+        )
+
+    return CheckResult(
+        name="Mintlify Nav",
+        status="PASS",
+        summary=f"all {len(repo_md)} md present in docs.json nav (no orphans, no dangling)",
+        details=[],
+    )
+
+
 CHECKS = [
     check_1_atlas_recall,
     check_2_fourteen_item_gate,
@@ -408,6 +494,7 @@ CHECKS = [
     check_5_license_attribution,
     check_6_unverified_discipline,
     check_7_stale_todo,
+    check_8_mintlify_nav_coverage,
 ]
 
 

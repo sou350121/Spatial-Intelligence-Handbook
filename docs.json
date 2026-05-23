@@ -1,0 +1,551 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Spatial Intelligence Handbook",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 187 dissection + atlas + cross-embodiment migration",
+  "colors": {
+    "primary": "#0EA5E9",
+    "light": "#38BDF8",
+    "dark": "#0369A1"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Get Started",
+        "icon": "rocket",
+        "groups": [
+          {
+            "group": "Start here",
+            "pages": [
+              "ONBOARDING",
+              "README",
+              "CONTRIBUTING",
+              "AGENTS"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Foundations",
+        "icon": "layer-group",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "foundations/README"
+            ]
+          },
+          {
+            "group": "3dgs Family",
+            "pages": [
+              "foundations/3dgs-family/README",
+              "foundations/3dgs-family/3dgs_original_dissection",
+              "foundations/3dgs-family/4dgs_dynamic_scenes",
+              "foundations/3dgs-family/github_failure_atlas",
+              "foundations/3dgs-family/gs_slam_dissection",
+              "foundations/3dgs-family/mip_splatting"
+            ]
+          },
+          {
+            "group": "Classical Slam",
+            "pages": [
+              "foundations/classical-slam/README",
+              "foundations/classical-slam/direct_methods_dso_lsd",
+              "foundations/classical-slam/github_failure_atlas",
+              "foundations/classical-slam/orb_slam3_dissection",
+              "foundations/classical-slam/pnp_dlt_primer",
+              "foundations/classical-slam/slam_toolchain_ecosystem"
+            ]
+          },
+          {
+            "group": "Depth Foundation",
+            "pages": [
+              "foundations/depth-foundation/README",
+              "foundations/depth-foundation/classical_stereo_primer",
+              "foundations/depth-foundation/depth_anything_v2_dissection",
+              "foundations/depth-foundation/depth_models_comparison",
+              "foundations/depth-foundation/foundationstereo_dissection",
+              "foundations/depth-foundation/github_failure_atlas",
+              "foundations/depth-foundation/metric3d_dissection",
+              "foundations/depth-foundation/moge_dissection"
+            ]
+          },
+          {
+            "group": "Feed Forward 3d",
+            "pages": [
+              "foundations/feed-forward-3d/README",
+              "foundations/feed-forward-3d/github_failure_atlas",
+              "foundations/feed-forward-3d/mapanything_dissection",
+              "foundations/feed-forward-3d/vggt_cvpr2025_dissection",
+              "foundations/feed-forward-3d/vggt_omega_dissection"
+            ]
+          },
+          {
+            "group": "Generative 3d Sim",
+            "pages": [
+              "foundations/generative-3d-sim/README",
+              "foundations/generative-3d-sim/aerial_gym_3dgs_sim2real",
+              "foundations/generative-3d-sim/differentiable_rendering_mitsuba_nvdiffrast",
+              "foundations/generative-3d-sim/splat_sim_for_manipulation"
+            ]
+          },
+          {
+            "group": "Nerf Family",
+            "pages": [
+              "foundations/nerf-family/README",
+              "foundations/nerf-family/block_nerf_large_scenes",
+              "foundations/nerf-family/github_failure_atlas",
+              "foundations/nerf-family/instant_ngp_dissection",
+              "foundations/nerf-family/mip_nerf_360_dissection",
+              "foundations/nerf-family/nerf_original_dissection"
+            ]
+          },
+          {
+            "group": "Physics",
+            "pages": [
+              "foundations/physics/README",
+              "foundations/physics/differentiable_physics_comparison",
+              "foundations/physics/mujoco_mjx_dissection",
+              "foundations/physics/nvidia_warp_dissection",
+              "foundations/physics/physgaussian_dissection",
+              "foundations/physics/rigid_body_dynamics_primer"
+            ]
+          },
+          {
+            "group": "Pose Tracking",
+            "pages": [
+              "foundations/pose-tracking/README",
+              "foundations/pose-tracking/classical_visual_tracking_kcf_csrt",
+              "foundations/pose-tracking/cotracker_and_tap_dissection",
+              "foundations/pose-tracking/foundation_pose_dissection",
+              "foundations/pose-tracking/github_failure_atlas",
+              "foundations/pose-tracking/megapose_dissection",
+              "foundations/pose-tracking/raft_optical_flow",
+              "foundations/pose-tracking/siamese_to_transformer_sot_dissection",
+              "foundations/pose-tracking/sort_bytetrack_mot_dissection",
+              "foundations/pose-tracking/tracking_taxonomy_primer"
+            ]
+          },
+          {
+            "group": "Semantic 3d",
+            "pages": [
+              "foundations/semantic-3d/README",
+              "foundations/semantic-3d/github_failure_atlas",
+              "foundations/semantic-3d/langsplat_dissection",
+              "foundations/semantic-3d/lerf_dissection",
+              "foundations/semantic-3d/openscene_dissection",
+              "foundations/semantic-3d/sam3d_dissection"
+            ]
+          },
+          {
+            "group": "Sensor Physics",
+            "pages": [
+              "foundations/sensor-physics/README",
+              "foundations/sensor-physics/24ghz_doppler_radar_motion",
+              "foundations/sensor-physics/active_nir_850nm_for_embodied_ai",
+              "foundations/sensor-physics/barometer_pressure_altimetry",
+              "foundations/sensor-physics/event_camera_dvs_physics",
+              "foundations/sensor-physics/gnss_multi_constellation_rtk",
+              "foundations/sensor-physics/imu_physics_and_noise_model",
+              "foundations/sensor-physics/lidar_physics_905_vs_1550",
+              "foundations/sensor-physics/magnetometer_geomagnetic_field",
+              "foundations/sensor-physics/microphone_array_beamforming",
+              "foundations/sensor-physics/mmwave_radar_physics_for_ad",
+              "foundations/sensor-physics/optical_flow_sensor_pmw3901",
+              "foundations/sensor-physics/polarization_sensing_for_3d",
+              "foundations/sensor-physics/range_finder_for_drone_altitude",
+              "foundations/sensor-physics/rgb_camera_imaging_pipeline",
+              "foundations/sensor-physics/rolling_vs_global_shutter",
+              "foundations/sensor-physics/sensor_noise_modeling_allan_variance",
+              "foundations/sensor-physics/sensor_selection_decision_matrix",
+              "foundations/sensor-physics/stereo_camera_geometry_physics",
+              "foundations/sensor-physics/thermal_ir_lwir_8_14um",
+              "foundations/sensor-physics/tof_physics_for_embodied_ai",
+              "foundations/sensor-physics/ultrasonic_acoustic_physics_for_robotics",
+              "foundations/sensor-physics/underwater_sonar_physics",
+              "foundations/sensor-physics/uwb_ultra_wideband_positioning",
+              "foundations/sensor-physics/wifi_rf_positioning_5g"
+            ]
+          },
+          {
+            "group": "Spatial Math",
+            "pages": [
+              "foundations/spatial-math/README",
+              "foundations/spatial-math/bayesian_filtering_ekf_msckf",
+              "foundations/spatial-math/bundle_adjustment",
+              "foundations/spatial-math/camera_projection_view_geometry",
+              "foundations/spatial-math/cross_domain_math_inspirations",
+              "foundations/spatial-math/imu_preintegration_math",
+              "foundations/spatial-math/pose_graph_optimization",
+              "foundations/spatial-math/quaternions_and_rotations",
+              "foundations/spatial-math/rotation_intuition_primer",
+              "foundations/spatial-math/rotation_reps_in_deep_learning_primer",
+              "foundations/spatial-math/se3_equivariance_in_networks_primer",
+              "foundations/spatial-math/se3_so3_lie_groups_primer"
+            ]
+          },
+          {
+            "group": "Vlm Spatial Reasoning",
+            "pages": [
+              "foundations/vlm-spatial-reasoning/README",
+              "foundations/vlm-spatial-reasoning/3dsrbench_dissection",
+              "foundations/vlm-spatial-reasoning/github_failure_atlas",
+              "foundations/vlm-spatial-reasoning/spatialbot_dissection",
+              "foundations/vlm-spatial-reasoning/spatialvlm_dissection"
+            ]
+          },
+          {
+            "group": "World Model",
+            "pages": [
+              "foundations/world-model/README",
+              "foundations/world-model/genie_dissection",
+              "foundations/world-model/github_failure_atlas",
+              "foundations/world-model/marble_decision_view",
+              "foundations/world-model/nvidia_cosmos_dissection"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Embodiments",
+        "icon": "robot",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "embodiments/README"
+            ]
+          },
+          {
+            "group": "Aerial",
+            "pages": [
+              "embodiments/aerial/README",
+              "embodiments/aerial/dynamics_and_control_primer",
+              "embodiments/aerial/real_flight_production_gotchas",
+              {
+                "group": "Active Tracking",
+                "pages": [
+                  "embodiments/aerial/active-tracking/README"
+                ]
+              },
+              {
+                "group": "Event Camera",
+                "pages": [
+                  "embodiments/aerial/event-camera/event_camera_for_aerial_dissection"
+                ]
+              },
+              {
+                "group": "Obstacle Avoidance",
+                "pages": [
+                  "embodiments/aerial/obstacle-avoidance/README"
+                ]
+              },
+              {
+                "group": "On Board Mapping",
+                "pages": [
+                  "embodiments/aerial/on-board-mapping/README"
+                ]
+              },
+              {
+                "group": "Planning",
+                "pages": [
+                  "embodiments/aerial/planning/min_snap_dissection"
+                ]
+              },
+              {
+                "group": "Sensor Stack",
+                "pages": [
+                  "embodiments/aerial/sensor-stack/README"
+                ]
+              },
+              {
+                "group": "Vio",
+                "pages": [
+                  "embodiments/aerial/vio/README",
+                  "embodiments/aerial/vio/droid_slam_dissection",
+                  "embodiments/aerial/vio/ekf_from_scratch_dissection",
+                  "embodiments/aerial/vio/github_failure_atlas",
+                  "embodiments/aerial/vio/openvins_dissection",
+                  "embodiments/aerial/vio/vins_mono_fusion_dissection"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Driving",
+            "pages": [
+              "embodiments/driving/README",
+              "embodiments/driving/bev_and_occupancy",
+              "embodiments/driving/waymo_vs_tesla_doctrinal_split"
+            ]
+          },
+          {
+            "group": "Ground Mobile",
+            "pages": [
+              "embodiments/ground-mobile/README",
+              "embodiments/ground-mobile/agv_indoor_localization_stack",
+              "embodiments/ground-mobile/vln_and_object_nav"
+            ]
+          },
+          {
+            "group": "Humanoid Legged",
+            "pages": [
+              "embodiments/humanoid-legged/README",
+              "embodiments/humanoid-legged/unitree_h1_vs_figure_vs_1x",
+              "embodiments/humanoid-legged/whole_body_spatial_perception"
+            ]
+          },
+          {
+            "group": "Manipulation",
+            "pages": [
+              "embodiments/manipulation/README",
+              "embodiments/manipulation/3d_feature_cloud_representations",
+              "embodiments/manipulation/bimanual_and_dexterous_hand"
+            ]
+          },
+          {
+            "group": "Marine",
+            "pages": [
+              "embodiments/marine/README",
+              "embodiments/marine/sensor_stack_underwater",
+              "embodiments/marine/underwater_slam_dvl_sonar"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Crossing",
+        "icon": "shuffle",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "crossing/README"
+            ]
+          },
+          {
+            "group": "Failure Modes Atlas",
+            "pages": [
+              "crossing/failure-modes-atlas/transparent_reflective_deformable"
+            ]
+          },
+          {
+            "group": "Representation Migration",
+            "pages": [
+              "crossing/representation-migration/3dgs_as_simulator_comparison",
+              "crossing/representation-migration/dense_vs_graph_registration"
+            ]
+          },
+          {
+            "group": "Scale Comparison",
+            "pages": [
+              "crossing/scale-comparison/depth_foundation_across_scales"
+            ]
+          },
+          {
+            "group": "Sensor Stack Matrix",
+            "pages": [
+              "crossing/sensor-stack-matrix/sensor_budget_matrix_v1"
+            ]
+          },
+          {
+            "group": "Slam Vio Migration",
+            "pages": [
+              "crossing/slam-vio-migration/orb_slam3_vs_vins_fusion_code_comparison",
+              "crossing/slam-vio-migration/vggt_vs_drone_vio"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Cheat Sheet",
+        "icon": "map",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "cheat-sheet/README",
+              "cheat-sheet/cross_zone_failure_atlas",
+              "cheat-sheet/functional_map",
+              "cheat-sheet/representation_comparison",
+              "cheat-sheet/timeline"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Deployment",
+        "icon": "screwdriver-wrench",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "deployment/README"
+            ]
+          },
+          {
+            "group": "Calibration",
+            "pages": [
+              "deployment/calibration/README",
+              "deployment/calibration/sensor_calibration_drift_in_production"
+            ]
+          },
+          {
+            "group": "Compute Budget",
+            "pages": [
+              "deployment/compute-budget/README",
+              "deployment/compute-budget/edge_inference_budget_engineering"
+            ]
+          },
+          {
+            "group": "Failure Modes",
+            "pages": [
+              "deployment/failure-modes/README",
+              "deployment/failure-modes/field_failures_taxonomy",
+              "deployment/failure-modes/sensor_silent_failure_patterns"
+            ]
+          },
+          {
+            "group": "Hardware Selection",
+            "pages": [
+              "deployment/hardware-selection/README",
+              "deployment/hardware-selection/bom_templates_by_class"
+            ]
+          },
+          {
+            "group": "Multi Modal Sync",
+            "pages": [
+              "deployment/multi-modal-sync/README",
+              "deployment/multi-modal-sync/hardware_trigger_vs_ptp_vs_software"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Benchmarks",
+        "icon": "ruler",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "benchmarks/README"
+            ]
+          },
+          {
+            "group": "Aerial",
+            "pages": [
+              "benchmarks/aerial/euroc_uzh_fpv_hilti"
+            ]
+          },
+          {
+            "group": "Driving",
+            "pages": [
+              "benchmarks/driving/nuscenes_waymo_argo"
+            ]
+          },
+          {
+            "group": "Geometry",
+            "pages": [
+              "benchmarks/geometry/scannet_pp_eth3d"
+            ]
+          },
+          {
+            "group": "Manipulation",
+            "pages": [
+              "benchmarks/manipulation/grasp_ycb_rlbench"
+            ]
+          },
+          {
+            "group": "Marine",
+            "pages": [
+              "benchmarks/marine/aqualoc_subpipe"
+            ]
+          },
+          {
+            "group": "Reasoning",
+            "pages": [
+              "benchmarks/reasoning/3dsrbench_blink"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Bridge to VLA",
+        "icon": "bridge",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "bridge-to-vla/README",
+              "bridge-to-vla/3d_aware_vla",
+              "bridge-to-vla/feature-cloud-to-action",
+              "bridge-to-vla/neural_map_as_memory"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Companies",
+        "icon": "building",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "companies/README",
+              "companies/apple_vision",
+              "companies/nvidia_cosmos",
+              "companies/physical_intelligence",
+              "companies/skydio",
+              "companies/tesla_occupancy",
+              "companies/wayve_world_model",
+              "companies/world_labs"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reports",
+        "icon": "file-lines",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "reports/README"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Docs",
+        "icon": "book",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "docs/mintlify-deployment",
+              "docs/pulsar-integration"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/sou350121/Spatial-Intelligence-Handbook"
+      },
+      {
+        "label": "VLA-Handbook",
+        "href": "https://github.com/sou350121/VLA-Handbook"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/sou350121/Spatial-Intelligence-Handbook"
+    }
+  }
+}
