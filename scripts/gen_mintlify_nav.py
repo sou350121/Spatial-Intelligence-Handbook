@@ -40,8 +40,14 @@ EXCLUDE_PATTERNS = {"LOGIC_AUDIT_2026-05-22"}
 
 
 def page_id(path: Path) -> str:
-    """Return the Mintlify page id: repo-relative path, no .md extension."""
-    rel = path.relative_to(REPO_ROOT).with_suffix("")
+    """Return the Mintlify page id: repo-relative path WITH .md extension.
+
+    Mintlify serves .md files at URL paths that include the .md suffix (e.g.
+    `/foundations/README.md`). If we strip the extension in docs.json, the
+    sidebar generates `/foundations/README` which 404s. Keep the extension
+    so sidebar clicks resolve.
+    """
+    rel = path.relative_to(REPO_ROOT)
     return str(rel)
 
 

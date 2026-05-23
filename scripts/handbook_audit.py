@@ -444,6 +444,8 @@ def check_8_mintlify_nav_coverage(repo_root: Path) -> CheckResult:
     walk(cfg.get("navigation", {}))
 
     # All md files in repo (excl. some)
+    # NOTE: page ids in docs.json keep the .md extension (see gen_mintlify_nav.py
+    # page_id docstring for why), so we compare with extension here too.
     excluded_stems = {"LOGIC_AUDIT_2026-05-22"}
     repo_md: set[str] = set()
     for md in repo_root.rglob("*.md"):
@@ -451,7 +453,7 @@ def check_8_mintlify_nav_coverage(repo_root: Path) -> CheckResult:
             continue
         if md.stem in excluded_stems:
             continue
-        repo_md.add(str(md.relative_to(repo_root).with_suffix("")))
+        repo_md.add(str(md.relative_to(repo_root)))
 
     missing_in_nav = sorted(repo_md - nav_pages)
     missing_files = sorted(nav_pages - repo_md)
