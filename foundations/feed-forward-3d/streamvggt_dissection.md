@@ -15,7 +15,7 @@ ref: ../../cheat-sheet/ontology.md §5.2 / §5.4
 **Status**: v1 — opinionated draft 2026-05-24. Inference timing / memory footprint claims 标 `UNVERIFIED`.
 **Wedge tier**: W2 — handbook 第一个收的「VGGT 系自带 streaming」非 hybrid 路线。
 
-**TL;DR**: VGGT-Ω 仍 batch；StreamVGGT 用 *causal attention + KV memory* 把 batch 改 stream。架构思想直接抄 GPT 自回归（previous tokens 當 cache，新 frame 增量加進）。**不是 3R-SLAM hybrid** —— 純 feed-forward 但能 stream。**仍 ❌ aerial 200 Hz / 5 ms 控制環**（仍 sub-second per scene），但開了**「feed-forward 不必 batch」**的方向。
+**TL;DR**: VGGT-Ω 仍 batch；StreamVGGT 用 *causal attention + KV memory* 把 batch 改 stream，架构抄 GPT 自回归。**不是 3R-SLAM hybrid** — 純 feed-forward 但能 stream。**現實檢驗 (GitHub deep dive 2026-05)**：(a) 1300 frame → >100 GB GPU memory（issue #24，maintainer **8 個月未回應**）；(b) Multi-view alignment 失敗（issue #29 face 案例，遺傳 VGGT batch 問題）；(c) **25 issue / 0 closed** — research artefact 不是 maintained product；(d) TensorRT 部署未驗證。**生態系統反應**：6 個月內已出 4 個 follow-up paper 專解（XStreamVGGT 4.42× memory ↓ / OVGGT O(1) constant / FrameVGGT / STAC）— production 候選看這些，不是原 repo。仍 ❌ aerial 200 Hz / 5 ms 控制環。
 
 ---
 
@@ -62,22 +62,25 @@ StreamVGGT (ICLR 2026 streaming):
 
 ## 3 · 📌 Napkin Formula
 
-**KV cache 增長 vs 顯存上限**：
+**KV cache 增長 vs 顯存上限 — 理論 vs 實測**：
 
 ```
-顯存占用 ≈ M_seq_len × d_model × n_layer × 2 × precision_bytes
-        = T × 1024 × 24 × 2 × 2 bytes  (assume d=1024, 24 layer, fp16)
-        ≈ T × 96 KB / token
-
-對 720p 1 frame ≈ 200 tokens (patch 16×16):
-        ≈ T × 20 MB per frame
-
-T = 100 frames → ~2 GB KV cache `UNVERIFIED`
-T = 500 frames → ~10 GB → 24GB GPU 可承
-T = 1000 frames → ~20 GB → 接近顯存上限
+理論 napkin:
+  顯存 ≈ T × d_model × n_layer × 2 × precision_bytes
+        ≈ T × 96 KB / token × tokens_per_frame
+  對 518px frame ≈ 1000+ tokens:
+        ≈ T × 100 MB per frame
+  T = 100 → 10 GB
+  T = 500 → 50 GB
+  T = 1000 → 100 GB
 ```
 
-→ Stream 並非無限 — KV cache 大概 500-1000 frame 就接近 24 GB GPU 上限。**長序列要 cache eviction 或 sliding window**（仍 open question）。
+**✅ 實測驗證（GitHub issue #24）**：
+- 1 分鐘視頻、1300 frames、518px → **GPU memory >100 GB**
+- maintainer 無回應 8 個月+（issue 開 2025-09，到 2026-05 仍 open）
+- 這意味 **24 GB 消費級 GPU 大概 ~300 frame 就 OOM**（取決 frame token 數）
+
+→ **單卡 24 GB 上限 ≈ 300 frame（10 sec @ 30 FPS）**。長視頻需要 cache eviction（已有 XStreamVGGT / OVGGT / FrameVGGT / STAC 4 個 follow-up paper 解這個，見 §8.1）。
 
 ---
 
@@ -126,7 +129,7 @@ DUSt3R (CVPR 2024) → MASt3R (ECCV 2024) → VGGT (CVPR 2025 best, batch)
 | 假設 | 看似合理 | 實際 |
 |---|---|---|
 | **「causal attention 不丟資訊」** | LLM 工作得很好 | 3D 重建需要全局一致性 — causal 沒看未來，loop closure 是 SLAM 後端傳統強項；StreamVGGT 用 distillation from bidirectional model 補救，但 **gap 仍存在 `UNVERIFIED`** |
-| **「KV cache 可無限延伸」** | LLM 上下文長度漲 | 3D 場景 token 比文字 token 大 ~100× / frame，KV cache 500 frame 已 ~10 GB |
+| **「KV cache 可無限延伸」** | LLM 上下文長度漲 | ✅ **GitHub-VERIFIED 災難**：1300 frame @ 518px → **>100 GB GPU memory**（issue #24，maintainer 8 個月無回應）。24 GB GPU 大概 ~300 frame 就 OOM |
 | **「streaming = real-time」** | 名字暗示 | StreamVGGT 「typically reconstructs in under one second」 — sub-second 不等於 real-time (需 ≤ sensor period) |
 | **「替代 VGGT batch」** | 通常理解 | distillation 訓練意味 StreamVGGT 是 batch VGGT 的 *streaming approximation* — 精度仍 ≤ batch |
 | **「替代 3R-SLAM Hybrid」** | 都是 streaming | StreamVGGT 純 feed-forward 無 loop closure / 無 IMU coupling / 無 metric scale，仍**輸於** hybrid 在這三軸 |
@@ -147,17 +150,33 @@ DUSt3R (CVPR 2024) → MASt3R (ECCV 2024) → VGGT (CVPR 2025 best, batch)
 
 → 詳見 [`github_failure_atlas.md`](./github_failure_atlas.md)
 
-**StreamVGGT 預期 failure modes**（基於同類 VGGT-batch + LLM KV cache 經驗推斷，**UNVERIFIED until repo issues mature**）：
+**GitHub-VALIDATED failure modes**（2026-05-24 deep dive 確認，原 v1 dissection 的 UNVERIFIED predictions 多數已被 issue / follow-up paper 驗證）：
 
-| 失敗模式 | 觸發場景 | 推斷原因 |
-|---|---|---|
-| **長序列精度退化** | > 200 frame stream | causal attention + distillation gap 累積 |
-| **KV cache OOM** | > 500 frame on 24 GB | memory growth linear in T |
-| **Loop closure 缺失** | scene 回到舊地 | causal 無法回看 / 沒 reloc head |
-| **動態場景錯誤累積** | moving objects | causal 看不到未來 → 區分 ego-motion vs object-motion 弱 |
-| **Initialization sensitivity** | 第一 frame 質量差 | KV cache 從錯的 anchor 開始 |
+| 失敗模式 | 觸發場景 | GitHub evidence | 驗證狀態 |
+|---|---|---|---|
+| **KV cache 顯存爆炸** | ~1 分鐘 1300-frame 視頻 @ 518px | **issue #24**：「GPU memory has exceeded 100GB」maintainer **無回應 8 個月+**（2025-09 開至 2026-05）| ✅ VERIFIED — 真實災難性，比我們原 napkin 預測（500 frame ~10GB）嚴重 5-10× |
+| **Multi-view alignment 失敗（繼承自 VGGT batch）** | 6 張同一物體不同角度 image | **issue #29**：「6 images of human face 從不同角度 → 分別生成 misaligned point clouds 不對齊」maintainer 無回應 | ✅ VERIFIED — 不是 stream 帶來的問題，VGGT batch 原有問題繼承過來 |
+| **TensorRT deploy 未驗證** | 試 production deploy | **issue #30**：「Due to KV cache during inference, possible to convert to TensorRT?」maintainer 無回應 | ⚠ UNVERIFIED — 主流 deploy path 仍是 question mark |
+| **KV cache 策略不透明** | 想自訂 cache 行為 | **issue #25**：「each layer has different K,V — do you cache all layers?」maintainer 無回應 | ⚠ 設計細節 maintainer 不公開回應 |
+| **長視頻處理無官方解** | 任何超過幾百幀 | **issue #24** + **issue #34**（ARKitScenes_Multi）+ **issue #28**（compute_pose_loss not work）多 issue 集中**長序列**和**訓練 reproducibility** | ✅ VERIFIED — 整類問題 maintainer 響應度低 |
+| **Causal attention 精度 gap vs bidirectional** | 比 VGGT batch | 論文用 *distillation from bidirectional VGGT* 補救，但不可能完全達 batch 精度 | ⚠ 論文宣稱「competitive」未公布具體數字 |
 
-**社群信號**：StreamVGGT GitHub 913★ / 47 fork（2026-05）— 早期高關注度但尚未有 long-term issue 追蹤。
+**整體 maintainer 響應度**：StreamVGGT 25 open issues / 0 closed（2026-05）— maintainer 響應**極低**。是 research artefact 不是 maintained product。
+
+**社群信號**：GitHub 913★ / 47 fork（2026-05）— 高學術關注，但 production 不可用。
+
+### 8.1 · 生態系統反應（4 個 follow-up paper 6 個月內出，解 memory 問題）
+
+StreamVGGT 的 KV cache 爆炸催生了一整個 sub-paradigm：
+
+| Follow-up | Date | 設計 | 性能 |
+|---|---|---|---|
+| **XStreamVGGT** (arXiv 2601.01204) | 2026-01 | KV cache pruning + quantization | **4.42× memory ↓**, **5.48× inference ↑**, perf degradation "mostly negligible" |
+| **OVGGT** (arXiv 2603.05959) | 2026-03 | Self-Selective Caching + Dynamic Anchor Protection | **O(1) constant memory**，序列長度無關 |
+| **FrameVGGT** (arXiv 2603.07690) | 2026-03 | Frame Evidence Rolling Memory | similar memory cap |
+| **STAC** ([stac-3r.github.io](https://stac-3r.github.io/)) | 2026 | Spatio-Temporal Aware Cache Compression | similar |
+
+→ **建議讀者**：要 streaming 3D 從 StreamVGGT 起步，但 production 候選優先看 OVGGT (O(1)) 或 XStreamVGGT (4× 省記憶體)。
 
 ---
 
@@ -165,6 +184,11 @@ DUSt3R (CVPR 2024) → MASt3R (ECCV 2024) → VGGT (CVPR 2025 best, batch)
 
 - VGGT 原版 → [`vggt_cvpr2025_dissection.md`](./vggt_cvpr2025_dissection.md)
 - VGGT-Ω (batch efficiency upgrade) → [`vggt_omega_dissection.md`](./vggt_omega_dissection.md)
+- **Memory-compression follow-ups** (production 候選)：
+  - **XStreamVGGT** ([arXiv 2601.01204](https://arxiv.org/abs/2601.01204), 2026-01) — KV cache pruning + quantization, 4.42× memory ↓, 5.48× speedup
+  - **OVGGT** ([arXiv 2603.05959](https://arxiv.org/pdf/2603.05959), 2026-03) — O(1) constant memory
+  - **FrameVGGT** ([arXiv 2603.07690](https://arxiv.org/pdf/2603.07690), 2026-03) — Frame Evidence Rolling Memory
+  - **STAC** ([stac-3r.github.io](https://stac-3r.github.io/)) — Spatio-Temporal Aware Cache Compression
 - 3R-SLAM Hybrid alternative (learned 3D + classical SLAM 後端) → [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../crossing/slam-vio-migration/vggt_vs_drone_vio.md)（涵蓋為什麼 streaming feed-forward 仍輸 hybrid 在 aerial）
 - LLM causal attention + KV cache 起源 → GPT-2 paper / Vaswani 2017 Transformer
 - 並行 incremental 路線 → INCVGGT (ICLR 2026)
@@ -196,9 +220,10 @@ DUSt3R (CVPR 2024) → MASt3R (ECCV 2024) → VGGT (CVPR 2025 best, batch)
 
 ## 12 · Falsifiable predictions
 
-1. **2027-06 前**：會出 StreamVGGT v2 / 後繼 with sliding-window KV eviction，解 long-sequence memory 問題。
+1. ✅ **VERIFIED 2026-01 to 2026-03（早於預測 ~12 個月）**：StreamVGGT v2 / 後繼 with cache eviction 預期 2027-06 前出。實際 **6 個月內** 已出 4 個：XStreamVGGT (arXiv 2601.01204, 2026-01) / FrameVGGT (2603.07690) / OVGGT (2603.05959) / STAC — XStreamVGGT 達 4.42× memory 減少 + 5.48× speedup，OVGGT 達 O(1) constant memory。
 2. **2027-12 前**：第一個 streaming + metric-aware feed-forward 3D 會出 — 借鑑 StreamVGGT causal pattern + scale anchor head（IMU / RTK）。
 3. **2027-12 前不會發生**：StreamVGGT 譜系成為 aerial 200 Hz 主前端 — per-frame latency 上限仍 ≥ 30 ms 量級 (memory bandwidth bound)，不到 5 ms 預算。
+4. **2027-06 前**：StreamVGGT 主 repo 仍 maintainer 響應度低（25 open issue / 0 closed at 2026-05）；production candidate 會是 follow-up papers (XStreamVGGT / OVGGT)，不是原 repo。
 
 ---
 
@@ -216,9 +241,30 @@ handbook 的 falsifiability discipline 通過驗證。
 
 ## References
 
-- **StreamVGGT** — Wang et al. *ICLR 2026* · [arXiv:2507.11539](https://arxiv.org/abs/2507.11539) · [GitHub](https://github.com/wzzheng/StreamVGGT) (913★, 2026-05)
+### Primary
+
+- **StreamVGGT** — Wang et al. *ICLR 2026* · [arXiv:2507.11539](https://arxiv.org/abs/2507.11539) · [GitHub](https://github.com/wzzheng/StreamVGGT) (913★, 25 open issue / 0 closed at 2026-05) · [Project page](https://wzzheng.net/StreamVGGT/)
 - **VGGT-Ω** — Wang et al. *CVPR 2026 Oral* · [arXiv:2605.15195](https://arxiv.org/abs/2605.15195)
 - **VGGT v1** — Wang et al. *CVPR 2025 Best Paper* · [arXiv:2503.11651](https://arxiv.org/abs/2503.11651)
+
+### Critical GitHub issues (load-bearing failure mode evidence)
+
+- [issue #24](https://github.com/wzzheng/StreamVGGT/issues/24) — long video memory: 1300 frame → >100GB (open since 2025-09)
+- [issue #25](https://github.com/wzzheng/StreamVGGT/issues/25) — KV cache strategy unclear (which layers cached)
+- [issue #27](https://github.com/wzzheng/StreamVGGT/issues/27) — kv cache in camera head
+- [issue #29](https://github.com/wzzheng/StreamVGGT/issues/29) — Multi-view alignment failure (face example)
+- [issue #30](https://github.com/wzzheng/StreamVGGT/issues/30) — TensorRT deployment unverified
+- [issue #34](https://github.com/wzzheng/StreamVGGT/issues/34) — ARKitScenes_Multi dataset missing
+
+### Follow-up papers (memory-compression sub-paradigm in response to StreamVGGT)
+
+- **XStreamVGGT** — *2026-01* · [arXiv:2601.01204](https://arxiv.org/abs/2601.01204) — KV cache pruning + quantization, **4.42× memory ↓ + 5.48× speedup**
+- **FrameVGGT** — *2026-03* · [arXiv:2603.07690](https://arxiv.org/pdf/2603.07690) — Frame Evidence Rolling Memory
+- **OVGGT** — *2026-03* · [arXiv:2603.05959](https://arxiv.org/pdf/2603.05959) — **O(1) constant-cost streaming**，Self-Selective Caching + Dynamic Anchor Protection
+- **STAC** — [project](https://stac-3r.github.io/) — Spatio-Temporal Aware Cache Compression
+
+### Lineage
+
 - **Register tokens for ViT** — Darcet et al. *ICLR 2024* · [arXiv:2309.16588](https://arxiv.org/abs/2309.16588)
 - **INCVGGT (parallel incremental line)** — *ICLR 2026* · [OpenReview](https://openreview.net/pdf/1995d220697c6b5a0dc0dde14751e3ee4c351422.pdf)
 - **CroCo** — Weinzaepfel et al. *NeurIPS 2022* · [arXiv:2210.10716](https://arxiv.org/abs/2210.10716)
