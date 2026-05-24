@@ -1,13 +1,24 @@
-# Spatial Intelligence Handbook (空间智能手册)
+# Spatial Intelligence Handbook
 
-> **从厘米到公里，从地下到空中——一本跨 embodiment 的空间智能 handbook。**
+> **The first cross-embodiment spatial AI handbook** — comparing SLAM, VIO, 3D representations, sensor stacks, and deployment gotchas across manipulation, drones, autonomous vehicles, humanoids, and underwater robots. With a unified 3DGS / VGGT / depth-foundation textbook layer underneath.
 >
-> 桌面机械臂、自动驾驶、无人机、水下机器人都需要把物理空间变成可推理、可生成的表示。但 manipulation 圈写的 SLAM 综述里没有 outdoor，自动驾驶圈写的 BEV 综述里没有 manipulation，drone 圈和水下圈基本不读对方的论文。**这本 handbook 做一件事：把这些圈各自闭门发明的同一类问题摊在桌上横向对比，再加一份 3DGS / VGGT / depth foundation 的统一底层教科书。**
+> **从厘米到公里，从地下到空中** — 桌面机械臂、自动驾驶、无人机、水下机器人都把物理空间变成可推理的表示，但 manipulation 圈的 SLAM 综述里没 outdoor，AD 圈的 BEV 综述里没 manipulation，drone 圈和水下圈基本不读对方的论文。**本 handbook 做一件事：把这些圈各自闭门发明的同一类问题摊在桌上横向对比。**
 
-姊妹仓库：[VLA-Handbook](https://github.com/sou350121/VLA-Handbook) · VLA 管 *action policy*，Spatial 管 *world representation*，两者交集是 **3D-aware VLA** — 见 [`bridge-to-vla/`](./bridge-to-vla/)。
+[![Docs Live](https://img.shields.io/badge/docs-kensou.mintlify.app-0EA5E9?style=for-the-badge&logo=readme&logoColor=white)](https://kensou.mintlify.app)
+[![Audit CI](https://github.com/sou350121/Spatial-Intelligence-Handbook/actions/workflows/audit.yml/badge.svg)](https://github.com/sou350121/Spatial-Intelligence-Handbook/actions)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC--BY--4.0-green)](./LICENSE)
+[![Pages](https://img.shields.io/badge/pages-189-orange)](./cheat-sheet/functional_map.md)
+[![Dissections](https://img.shields.io/badge/dissections-36-purple)](./cheat-sheet/cross_zone_failure_atlas.md)
+[![Ontology](https://img.shields.io/badge/5--axis_ontology-v2-red)](./cheat-sheet/ontology.md)
+[![Audit Checks](https://img.shields.io/badge/audit_checks-8/8_pass-success)](./scripts/handbook_audit.py)
 
-> ## 🚪 第一次來？看 [`ONBOARDING.md`](./ONBOARDING.md) — **5 分鐘** 找到你該讀的入口
-> 6 個場景分流（production / 範式 / paper idea / 學生 / 轉崗 / ML 研究員）+ 30 分鐘核心序列。
+| | |
+|---|---|
+| 📖 **讀線上版** | [kensou.mintlify.app](https://kensou.mintlify.app) — full-text search + sidebar nav + 11 tabs |
+| 🚪 **5 分鐘 onboarding** | [`ONBOARDING.md`](./ONBOARDING.md) — 6 場景分流（production / 範式 / paper idea / 學生 / 轉崗 / ML 研究員）|
+| 🧭 **學術 taxonomy** | [`cheat-sheet/ontology.md`](./cheat-sheet/ontology.md) — 5 軸分類 + 120+ glossary + 51 canonical refs（4-expert reviewed v2）|
+| 🤖 **AI access via MCP** | `https://kensou.mintlify.app/mcp` — Claude / agent 直接查 handbook（[setup](./docs/mcp-integration.md)）|
+| 🌉 **姊妹仓** | [VLA-Handbook](https://github.com/sou350121/VLA-Handbook) · VLA 管 action policy，Spatial 管 world representation；交集 → [`bridge-to-vla/`](./bridge-to-vla/) |
 
 &nbsp;
 
@@ -107,7 +118,7 @@ graph TD
 | [`sensor-physics/` 850nm NIR](./foundations/sensor-physics/) | ★ 独家轴 — 学界写不出的 SWaP-C 物理 |
 | [`spatial-math/` SE(3) primer](./foundations/spatial-math/) | 所有 SLAM/VIO 的数学骨架 |
 
-📂 **完整 13 zones 导览**：[`foundations/README.md`](./foundations/overview.md) — explorer-map 风格，含 mermaid + persona + speed runs
+📂 **完整 13 zones 导览**：[`foundations/overview.md`](./foundations/overview.md) — explorer-map 风格，含 mermaid + persona + speed runs
 
 </details>
 
@@ -448,59 +459,14 @@ bridge-to-vla/feature-cloud-to-action.md
 
 &nbsp;
 
-## 风险与对冲
-
-| 风险 | 对冲 |
-|---|---|
-| **范围爆炸**——多 embodiment 看起来是百科全书 | 阀门是 `crossing/` 的 5 个维度封闭，新 embodiment 只补 `embodiments/` 子树，不让书变厚到失控 |
-| **品牌稀释**——VLA-Handbook 流量被分流 | 第一版作为 VLA-Handbook 姊妹仓发布，README 互链，内容超过 50 篇深度文档再独立宣传 |
-| **图形学 lane 的诱惑**——容易变成生成式 3D 综述 | 严格"是否对具身决策有用"门槛：Genie Sim 收（给 VLA 当数据），Marble 大部分功能不收（用户是人不是机器人）|
-| **sensor-physics 不可持续**——你能写 NIR 但不能覆盖全谱 | 第一版只把 active-NIR 写到深度第一，作为 wedge；其他模态慢慢补，不强求一开始就齐全 |
-| **某 embodiment 沉寂**——水下论文一年没几篇 | Pulsar pipeline 让其他 embodiment 接力自校准；`crossing/` 章节本身不依赖任一 embodiment 的论文流量 |
-
-&nbsp;
-
----
-
-&nbsp;
-
-## 自动更新
-
-复用 VLA-Handbook 的 [Pulsar pipeline](https://github.com/sou350121/Pulsar-KenVersion)（每日论文评级 ⚡/🔧/📖/❌、每周深度解析、每周日周报、每两周双周推理报告）。本仓的 hypothesis registry 为每个 embodiment 单独建一组假设 + 一组 cross-embodiment 假设。
-
-**种子假设举例**：
-
-- "feed-forward 3D（VGGT 系）会在 2 年内取代 per-scene optimization（3DGS）成为机器人空间感知主流"
-- "纯 RGB + foundation depth 在 manipulation 范围内会持续压制 active sensing，但在 outdoor drone 上不会"
-- "3DGS-as-simulator 比 traditional sim 更早 product-ready 在 drone 上、更晚在 manipulation 上"
-
-完整集成细节见 [`docs/pulsar-integration.md`](./docs/) · 写入权限矩阵见 [`AGENTS.md`](./AGENTS.md)。
-
-&nbsp;
-
----
-
-&nbsp;
-
-## 维护者注
-
-**v0 提案版** → 正在 ramp 到 v0.1。这本 handbook 真正的 moat 不在论文数量，在三处：
-
-- `crossing/` 5 个章节的对比深度
-- `foundations/sensor-physics/` 这条 industry 没人写的独家轴
-- `embodiments/aerial/` drone 视角的工程细节（VIO 振动鲁棒性、SWaP-C 预算、on-board 3DGS）
-
-守住这三处，handbook 就立得住。
-
-&nbsp;
-
----
-
-&nbsp;
-
 ## 许可证与贡献
 
 CC BY 4.0 · 欢迎 Issue 和 PR：补论文解读 · 真机经验 · sensor 选型实测 · 跨 embodiment 对比案例
+
+- 看 [`AGENTS.md`](./AGENTS.md) — 14 项 dissection 模板 + 5 type 文檔分層 + 自動 audit 規則
+- 看 [`CONTRIBUTING.md`](./CONTRIBUTING.md) — PR 流程
+- 維護者 / 路線圖 / 風險對冲 / Pulsar 整合：[`MAINTAINER.md`](./MAINTAINER.md)
+- AI 整合：[`docs/mcp-integration.md`](./docs/mcp-integration.md) · Mintlify 部署：[`docs/mintlify-deployment.md`](./docs/mintlify-deployment.md)
 
 &nbsp;
 
