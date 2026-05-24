@@ -52,25 +52,68 @@ For true dry-run (skip even markdown write), add `SPATIAL_DRY_RUN=1`.
 
 ---
 
-## Cron (server deployment)
+## Deployment — 2 options
 
-Once env vars set on server, add to crontab:
+### Option A — GitHub Actions（推薦，無 server）
 
-```cron
-# Spatial daily — 08:30 weekdays (after arxiv RSS refresh ~08:00 UTC)
-30 8 * * 1-5 cd /path/to/Spatial-Intelligence-Handbook && python3 scripts/pulsar/run_daily.py >> /tmp/spatial-daily.log 2>&1
+文件：[`.github/workflows/pulsar-spatial-daily.yml`](../../.github/workflows/pulsar-spatial-daily.yml)
+
+**Schedule**: weekday 00:30 UTC (≈ 08:30 CN time，arxiv RSS 已 refresh)
+
+**Setup**：
+1. GitHub repo → Settings → Secrets and variables → Actions → New repository secret
+2. Add `DASHSCOPE_API_KEY` = `sk-xxx`
+3. 完成。第一次手動觸發測試：Actions tab → "Pulsar Spatial Daily" → Run workflow
+
+**Workflow 做什麼**：
+- Checkout main
+- Setup Python 3.11
+- Run `scripts/pulsar/run_daily.py`（用 secret API key）
+- Sync README + audit
+- `git add reports/spatial-daily/` + commit + push (skip if no diff)
+- 用 `GITHUB_TOKEN` 自動 push 到 main，無需 PAT
+
+**優勢**：免費、可見 log、易停易啟、不佔本地資源、不會跟其他 agent 撞 git state。
+
+### Option B — Self-hosted cron
+
+文件：[`scripts/pulsar/cron_runner.sh`](./cron_runner.sh)
+
+**Setup**：
+```bash
+# 在 server 上 (assume Spatial-Intelligence-Handbook checked out at /opt/handbook)
+export DASHSCOPE_API_KEY=sk-xxx  # 加到 ~/.profile or wrapper script
+
+# 加 crontab
+crontab -e
+# 加一行:
+30 8 * * 1-5 /opt/handbook/scripts/pulsar/cron_runner.sh
 ```
 
-Or if you're on Pulsar's existing server (avoid time collision with VLA / AI cron):
+**cron_runner.sh 做什麼**：
+- `flock` 防併發
+- 跑 pipeline
+- Sync README + audit (audit FAIL 不 push)
+- `git add reports/spatial-daily/` only（不動其他 WIP）
+- `pull --rebase` 後 commit + push
+- Log to `/tmp/pulsar-spatial-YYYY-MM-DD.log`，30 天自動 rotate
+
+**環境變數**：
+- `DASHSCOPE_API_KEY` (required)
+- `PULSAR_NO_PUSH=1` (test mode — commit local only, no push)
+- `PULSAR_NO_COMMIT=1` (test — pipeline only, no git ops)
+- `PULSAR_LOG_DIR=/var/log/pulsar` (override default `/tmp`)
+
+**避撞** (跟 VLA / AI cron 共 server)：
 
 | 既有 cron | 時間 | Spatial 建議 |
 |---|---|---|
 | upstream-monitor | 00:50 | — |
 | ai-app-rss | 06:45 | — |
 | vla-rss | 09:05 | — |
-| Spatial daily | — | **08:30** (between AI 08:00 picks and VLA 09:05) |
+| **Spatial daily** | — | **08:30** |
 
-Server clock UTC+8 假設；arxiv RSS 凌晨 UTC 更新，CN time 約 08:00 後可用。
+Server 假設 UTC+8。arxiv RSS 凌晨 UTC 更新，CN 08:00 後可用。
 
 ---
 
