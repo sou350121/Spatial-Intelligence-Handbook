@@ -1,0 +1,74 @@
+# 🧭 Classical Visual SLAM — Region Landing (经典视觉 SLAM 导读)
+
+> **Status:** v1 —— 新区，立场鲜明的草稿。`UNVERIFIED` 数字已 inline 标注。
+> **Depth tier:** 📖 foundations 基线（1× 深度；不是维护者锚点 —— 锚点已在 aerial VIO）
+> **TL;DR:** 这一区汇集**跨 embodiment 的经典视觉 SLAM 范本** —— ORB-SLAM3（feature-based）、DSO / LSD-SLAM（direct）、以及让它们诚实运行的工具链（Kalibr / maplab / ROS）。它是 foundations 栈里 *feed-forward 3D 的对偶面*：VGGT 类模型是这个领域正在成为的样子，ORB-SLAM3 是 2026 年它实际跑在上面的样子。
+
+---
+
+## 为什么这一区独立存在 (Why this region exists)
+
+`foundations/` 一直缺一块：**feed-forward 3D（VGGT 系）**的对偶面 —— 跨 embodiment 通用、被工业界反复 fork 的**经典视觉 SLAM 框架**。
+
+之前的分工是：
+
+- `foundations/feed-forward-3d/` —— VGGT / DUSt3R 这类**前向 3D foundation 模型**（2024+）
+- `embodiments/aerial/vio/` —— VINS / OpenVINS / DROID 这类**aerial real-time VIO**（rate × latency × IMU 严苛）
+- `crossing/slam-vio-migration/` —— 跨 embodiment 对比
+
+但有一整批论文坐落在中间：**ORB-SLAM (1/2/3)** 是 manipulation / ground / AR / 室内 robotics 的事实默认；**DSO / LSD-SLAM** 是直接法的里程碑；**Kalibr / maplab** 是不论你跑哪个 stack 都得用的工具链。这些既不"feed-forward"也不"aerial-only"，应该住在 foundations 里，作为跨 embodiment 共享的**经典基线**。
+
+简言之 —— 你跑 VGGT 之前得先理解 ORB-SLAM3 为什么 5 年没被取代，否则讨论 "范式转移" 都没有 baseline。
+
+---
+
+## 推荐入口 (Recommended entries)
+
+| File | 一句话 |
+|---|---|
+| [`orb_slam3_dissection.md`](./orb_slam3_dissection.md) ★ | Campos et al. *T-RO 2021* —— 三线程 + Atlas multi-map，**Why ORB-features still ship in 2026** |
+| [`direct_methods_dso_lsd.md`](./direct_methods_dso_lsd.md) | Engel 2014 / 2017 —— pixel intensity 直接法 vs feature matching 的根本分歧，何时赢何时输 |
+| [`slam_toolchain_ecosystem.md`](./slam_toolchain_ecosystem.md) | Kalibr / maplab / ROS2 —— 没人写论文但每个 deployment 都得用的工具链账本 |
+| [`pnp_dlt_primer.md`](./pnp_dlt_primer.md) **★ NEW** | PnP DLT 推导 + RANSAC failure 分析 —— SLAM/VIO 腰部问题完整 primer（取材 HKUST ELEC5660 L6 + Project 2, BSD 3-Clause）|
+| [`crossing/.../orb_slam3_vs_vins_fusion_code_comparison.md`](../../crossing/slam-vio-migration/orb_slam3_vs_vins_fusion_code_comparison.md) **★ NEW** | 代碼層對比：ORB-SLAM3 (map-centric library) vs VINS-Fusion (estimator-centric ROS stack) — 改前端/加 factor/multi-session 落點全表（在 crossing/ zone）|
+
+---
+
+## 角色定位 (Pick by role)
+
+| 角色 | 起点 |
+|---|---|
+| 🤖 Manipulation / 室内 robotics 工程师 | → ORB-SLAM3 dissection（你 90% 的项目从这开始 fork） |
+| 🎓 SLAM 研究者 / 想理解直接法 vs 特征法 | → Direct methods (DSO / LSD) |
+| 🛠️ Robotics PoC 部署 / 标定工程师 | → Toolchain ecosystem（Kalibr / maplab / ROS2 实战） |
+| 🛰️ 跨 embodiment 系统架构师 | → 先回 `crossing/slam-vio-migration/vggt_vs_drone_vio.md`，再来这里看经典基线 |
+
+---
+
+## 与相邻区的边界 (Boundary)
+
+这一区 **不重写** 已经在别处的内容：
+
+| 主题 | 住在哪 | 不要在这一区写 |
+|---|---|---|
+| VINS-Fusion / OpenVINS / DROID-SLAM | `embodiments/aerial/vio/` | aerial 严格 200 Hz / sub-10 ms latency 的实战拆解 |
+| VGGT / DUSt3R / MASt3R / π³ | `foundations/feed-forward-3d/` | feed-forward N-view 推理范式 |
+| "VGGT 能否取代 VIO" 跨 embodiment 比较 | `crossing/slam-vio-migration/vggt_vs_drone_vio.md` | rate × latency × metric 的跨 embodiment 矩阵 |
+| GS-SLAM (3DGS-based SLAM backend) | `foundations/3dgs-family/gs_slam_dissection.md` | radiance field 后端 |
+| IMU 噪声物理 / rolling shutter | `foundations/sensor-physics/` | 传感器底层信号 |
+| 时间同步 / 多机标定部署 | `deployment/` | 工程实战 |
+
+**这一区只管**：**纯视觉关键帧 SLAM**（ORB 系）+ **直接法**（DSO / LSD）+ **跨 embodiment 通用工具链**（Kalibr / maplab / ROS）。换句话说：**Pre-foundation-model 时代的视觉 SLAM 共享底层**。
+
+---
+
+## Cross-references
+
+- [`foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../feed-forward-3d/vggt_cvpr2025_dissection.md) —— 这一区的"未来对偶面"
+- [`embodiments/aerial/vio/README.md`](../../embodiments/aerial/vio/overview.md) —— aerial 严苛实时实战
+- [`crossing/slam-vio-migration/vggt_vs_drone_vio.md`](../../crossing/slam-vio-migration/vggt_vs_drone_vio.md) —— 跨 embodiment 跨范式旗舰
+- [`foundations/sensor-physics/`](../sensor-physics/) —— IMU / camera 信号源头
+
+---
+
+[← Back to Foundations](../overview.md) · [→ Crossing](../../crossing/overview.md)

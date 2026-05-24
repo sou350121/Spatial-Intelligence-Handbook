@@ -35,8 +35,12 @@ TABS = [
 # Files at repo root that go under "Get Started" — order matters.
 TOP_LEVEL_ORDER = ["ONBOARDING", "README", "CONTRIBUTING", "AGENTS"]
 
-# Files excluded entirely (status / audit dumps, not for the docs site).
-EXCLUDE_PATTERNS = {"LOGIC_AUDIT_2026-05-22"}
+# Files excluded entirely.
+# - LOGIC_AUDIT_*: status / audit dumps
+# - README: Mintlify silently drops ALL README.md files at build time;
+#           sub-folders use overview.md as canonical landing page,
+#           README.md is a mirror for GitHub folder-browsing UX.
+EXCLUDE_PATTERNS = {"LOGIC_AUDIT_2026-05-22", "README"}
 
 
 def page_id(path: Path) -> str:

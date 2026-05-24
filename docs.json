@@ -19,7 +19,6 @@
             "group": "Start here",
             "pages": [
               "ONBOARDING.md",
-              "README.md",
               "CONTRIBUTING.md",
               "AGENTS.md",
               "MAINTAINER.md"

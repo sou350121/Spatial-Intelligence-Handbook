@@ -446,7 +446,8 @@ def check_8_mintlify_nav_coverage(repo_root: Path) -> CheckResult:
     # All md files in repo (excl. some)
     # NOTE: page ids in docs.json keep the .md extension (see gen_mintlify_nav.py
     # page_id docstring for why), so we compare with extension here too.
-    excluded_stems = {"LOGIC_AUDIT_2026-05-22"}
+    # README.md excluded: Mintlify silently drops them; overview.md is canonical.
+    excluded_stems = {"LOGIC_AUDIT_2026-05-22", "README"}
     repo_md: set[str] = set()
     for md in repo_root.rglob("*.md"):
         if ".git" in md.parts:
@@ -548,6 +549,55 @@ def check_9_ontology_5axis_header(repo_root: Path) -> CheckResult:
     )
 
 
+def check_10_readme_overview_sync(repo_root: Path) -> CheckResult:
+    """每個 sub-folder 的 README.md 必須與 overview.md 內容一致。
+
+    Why: Mintlify 對 README.md silent drop（GitHub 約定衝突），所以我們用
+    overview.md 作 canonical landing；但 GitHub 文件夾頁面自動 render README.md，
+    所以兩者都需要存在 + 內容鏡像。
+
+    sync 工具：scripts/sync_readme_from_overview.py
+    """
+    mismatches = []
+    missing = []
+    overview_count = 0
+    for ov in repo_root.rglob("overview.md"):
+        if ".git" in ov.parts:
+            continue
+        overview_count += 1
+        readme = ov.parent / "README.md"
+        if not readme.exists():
+            missing.append(str(ov.parent.relative_to(repo_root)))
+            continue
+        if ov.read_text(encoding="utf-8") != readme.read_text(encoding="utf-8"):
+            mismatches.append(str(ov.parent.relative_to(repo_root)))
+
+    details = []
+    if missing:
+        details.append(f"  {len(missing)} folder(s) 缺 README.md:")
+        for f in missing[:10]:
+            details.append(f"    - {f}/")
+    if mismatches:
+        details.append(f"  {len(mismatches)} folder(s) README.md ≠ overview.md:")
+        for f in mismatches[:10]:
+            details.append(f"    - {f}/")
+    if missing or mismatches:
+        details.append("  修復：run `python3 scripts/sync_readme_from_overview.py`")
+        return CheckResult(
+            name="README/overview Sync",
+            status="FAIL",
+            summary=f"{len(missing)} 缺 + {len(mismatches)} 不同步 / {overview_count} 總",
+            details=details,
+        )
+
+    return CheckResult(
+        name="README/overview Sync",
+        status="PASS",
+        summary=f"all {overview_count} sub-folders README.md == overview.md",
+        details=[],
+    )
+
+
 CHECKS = [
     check_1_atlas_recall,
     check_2_fourteen_item_gate,
@@ -558,6 +608,7 @@ CHECKS = [
     check_7_stale_todo,
     check_8_mintlify_nav_coverage,
     check_9_ontology_5axis_header,
+    check_10_readme_overview_sync,
 ]
 
 
