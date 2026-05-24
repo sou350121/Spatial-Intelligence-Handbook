@@ -48,6 +48,14 @@ VGGT 将 multi-view stereo、dense 重建与 pose 估计合并到一个 transfor
 
 VGGT (Wang et al., CVPR 2025, Meta + Oxford, [arXiv:2503.11651](https://arxiv.org/abs/2503.11651)) 在单一架构内合并了这些。**DUSt3R 只能做 pair，VGGT 做 N —— 不是定量提升，是范式跨越。** Pair + 全局对齐是两阶段系统；N-view 单次前向是单一学得函数。下游后果——与策略网络可组合、梯度可流、可批推理——只有在后一范式下才存在。
 
+> ⚠️ **Contested claim (ontology §13.1)** — "Paradigm shift" is the dissection's framing, **not academic consensus**:
+> - **Wu et al. (2025) Geo-Spatial Information Science (peer-reviewed)**: "transformer-based methods cannot fully replace traditional SfM and MVS, but offer promise as complementary approaches" (arXiv 2507.14798)
+> - **arXiv 2512.21691 (2026)**: VGGT global self-attention **collapses to rank-1** as input length grows — 新失敗模式 with no classical SfM analogue
+> - **FastVGGT (arXiv 2509.02560)**: quadratic memory exhausts GPU within hundreds of frames
+> - **Wu 2025 also documents**: VGGT capped at 518 px input, holes around buildings, fails top-down on tall structures
+>
+> **Handbook's actual position** (ontology §13.1, §5.4): VGGT is an important **paradigm signal**, not "shift". Actual 2025-2026 deployment walks **3R-SLAM Hybrid** (SLAM3R / Flash-Mono / EC3R-SLAM) — learned 3D backbone + classical SLAM back-end. Pure VGGT is research-only (🔬 TRL); 0 shipped robots use it.
+
 ---
 
 ## 2 · Architecture walk — four heads, one trunk

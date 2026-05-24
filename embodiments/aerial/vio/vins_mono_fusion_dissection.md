@@ -1,5 +1,5 @@
 <!-- ontology-5axis
-problem: VI-SLAM (含 loop closure) + GPS fusion
+problem: VIO (VINS-Mono, optional loop closure) → VI-SLAM (VINS-Fusion, with loop closure) + GPS fusion
 representation: Sparse landmarks + IMU bias + Marginalization prior
 sensor: Mono + IMU + GNSS optional
 paradigm: Geometric-FactorGraph + Ceres

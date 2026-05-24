@@ -97,6 +97,7 @@ Depth Anything v1 与 v2 的架构矩阵几乎相同. **变的是训练语料库
 - **孤立小物体** — 线、细栏杆、悬挂线缆. 背景深度渗透. 对 drone 避障关键，对桌面少.
 - **当 unlabeled 语料库未见过域时的跨域伪影** — 内窥镜、海洋、水下. 62M unlabeled 语料库多数是互联网白昼图像 `UNVERIFIED breakdown`.
 - **遮挡边界附近的细几何** — 比 v1 好但仍软. 需要清晰物体剪影时用 stereo 模型.
+- **Rotated input images** — brittle on non-standard image orientations. Per ontology §13.4: DAv2 has documented failures when input rotated >30° from canonical upright (training data prior). Pre-rotate or augment for non-default camera orientations.
 
 ### 4.x · Hidden Assumptions
 

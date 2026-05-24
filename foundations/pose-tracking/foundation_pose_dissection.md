@@ -19,6 +19,8 @@ ref: ../../cheat-sheet/ontology.md §7
 
 **X-Ray.** 2024 前的 pose 模型（PoseCNN、DenseFusion、GDR-Net）要求 *per-object 训练*. FoundationPose 打破这堵墙：一次在巨量合成数据上训，泛化到任意未见物体 — 用 mesh 或 ~16 参考图. 2024 年 Object pose 加入 foundation-model 俱乐部，与深度（Depth Anything）和 3D（VGGT 前驱）同列.
 
+> ⚠️ **"Foundation" 是 disputed (ontology §13.5)** — FoundationPose 需 first-frame mask 手動標記 / >200ms latency 不 real-time / 單任務 (僅 6-DoF pose) / 依賴外部 2D detector (single point of failure)。本文用「foundation」是社群命名 follow-along，**不是嚴格 foundation model 定義**。Production status: 🚀 pilot only。
+
 ---
 
 ## 📍 研究全景时间线
@@ -152,7 +154,7 @@ Multi-object 不批处理则线性 scale. 蒸馏后 Orin 上单物体 30 Hz trac
 | DenseFusion | ❌ | yes | no | ~16 Hz | 2019 |
 | GDR-Net | ❌ | yes | partial | ~25 Hz | 2021 |
 | MegaPose | ✅ | **yes** | ✅ | ~3 Hz | 2022 |
-| **FoundationPose** | ✅ | **optional** | ✅ | ~5–10 Hz (Orin, distilled `UNVERIFIED`) | 2024 |
+| **FoundationPose** | ✅ | **optional** | ✅ | ❌ (80-150ms desktop / 300-550ms Orin; distilled ~5-10 Hz `UNVERIFIED` 但 ≪ 30 FPS per ontology §10.2) | 2024 |
 
 > **🎤 Interview Tip.** "为从未见过的物体做 pose estimator？" — *"FoundationPose 在 mesh-free 模式下 — 用 ~16 张参考图 onboard，然后跑 pose tracker. 有 CAD mesh 用它来多拿几个精度分."* "我会在 YCB 风格数据上训 PoseCNN" 已三年过时.
 

@@ -114,6 +114,7 @@ NeRF 给了你可微分场景表示，但要付出数小时训练 + 每帧数秒
 - **No semantic handle** — vanilla 3DGS 编码外观，不编码类别。"杯子在哪" 需要一个外挂头（LangSplat, Feature-3DGS）。
 - **Aliasing at scale** — 同一组 gaussian 从无人机高度和头戴相机看会产生明显锯齿。Mip-Splatting 修复（见 `mip_splatting.md`）。
 - **Static scenes only** — 没有时间轴。4D-GS 谱系修复（见 `4dgs_dynamic_scenes.md`）。
+- **Specular / reflective surfaces** — ref-NeRF (Verbin CVPR 2022) and NeRF-Casting (Verbin 2024 arXiv 2405.14871) demonstrably outperform 3DGS on reflective scenes. 3DGS per-Gaussian SH order is too low for high-frequency view-dependent appearance. 多篇 2026 paper (PolarGuide-GSDR, MSGS, TraceFlow) 存在 *因為* 3DGS 反射失敗。詳見 ontology §13.2。
 
 ### 4.x · Hidden Assumptions
 
@@ -163,7 +164,7 @@ vanilla 3DGS 现在是 baseline，不是终点。到 2027 年预期：
 
 - **3DGS original** — Kerbl, Kopanas, Leimkühler, Drettakis. *SIGGRAPH 2023.* https://arxiv.org/abs/2308.04079
 - **Mip-NeRF360 benchmark** — Barron et al. *CVPR 2022.* https://arxiv.org/abs/2111.12077
-- **NeRF original**（被 3DGS 替代的）— Mildenhall et al. *ECCV 2020.* https://arxiv.org/abs/2003.08934
+- **NeRF original**（主流 NVS 已被 3DGS 取代，但反光/鏡面場景例外 — 見 ontology §13.2）— Mildenhall et al. *ECCV 2020.* https://arxiv.org/abs/2003.08934
 - **Self-Organizing Gaussians (compression)** — Morgenstern et al. *ECCV 2024.* [arXiv link TBD]
 
 ## Boundary

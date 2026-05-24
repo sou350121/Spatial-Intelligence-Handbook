@@ -9,6 +9,8 @@ ref: ../../cheat-sheet/ontology.md §7
 
 # MegaPose: Novel-Object Pose via Render-and-Compare (新物体位姿，渲染对比法)
 
+> ⚠️ **HISTORICAL — superseded by FoundationPose (Wen NVIDIA CVPR 2024)** per ontology §14. 本 dissection 保留為 pedagogical render-and-compare 譜系示範；實際使用看 [`foundation_pose_dissection.md`](./foundation_pose_dissection.md)。
+
 > **发布时间**: 2022-12 (CoRL 2022 — Labbé, Manuelli et al., Inria + NVIDIA)
 > **论文 / 模型**: MegaPose (arXiv 2212.06870)
 > **核心定位**: 第一个有说服力的 render-and-compare pose 模型，泛化到 **带 CAD mesh 的新物体** — 无 per-object fine-tune.

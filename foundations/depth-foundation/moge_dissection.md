@@ -9,14 +9,14 @@ ref: ../../cheat-sheet/ontology.md §7
 
 # MoGe — Monocular Geometry Estimation (MoGe 单目几何估计解构 — Microsoft 2024)
 
-> **Published**: 2024 (arXiv ID TBD UNVERIFIED)
-> **Paper**: Microsoft Research — *MoGe: Monocular Geometry Estimation* `arXiv link TBD UNVERIFIED`
+> **Published**: 2024 (arXiv 2410.19115)
+> **Paper**: Microsoft Research — *MoGe: Monocular Geometry Estimation* https://arxiv.org/abs/2410.19115
 > **Team**: Microsoft Research
-> **Core position**: Relative-track 多任务 monocular 几何模型 — 在统一 affine-invariant 3D loss 下预测 point map + depth + normal. 作为 3D-aware 视觉编码器比 Depth Anything 更丰富；仍无米.
+> **Core position**: Relative-track 单任务 affine-invariant monocular 几何模型 (per ontology §9.5; 3 heads 服務同一 affine-invariant 損失，不是 foundation-model multi-task 意義) — 在统一 affine-invariant 3D loss 下预测 point map + depth + normal. 作为 3D-aware 视觉编码器比 Depth Anything 更丰富；仍无米.
 
-**Status:** v1.1 — 已按 AGENTS.md 14 项门槛模板回填于 2026-05-21. Hyperparams 标 UNVERIFIED. arXiv ID UNVERIFIED.
+**Status:** v1.1 — 已按 AGENTS.md 14 项门槛模板回填于 2026-05-21. Hyperparams 标 UNVERIFIED.
 **Wedge tier:** W2 · relative-depth foundation (geometry-rich)
-**TL;DR:** MoGe (Microsoft Research 2024, `[arXiv link TBD]` UNVERIFIED) 是 relative-track 的答案，说"既然要 affine-invariant，就预测*整个几何* — point map、depth、normal — 用同一 affine-invariant loss". 这是 Depth Anything 线的有用分叉，因为 multi-task head 让模型作为 3D-scene-understanding 骨干更有用，即使输出仍 up to scale. **对 VLA 预训练和场景重建有意思. 对带米的机器人，工具错 — 去 Metric3D.**
+**TL;DR:** MoGe (Microsoft Research 2024, https://arxiv.org/abs/2410.19115) 是 relative-track 的答案，说"既然要 affine-invariant，就预测*整个几何* — point map、depth、normal — 用同一 affine-invariant loss". 这是 Depth Anything 线的有用分叉，因为 **single-task affine-invariant geometry (含 point map, depth, normal 三 head 共用 affine-invariant 損失)** 让模型作为 3D-scene-understanding 骨干更有用，即使输出仍 up to scale. **对 VLA 预训练和场景重建有意思. 对带米的机器人，工具错 — 去 Metric3D.**
 
 ### X-Ray (non-expert friendly)
 
@@ -75,7 +75,7 @@ RGB ──► ViT encoder ──► shared 3D feature
 |---|---|---|---|---|
 | Output | relative depth | point + depth + normal (relative) | metric depth | metric depth (stereo) |
 | Needs intrinsics? | no | no | yes | calibrated rig |
-| Multi-task | no | yes | depth + normal (v2) | no |
+| Multi-head (single-task affine-invariant, per ontology §9.5) | no | yes (3 heads 共用 affine-invariant 損失) | depth + normal (v2) | no |
 | Cost (single-view, ViT-L) | low | medium | medium | n/a (stereo) |
 | Best for | viz / pretrain | 3D-aware encoder | robot metric | robot metric (stereo) |
 
@@ -127,7 +127,7 @@ microsoft/MoGe 76 open issues 揭示三 head "affine-invariant up to its own sca
 
 ## 5 · 何处用
 
-- **VLA 预训练** — 把 point/depth/normal 输出作为 policy 编码器的辅助监督. multi-task 信号比单深度头丰富.
+- **VLA 预训练** — 把 point/depth/normal 输出作为 policy 编码器的辅助监督. single-task affine-invariant 三头信号（per ontology §9.5）比单深度头丰富.
 - **离线场景重建** — 当你能对已知参考拟合 per-scene scale.
 - **对比 ablation** — 若你写论文论证 "geometry-rich 预训练 > depth-only 预训练"，MoGe 是强 baseline.
 
@@ -321,4 +321,4 @@ MoGe-1 (2024-10) 早于 VGGT (CVPR 2025) 几个月，且共享几个核心范式
 
 ## Boundary
 
-本文把 MoGe 作为 relative-track 多任务 monocular 几何模型解构. Metric monocular 见 [`metric3d_dissection.md`](./metric3d_dissection.md). 多视角 feed-forward 3D 见 [`foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../feed-forward-3d/vggt_cvpr2025_dissection.md). 跨 embodiment scale 争论在 [`crossing/scale-comparison/`](../../crossing/scale-comparison/). 到 action policy 的桥在 [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md).
+本文把 MoGe 作为 relative-track 单任务 affine-invariant monocular 几何模型 (per ontology §9.5) 解构. Metric monocular 见 [`metric3d_dissection.md`](./metric3d_dissection.md). 多视角 feed-forward 3D 见 [`foundations/feed-forward-3d/vggt_cvpr2025_dissection.md`](../feed-forward-3d/vggt_cvpr2025_dissection.md). 跨 embodiment scale 争论在 [`crossing/scale-comparison/`](../../crossing/scale-comparison/). 到 action policy 的桥在 [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md).
