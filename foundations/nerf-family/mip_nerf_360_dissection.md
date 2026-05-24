@@ -169,6 +169,23 @@ MLP 只见过 `‖·‖ ≤ 2`. **天空是半径 2 处的薄壳** — 与建筑
 - **GitHub-validated**：archive 前留存的失败模式直接对应隐藏假设破裂 — 新 COLMAP 输出 `transforms.json` 不匹配 (#162)、JAX 版本兼容断 (`jax.core` has no attribute 'Shape' #156)、JAX 路径处理 quirk 强制 absolute path (#160)，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
 - **GitHub-validated**：离线重建仍是质量 SOTA 之一，但**部署要预算 JAX 老版本 + 数据集 / COLMAP 对接的工程债**；archive 意味着这些坑只能 fork 自修。新项目优先 Zip-NeRF (Barron 团队后续) + nerfstudio。
 
+### §8.1 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+**`google-research/multinerf` (Mip-NeRF 360 / Ref-NeRF / RawNeRF 官方 JAX 参考)** — **已 archive 2025-02-11，只读**
+
+| # | Pitfall | Evidence | Severity | Workaround |
+|---|---|---|---|---|
+| 1 | **JAX API 漂移彻底打破代码** — `jax.core` 在新版无 `Shape` 属性 | [#156](https://github.com/google-research/multinerf/issues/156): "module 'jax.core' has no attribute 'Shape'"；OP 用 JAX 0.2.12（早期版）也踩；archive 后无 fix | 🔴 | 在 conda env 钉死 JAX 0.4.13 + jaxlib 匹配 CUDA 11.8；任何 0.5+ 都需 fork patch |
+| 2 | **新版 CUDA / Ada 架构 GPU 初始化失败** — JAX 与 RTX 4000 Ada / CUDA 12.4 兼容差 | [#157](https://github.com/google-research/multinerf/issues/157): "failed call to cuInit: CUDA_ERROR_UNKNOWN: unknown error"；nvidia-smi 显示 GPU "ERR!"，NVIDIA 550.54.14 open kernel module + CUDA 12.4 | 🔴 | 换 proprietary NVIDIA driver（非 open kernel）；钉 CUDA 11.8 + 较老 JAX wheel；RTX 40/50 系不在 sweet spot |
+| 3 | **COLMAP 输出 binary 而非 text，缺 `transforms.json`** — pipeline 假设过时 | [#162](https://github.com/google-research/multinerf/issues/162): "my COLMAP outputs are in 'bin' format instead of 'txt' format" — 缺 transforms.json | 🟠 | 借 instant-ngp 的 `colmap2nerf.py` 转换：`python colmap2nerf.py --colmap_matcher exhaustive --text path/to/colmap_text --images path/to/images --aabb_scale 16 --overwrite`；社区评论称之为 "a sort of strange workaround" |
+| 4 | **checkpoint 路径必须绝对** — orbax 强制 absolute path 但文档未说 | [#160](https://github.com/google-research/multinerf/issues/160): "Checkpoint path should be absolute. Got data_colmap/checkpoints/checkpoint_1.orbax-checkpoint-tmp-0" | 🟡 | 配置里写 `/full/path/to/checkpoints/`；脚本调用前 `realpath` 一下 |
+| 5 | **数据集 / 资源链接失效** — Pinecone 等下游数据链断 | [#164](https://github.com/google-research/multinerf/issues/164) "Pinecone dataset link unavailable" + [#158](https://github.com/google-research/multinerf/issues/158) "Check failed: ExistsDir(*image_path)" | 🟡 | 官方 Mip-NeRF 360 benchmark 数据（bicycle/garden/...）走 Jon Barron 个人站；不要信 repo 链接 |
+| 6 | **archive 后 issue 不再 triage** — 103 open，2025-02 后零 maintainer 活动 | repo 页面 "Read-only" banner；archive date 2025-02-11 | 🟠 | 任何修复只能 fork；社区主流已迁至 Zip-NeRF（无开源） + nerfstudio mip-360 路径 |
+
+**Repo health signal**: 3.8k ★ / 103 open / 2 PR / **archived 2025-02-11**（read-only）/ 含 Mip-NeRF 360 + Ref-NeRF + RawNeRF 三篇代码
+
+**讀者實務含義**: Mip-NeRF 360 仍是论文 benchmark 的金标准，但**参考实现已"博物馆化"**。2026 想跑 Mip-NeRF 360 质量级重建：(a) fork multinerf + 钉死 JAX 0.4.13 / CUDA 11.8 / 旧 NVIDIA driver，吃下 dependency 老化债；(b) 用 nerfstudio 的 mip-360 路径作妥协（速度 OK、质量稍低）；(c) 等社区出 PyTorch 重实现。机器人 / 实时栈直接跳到 3DGS + Mip-Splatting。**"在 multinerf 上做研究"在 2026 已是反模式** — 用它的论文公式，不用它的代码 base。
+
 ### 6.2 为什么这对 3DGS 重要
 
 3DGS *已知弱点*是无界：远 gaussian 长巨大，存储爆. Mip-NeRF 360 contraction *按构造解决*.

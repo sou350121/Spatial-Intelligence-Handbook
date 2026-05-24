@@ -311,6 +311,68 @@ FoundationStereo 原生输出 **disparity map**，需用户提供 `baseline (met
 
 ---
 
+---
+
+## 8.1 · GitHub Foundation Dissection (2026-05 atlas，issue 原文驗證)
+
+> **方法**：直接讀 NVlabs/FoundationStereo issue 原文 + repo metadata + README. 數字來自 repo about page + 個別 issue + README install section.
+
+### 8.1.1 Repo 健康指標
+
+| 指標 | 數值 | 解讀 |
+|---|---|---|
+| **Stars / Forks** | **2.7k ★** | 比 Metric3D 還火，NVIDIA 品牌加持 |
+| **Open issues** | **83 open**（基線 2026-05；新增 [#240](https://github.com/NVlabs/FoundationStereo/issues/240) 至 [#235](https://github.com/NVlabs/FoundationStereo/issues/235) 為近期） | 活躍但部署問題集中 |
+| **最後活躍** | master 40 commits；最新發布 **Fast-FoundationStereo (2025-12-15)** + Jetson 支援 (2025-07-03) + NGC commercial model | **持續維護** — NVIDIA 內部產品線挂著，與 Metric3D 形成對比 |
+| **官方測試硬體** | "Linux with GPU 3090, 4090, A100, V100, Jetson Orin" | TensorRT FP16 6× speedup（vs FP32 in 3090）官方數字 |
+| **環境裝法** | `conda env create -f environment.yml` → **`conda run -n foundation_stereo pip install flash-attn`**（要分開裝，否則裝失敗） | flash_attn 是部署最大的痛 — 進入 ONNX/TRT 鏈第一個崩 |
+
+**對比 Metric3D**：FoundationStereo 還在 active maintenance（NGC + Fast variant 都是 2025 H2 出），**maintainer 修 issue 速度仍合理**. 但部署債務（ONNX/TRT/Jetson）已堆積成山.
+
+### 8.1.2 Pitfall Table（按出現頻率與危害排序）
+
+| # | Pitfall | Issue 證據（原文驗證） | 危害 / 部署含義 |
+|---|---|---|---|
+| **P1** | **TensorRT FP16 出 NaN（最大部署殺手）** | **[#49](https://github.com/NVlabs/FoundationStereo/issues/49)**：使用者 `trtexec --onnx ... --fp16` → 整張 disparity "Output for disp: [[[[nan nan nan ... nan nan nan]"；ONNX 推理正常. 同類 [#104](https://github.com/NVlabs/FoundationStereo/issues/104) "always comes out empty (nan)". [#235](https://github.com/NVlabs/FoundationStereo/issues/235) `trtexec ... --fp16` 直接卡死. | **FP16 在 TRT 路徑上對 FoundationStereo 不安全**. 部署到 Jetson/邊緣**強制 FP32 或自己加 mixed precision skip-list**. 失去 6× speedup. |
+| **P2** | **flash_attn ONNX export 不支援（NVIDIA 自己的 op）** | **[#58](https://github.com/NVlabs/FoundationStereo/issues/58)**：原文 "ONNX export failed on an operator with unrecognized namespace **flash_attn::_flash_attn_forward**"；flash_attn 2.7.4 無 ONNX namespace. 使用者直接放棄，請求預轉 ONNX 模型發 HuggingFace. **[#239](https://github.com/NVlabs/FoundationStereo/issues/239)** 找出更深 bug：`FlashMultiheadAttention` 在 submodule.py 用 `flash_attn_func` 寫，後被換成 `torch.nn.functional.scaled_dot_product_attention`，**tensor layout 沒更新** → "SDPA interprets num_heads (4) as the sequence length, computing 4×4 cross-head attention instead of the intended self-attention" | **這是當前 FoundationStereo 最嚴重的隱形 bug**：checkpoint 是用 flash_attn_func 訓的，inference 路徑卻是錯的 SDPA → **精度可能本來就被吃掉一部分**（issue 未答）. 想 ONNX 一定要 `XFORMERS_DISABLED=1` 跳過或自己換 attention 實作. |
+| **P3** | **rectification + intrinsic 強依賴 — 沒有 graceful failure** | README 明確要求 "rectified and undistorted" PNG + `--intrinsic_file`（1×9 K + baseline meters）. **[#104](https://github.com/NVlabs/FoundationStereo/issues/104)** NaN 部分根因即未正確 rectified；**[#59](https://github.com/NVlabs/FoundationStereo/issues/59)** 視頻閃爍即逐幀 rectification drift. | rectification drift（§X.2.5 §3.5）→ 整圖 metric depth 系統偏，**模型完全不檢測**. 部署必須自己加 epipolar residual monitor + LR consistency check. |
+| **P4** | **stereo baseline 上限非公開、>15 cm 退化** | **[#142](https://github.com/NVlabs/FoundationStereo/issues/142)**：使用者原文 "I tested a stereo pair with a 16 cm baseline, but the disparity map turned out quite poor"；指出 "ZED experiments were only tested on the ZED Mini, which has a baseline of about 6 cm". 無 maintainer 回應. | **訓練分布偏好 baseline ≤ ~6 cm**（ZED Mini-scale）. drone / 戶外想用 25 cm+ baseline 撐遠距 → 直接退化. **§X.1.3 表中 "Skydio 25cm" 的 illustrative example 在 FoundationStereo 上不成立**. |
+| **P5** | **Jetson Orin 安裝鏈斷裂** | **[#136](https://github.com/NVlabs/FoundationStereo/issues/136)**：原文 "I was unable to install pytorch 2.4.1 when creating a conda environment on my Jetson Orin" — aarch64 找不到對應 wheel；[#26](https://github.com/NVlabs/FoundationStereo/issues/26) 同類 camera K 輸入格式. | README 標 "tested on Jetson Orin" 但 PyTorch 2.4.1 ARM wheel 是個坑. 官方 2025-07 Jetson 支援只解一部分；**生產上 Jetson 部署仍是 1-week 工程**. |
+| **P6** | **synth→real outdoor gap** | **[#102](https://github.com/NVlabs/FoundationStereo/issues/102)** 室外 KITTI 性能差於 indoor；訓練合成室內主導；側 backbone 從 Depth Anything V2 借 prior，**outdoor 不在 prior 強項**. | 戶外 drone 不要拿 FoundationStereo 開箱跑；先 fine-tune in-domain |
+| **P7** | **FP16 跨 GPU 架構表現不一致** | **[#228](https://github.com/NVlabs/FoundationStereo/issues/228)**：原文 "significant variance in FP16 quantization performance across different GPU architectures"，測 RTX 3060/5050/5060 Ti/5090 v2. 未答. | 同一 FP16 模型在不同 GPU 給不同數字 → benchmark 不可信. 部署前要對你目標 GPU 重跑校準. |
+| **P8** | **無 confidence map / occlusion mask（§X.3.3 重申）** | **[#121](https://github.com/NVlabs/FoundationStereo/issues/121)**：原文 "the head regions of the three point clouds are clustered closely together... while the distances between the bodies vary significantly" + "noticeable depth jitter... for the same static regions vary between neighboring frames"；spatial heteroscedasticity 真實存在但模型不暴露. **issue closed 但未答** | 下游融合 / grasp planner 無法 weighted fuse → "頭對齊身體散" 的真實災難. **自帶 LR consistency check 是當前唯一辦法**. |
+| **P9** | **GRU iteration 數調參無 documented guidance** | [#235](https://github.com/NVlabs/FoundationStereo/issues/235) 用 `--valid_iters 20` 也卡 TRT；論文 12–32 iters，邊緣設備建議數無官方表 | Jetson Nano 想跑必須自己掃 iteration 數 vs 精度曲線 |
+
+### 8.1.3 TensorRT NaN 根因（從 issue 串拼出）
+
+把 [#49](https://github.com/NVlabs/FoundationStereo/issues/49) / [#104](https://github.com/NVlabs/FoundationStereo/issues/104) / [#175](https://github.com/NVlabs/FoundationStereo/issues/175) / [#235](https://github.com/NVlabs/FoundationStereo/issues/235) / [#239](https://github.com/NVlabs/FoundationStereo/issues/239) 串起來，**FP16 NaN 根因可能是兩條路疊加**：
+
+1. **GRU iterative refinement 在 FP16 下累積 overflow** — RAFT-style 12-32 iter，每 iter hidden state 累加，FP16 動態範圍 6e-5 ~ 65504，多輪累積容易出 inf/nan
+2. **FlashMultiheadAttention 的 SDPA tensor layout bug**（[#239](https://github.com/NVlabs/FoundationStereo/issues/239)）— 推理路徑本身在算錯的 attention，FP32 因動態範圍夠大不爆，FP16 累積到 NaN
+
+**部署實務**：(1) FP32 baseline 先跑通；(2) 想要 FP16 必須對 GRU 內部 hidden 強制 FP32 (mixed precision skip-list)；(3) attention 換 `flash_attn_func` 原版（不要 SDPA fallback），但這條死在 ONNX export 無 namespace.
+
+### 8.1.4 fp16 vs fp32 精度速查
+
+| 路徑 | 精度 | 速度 | NaN 風險 | 部署建議 |
+|---|---|---|---|---|
+| **PyTorch FP32** | baseline | 1× | 無 | 開發 / 驗證 |
+| **PyTorch FP16 autocast** | 接近 baseline | ~2× | 低（PyTorch GradScaler 保護） | 工作站推理 OK |
+| **ONNX FP32** | baseline | ~1.2× | 無 | 推理服務器 |
+| **TRT FP32** | baseline | ~2× | 無 | Jetson AGX 首選 |
+| **TRT FP16** | -2~5% mAP `UNVERIFIED measured` | **6× (官方 3090)** | **高** — [#49](https://github.com/NVlabs/FoundationStereo/issues/49) [#235](https://github.com/NVlabs/FoundationStereo/issues/235) 多人翻車 | 要嚴格 NaN guard + 跨 GPU 跑校準 ([#228](https://github.com/NVlabs/FoundationStereo/issues/228)) |
+| **TRT INT8** | UNVERIFIED | UNVERIFIED | UNVERIFIED | 官方未提，未驗證 |
+
+### 8.1.5 讀者實務含義（按角色）
+
+- **Manipulation engineer**：室內桌面 0.2-1 m + 小 baseline (~6 cm) stereo + 主動 IR pattern = 開箱可用；**不要碰 TRT FP16**，用 PyTorch FP32 或 ONNX FP32 撐到 10-15 Hz 就夠 grasp pose. 部署前 LR consistency mask 是 must-have（補回 §X.3.3 缺的 confidence）.
+- **Aerial engineer**：**重新評估 §X.1.3 表中的 baseline 建議** — [#142](https://github.com/NVlabs/FoundationStereo/issues/142) 顯示 16 cm baseline 退化嚴重；想戶外 5-30 m 需要 >20 cm baseline 但模型還沒見過. 短期解：6 cm baseline + 接受 5 m 之後精度退到米級. 長期解：等 NVIDIA 發大 baseline 訓練的變體，或自己 fine-tune.
+- **AD engineer**：FoundationStereo 不是給 AD 的；KITTI 表現遜於 indoor benchmark ([#102](https://github.com/NVlabs/FoundationStereo/issues/102))，且 baseline 假設不匹配車載 stereo (~50 cm). 用作研究 baseline 可，量產替換 RAFT-Stereo / 商用 stereo SDK 還早.
+- **邊緣部署 SRE**：**Jetson Orin AGX = 半工作（[#136](https://github.com/NVlabs/FoundationStereo/issues/136) PyTorch 2.4.1 aarch64 坑）**；Orin Nano + TRT FP16 = 高風險（NaN [#49](https://github.com/NVlabs/FoundationStereo/issues/49)）；Xavier NX = 不要試（無 flash_attn 支援）. **保底方案**：Orin AGX + FP32 + 降低解析度到 480×640 + 8-12 iter → ~10-15 Hz.
+- **Researcher**：**[#239](https://github.com/NVlabs/FoundationStereo/issues/239) 是有 paper-worthy 的 bug** — 公開 checkpoint 可能在 SDPA 錯 attention layout 下推理，精度被吃掉一部分但 leaderboard 仍贏. 修正後重跑 Middlebury/ETH3D 可能進一步刷分.
+
+---
+
 ## References
 
 - FoundationStereo — Wen, Trepte, Aribido, Kautz, Gallo, Birchfield (NVIDIA), *CVPR 2025 Best Paper Nomination*. https://arxiv.org/abs/2501.09898 · code: https://github.com/NVlabs/FoundationStereo

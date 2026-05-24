@@ -250,6 +250,57 @@ De-canonical: D  = (1/ω_d) · D_c
 
 ---
 
+---
+
+## 8.1 · GitHub Foundation Dissection (2026-05 atlas，issue 原文驗證)
+
+> **方法**：直接讀 YvanYin/Metric3D issue 原文 + repo metadata. 數字來自仓库 about page + 個別 issue 截圖；所有引號為 issue 原文.
+
+### 8.1.1 Repo 健康指標
+
+| 指標 | 數值 | 解讀 |
+|---|---|---|
+| **Stars / Forks** | 2.2k ★ / 162 forks | 中量級學術 repo |
+| **Open issues** | **80** open（之前 84，閉了少數）+ 大量 closed-without-fix | 維護斷層典型 |
+| **最後活躍** | 最後 push 2025-03，最新 open issue #217（2026-02）/ #215（2025-09） | **>14 個月無新 commit** |
+| **License / Python 主導** | BSD-2-Clause / 99.9% Python | 學術授權，純 Python |
+| **核心開發者** | Yin（一作）PhD 畢業 | 進入 "PhD 畢業 → low-maintenance" 模式 |
+
+**結論**：Metric3D 是**設計凍結**狀態（v2 是最後一版），不要期待 maintainer 修 issue. **任何 in-the-wild 部署都要自帶適配層**.
+
+### 8.1.2 Pitfall Table（按出現頻率與危害排序）
+
+| # | Pitfall | Issue 證據（原文驗證） | 危害 / 部署含義 |
+|---|---|---|---|
+| **P1** | **大 focal 靜默退化**（>>1000 px） | **[#19](https://github.com/YvanYin/Metric3D/issues/19)**：使用者 `K=[1966.9, 1969.5, 948.7, 498.4]` 拿到 **RMSE ~10 m**；同模型在 SHIFT 數據（`K=[640,640,640,400]`）只有 **RMSE ~7 m**. 作者**親口回覆**："在训练中，大部分数据也并不1000。比如taskonomy，大部分在500-700左右"（訓練 focal 主要落在 **500–700 px**） | **訓練分布是 500–700 px，不是論文寫的 ~1000 px canonical**. 部署 focal >1000 px 的相機（手機長焦、工業）→ 靜默深度錯 |
+| **P2** | **outdoor 中遠距系統性偏差** | **[#161](https://github.com/YvanYin/Metric3D/issues/161)**：實測 outdoor，輸入 3024×4032 縮 616×1064，canonical 1000，real 3000：<br>• 真距 2 m → ViT-S **1.3 m (-35%)**, ViT-L **1.5 m (-25%)**<br>• 真距 4 m → ViT-S **11.45 m (+186%)**, ViT-L **20.76 m (+419%)**<br>• 使用者問 "is the model clipped... to account for the sky?"（未答） | **ViT-L 在遠距比 ViT-S 更差**（反直觉，可能 ViT-L overfit indoor）. KITTI AbsRel 0.051 是 benchmark cherry-pick，**in-the-wild ≥4 m 直接崩**. **AD/drone 戶外用此模型 = 高危** |
+| **P3** | **canonical focal 違反無 fallback** | [#19](https://github.com/YvanYin/Metric3D/issues/19) + [#95](https://github.com/YvanYin/Metric3D/issues/95) + [#161](https://github.com/YvanYin/Metric3D/issues/161) 系列；代碼層面無顯式 warning，僅在 README 留 canonical 數字 | 部署無 in-distribution 檢查 → P1+P2 持續複現. **必須在輸入層加 `f_real / f_canon` 邊界檢查 + warning** |
+| **P4** | **bfloat16 硬編碼，老 GPU 跑不通** | **[#81](https://github.com/YvanYin/Metric3D/issues/81)**：使用者引用代碼："Your model uses `torch.bfloat16` which is only supported by the newer GPUs"，建議 `dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float32`. **未合併** | **sm<80 (Ampere 之前) 跑不通**. 部署到 T4/V100/老 Jetson 需自己 monkey-patch decoder |
+| **P5** | **ONNX 動態 shape 邊角 case** | [#117](https://github.com/YvanYin/Metric3D/issues/117) / [#126](https://github.com/YvanYin/Metric3D/issues/126)；README 標 "ONNX support with dynamic shapes" 但實測動態尺寸有失敗模式 | TensorRT/Jetson 部署可能要固定 shape，犧牲彈性 |
+| **P6** | **fine-tune KITTI-like shape mismatch** | [#156](https://github.com/YvanYin/Metric3D/issues/156) / [#91](https://github.com/YvanYin/Metric3D/issues/91)；自定義數據集 fine-tune 直接報 shape 錯 | domain fine-tune 路徑不穩；對 contrarian domain（水下 / 醫學）必須自己改數據 pipeline |
+| **P7** | **v2 沒有 per-pixel confidence**（未來無 roadmap） | [#212](https://github.com/YvanYin/Metric3D/issues/212)（"Depth confidence and normals uncertainty values"，open，未答）；[#215](https://github.com/YvanYin/Metric3D/issues/215) 請求 DINOv3 backbone，未答 | 下游融合無 per-pixel 加權；只能整圖 trust/不 trust（同 §10.3 結論） |
+| **P8** | **v1 vs v2 依賴衝突** | README 區分 `requirements_v1.txt` (ConvNeXt-L) vs `requirements_v2.txt` (ViT) → 兩條依賴鏈不兼容 | 混用 v1/v2 模型必須隔離環境 |
+
+### 8.1.3 ZoeDepth / UniDepth 對比爭議現狀
+
+倉庫內**沒有直接的 ZoeDepth / UniDepth A/B 爭議 issue**（已搜過 #1-#217）—— 對比都在論文 table 裡，社區層面僅作者宣稱 "击败 ZoeDepth"，無第三方仲裁. **空缺本身就是信號**：metric monocular 賽道沒有像 stereo 那樣的 Middlebury 公開 leaderboard，**所有 metric 數字都是論文方自報**.
+
+### 8.1.4 v1 vs v2 遷移實務（從 issue 反推）
+
+- **v1 (ICCV 2023)**: ConvNeXt-L 主，依賴 `requirements_v1.txt`，社區用得最久（issue 多數在此）
+- **v2 (TPAMI 2024)**: ViT-Small/Large/Giant2 + normal head，依賴 `requirements_v2.txt`，**ViT-g 是論文宣稱的最強**，但 [#161](https://github.com/YvanYin/Metric3D/issues/161) 顯示 **ViT-L 在 outdoor 遠距反而比 ViT-S 更差**
+- **遷移風險**: v2 不是 drop-in 替換 v1；環境、API、輸出格式都變. 已有 v1 production 的最好等 community port，不要盲遷
+- **DINOv3 backbone 升級無望**（[#215](https://github.com/YvanYin/Metric3D/issues/215) 未答）—— 想要更強 backbone 自己 fork
+
+### 8.1.5 讀者實務含義（按角色）
+
+- **Manipulation engineer**：v2 ViT-S/L 在 **0–1 m 校準 wrist cam** 仍是最強選擇；確認你的 `f` 在 **500–700 px** 範圍（DSLR / 工業遠焦不適用）；不要相信 v2 的 confidence（沒有）.
+- **Aerial / AD engineer**：**直接放棄 Metric3D 做遠距 metric**. [#161](https://github.com/YvanYin/Metric3D/issues/161) 數字 (+419% @ 4 m) 不是 outlier，是 systemic. 用 stereo + VIO，monocular 只當 fallback / 視覺檢查.
+- **Researcher**：把 [#19](https://github.com/YvanYin/Metric3D/issues/19) 的 "train focal 500–700, deploy focal 1966" 當作教材 — canonical-camera 的 sim-to-real gap 不在演算法，**在訓練分布的隱性 prior**.
+- **Production / SRE**：repo 凍結，不要在生產上依賴 maintainer fix；**fork + 自己加 in-distribution gate + bf16/fp32 fallback** 是基本工程.
+
+---
+
 ## References
 
 - Metric3D v1 — Yin et al. *ICCV 2023*. https://arxiv.org/abs/2307.10984 `UNVERIFIED venue`

@@ -134,6 +134,39 @@ LERF 正好坐在 manipulation 策略想抓语义的位置上。集成故事：
 
 ---
 
+## 4.5 · GitHub Deep Dive (2026-05, repo `kerrj/lerf` 727★ · 12 open issue · last push 2024-07)
+
+### Pitfall 表
+
+| Pitfall | 触发条件 | GitHub 证据 | 對 dissection 的補正 |
+|---|---|---|---|
+| **Repo 已实质停摆** | 任何 2024-08 之后想跑的人 | 12 open issue 含 [#88](https://github.com/kerrj/lerf/issues/88) `patch_tile_size_range: Tuple[int, int]` 被默认值 `(0.05, 0.5)` 触发 AssertionError，根因是 LERF 与 nerfstudio 版本 drift；workaround 是 pin `pip install git+...lerf.git@f1c7832d8...`；2025-05 仍开 | §3 "Per-scene 训练成本" 应加："**repo 工程债 ≥ 论文路线本身的成本**"——nerfstudio rolling 升级早就把上层 import 路径换了，LERF 没追 |
+| **RTX 4090 OOM 渲染** | 用 `lerf-big` 配 + camera-path 渲染 | [#74](https://github.com/kerrj/lerf/issues/74) "i use 4090, why oom???" 零回应 — 24 GB VRAM 在大场景渲染段不够 | §3 "GPU 资源"未明示渲染段比训练段更吃 VRAM；§3.x "能负担每场景训练" 假设要加补丁 "**渲染峰值 > 训练峰值**，4090 不保证" |
+| **nerfstudio 上层 API 已换** | 跟 nerfstudio main 安装 | [#75](https://github.com/kerrj/lerf/issues/75) `ModuleNotFoundError: nerfstudio.viewer.viewer_elements` — viewer 路径在 nerfstudio 1.x 重组 | §3 应加 "**下游依赖 rot**"；LERF 已不能 `pip install -e .` 在 2025+ nerfstudio 上跑通，必须锁老版本 |
+| **5–30 min per-scene 训练数字未验证** | 想拿这数字做规划 | 仓库 README / issue 区都未给系统化复现时长；[#77](https://github.com/kerrj/lerf/issues/77) 用户连 Table 1 的 Localization Accuracy 怎么算都得自查论文 | §2.5 "5–30 min `UNVERIFIED`" 是 ontology 已标的；GitHub 侧未补——结论：**这个数字仍 UNVERIFIED**，不要在 talk 里说成 fact |
+| **CLI 渲染 relevancy map 无 reference** | 想脚本化批量出图 | [#76](https://github.com/kerrj/lerf/issues/76) "How to render relevancy map with CLI for text query" 零回应 | §3 隐含假设"interactive viewer 够用"——对 batch eval / CI / 报告生成是阻断 |
+| **3DGS 整合愿望无应** | 想接 .ply 输出 | [#86](https://github.com/kerrj/lerf/issues/86) "can lerf be used with 3D environment in .ply format?" 2024-12 开、零回应 | §5 "LangSplat 完全替代" 的预测在 atlas 侧成立：作者已经不接 3DGS PR / issue，社区自然漂去 LangSplat |
+| **eval 无 dino/clip loss 可监测** | 想看 feature lifting 收敛 | [#89](https://github.com/kerrj/lerf/issues/89) "Why is there no dino loss or clip loss during evaluation?" — PR #2 显式不算，零回应 | §3 "silent failure" 应补：**训练曲线无 lang loss 监测**，可能训崩还看不出来——和 LangSplat [#74](https://github.com/minghanqin/LangSplat/issues/74) 是同类陷阱 |
+
+### Repo 健康度
+
+- ⭐ 727 · 🟡 12 open issues · last push **2024-07-09**（>10 个月）· last release n/a
+- **Stale 程度：📖 archive-grade** — 不是 abandoned（issue 区还有人开），但是 maintenance-frozen
+- Top thread comments 数都低（<5），无活跃讨论
+- 作者已转向 nerfstudio 主线、不再独立维护 LERF
+- 2025+ 想跑 LERF 必须 pin 老 commit（[#88](https://github.com/kerrj/lerf/issues/88) workaround）；新装环境跑不通
+
+### 读者实务含义
+
+1. **不要在 2026+ 项目里直接 `pip install` LERF**——锁 commit `f1c7832d8fd488423aa2e9e69a23160d31c4332c` + nerfstudio 0.3.x，否则 viewer / config 类型校验全炸。
+2. **5–30 min 训练时长是 ontology 估计、不是仓库数字**——如果别人引用这个区间问你来源，老实说 UNVERIFIED；论文 / repo 都没系统报。
+3. **OOM 风险在渲染段而非训练段**：24 GB 4090 训得动、`lerf-big` 渲染会炸（[#74](https://github.com/kerrj/lerf/issues/74)）；规划机器人闭环时按 **峰值 > 32 GB** 准备。
+4. **没有 CLI relevancy 渲染管线**：要做批量 eval / 论文图表自动化需自己写 `ns-viewer` 替代，repo 不会帮你。
+5. **范式参考价值 ≫ 工程参考价值**：LERF 文档读 paper 就够，不要花时间在 repo 调环境；要部署直接走 OpenScene 或 LangSplat / SAGA 后继。
+6. **stale signal 校准**：727★ + 12 open issue + 10 个月无 push = "经典阅读型" repo，**不是** "可工作 baseline"——把它从内部 baseline 列表移到 "范式 anchor 列表"。
+
+---
+
 ## 5 · Falsifiable prediction
 
 在 2026-12 之前，3DGS 语言场（LangSplat 或其后继）将把 LERF 完全替代为语言条件 manipulation 论文的*默认*引用。到 2027-06，feed-forward 语义场变体会出现，把 per-scene 训练降到单位数秒 `UNVERIFIED`，那一刻部署反对就塌了。任何 2026+ 机器人论文若仍把原版 LERF 当主语义表示（而非 baseline）使用，应当下注反方。

@@ -160,6 +160,29 @@ GS-SLAM 谱系在 GitHub 上的 ecosystem 状态比纸面弱得多：
 
 **Interview Tip**: 被问 "GS-SLAM 是否替代 ORB-SLAM3"，陷阱是 yes。正确答案：*"还不行 — gaussian map 上 loop closure 开放"*。把它定位为 "ORB-SLAM 加 photoreal 后端" 用于短室内 demo；长时序 mapping 保留经典直到 SE(3) 校正下的 merge/prune 有原则算法。
 
+---
+
+## 8 · GitHub-validated atlas（deep dive 增量 — SplaTAM 作为代理证据）
+
+GS-SLAM 主 pipeline repo 未公开（详见 §4.y），所以本节深挖 **SplaTAM** (`spla-tam/SplaTAM`) — 同时期 CVPR 2024 平行工作、3DGS-SLAM 谱系最常被复用的开源实现，最能反映本谱系工程化现状。
+
+### §8.1 · GitHub-validated pitfalls (2026-05-24 deep dive, SplaTAM 代理)
+
+| # | Pitfall | Evidence | Severity | Workaround |
+|---|---|---|---|---|
+| 1 | **Repo 已实质 stale** — 最近一次 commit 2024-06-19（"Update Torch Version Requirements"），距今 ~23 个月没有 main 分支活动 | [commits/main](https://github.com/spla-tam/SplaTAM/commits/main): last commit 2024-06-19；第二近 2024-03-26；**0 open PR / 12 closed PR**（contribution channel 实质关闭） | 🔴 | 把 SplaTAM 当 paper 复现工具，不当生产框架；生产走 MonoGS / Gaussian-SLAM / Photo-SLAM 后继 |
+| 2 | Loop closure 谱系级未解（与 dissection §3 一致，社区独立印证） | [issue #151](https://github.com/spla-tam/SplaTAM/issues/151) "Loop Closure Issues": "I have read other tickets that you mention about the difficults at loop closure" — 用户在 Behavior 1k 数据集上踩坑，**maintainer 无回复**；issue 自 2025-10 起 open 未解 | 🔴 | 限制轨迹长度（短室内 demo）；长轨迹 / 多房间用 ORB-SLAM3 + dense 后端，别指望 SplaTAM loop close 干净 |
+| 3 | 非确定性结果 — 即使 `seed_everything` 也跑不出一致 metric | [issue #144](https://github.com/spla-tam/SplaTAM/issues/144) "Non-deterministic results despite using seed_everything": "I was wondering why this happens and if there's a way to achieve deterministic results?" — 用户在 Replica 上多次跑得不同 ATE / PSNR；无 maintainer fix | 🟠 | benchmark 报告必须跑 ≥3 seeds 取 mean ± std；不要单 run 数字写论文；CUDA non-determinism + gaussian 随机 spawn 是已知根因 |
+| 4 | **Mesh export 未实现** — 只能出 .ply 点云（破坏下游 simulation / collision 用例） | [issue #145](https://github.com/spla-tam/SplaTAM/issues/145) "Export to Mesh": user noted `scripts/export_ply.py` only exports point clouds, asks if mesh export is supported — **maintainer 无回复、无 label、无 milestone** | 🟠 | 走 Poisson reconstruction (Open3D) 或 SuGaR / 2DGS 后处理把 gaussian 转 mesh；不要假设 SplaTAM 直接出 simulation-ready geometry |
+| 5 | ScanNet++ 基准复现卡在 dataset 本身缺 depth | [issue #153](https://github.com/spla-tam/SplaTAM/issues/153) "Question Regarding Depth Data in the ScanNet++ Dataset": "the dslr folder contains only uncalibrated RGB images, without corresponding depth maps" — paper 用的 depth 来源未文档化 | 🟠 | ScanNet++ 实验若是 portfolio / 论文必需：联系作者要 depth pipeline；否则改用 Replica（合成 depth 干净）或 TUM-RGBD（depth 自带） |
+| 6 | 自定义数据 / iPhone NeRFCapture pipeline 静默错位 | [issue #142](https://github.com/spla-tam/SplaTAM/issues/142) "images not properly mapped": 用 `bash bash_scripts/nerfcapture2dataset.bash configs/iphone/dataset.py` 输出 image alignment 失败；无 maintainer 回复 | 🟡 | 先在 Replica / TUM 公开数据集 sanity check；自定义数据走 COLMAP 预处理再喂入而不是用 nerfcapture 一键脚本 |
+| 7 | 真实 RGB-D 相机（RealSense D435i）live 模式无 working example | [issue #125](https://github.com/spla-tam/SplaTAM/issues/125) "D435i real-time or offline slam?" (open since 2024-07) + [issue #44](https://github.com/spla-tam/SplaTAM/issues/44) "Support for Stereo Images & Depth" (open since 2023-12) + [issue #39](https://github.com/spla-tam/SplaTAM/issues/39) "Debugging Failure on Custom 3DScanner App Data" — **三个 real-sensor 集成 issue 全部 open 1.5+ 年** | 🔴 | SplaTAM 在 paper benchmark 之外的 sensor 部署没人 maintain；走 MonoGS（单目，更新更活）或 Photo-SLAM（C++ 重实现，对 RealSense 有官方示例）|
+| 8 | OOM 在长 trajectory + 高分辨率 keyframe 上仍是常态 | [issue #124](https://github.com/spla-tam/SplaTAM/issues/124) "CUDA OUT OF MEMORY" (open since 2024-07，labeled "Question"，无 fix) — 与 §2.5 worked example "30 s 500K gaussian ~600 MB" 一致 | 🟠 | 30 s+ 捕获必须激进 prune；keyframe 间隔放大；分辨率降到 640×480 sanity 再升 |
+
+**Repo health signal**: 2.1k ★ / 236 forks / 53 open issues / 0 open PR / 12 closed PR / **last commit 2024-06-19**（~23 个月静默）/ BSD-3-Clause（商业可用，这是相对 INRIA 3DGS 的关键优势） — *"paper-shipped, walk-away"* 模式：CVPR 2024 论文 + V1 release 后 maintainer 实质转向 nerfstudio / 后继课题，issue tracker 变只读墓地。
+
+**讀者實務含義**: (1) **2026 年生产部署不要选 SplaTAM** — repo stale 2 年，real-sensor 集成 issue 全 open，maintainer 无回复；走更新的 MonoGS / Gaussian-SLAM / Photo-SLAM；(2) **SplaTAM 仍是好的 paper 学习实现** — BSD-3 友好、Replica/TUM 跑得通，适合理解 §2 架构，不适合放进机器人；(3) **本谱系 issue 模式印证 §6 outlook** — loop closure / 长轨迹 / real-sensor 三大开放问题在 GitHub issue tracker 上有独立证据，不是 dissection 在唱衰。
+
 ## References
 
 - **GS-SLAM** — Yan et al. *CVPR 2024.* https://arxiv.org/abs/2311.11700

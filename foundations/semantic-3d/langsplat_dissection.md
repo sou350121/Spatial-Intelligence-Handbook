@@ -176,6 +176,39 @@ LangSplat 延迟在两个时间尺度：
 
 ---
 
+## 8.1 · GitHub Deep Dive (2026-05, repo `minghanqin/LangSplat` 1k★ · 46 open issue · last push 2025-10)
+
+### Pitfall 表
+
+| Pitfall | 触发条件 | GitHub 证据 | 對 dissection 的補正 |
+|---|---|---|---|
+| **"199× over LERF" 是 query-only 口径** | 把数字当端到端解读 | 论文摘要明示 "1440×1080 resolution" 是渲染速度；issue 区零人为该口径辩护 | §2 "199× 来自三件事相乘" 成立，但**端到端时长**（3DGS base 训 + SAM 三层级 mask 预处理 + scene AE + language head）仍是分钟到几十分钟；§4 表格"per-scene 预处理 分钟级"是诚实表述 |
+| **waldo_kitchen 复现 gap ~14 pp** | 跑完 LERF dataset 全套 | [#77](https://github.com/minghanqin/LangSplat/issues/77) "I was able to reproduce the results for other scenes, but I encountered issues with the waldo\_kitchen scene. After trying over a dozen times, my results are still far from the reported ones." 用户公开要求作者放 checkpoint | §5 "显著优于 LERF" 在该场景下 **可能 lucky-seed 依赖**；§6.x 假设 "SAM whole/part/subpart 三档切得干净" 在反光不锈钢厨具上首先崩 |
+| **scene-AE 编码空间损失 vs CLIP 空间损失** | 想改进精度的复现者 | [#79](https://github.com/minghanqin/LangSplat/issues/79) "both features should be decoded to the CLIP feature space before calculating the loss" — 用户质疑在 3-D bottleneck 内计算 loss 丢判别信息 | §2 "feat_g ∈ ℝ³ = AE_enc(...)" Napkin 公式背后的 loss design 在社区被指出**可能是精度天花板的根因**（512→3 不仅是表示压缩、loss surface 也被压扁） |
+| **新手"精度低的离谱"无人回复** | step-by-step 跟 README | [#82](https://github.com/minghanqin/LangSplat/issues/82) "我按照要求一步步跑了这个项目但是最后精确度低的离谱" — 4 comments 开 issue 39 min 内零 maintainer 回应；同类 [#74](https://github.com/minghanqin/LangSplat/issues/74) "rendered image after training almost identical to the original image" 暗示 language head 没真训进去、3DGS RGB head 在掩盖 | §6 "不能做什么" 漏掉 **silent failure mode**：rendered RGB 看起来好，relevancy 全错——无 sanity check 时无法察觉 |
+| **diff\_gaussian\_rasterization CUDA build** | 非 CUDA 11.8 / 不在白名单 PyTorch | [#78](https://github.com/minghanqin/LangSplat/issues/78) `python -m pip install -e submodules/langsplat-rasterization` 报错；[#49](https://github.com/minghanqin/LangSplat/issues/49) 同类 | §4 "24 GB VRAM 训练门槛" 之外应补：**CUDA toolchain 锁定 11.x**，2025 后默认环境（CUDA 12.x / PyTorch 2.4+）需要降级或打 patch |
+| **离线环境无 CLIP 缓存** | 集群 / 内网无外网 | [#75](https://github.com/minghanqin/LangSplat/issues/75) `preprocess.py` 调 `open_clip.create_model_and_transforms()` → HF Hub 下载失败，"Connection error, and we cannot find the requested files in the disk cache." | 部署清单应加：**预先 cache CLIP 与 SAM 权重**到本地路径，preprocess 全离线可跑 |
+| **LERF dataset open-vocab seg 流程缺文档** | 想跑论文 Table 主结果 | [#70](https://github.com/minghanqin/LangSplat/issues/70) "I want to know how to achieve open-vocabulary 3D semantic segmentation on the LERF dataset like in the paper." — 零回应 | §5 "LangSplat 报显著优于 LERF" 的复现路径**未公开**；论文 vs repo 间存在隐性缺口 |
+
+### Repo 健康度
+
+- ⭐ 1045 · 🟡 46 open / 80 closed issues · last commit 2025-10 — **活跃但作者响应稀**
+- Top issue thread comments 数：[#18](https://github.com/minghanqin/LangSplat/issues/18) 26 (快速启动文档)、[#82](https://github.com/minghanqin/LangSplat/issues/82) 4、[#77](https://github.com/minghanqin/LangSplat/issues/77) 0
+- **三类高频未结**：CUDA build、waldo_kitchen 复现 gap、scene AE 设计质疑
+- **作者活跃度**：2024 H1 较活、2024 H2 起几乎只 merge PR 不答 issue
+- 摄入信号：**复现门槛 > 论文路线本身的难度**——这是 zone 内最典型的 "paper 漂亮、工程没沉淀" 形态
+
+### 读者实务含义
+
+1. **跑 LangSplat 前先锁 CUDA 11.8 + PyTorch 2.0–2.2**；任何 12.x / 2.4+ 都需要打补丁，不要在 H100/RTX 5000 系上直跑 README。
+2. **不要把 199× 当部署指标**——告诉老板"query 端 199×"，**别**说"系统快 199×"；端到端仍是分钟到几十分钟。
+3. **waldo_kitchen / LERF dataset 复现风险高**：若做基线对比，跑 3 个 seed 取中位数，单 seed 数字不可信；论文 Loc. Acc 0.955 在 [LangSplat #60](https://github.com/minghanqin/LangSplat/issues/60) / [#77](https://github.com/minghanqin/LangSplat/issues/77) 等独立复现里只到 ~0.82。
+4. **scene AE 是隐性精度上限**：若发现 relevancy 不锐，先怀疑 3→512 解码丢信息（[#79](https://github.com/minghanqin/LangSplat/issues/79) 路线），其次才是 SAM 粒度。
+5. **silent failure 检查清单**：rendered RGB 像 GT 不代表 language head 训好（[#74](https://github.com/minghanqin/LangSplat/issues/74)）——一定独立看 relevancy heatmap，否则会把 RGB head 的成功误当系统成功。
+6. **2026+ 选型**：若要的是 "feature-field 但能跑"，SAGA / Feature-3DGS 后继比 LangSplat 工程沉淀更可信；LangSplat 的价值已经从 "可用方案" 退化到 "论文 anchor"。
+
+---
+
 ## 7 · 与相关工作对比 (Comparison)
 
 | 维度 | LangSplat | LERF | OpenScene | SAGA |

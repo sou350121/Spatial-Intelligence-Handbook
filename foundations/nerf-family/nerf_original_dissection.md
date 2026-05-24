@@ -164,6 +164,37 @@ NeRF 只在以下条件成立时 work；每条在实践中悄悄破坏：
 - **GitHub-validated**：原 `bmild/nerf` 已事实归档 — spam issue (#217) 长期未关、TF 2.x 兼容 (#216) 无人补、数据集 GoogleDrive 链接失效 (#214/#213)，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。"经典 NeRF 论文 repo" 在 2026 只能作历史参考，复现请走 `yenchenlin/nerf-pytorch` 或 nerfstudio `vanilla-nerf`。
 - **GitHub-validated**：`yenchenlin/nerf-pytorch` 同样 stale — 官方 checkpoint 损坏 (#151)、Blender 数据链接失效 (#155)、OOM kill (#147) 是教学用户最常见三连击；维护者已转向 robotics 多年，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
 
+### §8.1 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+**`bmild/nerf` (TensorFlow 原作 repo)**
+
+| # | Pitfall | Evidence | Severity | Workaround |
+|---|---|---|---|---|
+| 1 | Blender / LLFF 数据集 Google Drive 链接失效 — 2026 新读者无法下原始 fern/lego | [#214](https://github.com/bmild/nerf/issues/214) "Dataset GoogleDrive expired" + [#213](https://github.com/bmild/nerf/issues/213) "The connection to the dataset is broken" | 🔴 | 用 `yenchenlin/nerf-pytorch` 的 mirror 或 nerfstudio Blender 数据；不要 fork 老 README 的链接 |
+| 2 | TF 2.x 完全不兼容；Colab 模板挂 | [#216](https://github.com/bmild/nerf/issues/216) "Update Colab Script: TensorFlow 2.x Compatibility and Minor Model Fixes"（PR 未合） | 🔴 | 钉死 TF 1.15 + CUDA 10；或直接换 PyTorch port |
+| 3 | RTX 40 系卡 cuBLAS GEMM 启动失败（新硬件 / 旧 CUDA 路径不兼容） | [#215](https://github.com/bmild/nerf/issues/215): "InternalError: Blas GEMM launch failed : a.shape=(65536, 63), b.shape=(63, 256), m=65536, n=256, k=63 [Op:MatMul]" — RTX 4070 Ti Super 16GB | 🟠 | 降 chunk size、关 XLA；或迁 PyTorch port（CUDA 12 兼容更新） |
+| 4 | spam / 占位 issue 长期未关，维护者已离场 | [#217](https://github.com/bmild/nerf/issues/217) 纯 "gtgtgt" 乱码 issue 多月未删；#208 / #204 非英语 spam 同样未 triage | 🟡 | 把 repo 当 read-only 参考；issue tracker 不可依赖 |
+
+**Repo health signal**: 10.9k ★ / 117 open / ~30 closed / 主线无 commit 多年（最后实质 push 远早于 2023）
+
+**讀者實務含義**: TF 原作 repo 在 2026 是历史文物 — 数据链接、CUDA 路径、Colab 全断。读论文配它看代码 OK；想跑通请直接走 `yenchenlin/nerf-pytorch` 或 nerfstudio 的 `vanilla-nerf` 实现。"原作复现" 在简历里不再是有效信号。
+
+---
+
+**`yenchenlin/nerf-pytorch` (社区主流 PyTorch port)**
+
+| # | Pitfall | Evidence | Severity | Workaround |
+|---|---|---|---|---|
+| 1 | 官方预训练 tar 文件损坏 — 下载 14.3 MB 但无法解压 | [#151](https://github.com/yenchenlin/nerf-pytorch/issues/151): "tar: Error opening archive: Unrecognized archive format" — Google Drive 链接退化 | 🔴 | 自己从头训；或找社区 mirror（无官方替代） |
+| 2 | 高分辨率训练静默 OOM-kill — 无 traceback，只输出 "killed" | [#147](https://github.com/yenchenlin/nerf-pytorch/issues/147): 3060×4080 px 输入在 2× RTX 2080 Ti 22GB + 48GB RAM 上 i_video 阶段被 OOM-killer 干掉 | 🔴 | 降图像分辨率到 ≤1080p；或砍 `N_rand` / 关 `render_only` 中间帧导出 |
+| 3 | 训练完输出纯黑 disp / 纯白 rgb 视频（沉默式失败） | [#149](https://github.com/yenchenlin/nerf-pytorch/issues/149): "all the _disp.mp4 videos show pure black, and all the _rgb.mp4 videos show pure white" — 无回应 | 🟠 | 检查 near/far 边界与位姿坐标系；社区无统一答案 |
+| 4 | Blender 合成数据链接断 + 训练 PSNR=NaN | [#155](https://github.com/yenchenlin/nerf-pytorch/issues/155) "Blender dataset not found" + [#144](https://github.com/yenchenlin/nerf-pytorch/issues/144) "PSNR value is NaN" | 🟠 | 用 nerfstudio 的 blender_data；降学习率防 NaN |
+| 5 | 依赖 setup 失败 — imageio `ignoregamma` API 变更等 | [#142](https://github.com/yenchenlin/nerf-pytorch/issues/142) + [#140](https://github.com/yenchenlin/nerf-pytorch/issues/140) "TypeError with read() function 'ignoregamma' argument" | 🟡 | 钉死 `imageio==2.9.0`；或 fork 改 API |
+
+**Repo health signal**: 6.0k ★ / 73 open / 13 PR 待办 / 维护者已转 robotics、近 2 年无实质 commit
+
+**讀者實務含義**: 这个 repo 仍是教 NeRF 最广用的入口，但 **"开箱即跑" 假设破裂**。预算半天调环境（钉版本）+ 半天调数据路径；不要相信官方 checkpoint。机器人 / 生产用途请直接跳到 nerfstudio 或 Instant-NGP。
+
 ---
 
 ## 7 · Comparison and interview tip

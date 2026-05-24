@@ -160,6 +160,52 @@ CoTracker3 *online* 用有界内存逐帧流出预测.
 
 ---
 
+## 8 · GitHub Deep Dive (2026-05, co-tracker + tapnet 仓 issue 区交叉考古)
+
+> **来源**：[facebookresearch/co-tracker/issues](https://github.com/facebookresearch/co-tracker/issues)（4.9k★，按 comment 数排序前 25）+ [google-deepmind/tapnet/issues](https://github.com/google-deepmind/tapnet/issues)（TAP-Net / TAPIR / BootsTAPIR / TAPNext 全家桶，按 comment 数前 25）。本节用 atlas 同一套规则做 GitHub-validated 失败模式与读者实务含义。
+
+### 8.1 Pitfall 总表（按真实痛点 × 仓库交叉打分）
+
+| Pitfall 类别 | 高 ROI 实务含义（读者层面） | CoTracker 验证 issue | TAPNet 全家桶验证 issue |
+|---|---|---|---|
+| **长视频 OOM / 滑窗内存爆炸** | 3 min Colab 视频直接 OOM；任何 episode >1024 frames 必须自己切窗 + stitch | [#51](https://github.com/facebookresearch/co-tracker/issues/51) 14c open（"used co-tracker for videos of up to 3min ... Colab GPU ran out of memory"）· [#65](https://github.com/facebookresearch/co-tracker/issues/65) 10c · [#179](https://github.com/facebookresearch/co-tracker/issues/179) 6c "Evaluating offline model in robotap raise oom" | [#48](https://github.com/google-deepmind/tapnet/issues/48) 8c "OOM error" closed · [#71](https://github.com/google-deepmind/tapnet/issues/71) 10c live_demo 想加点 → GPU 不够 |
+| **实时 / 在线 / 流式语义不清** | "online" 论文叙事 ≠ 工程 streaming；window_len 锁 16 不能调小 | [#37](https://github.com/facebookresearch/co-tracker/issues/37) 21c open 4 年（"is there any possibility to port ... to live videos"）· [#54](https://github.com/facebookresearch/co-tracker/issues/54) 8c · [#123](https://github.com/facebookresearch/co-tracker/issues/123) 8c "Does offline mode support v2?"（双模式 checkpoint 不通）· **[#144](https://github.com/facebookresearch/co-tracker/issues/144) 7c open "Not really an online point tracking method"**（"the online point tracker does not permit window_len < 16 due to error with time_emb dims that are loaded from ckpt"）· [#175](https://github.com/facebookresearch/co-tracker/issues/175) | **[#143](https://github.com/google-deepmind/tapnet/issues/143) 20c closed "TAPNext online tracking problems"**（"after running several frames, the tracking points are out of target"） |
+| **稀疏点 / webcam / 单点跟踪** | 单点 query 不稳，需要 ≥ N 点共建 attention | [#71](https://github.com/facebookresearch/co-tracker/issues/71) 8c open webcam 单点（"track the point without putting all the frames as a batch"）· [#24](https://github.com/facebookresearch/co-tracker/issues/24) 8c open 动物腿 "The tracking points of two legs often changes to those of one leg" | [#71](https://github.com/google-deepmind/tapnet/issues/71) 10c "Potential to track more points in live_demo.py" |
+| **遮挡 / 反射 / boundary** | 静默失败：轨迹平滑但错；反射面上轨追到镜像 | [#44](https://github.com/facebookresearch/co-tracker/issues/44) 5c open specular（"tracked the reflected content and the occlusion logic seems to be off"）· [#173](https://github.com/facebookresearch/co-tracker/issues/173) "Barely moving queries on the boundary of the frame" · [#24](https://github.com/facebookresearch/co-tracker/issues/24) 动物腿混淆 | [#119](https://github.com/google-deepmind/tapnet/issues/119) tracking effectiveness · [#54](https://github.com/google-deepmind/tapnet/issues/54) 高分辨率 visibility 失效 |
+| **导出 ONNX / 部署边缘** | 5D GridSample ONNX 不支持；TorchScript 同样卡 | [#10](https://github.com/facebookresearch/co-tracker/issues/10) 10c closed 但社区方案碎片化 | **[#79](https://github.com/google-deepmind/tapnet/issues/79) 10c open** "OnnxExporterError: Unsupported: ONNX export of operator GridSample with 5D volumetric input" · [#83](https://github.com/google-deepmind/tapnet/issues/83) Torchscript |
+| **TAPNext 1024 点硬限制** | 源码 `tapnext_torch.py#L286` 写死，dense 跟踪退化 | — | **[#147](https://github.com/google-deepmind/tapnet/issues/147) 7c closed "TapNext 1024 points limit"** |
+| **TAPNext 训练 / 微调路径缺失** | 想 fine-tune 到机器人数据无门 | — | **[#141](https://github.com/google-deepmind/tapnet/issues/141) 18c open** "Any plan to release TAPNext training code?"（"I want to fine-tune TAPNext. But it seems that training code is not yet released"） |
+| **TAP-Vid 3D 数据 / 标注闭源** | 跨视图 / 3D 任意点基准复现卡住 | — | [#115](https://github.com/google-deepmind/tapnet/issues/115) 25c open · [#142](https://github.com/google-deepmind/tapnet/issues/142) Aria 标注 release 请求 |
+| **Windows / JAX / CUDA 平台矩阵** | 实验室落地常踩 | — | [#156](https://github.com/google-deepmind/tapnet/issues/156) "Running TapNext on windows with cuda jax support" · [#49](https://github.com/google-deepmind/tapnet/issues/49) 13c · [#127](https://github.com/google-deepmind/tapnet/issues/127) "GPU PyTorch slower than cpu" |
+| **训练复现 / Kubric 配置漂移** | CoTracker3 要 seq_len=64，旧 Kubric 不能用；自训不易 | [#8](https://github.com/facebookresearch/co-tracker/issues/8) 29c · [#130](https://github.com/facebookresearch/co-tracker/issues/130) "CoTracker3 requires a seq_len of 64, while CoTracker2 only needs ... 24" · [#149](https://github.com/facebookresearch/co-tracker/issues/149) 6c | [#90](https://github.com/google-deepmind/tapnet/issues/90) 13c "Training TAPIR PyTorch version script?" |
+| **商用 license / 重发布** | CoTracker 默认非商用，DINOv2 式 relicense 未排上 | [#31](https://github.com/facebookresearch/co-tracker/issues/31) 11c open "Is a relicensing planned like Dinov2?" | — |
+| **TAP vs CoTracker 比较 / 迁移** | 评测口径不齐 — TAP-Vid 论文里 PIPs 没正式对比，社区自己测；CoTracker offline/online checkpoint 切换无统一接口 | [#123](https://github.com/facebookresearch/co-tracker/issues/123) 双模式 checkpoint 不通 | [#3](https://github.com/google-deepmind/tapnet/issues/3) 7c closed "Comparison between TAP-Net and PIPs"（官方未给数据） |
+
+### 8.2 仓库健康度
+
+| 维度 | CoTracker | TAPNet 全家桶 |
+|---|---|---|
+| Star | 4.9k | ~1.9k（TAP-Net+TAPIR+TAPNext 单仓） |
+| Open issue 当前 | ~80+（138/181 区间多数 open） | ~60+ |
+| 维护者响应 | **稀疏** — #37 (2023) / #51 / #144 多年无官方回复 | TAPNext 上线后部分回复（#143 closed），但训练码 #141 18c 仍 open |
+| 新版本节奏 | CoTracker3 (2024) → 2025/26 静默；v2/v3 接口断层 #123 | TAPNext 2025 发布、Track-On 2025；旧 TAPIR 渐冷 |
+| 文档质量 | 论文+notebook 强，但 "online" 边界、license、ONNX 三块持续缺 | 训练复现、3D 数据释放、平台矩阵长期欠账 |
+| **致命缺口** | 长视频 streaming memory API 没有官方接管 | **TAPNext 1024 点 + 训练码缺 + ONNX 5D GridSample** 三件套 |
+
+### 8.3 讀者實務含義（高 ROI 行动清单）
+
+1. **>1024 frames 必须自己滑窗**：CoTracker 没有原生超长视频 API（#51 4 年 open），实务做法 = 切 32–64 帧窗 + 末帧 query 延续 + 自己 stitch trajectory；预算长 episode 时直接把 OOM 写进风险表。
+2. **"Online" 别只看论文叙事**：[#144](https://github.com/facebookresearch/co-tracker/issues/144) 标题就是定论 — *"Not really an online point tracking method"*；CoTracker3 online 仍要 `window_len=16` 缓冲（30 Hz 控制紧时不达 budget）。要真流式 → TAPNext streaming 路径或自研。
+3. **稀疏点 / 单点不要孤注一掷**：webcam 单点 + 动物腿场景（#71、#24）社区一致反馈不稳；接触点至少 16+ 同表面 query 让 cross-track attention 才有信号。
+4. **边缘部署先决问题就是 5D GridSample**：[tapnet #79](https://github.com/google-deepmind/tapnet/issues/79) 直接说 ONNX 不支持；Mobile / Orin 路线现阶段要么改算子要么留服务端做。
+5. **要 fine-tune TAPNext 现在不行**：[#141](https://github.com/google-deepmind/tapnet/issues/141) 仍 open；机器人接触点上 domain shift 无微调能力 = 视觉策略层只能当冻结特征用。
+6. **TAPNext 1024 点是硬天花板**：[#147](https://github.com/google-deepmind/tapnet/issues/147) 源码写死，dense 跟踪场景退化；超过得分批跑 + 手动 stitch（与 §1024 frames 同病）。
+7. **TAP vs CoTracker 选型按"是否要 online"**：要 streaming + 单/双卡 → CoTracker3 online；要纯 offline 高精度 + 跨视频迁移性 → BootsTAPIR / TAPNext；要 3D 任意点 → TAP-Vid 3D 路线但当前数据/标注释放卡（#115）。
+8. **商用项目避开 CoTracker 默认 license**：[#31](https://github.com/facebookresearch/co-tracker/issues/31) relicense 未排，避免事后撤项目。
+9. **TAPNext online 也有"漂出 target"问题**：[#143](https://github.com/google-deepmind/tapnet/issues/143) 官方回复仍未根治 — 不要假设迁移到 TAPNext 就把 CoTracker online 缺口完全填平。
+
+---
+
 ## Bridge to action policies
 
 输出 `(N, T, 2)` 轨迹 + `(N, T)` 可见性 = flow-conditioned VLA 消费的*接触点表示*. 完整故事见 [`bridge-to-vla/feature-cloud-to-action.md`](../../bridge-to-vla/feature-cloud-to-action.md).

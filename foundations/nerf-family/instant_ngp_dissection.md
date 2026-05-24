@@ -164,6 +164,23 @@ Table 内存: `L × T × F × 4 ≈ 67 MB`. MLP &lt;1 MB.
 
 - **GitHub-validated**：NVIDIA 仍在维护（2025-07 v2.0 release）但 issue triage 跟不上 — 491 open issues 长尾，主轴是 Windows + cmake / gcc 14 编译失败（#1613 / #1603 / #1607 / #1606），对应"NVIDIA SCL-NC 非商 license + CUDA 单一文化"假设破裂，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。任何跨平台 / Windows 团队要预算"踩编译坑"工时。
 
+### §8.1 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+**`NVlabs/instant-ngp` (官方 CUDA 实现)**
+
+| # | Pitfall | Evidence | Severity | Workaround |
+|---|---|---|---|---|
+| 1 | **GCC 14 编译失败** — pybind11 模板实例化对 GCC 14 更严类型检查不兼容 | [#1603](https://github.com/NVlabs/instant-ngp/issues/1603): "return type 'struct pybind11::detail::initimpl::factory<...>' is incomplete" 在 `pybind11.h:1894` 中 `ngp::EEditingKernel` enum 绑定处；GCC 13 通过 | 🔴 | 降级到 GCC 13；或升级 vendored pybind11；尚无官方 patch |
+| 2 | **Arch Linux / 现代发行版 cmake build 失败** — pybind11 模板歧义 | [#1613](https://github.com/NVlabs/instant-ngp/issues/1613): "ambiguous template instantiation for 'struct pybind11::detail::initimpl::factory…'" 在 `pybind11/pybind11.h:2884` + `src/python_api.cu:311` (`ETrainMode` enum)；Arch Linux 2026-02 报告 | 🔴 | 钉旧 toolchain（GCC 12/13 + 较旧 pybind11）；或用 conda 隔离编译环境 |
+| 3 | **Windows COLMAP PATH 把 RAM 吃爆 → 系统蓝屏（0x00000116 video TDR）** | [#1606](https://github.com/NVlabs/instant-ngp/issues/1606): "trigger memory overflow on your system causing the OS to emergency shutdown because the RAM was consumed" — COLMAP batch launcher 在 PATH 上递归触发自身 | 🔴 | Windows 上**不要把 COLMAP 内置 launcher 加 PATH**；用 conda / 显式路径调用 |
+| 4 | **数据集 >42 张图卡死在 95% (41/43)** — 进度条静默挂起 | [#1596](https://github.com/NVlabs/instant-ngp/issues/1596): "Cannot load NeRF dataset with more than 42 images" — `PROGRESS [...] 95% (41/43)` 后冻结；二进制 release 与 master 自编译都复现 | 🟠 | 拆数据集分批；或检查是否触发 file-descriptor 上限（`ulimit -n`） |
+| 5 | **Windows 一般体验差**（cmake / VS toolchain / 路径分隔符） | [#1607](https://github.com/NVlabs/instant-ngp/issues/1607) "NV Windows" + [#1606](https://github.com/NVlabs/instant-ngp/issues/1606) 警告帖 | 🟠 | 优先用 WSL2 + CUDA passthrough；纯 Windows 路径预算 1-2 天 |
+| 6 | **issue triage 跟不上** — 491 open 长尾，多数无回应 | issues tab 显示 491 open；近期 issue 平均 2026-Q1 后无 maintainer 回复 | 🟡 | 编译 / 部署问题先 search nerfstudio 社区或 fork 链 |
+
+**Repo health signal**: 17.4k ★ / 491 open / 大量 closed / 最后实质 release v2.0 在 2025-07；issue triage 滞后但 release 周期仍存活
+
+**讀者實務含義**: Instant-NGP 是 NeRF 历史上最被复制的实现，但在 2026 它越来越是**"实验/可视化原型"而非生产组件**。Linux 旧 toolchain（GCC 12-13） + 单机 NVIDIA RTX 30/40 是甜区；GCC 14 / Arch / Windows / 大数据集 / 非 NVIDIA 全是雷区。生产请用 nerfstudio 的 `instant-ngp` 重实现（损失 3-5× wall-clock 换稳定）或干脆迁 3DGS。
+
 ---
 
 ## 7 · Comparison and interview tip

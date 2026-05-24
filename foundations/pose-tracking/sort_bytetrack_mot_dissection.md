@@ -292,6 +292,53 @@ ByteTrack 反直觉之处：之前所有 tracker 扔掉 score &lt; 0.5 的检测
 
 ---
 
+## 10 · GitHub Deep Dive (2026-05, abewley/sort + ifzhang/ByteTrack 仓 issue 区交叉考古)
+
+> **来源**：[abewley/sort/issues](https://github.com/abewley/sort/issues)（3.8k★，按 comment 数排序前 25）+ [ifzhang/ByteTrack/issues](https://github.com/ifzhang/ByteTrack/issues)（5.0k★，按 comment 数前 25）。本节聚焦 detector 依赖 / ID switch / CPU 实时 / OC-SORT 替代讨论 / 3D 扩展请求 5 大读者真痛点。
+
+### 10.1 Pitfall 总表（按真实痛点 × 仓库交叉打分）
+
+| Pitfall 类别 | 高 ROI 实务含义（读者层面） | SORT 验证 issue | ByteTrack 验证 issue |
+|---|---|---|---|
+| **Detector 换型 / 参数全要重调** | 论文阈值是 YOLOX 上调过的；换 YOLOv5/v8/v11/RT-DETR 全套阈值重做 | [#73](https://github.com/abewley/sort/issues/73) 6c open detector→tracker 接口（"map the bounding boxes which this method output to the earlier ones"）· [#9](https://github.com/abewley/sort/issues/9) 11c closed SSD+SORT | **[#99](https://github.com/ifzhang/ByteTrack/issues/99) 41c closed** "run ByteTrack with yolov5 instead of yolox" · **[#5](https://github.com/ifzhang/ByteTrack/issues/5) 21c closed** "Use my own detection model" · [#445](https://github.com/ifzhang/ByteTrack/issues/445) YOLOv11 集成 · [#448](https://github.com/ifzhang/ByteTrack/issues/448) "False positives from YOLOX hurting tracking" · [#461](https://github.com/ifzhang/ByteTrack/issues/461) YOLOX CrowdHuman 准确率 |
+| **ID 计数器单调递增 / 不可重置** | tracker 重新实例化仍然延续旧 ID（全局静态）→ 多视频 batch / 多 session 部署直接错 | **[#106](https://github.com/abewley/sort/issues/106) 14c open** "Why the tracker ID keeps increase even I recreate the tracker object"（"recreate the tracker object ... However, the tracker IDs are different each time. For example, the tracker IDs start from 1&2 for the first iteration, then they start from 11&12 for the second"）· [#109](https://github.com/abewley/sort/issues/109) 4c "ID keeps increesing for the same objects" · [#134](https://github.com/abewley/sort/issues/134) 10c closed "Tracker skips a few identities" | **[#210](https://github.com/ifzhang/ByteTrack/issues/210) 18c open** "AttributeError: 'STrack' object has no attribute '_count'"（同根因：全局 `_count` 类属性被生命周期破坏） |
+| **遮挡下 ID switch / ID 互换** | 两人/两车相互遮挡分离后 ID 交换 — Kalman 单独是救不了的 | [#137](https://github.com/abewley/sort/issues/137) 8c open "Tracking id change with a gap" · [#157](https://github.com/abewley/sort/issues/157) 6c open（已知 N 个动物，MaskRCNN 错检 + SORT 只跟 4-5 → 需 reid 恢复） | **[#226](https://github.com/ifzhang/ByteTrack/issues/226) 10c open** "id exchange when two objects coincide"（"id 2 moves to cover id 1, when they separate the moving became id 1 and the static became id 2"） |
+| **长间隔 / 低 FPS 场景** | 低帧率 (5 Hz security cam, 远监控) IoU 失效；ByteTrack 也救不了 | [#22](https://github.com/abewley/sort/issues/22) 7c closed "Tracking with frame skips" | **[#424](https://github.com/ifzhang/ByteTrack/issues/424) 6c open "帧间隔时间很长的跟踪"**（"如果帧之间的间隔很长 ... 比如1s 2s的，我这边测试的结果是不行"，Kalman + 阈值全调过仍无效） |
+| **CPU 实时 / 边缘部署** | 论文配 YOLOX 走 GPU；CPU-only 报错 / 速度断崖 | [#178](https://github.com/abewley/sort/issues/178) "Converting into Grayscale increasing inference time" | **[#55](https://github.com/ifzhang/ByteTrack/issues/55) 8c open** "Error when running demo_track.py - does not work on CPU"（VM Ubuntu 无 GPU → 直接报错） |
+| **Deepstream / Jetson 内存泄漏** | 8 摄像头 35 min 内 OOM；NVIDIA 默认 tracker 不漏 | — | **[#276](https://github.com/ifzhang/ByteTrack/issues/276) 11c closed** "ByteTrack Deployment on Deepstream 6.0+ Major Memory Leak"（"uses the entire device memory within 35 minutes ... if i switch back to nvidia's default trackers no leak occurs"）— 引用 #253/#252/#249 多个未完整解决的 PR |
+| **小目标 / appearance 相似 / ReID 集成** | 行人都穿同制服、远景小目标 → 双轮 IoU 也救不了，需 BoT-SORT 的 ReID | [#157](https://github.com/abewley/sort/issues/157) 同制服动物 · [#128](https://github.com/abewley/sort/issues/128) "False positives and misses" | **[#460](https://github.com/ifzhang/ByteTrack/issues/460)** "Tracking loss for small targets with YOLOv8 + ByteTrack" · [#45](https://github.com/ifzhang/ByteTrack/issues/45) 10c "Objects on my dataset are quite small" · [#103](https://github.com/ifzhang/ByteTrack/issues/103) 7c "How can we integrate the re-id module for deep features" |
+| **依赖 / 版本腐化** | numpy / lap / PIL / torch / numpy.float 都炸过 | [#187](https://github.com/abewley/sort/issues/187) `pip install -r requirements.txt` · [#181](https://github.com/abewley/sort/issues/181) PIL ImageTk · [#173](https://github.com/abewley/sort/issues/173) lap→lapx · [#177](https://github.com/abewley/sort/issues/177) Python 版本 | [#379](https://github.com/ifzhang/ByteTrack/issues/379) "module 'numpy' has no attribute 'float'" · [#386](https://github.com/ifzhang/ByteTrack/issues/386) np.float · [#454](https://github.com/ifzhang/ByteTrack/issues/454) Missing torch module |
+| **关联结果 ↔ 输入 detection 的映射缺失** | tracker 输出 ID 顺序乱 → 应用层做 label/score join 困难 | [#73](https://github.com/abewley/sort/issues/73) 6c open（核心 API 缺陷）· [#145](https://github.com/abewley/sort/issues/145) 4c closed "Fix so results are returned in same order as input" | [#447](https://github.com/ifzhang/ByteTrack/issues/447) "Models usage question" |
+| **3D 扩展 / BEV / 多视图** | SORT/ByteTrack 都是 2D；自动驾驶必须切 CenterPoint-track 等 3D MOT | — | — （**两仓 issue 区都几乎没有 3D 扩展讨论 — 印证 §8 "AD 不直接用" 的判断；社区已默认 2D 边界**） |
+| **OC-SORT / BoT-SORT / DeepSORT 替代讨论** | "我该不该换" 是社区主流问题 — 但官方两仓基本不正面回 | [#9](https://github.com/abewley/sort/issues/9) 11c closed "new improvement about sort" — 作者引导用户自己实验 | [#103](https://github.com/ifzhang/ByteTrack/issues/103) ReID 集成 · [#284](https://github.com/ifzhang/ByteTrack/issues/284) "Is only the detector to be trained in ByteTrack"（暴露用户对范式的误解）· [#75](https://github.com/ifzhang/ByteTrack/issues/75) Backbone Change |
+| **训练复现（YOLOX 不复现）** | 论文 80.3 MOTA 重训不出 | — | [#89](https://github.com/ifzhang/ByteTrack/issues/89) 7c closed "result of completing the 80 epoch is very poor and cannot be duplicated" · [#134](https://github.com/ifzhang/ByteTrack/issues/134) 17c open "Stuck at init prefetcher" |
+
+### 10.2 仓库健康度
+
+| 维度 | abewley/sort | ifzhang/ByteTrack |
+|---|---|---|
+| Star | 3.8k | 5.0k |
+| Open issue / Total | 大量 open (#187 起到 #100 几乎全 open) | 400+ open（涨到 #461+） |
+| 维护者响应 | **基本停滞** — 2016 论文级原始仓，作者主要在 closed PR 留 commit 但 issue 几乎不回 | **稀疏** — 中文 issue 比例高；多个内存泄漏 / `_count` 类 bug 跨多个 PR 未完整修 |
+| 新版本节奏 | 几乎冻结（仍是 700 行 Python 原始） | 2022 论文后无大版本；社区 fork (ultralytics / supervision / mmtracking) 接管维护 |
+| 文档质量 | 论文 4 页 + README 简单 — `lap` / `lapx` / Kalman 维度需要读源码 | YOLOX 配套强，换 detector / CPU / Deepstream 三条线全靠 issue 自治 |
+| **致命缺口** | `id` 计数器全局单调，无 reset API（4 年多 open #106 14c 没 patch）；输入输出顺序错乱（#73）；ReID 完全无（设计上故意） | Deepstream 内存泄漏（#276 11c 跨 4 个 PR 仍未根治）；`STrack._count` 类属性破生命周期（#210 18c）；CPU 报错（#55 4 年 open）；详细 YOLOv8/v11/RT-DETR 阈值重调指南缺 |
+
+### 10.3 讀者實務含義（高 ROI 行动清单）
+
+1. **ID 计数器要自己包一层**：SORT [#106](https://github.com/abewley/sort/issues/106) 14c / ByteTrack [#210](https://github.com/ifzhang/ByteTrack/issues/210) 18c 同根因 — 类级 `_count` 不随对象重建复位；多 session / 多视频 batch 部署务必在 import 后手动 reset 类属性，或自己 fork 把 `_count` 改实例属性。
+2. **CPU 部署直接选 fork，不要原仓**：[#55](https://github.com/ifzhang/ByteTrack/issues/55) 4 年 open；要 CPU → 用 `supervision` / `mmtracking` 的实现，原 demo 跑不起来。
+3. **Jetson + Deepstream = 自己做内存监控**：[#276](https://github.com/ifzhang/ByteTrack/issues/276) 35 min OOM；上线前必做 1 小时×8 路压测，比对 NVIDIA NvDsTracker 基线（或直接用 NvDs 的 ByteTrack 插件 + 自己加 metric）。
+4. **换 detector 一定要重新扫阈值**：[#99](https://github.com/ifzhang/ByteTrack/issues/99) 41c / [#5](https://github.com/ifzhang/ByteTrack/issues/5) 21c 都印证 — track_thresh (0.6) 和 det_thresh (0.1) 是按 YOLOX score 分布调的；切 YOLOv8/YOLOv11/RT-DETR 各跑一遍 grid search（5×5 IoU×conf）。
+5. **小目标 / 同制服场景升级到 BoT-SORT**：ByteTrack [#460](https://github.com/ifzhang/ByteTrack/issues/460) / [#45](https://github.com/ifzhang/ByteTrack/issues/45) 10c / SORT [#157](https://github.com/abewley/sort/issues/157) 都打到同一痛点；ReID 不是可选 — 当外观可区分时直接加 ReID 收益最高。
+6. **低帧率场景（<10 Hz）双轮 IoU 失效**：ByteTrack [#424](https://github.com/ifzhang/ByteTrack/issues/424) 已实测 1-2 s 间隔不行；security cam / 远程监控直接选 OC-SORT（observation-centric 对 motion drift 友好）或外加 reid 重链接。
+7. **3D MOT 不要在这两仓找答案**：issue 区几乎没人问 — 社区已默认 SORT/ByteTrack = 2D 边界；3D 走 CenterPoint-track / SimpleTrack / Poly-MOT 另开 dissection。
+8. **API 缺陷预案**：SORT [#73](https://github.com/abewley/sort/issues/73) 输出顺序不保证 = 自己用空间索引做 detection→track 反查；不要靠"行号对齐"。
+9. **遮挡 ID 互换是设计极限**：[#226](https://github.com/ifzhang/ByteTrack/issues/226) — 静态 + 动态物体重叠分离后 ID 交换是 IoU+Kalman 范式硬伤；要 BoT-SORT/DeepSORT 的 appearance embedding 才能区分（这正是 OC-SORT 主修方向之一）。
+10. **依赖锁版本**：numpy < 1.20 / lap → lapx / Python 3.10+ — 两仓 issue 区一致提醒，建议在 Docker 里钉死。
+
+---
+
 ## References
 
 - SORT — Bewley et al. *ICIP 2016*. https://arxiv.org/abs/1602.00763 · code https://github.com/abewley/sort

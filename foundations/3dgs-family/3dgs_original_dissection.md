@@ -160,6 +160,29 @@ vanilla 3DGS 现在是 baseline，不是终点。到 2027 年预期：
 
 **Interview Tip**: 被问 "robotics 为什么选 3DGS 而非 NeRF"，陷阱答案是 "100× 更快"。正确答案是 *"because it's explicit"* — gaussian 可检查、可剪枝、可编辑，像 point cloud；NeRF MLP 不行。速度是结果，不是贡献。
 
+---
+
+## 8 · GitHub-validated atlas（deep dive 增量）
+
+§4.y 已概述 atlas 联动；本节为 2026-05-24 重新爬 issues / PR / license 后的细化证据。
+
+### §8.1 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+| # | Pitfall | Evidence | Severity | Workaround |
+|---|---|---|---|---|
+| 1 | Windows 11 安装直接挂在 `diff-gaussian-rasterization` CUDA extension build | [issue #1322](https://github.com/graphdeco-inria/gaussian-splatting/issues/1322): "OSError: [WinError 182] The operating system cannot run %1. Error loading..." — 失败发生在 `python setup.py egg_info` 阶段；无 maintainer 回复 | 🔴 | 走 WSL2 / Linux；issue #1313 是用户自己写的 RTX 50 + WSL2 工作配方，明确说 "Ubuntu Linux is recommended because it feels much more stable" |
+| 2 | RTX 50 系列 + CUDA 12.8 需要重做整条依赖栈 | [issue #1313](https://github.com/graphdeco-inria/gaussian-splatting/issues/1313): 用户自发分享的工作配方而非 bug — 必须 Ubuntu 22.04 (WSL2)、PyTorch CUDA 12.8 wheels、重编 diff-gaussian-rasterization + simple-knn + fused-ssim；没有官方支持文档 | 🟠 | 复刻 issue 内步骤；不要相信 README 默认环境对 Blackwell 卡 work |
+| 3 | submodule pinning 静默失败（祖师爷 repo 经典痛点） | [issue #1328](https://github.com/graphdeco-inria/gaussian-splatting/issues/1328) "submodules-simple-knn @ 86710c2 打不开" — issue body 仅 "如题"，无 maintainer 回复；commit SHA 失效 | 🟠 | clone 时 `--recurse-submodules`，并 fork 一份子模块到本地镜像，PR #1317-1319（Breadzzone）正在尝试系统性修 Windows submodule build flags |
+| 4 | 训练静默 stuck at 0% 即使在顶配硬件上 | [issue #1310](https://github.com/graphdeco-inria/gaussian-splatting/issues/1310): RTX 5090 + 128 GB RAM + 1238 drone photos 卡死在 0%；无 maintainer 回复、无 diagnosis | 🔴 | 缩到 100-200 张子集 sanity check；检查 COLMAP 输出而不是相信 progress bar；保留 CPU monitor 看是否 disk-IO bound |
+| 5 | License **明确禁止商业用途**（被许多复用方忽视） | [LICENSE.md](https://github.com/graphdeco-inria/gaussian-splatting/blob/main/LICENSE.md): "THE USER CANNOT USE, EXPLOIT OR DISTRIBUTE THE SOFTWARE FOR COMMERCIAL PURPOSES WITHOUT PRIOR AND EXPLICIT CONSENT OF LICENSORS" — 必须发邮件到 stip-sophia.transfert@inria.fr 申请商业授权 | 🔴 | 机器人产品 / SaaS / VLA pipeline 商用：要么走 INRIA 商业授权流程，要么换 BSD/MIT 的 reimplementation（如 gsplat、nerfstudio 内置实现） |
+| 6 | issue close rate 低 + maintainer 几乎不在 issue tracker 回复 | 22.1k★ / **664 open issues** / 45 open PRs；上面 5 个 high-severity issue 全部无 maintainer 回复；最近合并 PR 据查询数月前（PR backlog 主要由社区贡献者推 Windows/CUDA 兼容性） | 🟠 | 把 issues 当 "stack overflow 镜像" 而不是 support channel；生产关键 bug 自己 fork + 维护补丁 |
+| 7 | COLMAP 转换 pipeline 在自定义数据上脆弱 | [issue #1308](https://github.com/graphdeco-inria/gaussian-splatting/issues/1308) COLMAP command mismatch in convert.py + [#1307](https://github.com/graphdeco-inria/gaussian-splatting/issues/1307) Custom COLMAP rendering failure — 自有相机 / 非标准目录布局触发静默错位 | 🟡 | 严格按 `data/<scene>/{images,sparse/0}` 布局；先在 Mip-NeRF360 公开 scene 上跑通 sanity 再上自有数据 |
+| 8 | （surprise）社区主动推 AMD/HIP 移植 PR | PR #1297 HIP/AMDGPU port + PR #1319 Windows CUDA build flags submodule update — 来自社区而非 INRIA | 🟢 | 功耗敏感场景（marine / aerial / 工业机器人）现在有非 NVIDIA 路径试验中；生产前 review PR 实测分支 |
+
+**Repo health signal**: 22.1k★ / 664 open / ~? closed (counter 未直接可见) / 45 open PR / last meaningful PR backlog ~数月 — *"祖师爷 repo + 论文作者 INRIA mode"*: 论文级代码作为参考实现，工程化几乎全部依赖社区 PR；issue tracker 是搜索证据库，不是 support channel。
+
+**讀者實務含義**: (1) **商用前先解决 license** — INRIA 非商业许可在产品化时是真实 blocker，要么走授权要么用 BSD 重写如 `gsplat`；(2) **Windows / RTX 50 部署预设要踩坑**，issue #1313 是当前最完整的 RTX 50 配方，按它走可以省一周；(3) **关键 bug 别等官方** — 自己 fork、把社区 PR（特别是 Breadzzone 的 Windows 系列 + HIP 移植）merge 进内部 mirror。
+
 ## References
 
 - **3DGS original** — Kerbl, Kopanas, Leimkühler, Drettakis. *SIGGRAPH 2023.* https://arxiv.org/abs/2308.04079
