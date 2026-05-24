@@ -24,19 +24,7 @@
 
 Spatial AI 不是一個方法，是 **5 個正交軸的張量積**：
 
-```
-                Problem (做什麼)
-                       ×
-              Representation (用什麼存)
-                       ×
-                  Sensor (從哪來)
-                       ×
-                  Paradigm (怎麼算)
-                       ×
-                    Time (即時 / 離線 / 增量)
-                       ↓
-                一條具體的 spatial AI stack
-```
+![5-axis tensor product of Spatial AI](./assets/5-axis-tensor.svg)
 
 當你看到一個方法名（ORB-SLAM3 / VGGT / FoundationPose / 3DGS），它在這 5 個軸上**都有一個座標**。學會用座標讀法，每篇 paper 都自如分類。
 
@@ -369,6 +357,9 @@ Sensor modality
 
 ### §4.3 · Modality 失敗交叉表（誰怕誰）
 
+![Sensor modality failure heatmap](./assets/sensor-failure-heatmap.svg)
+
+
 | 環境/物體 | RGB | Active stereo (D435) | LiDAR (905 nm) | LiDAR (1550 nm) | mmWave radar | Imaging radar (4D) | Sonar |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | **透明 (玻璃)** | ❌ | ❌ | ❌ | ⚠️ | ✅ | ✅ | ⚠️ |
@@ -502,6 +493,9 @@ Generative 3D / world models
 
 **核心洞察**：純 feed-forward 3D（DUSt3R/VGGT）**無法**做 online streaming SLAM（latency 太高 / 無法 incremental update / 無 IMU coupling）。**所有實際 deployment 走 hybrid**：learned 3D backbone（為前端）+ 傳統 SLAM keyframe + loop closure（為後端 + global consistency）。
 
+![3R-SLAM Hybrid architecture: learned backbone + classical backend](./assets/3r-slam-hybrid-architecture.svg)
+
+
 | 方法 | Year | 設計 |
 |---|---|---|
 | **SLAM3R** | 2025 | DUSt3R-backbone 提 pair-wise pointmap + traditional keyframe graph |
@@ -578,6 +572,9 @@ CVPR 2026 已開 [3D-LLM/VLA workshop](https://3d-llm-vla.github.io/) — 信號
 ## §7 · 跨軸座標表 — 代表方法在 5 軸上的座標
 
 **TRL inline note**：⭐ = shipped at scale / 🚀 = pilot / 🔬 = research-only
+
+![Method TRL distribution — shipped vs pilot vs research](./assets/method-trl-distribution.svg)
+
 
 | 方法 | Problem | Representation | Sensor | Paradigm | Time | TRL |
 |---|---|---|---|---|---|---|
@@ -717,6 +714,8 @@ graph TD
 ### §8.3 · Surface methods — see v2（unchanged）
 
 ### §8.4 · Feed-forward 3D family (★ NEW v3 — replacing per-scene as research frontier)
+
+![Feed-forward 3D family lineage: CroCo → DUSt3R → MASt3R → VGGT → π³ / VGG-T³](./assets/feedforward-3d-lineage.svg)
 
 ```
 CroCo (Weinzaepfel NeurIPS 2022) — cross-view completion SSL

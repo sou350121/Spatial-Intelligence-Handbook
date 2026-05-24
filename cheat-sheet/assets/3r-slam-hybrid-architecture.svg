@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" font-family="-apple-system, system-ui, sans-serif">
+  <title>3R-SLAM Hybrid: Feed-forward 3D backbone + Classical SLAM back-end</title>
+
+  <defs>
+    <marker id="arr-data" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#06a0a0"/>
+    </marker>
+    <marker id="arr-control" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f77f00"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="450" y="25" text-anchor="middle" fill="#bbb" font-size="14" font-weight="700">3R-SLAM Hybrid 架構 (2025-2026 dominant deployment pattern)</text>
+  <text x="450" y="44" text-anchor="middle" fill="#888" font-size="11" font-style="italic">Learned 3D backbone (前端) + Classical SLAM (後端) — 純 feed-forward 無法 stream，所以走 hybrid</text>
+
+  <!-- Input -->
+  <rect x="20" y="80" width="140" height="80" rx="8" fill="#1a1a2e" stroke="#888" stroke-width="2"/>
+  <text x="90" y="105" text-anchor="middle" fill="#bbb" font-size="11" font-weight="700">📷 Input</text>
+  <text x="90" y="125" text-anchor="middle" fill="#fff" font-size="10">RGB frame_t</text>
+  <text x="90" y="140" text-anchor="middle" fill="#fff" font-size="10">(+ IMU)</text>
+  <text x="90" y="155" text-anchor="middle" fill="#888" font-size="9">@ ~30 Hz</text>
+
+  <!-- Frontend: Feed-forward 3D backbone -->
+  <rect x="220" y="60" width="280" height="240" rx="10" fill="#0f1e2e" stroke="#06a0a0" stroke-width="2" stroke-dasharray="4 2"/>
+  <text x="360" y="80" text-anchor="middle" fill="#06a0a0" font-size="12" font-weight="700">🧠 FRONTEND — Learned 3D backbone</text>
+
+  <rect x="240" y="95" width="240" height="50" rx="6" fill="#1a1a2e" stroke="#06a0a0" stroke-width="1.5"/>
+  <text x="360" y="115" text-anchor="middle" fill="#06a0a0" font-size="11" font-weight="700">DUSt3R / VGGT / π³</text>
+  <text x="360" y="130" text-anchor="middle" fill="#fff" font-size="9">feed-forward → pose + depth + pointmap</text>
+
+  <rect x="240" y="160" width="240" height="50" rx="6" fill="#1a1a2e" stroke="#888" stroke-width="1"/>
+  <text x="360" y="180" text-anchor="middle" fill="#bbb" font-size="11" font-weight="700">Image features</text>
+  <text x="360" y="195" text-anchor="middle" fill="#fff" font-size="9">SuperPoint / DINOv2 / LightGlue match</text>
+
+  <rect x="240" y="225" width="240" height="50" rx="6" fill="#1a1a2e" stroke="#888" stroke-width="1"/>
+  <text x="360" y="245" text-anchor="middle" fill="#bbb" font-size="11" font-weight="700">Relative pose estimate</text>
+  <text x="360" y="260" text-anchor="middle" fill="#fff" font-size="9">PnP + RANSAC / from pointmap</text>
+
+  <text x="360" y="290" text-anchor="middle" fill="#06a0a0" font-size="9" font-style="italic">⚠ 純 feed-forward 在這就停 — 無法 stream / 無 loop closure / 無 IMU coupling</text>
+
+  <!-- Arrow from input to frontend -->
+  <line x1="160" y1="120" x2="220" y2="120" stroke="#06a0a0" stroke-width="2" marker-end="url(#arr-data)"/>
+
+  <!-- Backend: Classical SLAM -->
+  <rect x="560" y="60" width="320" height="320" rx="10" fill="#1e1a0f" stroke="#f77f00" stroke-width="2" stroke-dasharray="4 2"/>
+  <text x="720" y="80" text-anchor="middle" fill="#f77f00" font-size="12" font-weight="700">⚙ BACKEND — Classical SLAM</text>
+
+  <rect x="580" y="95" width="280" height="40" rx="6" fill="#1a1a2e" stroke="#f77f00" stroke-width="1.5"/>
+  <text x="720" y="115" text-anchor="middle" fill="#f77f00" font-size="11" font-weight="700">Keyframe selection</text>
+  <text x="720" y="128" text-anchor="middle" fill="#fff" font-size="9">translation/rotation threshold</text>
+
+  <rect x="580" y="145" width="280" height="40" rx="6" fill="#1a1a2e" stroke="#f77f00" stroke-width="1.5"/>
+  <text x="720" y="165" text-anchor="middle" fill="#f77f00" font-size="11" font-weight="700">Factor graph (GTSAM / Ceres)</text>
+  <text x="720" y="178" text-anchor="middle" fill="#fff" font-size="9">BA + IMU preintegration factors</text>
+
+  <rect x="580" y="195" width="280" height="40" rx="6" fill="#1a1a2e" stroke="#f77f00" stroke-width="1.5"/>
+  <text x="720" y="215" text-anchor="middle" fill="#f77f00" font-size="11" font-weight="700">Loop closure (DBoW2 / NetVLAD)</text>
+  <text x="720" y="228" text-anchor="middle" fill="#fff" font-size="9">place recognition → geometric verify</text>
+
+  <rect x="580" y="245" width="280" height="40" rx="6" fill="#1a1a2e" stroke="#f77f00" stroke-width="1.5"/>
+  <text x="720" y="265" text-anchor="middle" fill="#f77f00" font-size="11" font-weight="700">Global optimization (iSAM2)</text>
+  <text x="720" y="278" text-anchor="middle" fill="#fff" font-size="9">incremental smoother</text>
+
+  <rect x="580" y="295" width="280" height="60" rx="6" fill="#0f3460" stroke="#e94560" stroke-width="2"/>
+  <text x="720" y="315" text-anchor="middle" fill="#e94560" font-size="11" font-weight="700">✅ Output: globally consistent SLAM</text>
+  <text x="720" y="332" text-anchor="middle" fill="#fff" font-size="9">trajectory + map + loop closure</text>
+  <text x="720" y="346" text-anchor="middle" fill="#fff" font-size="9">streaming, low latency, metric scale</text>
+
+  <!-- Arrow from frontend to backend -->
+  <line x1="500" y1="180" x2="560" y2="180" stroke="#06a0a0" stroke-width="2" marker-end="url(#arr-data)"/>
+  <text x="530" y="170" text-anchor="middle" fill="#06a0a0" font-size="9">pose hint</text>
+  <text x="530" y="195" text-anchor="middle" fill="#06a0a0" font-size="9">+ depth prior</text>
+
+  <!-- Examples bottom -->
+  <text x="60" y="410" fill="#bbb" font-size="11" font-weight="700">範例 (2025-2026):</text>
+  <rect x="60" y="420" width="180" height="35" rx="4" fill="#1a1a2e" stroke="#06a0a0" stroke-width="1"/>
+  <text x="150" y="437" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">SLAM3R</text>
+  <text x="150" y="450" text-anchor="middle" fill="#888" font-size="9">DUSt3R + keyframe graph</text>
+
+  <rect x="250" y="420" width="180" height="35" rx="4" fill="#1a1a2e" stroke="#06a0a0" stroke-width="1"/>
+  <text x="340" y="437" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Flash-Mono</text>
+  <text x="340" y="450" text-anchor="middle" fill="#888" font-size="9">ICLR 2026 / streaming</text>
+
+  <rect x="440" y="420" width="180" height="35" rx="4" fill="#1a1a2e" stroke="#06a0a0" stroke-width="1"/>
+  <text x="530" y="437" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">EC3R-SLAM</text>
+  <text x="530" y="450" text-anchor="middle" fill="#888" font-size="9">efficient + consistent</text>
+
+  <rect x="630" y="420" width="180" height="35" rx="4" fill="#1a1a2e" stroke="#06a0a0" stroke-width="1"/>
+  <text x="720" y="437" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">MUSt3R / Fast3R</text>
+  <text x="720" y="450" text-anchor="middle" fill="#888" font-size="9">multi-view streaming</text>
+
+  <!-- Footer warning -->
+  <rect x="100" y="475" width="700" height="20" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="1"/>
+  <text x="450" y="489" text-anchor="middle" fill="#fff" font-size="10">⚠ 0 個 shipped robot 用純 VGGT / DUSt3R — 全走 hybrid 或仍用傳統 SLAM</text>
+</svg>

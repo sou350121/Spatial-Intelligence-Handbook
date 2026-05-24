@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" font-family="-apple-system, system-ui, sans-serif">
+  <title>Spatial AI as the tensor product of 5 orthogonal axes</title>
+
+  <!-- Center node -->
+  <circle cx="400" cy="240" r="58" fill="#0f3460" stroke="#e94560" stroke-width="3"/>
+  <text x="400" y="232" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Spatial AI</text>
+  <text x="400" y="252" text-anchor="middle" fill="#fff" font-size="11">stack</text>
+  <text x="400" y="268" text-anchor="middle" fill="#f77f00" font-size="10">(座標)</text>
+
+  <!-- 5 axes: Problem (top), Repr (upper-right), Sensor (lower-right), Paradigm (lower-left), Time (upper-left) -->
+  <!-- Each axis: line + node + label -->
+
+  <!-- 1. Problem (top, 90°) -->
+  <line x1="400" y1="182" x2="400" y2="90" stroke="#4361ee" stroke-width="2"/>
+  <rect x="320" y="35" width="160" height="55" rx="8" fill="#1a1a2e" stroke="#4361ee" stroke-width="2"/>
+  <text x="400" y="55" text-anchor="middle" fill="#4361ee" font-size="14" font-weight="700">① Problem</text>
+  <text x="400" y="72" text-anchor="middle" fill="#fff" font-size="10">VO / VIO / SLAM / SfM /</text>
+  <text x="400" y="84" text-anchor="middle" fill="#fff" font-size="10">Recon / Tracking / VLA</text>
+
+  <!-- 2. Representation (upper-right, 18°) -->
+  <line x1="455" y1="222" x2="640" y2="155" stroke="#9d4edd" stroke-width="2"/>
+  <rect x="615" y="100" width="170" height="55" rx="8" fill="#1a1a2e" stroke="#9d4edd" stroke-width="2"/>
+  <text x="700" y="120" text-anchor="middle" fill="#9d4edd" font-size="14" font-weight="700">② Representation</text>
+  <text x="700" y="137" text-anchor="middle" fill="#fff" font-size="10">sparse / pointmap / NeRF</text>
+  <text x="700" y="149" text-anchor="middle" fill="#fff" font-size="10">3DGS / voxel / BEV / SG</text>
+
+  <!-- 3. Sensor (lower-right, -54°) -->
+  <line x1="455" y1="258" x2="640" y2="325" stroke="#06a0a0" stroke-width="2"/>
+  <rect x="615" y="325" width="170" height="55" rx="8" fill="#1a1a2e" stroke="#06a0a0" stroke-width="2"/>
+  <text x="700" y="345" text-anchor="middle" fill="#06a0a0" font-size="14" font-weight="700">③ Sensor</text>
+  <text x="700" y="362" text-anchor="middle" fill="#fff" font-size="10">mono / stereo / RGBD / IMU</text>
+  <text x="700" y="374" text-anchor="middle" fill="#fff" font-size="10">LiDAR / event / sonar / 4D radar</text>
+
+  <!-- 4. Paradigm (lower-left, -126°) -->
+  <line x1="345" y1="258" x2="160" y2="325" stroke="#f77f00" stroke-width="2"/>
+  <rect x="15" y="325" width="170" height="55" rx="8" fill="#1a1a2e" stroke="#f77f00" stroke-width="2"/>
+  <text x="100" y="345" text-anchor="middle" fill="#f77f00" font-size="14" font-weight="700">④ Paradigm</text>
+  <text x="100" y="362" text-anchor="middle" fill="#fff" font-size="10">filter / BA / learned / hybrid</text>
+  <text x="100" y="374" text-anchor="middle" fill="#fff" font-size="10">3R-SLAM / VLA / world-model</text>
+
+  <!-- 5. Time (upper-left, 162°) -->
+  <line x1="345" y1="222" x2="160" y2="155" stroke="#e94560" stroke-width="2"/>
+  <rect x="15" y="100" width="170" height="55" rx="8" fill="#1a1a2e" stroke="#e94560" stroke-width="2"/>
+  <text x="100" y="120" text-anchor="middle" fill="#e94560" font-size="14" font-weight="700">⑤ Time</text>
+  <text x="100" y="137" text-anchor="middle" fill="#fff" font-size="10">filter-streaming / smoother</text>
+  <text x="100" y="149" text-anchor="middle" fill="#fff" font-size="10">batch / feed-forward / per-scene</text>
+
+  <!-- Example coordinate annotation (bottom) -->
+  <rect x="90" y="420" width="620" height="50" rx="6" fill="#0a0a14" stroke="#555" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="400" y="438" text-anchor="middle" fill="#bbb" font-size="11" font-style="italic">範例：ORB-SLAM3 在 5 軸的座標</text>
+  <text x="400" y="456" text-anchor="middle" fill="#fff" font-size="11">
+    <tspan fill="#4361ee">VSLAM</tspan> · <tspan fill="#9d4edd">Sparse+Atlas</tspan> · <tspan fill="#06a0a0">Mono+IMU</tspan> · <tspan fill="#f77f00">BA+DBoW2</tspan> · <tspan fill="#e94560">Incremental-Smoother</tspan>
+  </text>
+
+  <!-- Footer -->
+  <text x="400" y="14" text-anchor="middle" fill="#888" font-size="10">5 個正交軸的張量積 — 每個方法都是一條座標</text>
+</svg>

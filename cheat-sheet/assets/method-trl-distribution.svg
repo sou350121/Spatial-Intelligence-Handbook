@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="-apple-system, system-ui, sans-serif">
+  <title>Method TRL distribution — research vs shipped (from §7 cross-axis table)</title>
+
+  <!-- Title -->
+  <text x="450" y="25" text-anchor="middle" fill="#bbb" font-size="14" font-weight="700">Method TRL distribution（§7 cross-axis table 抽取）</text>
+  <text x="450" y="44" text-anchor="middle" fill="#888" font-size="11" font-style="italic">⭐ shipped at scale · 🚀 pilot · 🔬 research-only — 別把 research 跟 shipped 等量</text>
+
+  <!-- Legend -->
+  <rect x="40" y="65" width="20" height="20" fill="#e94560"/>
+  <text x="68" y="80" fill="#fff" font-size="12">⭐ Shipped at scale (>10k units / 商用 robotaxi)</text>
+  <rect x="320" y="65" width="20" height="20" fill="#f77f00"/>
+  <text x="348" y="80" fill="#fff" font-size="12">🚀 Pilot / 部分產品</text>
+  <rect x="480" y="65" width="20" height="20" fill="#06a0a0"/>
+  <text x="508" y="80" fill="#fff" font-size="12">🔬 Research-only</text>
+
+  <!-- ⭐ Shipped at scale: ORB-SLAM3, VINS-Fusion, OpenVINS, FAST-LIO2, RAFT, ByteTrack, Min-snap, 3DGS (offline), Tesla FSD v13, Waymo 6th-gen -->
+  <text x="40" y="125" fill="#e94560" font-size="13" font-weight="700">⭐ Shipped at scale (~10 種)</text>
+  <text x="40" y="143" fill="#bbb" font-size="10" font-style="italic">handbook 認可的「真的在跑」</text>
+
+  <g transform="translate(40, 155)">
+    <rect x="0" y="0" width="180" height="22" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="1"/>
+    <text x="6" y="15" fill="#fff" font-size="10">ORB-SLAM3 (VSLAM)</text>
+
+    <rect x="190" y="0" width="180" height="22" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="1"/>
+    <text x="196" y="15" fill="#fff" font-size="10">VINS-Mono / Fusion (VI-SLAM)</text>
+
+    <rect x="380" y="0" width="180" height="22" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="1"/>
+    <text x="386" y="15" fill="#fff" font-size="10">OpenVINS (MSCKF VIO)</text>
+
+    <rect x="570" y="0" width="180" height="22" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="1"/>
+    <text x="576" y="15" fill="#fff" font-size="10">FAST-LIO2 (LIO)</text>
+
+    <rect x="0" y="28" width="180" height="22" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="1"/>
+    <text x="6" y="43" fill="#fff" font-size="10">RAFT (optical flow)</text>
+
+    <rect x="190" y="28" width="180" height="22" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="1"/>
+    <text x="196" y="43" fill="#fff" font-size="10">ByteTrack (MOT)</text>
+
+    <rect x="380" y="28" width="180" height="22" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="1"/>
+    <text x="386" y="43" fill="#fff" font-size="10">Min-snap (HKUST trajectory)</text>
+
+    <rect x="570" y="28" width="180" height="22" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="1"/>
+    <text x="576" y="43" fill="#fff" font-size="10">3DGS (作 offline asset)</text>
+
+    <rect x="0" y="56" width="370" height="22" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="2"/>
+    <text x="6" y="71" fill="#fff" font-size="10" font-weight="700">Tesla FSD v13 (vision-only E2E + temporal transformer)</text>
+
+    <rect x="380" y="56" width="370" height="22" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="2"/>
+    <text x="386" y="71" fill="#fff" font-size="10" font-weight="700">Waymo 6th-gen (multi-sensor + HD-map + audio)</text>
+  </g>
+
+  <!-- 🚀 Pilot: FAST-LIVO2, Kimera, Depth Anything v2, Instant-NGP, FoundationPose, CoTracker, π0, Helix, Gemini Robotics, Cosmos-Policy, GAIA-2/3 -->
+  <text x="40" y="270" fill="#f77f00" font-size="13" font-weight="700">🚀 Pilot / 部分產品 (~11 種)</text>
+  <text x="40" y="288" fill="#bbb" font-size="10" font-style="italic">仍在 ramp，不是 mainstream production</text>
+
+  <g transform="translate(40, 300)">
+    <rect x="0" y="0" width="180" height="22" rx="3" fill="#3a2a0f" stroke="#f77f00" stroke-width="1"/>
+    <text x="6" y="15" fill="#fff" font-size="10">FAST-LIVO2 (LIO+Visual)</text>
+
+    <rect x="190" y="0" width="180" height="22" rx="3" fill="#3a2a0f" stroke="#f77f00" stroke-width="1"/>
+    <text x="196" y="15" fill="#fff" font-size="10">Kimera (semantic SLAM)</text>
+
+    <rect x="380" y="0" width="180" height="22" rx="3" fill="#3a2a0f" stroke="#f77f00" stroke-width="1"/>
+    <text x="386" y="15" fill="#fff" font-size="10">Depth Anything v2 ⚠</text>
+
+    <rect x="570" y="0" width="180" height="22" rx="3" fill="#3a2a0f" stroke="#f77f00" stroke-width="1"/>
+    <text x="576" y="15" fill="#fff" font-size="10">Instant-NGP</text>
+
+    <rect x="0" y="28" width="180" height="22" rx="3" fill="#3a2a0f" stroke="#f77f00" stroke-width="1"/>
+    <text x="6" y="43" fill="#fff" font-size="10">FoundationPose ⚠ >200ms</text>
+
+    <rect x="190" y="28" width="180" height="22" rx="3" fill="#3a2a0f" stroke="#f77f00" stroke-width="1"/>
+    <text x="196" y="43" fill="#fff" font-size="10">CoTracker / TAP</text>
+
+    <rect x="380" y="28" width="180" height="22" rx="3" fill="#3a2a0f" stroke="#f77f00" stroke-width="1"/>
+    <text x="386" y="43" fill="#fff" font-size="10">π0 / π0-FAST (Physical Intel)</text>
+
+    <rect x="570" y="28" width="180" height="22" rx="3" fill="#3a2a0f" stroke="#f77f00" stroke-width="1"/>
+    <text x="576" y="43" fill="#fff" font-size="10">Helix (Figure 02)</text>
+
+    <rect x="0" y="56" width="180" height="22" rx="3" fill="#3a2a0f" stroke="#f77f00" stroke-width="1"/>
+    <text x="6" y="71" fill="#fff" font-size="10">Gemini Robotics 1.5</text>
+
+    <rect x="190" y="56" width="180" height="22" rx="3" fill="#3a2a0f" stroke="#f77f00" stroke-width="1"/>
+    <text x="196" y="71" fill="#fff" font-size="10">Cosmos-Policy (NVIDIA)</text>
+
+    <rect x="380" y="56" width="180" height="22" rx="3" fill="#3a2a0f" stroke="#f77f00" stroke-width="1"/>
+    <text x="386" y="71" fill="#fff" font-size="10">GAIA-2/3 (Wayve)</text>
+  </g>
+
+  <!-- 🔬 Research-only: VGGT, DUSt3R, π³, VGG-T³, MapAnything, CUT3R, 3R-SLAM family, NeRF, NeuS, LangSplat, OpenScene, etc -->
+  <text x="40" y="415" fill="#06a0a0" font-size="13" font-weight="700">🔬 Research-only (~15+ 種)</text>
+  <text x="40" y="433" fill="#bbb" font-size="10" font-style="italic">paper / GitHub repo 存在但無實際 deployment evidence</text>
+
+  <g transform="translate(40, 445)">
+    <rect x="0" y="0" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="6" y="15" fill="#fff" font-size="10">VGGT ⚠ paradigm 爭議</text>
+
+    <rect x="190" y="0" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="196" y="15" fill="#fff" font-size="10">DUSt3R / MASt3R</text>
+
+    <rect x="380" y="0" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="386" y="15" fill="#fff" font-size="10">π³ / Pi3 (ICLR 2026)</text>
+
+    <rect x="570" y="0" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="576" y="15" fill="#fff" font-size="10">VGG-T³ (NVIDIA 2026)</text>
+
+    <rect x="0" y="28" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="6" y="43" fill="#fff" font-size="10">MapAnything (Meta)</text>
+
+    <rect x="190" y="28" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="196" y="43" fill="#fff" font-size="10">CUT3R / Spann3R</text>
+
+    <rect x="380" y="28" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="386" y="43" fill="#fff" font-size="10">3R-SLAM family ★</text>
+
+    <rect x="570" y="28" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="576" y="43" fill="#fff" font-size="10">FeatureSLAM / VIGS-SLAM</text>
+
+    <rect x="0" y="56" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="6" y="71" fill="#fff" font-size="10">NeRF / Mip-NeRF / NeuS</text>
+
+    <rect x="190" y="56" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="196" y="71" fill="#fff" font-size="10">LangSplat / LERF</text>
+
+    <rect x="380" y="56" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="386" y="71" fill="#fff" font-size="10">OpenScene / AnySplat</text>
+
+    <rect x="570" y="56" width="180" height="22" rx="3" fill="#0f2a2a" stroke="#06a0a0" stroke-width="1"/>
+    <text x="576" y="71" fill="#fff" font-size="10">Aether / Genie 3</text>
+  </g>
+
+  <!-- Footer note -->
+  <rect x="40" y="555" width="820" height="35" rx="4" fill="#0a0a14" stroke="#555" stroke-width="1"/>
+  <text x="450" y="572" text-anchor="middle" fill="#bbb" font-size="11" font-weight="700">⚠ 學界 paper 數量 ≠ deployment status</text>
+  <text x="450" y="585" text-anchor="middle" fill="#888" font-size="10">大量 2024-2026 「foundation model」、「world model」、「3D-VLA」仍 research-only — 別把 hype 當已落地</text>
+</svg>

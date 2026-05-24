@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 650" font-family="-apple-system, system-ui, sans-serif">
+  <title>Feed-forward 3D family lineage: CroCo → DUSt3R → MASt3R → VGGT → π³ / VGG-T³</title>
+
+  <!-- defs: arrow -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#888"/>
+    </marker>
+    <marker id="arrow-hybrid" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f77f00"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="450" y="24" text-anchor="middle" fill="#bbb" font-size="13" font-weight="700">Feed-forward 3D family lineage (2022 → 2026)</text>
+  <text x="450" y="42" text-anchor="middle" fill="#888" font-size="10" font-style="italic">CroCo → DUSt3R → MASt3R → VGGT → π³ / VGG-T³ + 衍生分支</text>
+
+  <!-- Year axis (left) -->
+  <line x1="40" y1="80" x2="40" y2="600" stroke="#444" stroke-width="1"/>
+  <text x="30" y="105" text-anchor="end" fill="#888" font-size="10">2022</text>
+  <text x="30" y="180" text-anchor="end" fill="#888" font-size="10">2024</text>
+  <text x="30" y="280" text-anchor="end" fill="#888" font-size="10">2024-25</text>
+  <text x="30" y="380" text-anchor="end" fill="#888" font-size="10">2025</text>
+  <text x="30" y="500" text-anchor="end" fill="#888" font-size="10">2025-26</text>
+  <text x="30" y="590" text-anchor="end" fill="#888" font-size="10">2026</text>
+
+  <!-- Root: CroCo (2022) -->
+  <rect x="370" y="85" width="160" height="40" rx="6" fill="#1a1a2e" stroke="#4361ee" stroke-width="2"/>
+  <text x="450" y="103" text-anchor="middle" fill="#4361ee" font-size="13" font-weight="700">CroCo / CroCo-v2</text>
+  <text x="450" y="118" text-anchor="middle" fill="#fff" font-size="9">cross-view completion SSL · Naver NeurIPS 2022</text>
+
+  <!-- DUSt3R (2024) -->
+  <line x1="450" y1="125" x2="450" y2="160" stroke="#888" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="370" y="160" width="160" height="40" rx="6" fill="#1a1a2e" stroke="#4361ee" stroke-width="2"/>
+  <text x="450" y="178" text-anchor="middle" fill="#4361ee" font-size="13" font-weight="700">DUSt3R</text>
+  <text x="450" y="193" text-anchor="middle" fill="#fff" font-size="9">two-view pointmap · Naver CVPR 2024</text>
+
+  <!-- MASt3R (2024) -->
+  <line x1="450" y1="200" x2="450" y2="235" stroke="#888" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="370" y="235" width="160" height="40" rx="6" fill="#1a1a2e" stroke="#4361ee" stroke-width="2"/>
+  <text x="450" y="253" text-anchor="middle" fill="#4361ee" font-size="13" font-weight="700">MASt3R</text>
+  <text x="450" y="268" text-anchor="middle" fill="#fff" font-size="9">+ matching head · Naver ECCV 2024</text>
+
+  <!-- VGGT (CVPR 2025 best paper) - prominent -->
+  <line x1="450" y1="275" x2="450" y2="335" stroke="#888" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="350" y="335" width="200" height="50" rx="6" fill="#0f3460" stroke="#f77f00" stroke-width="3"/>
+  <text x="450" y="355" text-anchor="middle" fill="#f77f00" font-size="14" font-weight="700">VGGT ★</text>
+  <text x="450" y="370" text-anchor="middle" fill="#fff" font-size="9">multi-task: pose + depth + tracks</text>
+  <text x="450" y="382" text-anchor="middle" fill="#bbb" font-size="9">Meta+Oxford · CVPR 2025 Best Paper</text>
+
+  <!-- Branches from VGGT downward -->
+  <!-- Left branch: scaling improvements -->
+  <line x1="380" y1="385" x2="180" y2="450" stroke="#888" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="60" y="440" width="240" height="60" rx="6" fill="#1a1a2e" stroke="#06a0a0" stroke-width="2"/>
+  <text x="180" y="458" text-anchor="middle" fill="#06a0a0" font-size="12" font-weight="700">Scaling</text>
+  <text x="180" y="472" text-anchor="middle" fill="#fff" font-size="9">VGGT-Long (Deng ICRA 2026)</text>
+  <text x="180" y="484" text-anchor="middle" fill="#fff" font-size="9">VGG-T³ (NVIDIA, TTT 11.6× speedup)</text>
+  <text x="180" y="496" text-anchor="middle" fill="#fff" font-size="9">FastVGGT (memory optim)</text>
+
+  <!-- Center branch: paradigm break -->
+  <line x1="450" y1="385" x2="450" y2="450" stroke="#e94560" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="360" y="440" width="180" height="60" rx="6" fill="#1a1a2e" stroke="#e94560" stroke-width="2"/>
+  <text x="450" y="458" text-anchor="middle" fill="#e94560" font-size="12" font-weight="700">Paradigm break</text>
+  <text x="450" y="472" text-anchor="middle" fill="#fff" font-size="9">π³ / Pi3 (ICLR 2026)</text>
+  <text x="450" y="484" text-anchor="middle" fill="#fff" font-size="9">permutation-equivariant</text>
+  <text x="450" y="496" text-anchor="middle" fill="#fff" font-size="9">reference-free</text>
+
+  <!-- Right branch: online streaming -->
+  <line x1="520" y1="385" x2="720" y2="450" stroke="#888" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="600" y="440" width="240" height="60" rx="6" fill="#1a1a2e" stroke="#9d4edd" stroke-width="2"/>
+  <text x="720" y="458" text-anchor="middle" fill="#9d4edd" font-size="12" font-weight="700">Online streaming</text>
+  <text x="720" y="472" text-anchor="middle" fill="#fff" font-size="9">CUT3R / Spann3R (CVPR 2025)</text>
+  <text x="720" y="484" text-anchor="middle" fill="#fff" font-size="9">MUSt3R / Fast3R (2025)</text>
+  <text x="720" y="496" text-anchor="middle" fill="#fff" font-size="9">MonST3R (4D dynamic)</text>
+
+  <!-- 2026 Universal Interface + Hybrid integration -->
+  <line x1="180" y1="500" x2="280" y2="560" stroke="#888" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="450" y1="500" x2="450" y2="560" stroke="#888" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="720" y1="500" x2="620" y2="560" stroke="#888" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="240" y="560" width="190" height="50" rx="6" fill="#0f3460" stroke="#2a9d8f" stroke-width="2"/>
+  <text x="335" y="580" text-anchor="middle" fill="#2a9d8f" font-size="12" font-weight="700">MapAnything (Meta)</text>
+  <text x="335" y="594" text-anchor="middle" fill="#fff" font-size="9">universal interface — 吸收上述</text>
+  <text x="335" y="605" text-anchor="middle" fill="#fff" font-size="9">為 backend，多 sensor 配置</text>
+
+  <rect x="470" y="560" width="230" height="50" rx="6" fill="#0f3460" stroke="#f77f00" stroke-width="3"/>
+  <text x="585" y="580" text-anchor="middle" fill="#f77f00" font-size="12" font-weight="700">3R-SLAM Hybrid ★ NEW v3</text>
+  <text x="585" y="594" text-anchor="middle" fill="#fff" font-size="9">SLAM3R / Flash-Mono / EC3R-SLAM</text>
+  <text x="585" y="605" text-anchor="middle" fill="#fff" font-size="9">FF backbone + 傳統 SLAM 後端</text>
+
+  <!-- Bottom warning -->
+  <rect x="100" y="625" width="700" height="20" rx="3" fill="#3a1a1a" stroke="#e94560" stroke-width="1"/>
+  <text x="450" y="639" text-anchor="middle" fill="#fff" font-size="10">⚠ 2025-2026 真實 deployment: 純 feed-forward → hybrid (SLAM 後端);  paradigm shift 爭議見 §13</text>
+</svg>
