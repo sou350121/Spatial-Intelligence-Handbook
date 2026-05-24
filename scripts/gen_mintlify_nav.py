@@ -149,14 +149,17 @@ def main() -> int:
         if direct_files:
             groups.append({"group": "Overview", "pages": [page_id(f) for f in direct_files]})
         for sub in collect_subdirs(d):
-            groups.append(build_group(sub))
+            g = build_group(sub)
+            # Skip empty groups (e.g. sub-folder with only README.md, which is excluded)
+            if g.get("pages"):
+                groups.append(g)
         tabs_json.append({"tab": tab_name, "icon": icon, "groups": groups})
 
     docs = {
         "$schema": "https://mintlify.com/docs.json",
         "theme": "mint",
         "name": "Spatial Intelligence Handbook",
-        "description": "Spatial AI for manipulation / aerial / driving / marine — 187 dissection + atlas + cross-embodiment migration",
+        "description": "Spatial AI for manipulation / aerial / driving / marine — 37 dissection / 83 篇深度解析 / 5-axis ontology / GitHub-validated atlas",
         "colors": {
             "primary": "#0EA5E9",
             "light": "#38BDF8",

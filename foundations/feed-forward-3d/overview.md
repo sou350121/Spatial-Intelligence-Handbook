@@ -171,10 +171,11 @@
 
 &nbsp;
 
-**3 dissections** · 全部 2025-2026 新 paper · 全部 Meta 系作者
+**4 dissections** · 全部 2025-2026 新 paper · Meta 系 + Tsinghua 系作者
 
 **演进逻辑**：VGGT v1 开创范式 → MapAnything 解 metric → VGGT-Ω 解 efficiency
-→ 下一代 (2027?) 三者合一 + streaming + IMU
+→ **StreamVGGT (2025-07) 解 streaming via causal+KV cache**
+→ 下一代 (2027?) 四者合一 + IMU coupling
 
 **Pulsar pipeline**：本区是 spatial AI 最热的轴，平均每 3-6 个月有重大新论文。
 Pulsar `vla-rss-collect.py` 监控 cs.CV arxiv，命中 feed-forward 3D 类
