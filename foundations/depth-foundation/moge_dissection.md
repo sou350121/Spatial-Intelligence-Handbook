@@ -309,6 +309,96 @@ MoGe-1 (2024-10) 早于 VGGT (CVPR 2025) 几个月，且共享几个核心范式
 
 ---
 
+## X.4 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+> **方法**: 抓 microsoft/MoGe（~2.5k★，72 open issues / 4 PR）issues 列表 + 7 篇关键个案精读，覆盖三 head 一致性 / metric 转换 / v1↔v2 迁移 / 部署 / 与 VGGT 比较. **校准对象**: §X.1.1 mask head 设计、§X.2.2 multi-head 不一致性、§X.3.2 metric 恢复路径、§3.4 与 Metric3D 哲学差异.
+
+### 桶 1 — 三 head 一致性（§X.2.2 直接命中）
+
+| Issue | 状态 | 体现 |
+|---|---|---|
+| [#149](https://github.com/microsoft/MoGe/issues/149) | open · 2026-04 | normal head 监督来源 / 训练细节追问 — 反映**社区无法独立复现 normal head**，跨 head 一致性的实证证据稀薄 |
+| [#111](https://github.com/microsoft/MoGe/issues/111) | open · 2025-09 | 训 MoGe 复现：~20k 步 loss spike + depth/normal viz 崩；去掉 normal loss 收敛但 normal 出现 **grid-like 伪影** — 印证 §X.2.2 "normal 通过 point gradient 间接监督" 的脆弱性 |
+| [#107](https://github.com/microsoft/MoGe/issues/107) | open · 2025-08 | "MoGe 细节几何到底来自 affine-invariant pointmap 还是 multi-scale local loss？" — 论文未拆解 ablation，社区无定论 |
+| [#79](https://github.com/microsoft/MoGe/issues/79) | closed | head 设计追问 |
+| [#81](https://github.com/microsoft/MoGe/issues/81) | — | depth / normal / FoV 互不洽（已在 §4.y 引） |
+
+**→ §X.2.2 验证 + 强化**: 我们文档"三 head 用 joint affine-invariant loss 训练**应该**保持几何一致" 是论文承诺；[#111](https://github.com/microsoft/MoGe/issues/111) 实证它在 reproduction 中**不稳定** —— normal head 既不能去（去了出伪影）也不能稳训（在 20k 步 collapse）. **新发现**: 这是 MoGe 设计的 **load-bearing 但 fragile** 部分，应在 §X.2.2 加 "复现风险" 行.
+
+### 桶 2 — Affine-invariant → metric 转换混淆（§X.3.2 命中）
+
+| Issue | 状态 | 体现 |
+|---|---|---|
+| [#145](https://github.com/microsoft/MoGe/issues/145) | open · 2026 | 经典提问："pointmap 是 affine-invariant (s, t 都自由)，为何 metric 监督只学单 scale `s`？" — 用户发现**论文逻辑跳跃**，无 maintainer 回复 |
+| [#75](https://github.com/microsoft/MoGe/issues/75) | open | MoGe-2 实际米测：用户期"出米"，实际偏差 "2× 还是更多更少？" |
+| [#43](https://github.com/microsoft/MoGe/issues/43) | — | MoGe-2 点云 scale 漂移（已在 §4.y 引） |
+| [#129](https://github.com/microsoft/MoGe/issues/129) | open | `metric_scale` 用法追问 |
+| [#97](https://github.com/microsoft/MoGe/issues/97) | open · 2025-07 | MoGe-2 panorama 输出"几乎与 v1 一样，不是 metric" — `infer_panorama` 的 merge step 丢 scale |
+| [#123](https://github.com/microsoft/MoGe/issues/123) | closed | "mvs-synth 深度单位是什么？" — 训练数据单位混乱 |
+
+**→ §X.3.2 验证 + 校准**: 我们说 "MoGe-2 carefully disentangles 形状与 scale" 是论文宣称；[#75](https://github.com/microsoft/MoGe/issues/75) / [#97](https://github.com/microsoft/MoGe/issues/97) 实证 **metric 输出在非 plain 单图（panorama / merged view）上 silently 退化回 affine-invariant**. 应在 §X.3.2 表"测物体绝对尺寸"行加 caveat："**MoGe-2 单图 OK；merged / panorama / 多视角拼接路径 metric 不保证**".
+
+### 桶 3 — v1 → v2 迁移（一致性问题，多线程跨 issue）
+
+| Issue | 状态 | 体现 |
+|---|---|---|
+| [#106](https://github.com/microsoft/MoGe/issues/106) | open | "MoGe v2 推理 image preprocessing 怎么做？"— **v2 预处理 pipeline 与 v1 不同但未文档化** |
+| [#95](https://github.com/microsoft/MoGe/issues/95) | open | MoGe-2 输出只有 point cloud 没 mesh surface — 用户预期连续表面，实际离散点 |
+| [#115](https://github.com/microsoft/MoGe/issues/115) | — | v1 FoV 复现失败（已在 §4.y 引） |
+| [#72](https://github.com/microsoft/MoGe/issues/72) / [#66](https://github.com/microsoft/MoGe/issues/66) | — | local vs HF demo 不一致（已在 §4.y 引） |
+
+**→ 新洞察**: v1↔v2 不是 drop-in；preprocessing / FoV / scale 行为都改了但 README 没标"breaking change". 应在 §5 / §X.3.2 新增**迁移备忘**: 从 v1 切 v2 前必须 (a) 对照 HF Space 验输出，(b) 重写 preprocessing，(c) panorama 路径不要假设 metric.
+
+### 桶 4 — 与 VGGT / MapAnything 比较（社区主动问）
+
+| Issue | 状态 | 体现 |
+|---|---|---|
+| [#142](https://github.com/microsoft/MoGe/issues/142) | open | 不同 weight benchmarks 对比 — 用户想要 vs VGGT / Metric3D 的 head-to-head 表 |
+| [#6](https://github.com/microsoft/MoGe/issues/6) | open · 2024-10 | 帧间深度 scale/shift 闪烁，"website 看着稳，我跑就跳" — single-view feed-forward 无时序，VGGT (multi-view) 优势的现成证据 |
+| [#116](https://github.com/microsoft/MoGe/issues/116) | open | MoGe-2 ROS2 节点诉求 |
+| [#131](https://github.com/microsoft/MoGe/issues/131) | open | 用 LiDAR GT fine-tune（metric anchor 路线，与 Metric3D 同向） |
+
+**→ §X.3.3 / §6 验证**: 我们说 "MoGe 单视角是 VGGT 多视角前驱"；[#6](https://github.com/microsoft/MoGe/issues/6) 是直接证据 — 用户因 single-view 闪烁主动找时序解，正是 VGGT 谱系解决的问题. §6 falsifiable prediction "MoGe-2 出 metric 8 个月内命中" 仍站；下一步**"被 VGGT 谱系吸收"也已有社区拉力**.
+
+### 桶 5 — 部署 / 实时 / 硬件
+
+| Issue | 状态 | 体现 |
+|---|---|---|
+| [#83](https://github.com/microsoft/MoGe/issues/83) | open · 2025-07 | "[Official] ONNX Export Support with Dynamic Shapes" — maintainer 回复 "we are working on it"，仍未交付 |
+| [#20](https://github.com/microsoft/MoGe/issues/20) | — | ONNX 早期诉求（先驱 issue，已在 §4.y 引） |
+| [#117](https://github.com/microsoft/MoGe/issues/117) | closed 2025-10 | ONNX inference 社区方案合入 |
+| [#74](https://github.com/microsoft/MoGe/issues/74) | open | latency 测量提问 — **无官方延迟数字，社区自测** |
+| [#116](https://github.com/microsoft/MoGe/issues/116) | open | ROS2 节点需求 |
+| [#138](https://github.com/microsoft/MoGe/issues/138) | open · 2026 | 新 `requirements.txt` 报错 — 依赖锁不稳 |
+
+**→ §5 部署模式补强**: MoGe **官方 ONNX 仍未正式交付**（社区在 [#117](https://github.com/microsoft/MoGe/issues/117) 走通），实时 / 机器人 / 嵌入式部署是**社区代偿区**. 加一条 "**生产 ONNX 走社区分支不走官方**".
+
+### 桶 6 — 商业 license（独立于 Meta DINOv2 / Depth Anything）
+
+issue 区**未见 license 投诉** — 因为 MoGe 是 **MIT license**（[github.com/microsoft/MoGe](https://github.com/microsoft/MoGe)，DINOv2 sub-tree Apache 2.0），比 Depth Anything (Apache 2.0) 更宽松，比 Meta 系（部分 non-commercial）友好得多. **→ 新增 §X.3.4 旁注**: 商业 / startup 团队选 monocular 几何 backbone 时，MoGe license 友好性是 Depth Anything 没有的 wedge.
+
+### 仓库健康度速写
+
+| 维度 | 现状 |
+|---|---|
+| Stars | ~2.5k（远低于 DA v2，但 MS Research 严谨 maintenance） |
+| Open issues | 72 |
+| Open PR | 4（小但活） |
+| Maintainer response | **比 DA v2 高** — ONNX ([#83](https://github.com/microsoft/MoGe/issues/83)) / 训练 ([#79](https://github.com/microsoft/MoGe/issues/79) closed) 有官方回复；但深度技术问题（[#111](https://github.com/microsoft/MoGe/issues/111) / [#145](https://github.com/microsoft/MoGe/issues/145)）仍长期挂 |
+| 节奏 | MoGe-2 (2025-07) → -normal variant → ongoing；明显 alive，但不是"每周 PR"型 |
+
+### 读者实务含义
+
+1. **三 head 一致性是 reproduction 风险，不是 deploy 风险** — 用预训练权重时多 head 输出大致一致；自己训会撞 [#111](https://github.com/microsoft/MoGe/issues/111) 的 normal loss 不稳定. **想拿 MoGe 当起点 fine-tune normal? 准备好 grid artifact + spike 调度问题**.
+2. **MoGe-2 metric 只在 plain 单图保证** — panorama / 视频 / 多视角合并退回 affine-invariant ([#97](https://github.com/microsoft/MoGe/issues/97))；想做 panorama metric reconstruction 别假设输出米，**用 IMU / 已知物体做 anchor 重定 scale**.
+3. **生产 ONNX 走社区方案** — 等 [#83](https://github.com/microsoft/MoGe/issues/83) 官方解决可能要等很久；[#117](https://github.com/microsoft/MoGe/issues/117) 已有可工作社区代码.
+4. **视频任务别用 MoGe** — single-view feed-forward 没时序 ([#6](https://github.com/microsoft/MoGe/issues/6))；要时序去 VGGT 或加自己的 smoothing.
+5. **license 友好是 MoGe 的隐藏 wedge** — MIT 比 DA v2 (Apache 2.0) 比 Meta 系更松；商业产品要 monocular 几何 backbone，MoGe 在合规上更省事.
+6. **v1 → v2 不是 drop-in** — 重写 preprocessing 和 panorama pipeline；对照 HF Space 验证输出 ([#72](https://github.com/microsoft/MoGe/issues/72) / [#66](https://github.com/microsoft/MoGe/issues/66) / [#106](https://github.com/microsoft/MoGe/issues/106)).
+7. **与 Metric3D 选型**: 若 mono 几何 + 商业部署 + 形状重要 / 米可缓 → MoGe；若需现成米 + canonical 内参可控 → Metric3D；若有多视角 → VGGT.
+
+---
+
 ## References
 
 - MoGe v1 — Wang et al., Microsoft Research. *MoGe: Unlocking Accurate Monocular Geometry Estimation for Open-Domain Images with Optimal Training Supervision*. arXiv:2410.19115, 2024-10-24（CVPR 2025 Oral）. https://arxiv.org/abs/2410.19115

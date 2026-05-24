@@ -168,7 +168,50 @@ Batch-2 技巧：每秒在 N 帧滑窗上跑一次 VGGT，缓存全局 point map
 
 ---
 
-## 7 · Comparison + Interview Tip
+## 7 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+> **Scope:** 直接读 `facebookresearch/vggt` 2026-02 → 2026-05 的 issue / PR 流，用以校验前面 §4 / §4.x 的失败模式清单。不替换 §H1 的 Wu 2025 学术争议；这里是工程一侧的 *社区可见* 痛点。
+> **Repo health (2026-05-24):** ~13.2k★, **246 open issues**, **24 open PRs / 31 closed**。issue 流稳定有新输入（最新 #476 落在 2026-05-14），属于活跃但**未走向成熟封装**的状态——大量"我撞到边界"型 issue 长期 *open without maintainer response*，对外部用户即"自己读源码，自己绕"。
+
+### 7.1 — 已落地痛点表
+
+| Issue | 标题 / 核心引文 | 严重度 | Workaround |
+|---|---|---|---|
+| [#470](https://github.com/facebookresearch/vggt/issues/470) | "images are directly resized to [518, 518], which is why demo_colmap runs out of memory" — `fee0103` | **High** (OOM blocker) | 不走 `demo_colmap` 内的方块 resize，改调 `load_and_preprocess_images`（保 aspect ratio，约 `[294, 518]`，显存 ~½）。 |
+| [#474](https://github.com/facebookresearch/vggt/issues/474) | "Long video support: factor graph stitching pipeline... chunks VGGT into memory-sized batches and stitches them with a GTSAM factor graph for global consistency" — `jashshah999`，自报 **70.3% average ATE reduction** vs naive stitching | **High**（长视频根本性限制）| 社区贡献的 GTSAM + Sim(3) + DINOv2 loop closure 外挂；官方未集成。 |
+| [#471](https://github.com/facebookresearch/vggt/issues/471) | "DA3 has models that produce real world metric depth maps. Are VGGT depth maps metric and linear as well, or just relative?" — `sourcesync` | **Med-High**（文档黑洞）| 答：up-to-scale。每个手册读者都需要被告知，文档至今未补。 |
+| [#472](https://github.com/facebookresearch/vggt/issues/472) | "aerial images of the sequence would be split into two independent pose estimates" — `xiazhenyu555` | **Med**（航拍场景分裂）| 重叠不足时 cross-view attention 退化；切窗 / 提高重叠率 / 用外部 pose 初始化。 |
+| [#476](https://github.com/facebookresearch/vggt/issues/476) | "the paper mentions that 64 A100s were used, with [2,24] frames sampled per sequence" —— 训练 batch / loss 收敛 / dataset 采样三连问无人回 — `stephanie-fu` | **Med**（复现 blocker）| 无官方 training script；复现 paper 数字目前不可行。 |
+| [#424](https://github.com/facebookresearch/vggt/issues/424) | 210 张 spherical 拍摄，全跑 vs 分半跑 → 分半"下半部分明显更好" — `XXX` | **Med**（误差累积非随机）| 多视图大 N 下并非"越多越好"，分窗 + 后端拼接更稳。 |
+| [#417](https://github.com/facebookresearch/vggt/issues/417) | "whether the scaling applied to the normalised space... is consistent across both the camera pose's height and the translation transformation" — `Shexiaox` | **Med**（标准化空间到米制的语义不清）| 单标量 rescale 不够；需要额外 metric anchor，参考 MapAnything factored repr。 |
+| [#455](https://github.com/facebookresearch/vggt/issues/455) | "the big-part of cuda memory use is in Aggregator... Only 4 layers of output_list are processed" (indices 4/11/17/23) — `XiShuFan` | **Med**（显存优化）| 自己改 `aggregator.py:253`，丢弃 unused intermediate tensors。 |
+| [#106](https://github.com/facebookresearch/vggt/issues/106) | "I am wondering if it is possible to run this on a very large dataset of hundreds to thousands of images?" — 2025-04 提出，**至今未回** | **Low-info**（长尾问询）| 与 #474 同根；无原生大数据集 path。 |
+
+### 7.2 — PR 信号（看走向，看遗留债）
+
+| PR | 标题 | 状态 | 含义 |
+|---|---|---|---|
+| [#445](https://github.com/facebookresearch/vggt/pull/445) | Parallel **multi-GPU** inference for `demo_colmap.py` | open（2025-12 起）| 真有人撞到大场景，自己做了 multi-GPU；官方未合 → 显存边界靠社区。 |
+| [#462](https://github.com/facebookresearch/vggt/pull/462) | Bump **torch 2.3.1 → 2.8.0** | open | 依赖 2 个版本落后；可能拖住 H100 / Blackwell 用户。 |
+| [#434](https://github.com/facebookresearch/vggt/pull/434) | Improved **RGBA / alpha channel** handling | open（2025-11 起）| 透明背景图像（合成 / matte）尚不被原生支持。 |
+| [#350](https://github.com/facebookresearch/vggt/pull/350) | **EXIF transpose** on image load | open（2025-08 起）| 手机竖拍照片不被自动校正方向 → pose 估计可能整体偏 90°。**手机用户立刻撞到的隐坑。** |
+| [#251](https://github.com/facebookresearch/vggt/pull/251) | Accelerate model loading on GPU by 1.24× | open（2025-07 起）| 半年没合，PR review 节奏慢。 |
+| [#427](https://github.com/facebookresearch/vggt/pull/427) | Data augmentation | open | 训练 pipeline 仍未公开。 |
+
+### 7.3 — Repo health & 读者实务含义
+
+- **维护节奏**: 6 个月内最早的 PR（#251, #350）至今 open；issue 大量 *无 maintainer 回应*。结论：**VGGT 1.0 已发布即冻结**，演进重心已转向 VGGT-Ω / MapAnything 等后继。把 VGGT v1 当 *已封存的 reference impl*。
+- **1B-Commercial checkpoint**: GitHub 上对"1B-Commercial 商用 checkpoint 使用 gotcha"几乎无 issue ([#298](https://github.com/facebookresearch/vggt/issues/298) 仅问 500M/200M 变体)；License 与商用走源码 + LICENSE 文件确认，社区并未把它压出明显坑——但**也意味着商用部署者还没大规模上线**。
+- **硬件特异性**: torch 落后 + multi-GPU 走社区 PR + EXIF / RGBA / Aggregator 显存优化均依赖 fork → **生产部署强烈建议 fork lock**，不要追主分支。
+- **对手册 §4 / §4.x 的反馈**:
+  1. §4 #5 "Metric scale" 一条得到 [#471](https://github.com/facebookresearch/vggt/issues/471) / [#417](https://github.com/facebookresearch/vggt/issues/417) 双重外部印证 —— 不是只有学术 reviewer 在喊，连普通用户也撞到。
+  2. §4 #6 "大 N" 边界获 [#474](https://github.com/facebookresearch/vggt/issues/474) / [#106](https://github.com/facebookresearch/vggt/issues/106) / [#424](https://github.com/facebookresearch/vggt/issues/424) 三处压力测试印证，且**误差不只是溢出而是非单调累积**（#424 分半反而更准）。
+  3. §4.x "demo_colmap OOM" 由 [#470](https://github.com/facebookresearch/vggt/issues/470) 定位到**具体一行代码**（方块 resize）—— 这是 demo 工程债务，不是模型本身瓶颈。
+  4. **新增 §4 候选条目**: EXIF 方向未校正（[PR #350](https://github.com/facebookresearch/vggt/pull/350)）—— 手机相册输入的 *silent failure mode*，建议加入 §4.x 条目下次回填。
+
+---
+
+## 8 · Comparison + Interview Tip
 
 | System | Inputs | Outputs | Multi-view | Per-scene fit |
 |---|---|---|---|---|

@@ -201,6 +201,87 @@ DINOv2 骨干 + 62M 互联网蒸馏让 DA v2 对*常见域*惊人稳定，脱分
 
 ---
 
+## 4.6 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+> **方法**: 抓取 DepthAnything/Depth-Anything-V2（8.1k★，217 open issues）的 issues 列表 + 7 篇关键个案精读，按 §4 失败矩阵分桶. **目的**: 把"论文 / 我们文档说会坏"与"用户实际报坏在哪"对齐，证伪 / 校准 §4 / §4.1 / §4.2 / §4.4 的判断.
+
+### 桶 1 — 输出契约误读（**头号坑**，远超模型失败）
+
+| Issue | 状态 | 体现 |
+|---|---|---|
+| [#309](https://github.com/DepthAnything/Depth-Anything-V2/issues/309) | open · 2025-11 | VKITTI metric 模型用 `max_depth=80` 输出错乱；改 `max_depth=20` 就对 → 用户把 metric variant 当 plug-and-play，没读训练 cap |
+| [#308](https://github.com/DepthAnything/Depth-Anything-V2/issues/308) | open | 把 v2 metric 输出与 LiDAR 直比，期望米级匹配 |
+| [#49](https://github.com/DepthAnything/Depth-Anything-V2/issues/49) | open | ONNX metric head 精度退化（sigmoid×max_depth 在 fp16 量化下崩） |
+
+**→ §4.1 / §4.3 验证**: "metric variant `max_depth` 写死 80 m / 20 m，超过即截断"是真实部署痛点；用户 30 天即触发；表内"天花板 80 m"行经 [#309](https://github.com/DepthAnything/Depth-Anything-V2/issues/309) 印证.
+
+### 桶 2 — 透明 / 反射表面（论文承认，社区周期性回报）
+
+| Issue | 状态 | 体现 |
+|---|---|---|
+| [#266](https://github.com/DepthAnything/Depth-Anything-V2/issues/266) | open · 2025-03 | "How can we eliminate the influence of reflection?" — 无官方答案 |
+| [#202](https://github.com/DepthAnything/Depth-Anything-V2/issues/202) | open · 2024-11 | 透明塑料 / 玻璃远不如 Depth Pro — 无 maintainer 回复 |
+
+**→ §4 / §4.2 验证**: 玻璃 / 镜面继承自 DPT 谱系，确实"无原则修复"；社区把 Depth Pro（Apple, 2024-10）当对照组. 我们文档应在 §4.2 "玻璃 / 水 / 镜面" 行加一句**对照 Depth Pro 表现更鲁棒**作为读者实务参考.
+
+### 桶 3 — 边缘 / 细物 / 几何伪影
+
+| Issue | 状态 | 体现 |
+|---|---|---|
+| [#225](https://github.com/DepthAnything/Depth-Anything-V2/issues/225) | open · 2024-12 | 所有深度图横条纹 artifact — 无解释 |
+| [#286](https://github.com/DepthAnything/Depth-Anything-V2/issues/286) | open · 2025-07 | 数值从右到左 / 从下到上系统性渐变（疑似 positional bias） |
+| [#118](https://github.com/DepthAnything/Depth-Anything-V2/issues/118) | open | 把深度上采到原图分辨率反而**更锐**（推理在 518 下采 → 上采过程做了隐式平滑） |
+
+**→ §4 "孤立小物体 / 遮挡边界" 验证 + 新发现**: 横条纹与位置渐变可能是 ViT positional embedding 在 OOD 尺寸下泄漏的伪影；**论文未提，社区也无定论** — 这是 §4 未覆盖的失败模式，建议在 §4.2 表新增 "ViT positional bias / 非正方形输入" 行.
+
+### 桶 4 — Rotation sensitivity（§4 / ontology §13.4 已提，issue 搜索面薄）
+
+issue 直接关键词 `rotation` 命中数 ≤2 且非中心议题. **解释**: 用户不会把"图被竖过来深度全错"上报为模型 bug，会自己 pre-rotate 或弃用；这是**沉默失败**典型. **→ §4 已有的"Rotated input images" 行保留；社区不会主动佐证，因此我们的 ontology §13.4 自测仍是首要证据.**
+
+### 桶 5 — 部署 / 硬件（ONNX / TRT / CPU / mobile）
+
+| Issue | 状态 | 体现 |
+|---|---|---|
+| [#49](https://github.com/DepthAnything/Depth-Anything-V2/issues/49) | open | ONNX metric head 精度退化 |
+| [#79](https://github.com/DepthAnything/Depth-Anything-V2/issues/79) | open | 要求降到 opset 10/11（部分 TRT / 老硬件） |
+| [#57](https://github.com/DepthAnything/Depth-Anything-V2/issues/57) | closed | onnx2trt 教程（社区自制） |
+| [#310](https://github.com/DepthAnything/Depth-Anything-V2/issues/310) / [#312](https://github.com/DepthAnything/Depth-Anything-V2/issues/312) | open | xFormers memory-efficient attention 不支持 CPU → CPU 上 `infer_image` 返回全零 |
+| [#274](https://github.com/DepthAnything/Depth-Anything-V2/issues/274) | open | xFormers 未带 CUDA build → 推理失败 |
+| [#307](https://github.com/DepthAnything/Depth-Anything-V2/issues/307) | open | Android 部署诉求，无官方路径 |
+| [#219](https://github.com/DepthAnything/Depth-Anything-V2/issues/219) | open | 生产推理质量 "extremely low"（疑 batch / preprocessing 偏差） |
+
+**→ §5 部署模式补充**: 现有 §5 只提 Jetson Orin + 离线 GPU；缺 **(a) 边缘 / CPU 部署必踩 xFormers 坑（[#310](https://github.com/DepthAnything/Depth-Anything-V2/issues/310)），(b) ONNX metric variant 必单元测试精度（[#49](https://github.com/DepthAnything/Depth-Anything-V2/issues/49)），(c) 老 TRT (opset≤11) 走社区脚本（[#57](https://github.com/DepthAnything/Depth-Anything-V2/issues/57)）**.
+
+### 桶 6 — DA3 (Depth Anything 3) 迁移（§4.4 已铺）
+
+issue 区还没出现 "DA3 vs DA2" 议题（DA3 2025-11 发布，社区半年内主要在跑 paper repro，未大规模迁移）；**当前提问最频繁的是**：
+
+- "v2-Giant 何时放" ([#313](https://github.com/DepthAnything/Depth-Anything-V2/issues/313))
+- "Indoor + Outdoor 模型有什么差异" — 多个 closed issue
+- 通用 fine-tune 询问（被 README 反复指向 [#124](https://github.com/DepthAnything/Depth-Anything-V2/issues/124)）
+
+**→ §4.4 校准**: 社区还在 v2 生态，DA3 短期不挤走 v2；§4.4 "DA3 走多视角统一" 判断仍立得住，但**预测窗口要拉长 — 不是 "DA3 出 = v2 退役"**.
+
+### 仓库健康度速写
+
+| 维度 | 现状 |
+|---|---|
+| Stars | ~8.1k（NeurIPS-tier foundation 模型基准） |
+| Open issues | 217（高活跃但响应稀，[#225](https://github.com/DepthAnything/Depth-Anything-V2/issues/225) / [#202](https://github.com/DepthAnything/Depth-Anything-V2/issues/202) / [#266](https://github.com/DepthAnything/Depth-Anything-V2/issues/266) / [#286](https://github.com/DepthAnything/Depth-Anything-V2/issues/286) 半年-一年无 maintainer 回复） |
+| Maintainer response | 低 — 多数核心 issue (透明面 / 横条纹 / 输出契约) 无回复，迁移至 DA3 后该仓更可能进 maintenance 模式 |
+| Open PR | 极少；仓非协作型 — 把 v2 视作 **publish-and-walk-away** repo，不要赌官方修 |
+
+### 读者实务含义
+
+1. **不要在 prod 上等官方修 bug** — 半年-一年无回复是常态，自己 fork 或绕开.
+2. **Metric variant `max_depth` 必读源码** — Indoor (Hypersim) 20 m / Outdoor (VKITTI) 80 m **不是用户参数，是训练 cap**；推理时改 `max_depth` 不会 rescale，会破输出（[#309](https://github.com/DepthAnything/Depth-Anything-V2/issues/309) 实证）.
+3. **CPU / 边缘部署先关 xFormers** — `attn_implementation="eager"` 或重装无 xFormers build，否则全零输出（[#310](https://github.com/DepthAnything/Depth-Anything-V2/issues/310) / [#312](https://github.com/DepthAnything/Depth-Anything-V2/issues/312)）.
+4. **ONNX 走前做端到端单测** — 别只对 relative head，metric head 单独 abs-rel 跑 ground truth 对比（[#49](https://github.com/DepthAnything/Depth-Anything-V2/issues/49)）.
+5. **透明 / 镜面想要稳，对照 Apple Depth Pro** — 社区共识 Depth Pro 在玻璃 / 反射上**更鲁棒**（[#202](https://github.com/DepthAnything/Depth-Anything-V2/issues/202)）；若产品场景重在玻璃 / 水族馆 / 车窗，DA v2 不是默认选项.
+6. **DA3 迁移别急** — 2026-05 时 v2 生态仍是社区主力，DA3 适合做"新项目首选"，旧 v2 流水线不需要立即换.
+
+---
+
 ## 5 · 部署模式
 
 - **Jetson Orin 上 v2-S 作为特征提取器** 给 3D-aware policy 编码器 — 用特征，不用深度输出.

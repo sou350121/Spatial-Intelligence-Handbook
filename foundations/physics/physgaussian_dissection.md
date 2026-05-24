@@ -155,6 +155,58 @@ break：手设 E 偏 2× → 衬衫像橡胶或纸；夹爪与刚体接触视觉
 
 ---
 
+## 8 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+> 数据源：`XPandora/PhysGaussian` issues + commit history（star ~1.5k，2026-05 时 31 open issues / 仅 1 open PR）。
+
+### 8.1 实测痛点表
+
+| Pitfall | Issue # | Status | 直接读者后果 |
+|---|---|---|---|
+| **Particle filling 2 天跑不完**（grid=128, max_particles=2M, density_thresh=40） | [#47](https://github.com/XPandora/PhysGaussian/issues/47) | Open, no maintainer reply | 印证 README "particle filling 对 Gaussian 分布敏感"；高分辨率几何前处理是隐性时间黑洞 |
+| Table 1 评测如何复现（GT 来源 / 数据集？） | [#40](https://github.com/XPandora/PhysGaussian/issues/40) | Open since 2024-10, no reply | **论文定量结果无可复现路径** —— 引用本文的 metric 数字要标 `UNVERIFIED` |
+| Snow material 是否实现 | [#44](https://github.com/XPandora/PhysGaussian/issues/44) | Open, no reply | 论文 demo 出现的 material 不全在 release code 里 |
+| Plastic Metal can 预训练 model 缺失 | [#43](https://github.com/XPandora/PhysGaussian/issues/43) | Open | 论文 hero demo 资产未释放 → 视觉对比靠自己重训 |
+| `particle_impulse` / `azimuth, elevation, radius` config 含义文档缺失 | [#41](https://github.com/XPandora/PhysGaussian/issues/41) / [#42](https://github.com/XPandora/PhysGaussian/issues/42) | Open | 关键 config 参数没文档，复现要逆向源码 |
+| Plasticine "softening" 参数怎么调 | [#48](https://github.com/XPandora/PhysGaussian/issues/48) | Open | 印证 §3 表格 "材料参数手设" 的现实成本 |
+| Multi-view 原始图像数据集 | [#49](https://github.com/XPandora/PhysGaussian/issues/49) | Open | 想换数据集要自己拍 + COLMAP，paper 数据未公开 |
+| Bread fracture 场景的 3DGS | [#52](https://github.com/XPandora/PhysGaussian/issues/52) | Open | 论文 fracture demo 资产请求未回复 |
+| `ficus_whitebg` iteration_60000 训练设定 | [#51](https://github.com/XPandora/PhysGaussian/issues/51) | Open | 训练超参未公开，per-scene tuning 黑盒 |
+| Config 文件本身 | [#50](https://github.com/XPandora/PhysGaussian/issues/50) | Open | 部分 config 在 release 中缺失 |
+| 原始 dataset | [#46](https://github.com/XPandora/PhysGaussian/issues/46) | Open | 同 #49，数据封闭 |
+
+### 8.2 Repo 健康度（关键警告）
+
+- **最近 commit: 2025-04-07**（"plane example" + "tear bread example"，1 年多没动）
+- **更早**: 2024-07-22 "pillow2sofa example" / 2024-04-14 "detect invalid nu" / 2024-03-28 "update readme"
+- **总 commit 数 ~21**, **开放 issue 31**, **open PR 1**
+- **maintainer 响应**: 抽样 issues #40/#47/#48 均 **0 maintainer 回复** —— repo 进入维护停滞期
+- **PyTorch 版本**: README 钉 `pytorch=2.0.0+cu118`（CUDA 11.8）—— 与 2026 主流 cu12.x stack 不兼容，装环境要建 isolated env
+
+### 8.3 读者实务含义 (Action items)
+
+1. **环境隔离必须**: 建 Python 3.10 + PyTorch 2.0.0 + cu118 的 conda env，别想用现有 cu12.x 训练机直接跑
+2. **paper demo 不全可复现**: 多个 hero asset (bread fracture、metal can、snow) 在 issues 里被要而未供 —— 复现 §2.5 worked example 时**预算大量手工 asset 准备时间**，不是 plug-and-play
+3. **Table 1 metric 不可直接引用**: #40 自 2024-10 无答复 —— 引用本文性能数字时务必标 `UNVERIFIED` 或自评测
+4. **particle filling 是隐性时间炸弹**: #47 grid=128 跑 2 天无解 —— 从 grid=64 起试，先 profile 再上分辨率
+5. **`UNVERIFIED` material 参数确认是真痛点**: #48（plasticine）+ §3 表格"全部手设"+ 无 maintainer 回复 = 经验式调参，**别把它当工程化 pipeline**
+6. **维护停滞 → fork 风险**: 若要在生产用，prepare 自己 fork 修 cu12.x 兼容；上游 1 年无动作意味着任何 PR 几乎不会合
+7. **§4.x Hidden Assumption "材料参数可知" 升级警告**: #48 + #47 + maintainer silence 三件事叠加 → 这不是"今天手调，明天自动"，是"今天手调，且无人在做明天" —— 等 PAC-NeRF 风格的下一篇 paper，不要押宝 PhysGaussian repo 本身演化
+
+### 8.4 对 §5 Falsifiable Prediction 的支持
+
+原文预测："2027-12 之前不会有任何公开 manipulation VLA 报告在 contact-rich 任务上靠 PhysGaussian 风格增广拿到真实世界成功率提升。"
+
+GitHub 证据**强支持**该预测：
+- repo 1 年无 commit
+- maintainer 响应停滞
+- 关键 demo asset 与材料参数公式都未释放
+- 没有 contact-rich 任务的官方示例
+
+读者推论：**PhysGaussian 作为 paper 是 reference，作为 codebase 不再是 active foundation**。要做"物理感知 3DGS"研究，关注 PAC-NeRF、Spring-Gaus、DreamPhysics 与 2026 新出的 hybrid rigid+MPM + 3DGS 方向。
+
+---
+
 ## References
 
 - PhysGaussian — Xie et al. *CVPR 2024*. https://arxiv.org/abs/2311.12198

@@ -145,6 +145,25 @@ What would change the picture by 2028 `UNVERIFIED`:
 
 **Interview Tip**：被问"事件相机为什么没在大疆 / Skydio 上跑"——答 **"算法生态没准备好 + sensor BOM 太贵 + 多数任务 RGB 已够"**。能加一句 "racing / 极速 FPV 是它的甜区，inspection drone 不是"，再补 "工具链不接 ROS / OpenCV 是隐性最大成本" 满分。
 
+### §8.1 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+Reference repo: [uzh-rpg/rpg_ultimate_slam_open](https://github.com/uzh-rpg/rpg_ultimate_slam_open) — UZH RPG 官方開源 Ultimate-SLAM 實作，是事件相機 aerial VIO 在 2026 仍有 GitHub 痕跡的少數參考。
+
+| # | Pitfall | Evidence | Severity | Workaround |
+|---|---|---|---|---|
+| 1 | "Drifts crazy" on Jetson Xavier with the project's own sample bags — works on x86 | [issue #22](https://github.com/uzh-rpg/rpg_ultimate_slam_open/issues/22): "I installed uslam on Jetson Xavier; however it drifts crazy using the sample bags" (2023-09, open, no maintainer reply) | 🔴 | Don't deploy on Jetson without re-benchmarking on x86 first; suspect floating-point determinism / SSE-fallback path issues |
+| 2 | `kalibr_swe_config` calibration tool referenced in docs is not available / not installable | [issue #16](https://github.com/uzh-rpg/rpg_ultimate_slam_open/issues/16): "kalibr_swe_config isn't available" running `kalibr_swe_config --cam camchain-imucam-calib.yaml --mav camera --out camera.yaml` (2022-10, open, **no maintainer reply for 3.5 years**) | 🔴 | Calibrate event+frame+IMU manually using stock Kalibr; the SWE wrapper was internal UZH tooling never published — biggest practical blocker for new users |
+| 3 | Crash with `std::out_of_range` in vector indexing (likely event-buffer underflow) | [issue #26](https://github.com/uzh-rpg/rpg_ultimate_slam_open/issues/26): "terminate called after throwing an instance of 'std::out_of_range' what(): vector::_M_range_check: __n (which is 1) >= this->size() (which is 1)" (2024-08, open, no reply) | 🟠 | Pre-buffer ≥10 ms of events before first VIO update; static-scene or hovering will starve the buffer |
+| 4 | High-speed (>10 m/s) racing-envelope behavior is undocumented for the open repo | [issue #25](https://github.com/uzh-rpg/rpg_ultimate_slam_open/issues/25): "whether it supports drone movement speeds above 10m/s" (2024-01, open, no reply) — Swift *Nature* 2023 uses a different (closed) sensing stack | 🟠 | The open repo is Ultimate-SLAM 2018 vintage; for racing-class speeds, the public code is **not** the Swift demonstrator. Expect re-tuning or alternative front-end |
+| 5 | Dual / stereo event-camera support advertised in `rpg_dvs_ros` but not in Ultimate-SLAM | [issue #27](https://github.com/uzh-rpg/rpg_ultimate_slam_open/issues/27): "rpg_dvs_ros contains a stereo.launch file, so I'd like to run the algorithm with two event cameras separately" (2024-10, open, no reply) | 🟡 | The open Ultimate-SLAM is monocular event + frame + IMU; for stereo event VIO use ESVO repo (separate codebase) |
+| 6 | Build chain pins ancient Ceres / SuiteSparse (SPQR) and SSE2-only `fast` lib | [issue #23](https://github.com/uzh-rpg/rpg_ultimate_slam_open/issues/23): "ceres_catkin tried to find library 'spqr'" + [issue #24](https://github.com/uzh-rpg/rpg_ultimate_slam_open/issues/24): "undefined reference to 'fast::fast_corner_detect_10_sse2'" (both 2023, open) — repo last touched **2022-07** | 🟠 | Use a containerized Ubuntu 18.04 + ROS Melodic environment; modern 22.04/24.04 builds are user-burden |
+| 7 | Static hover → event rate ≈ 0 → silent VIO starvation (not in repo but architectural) | Implicit in [issue #26](https://github.com/uzh-rpg/rpg_ultimate_slam_open/issues/26) + dissection §6.x "completely static no events"; no maintainer doc | 🟠 | Always pair event-only VIO with an IMU-only dead-reckoning fallback for hover; never let event channel be the sole pose source >2 s |
+| 8 | ROS 2 port does not exist; no published roadmap | Zero ROS 2 PRs/issues in the repo; entire UZH RPG event-VIO line is ROS 1 (Kinetic/Melodic) | 🟡 | Manually port topics to ROS 2 (≥1 week effort) or stay on ROS 1 LTS; expect no upstream help |
+
+**Repo health signal**: 331★ / 20 open / 0 closed (visible) / **last commit 2022-07-06 (README-only)**, last code commit even older. GPL-3.0. 1 open PR. **Effectively abandoned as a runnable artifact**; alive only as a paper-reference implementation.
+
+**讀者實務含義**: 2026 想做事件相機 aerial VIO 的工程師要先接受一個事實：**UZH 官方 Ultimate-SLAM repo 是「論文配套代碼」而非「可維護 stack」**——4 年無代碼提交、`kalibr_swe_config` 工具消失 3.5 年、Jetson drift 案無人回。Swift Nature 2023 demo 用的是另一份**未開源**的內部 stack。實務路徑只剩三條：(1) 接受工程負擔，自己 fork + 維護；(2) 用 Prophesee Metavision SDK + 自寫 VIO 前端（商業支援但 BOM 高）；(3) 把事件相機降級為「IMU + RGB VIO 的高速 / HDR 兜底通道」，主路徑仍走 OpenVINS。這也回扣了第 §4 節「sensor 不貴，是算法生態未準備好」的核心論點——GitHub 證據比任何 datasheet 都直白。
+
 ## References
 
 - **Champion-level racing** — Kaufmann et al. *Nature 2023*. [DOI 10.1038/s41586-023-06419-4](https://www.nature.com/articles/s41586-023-06419-4)

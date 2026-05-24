@@ -187,6 +187,64 @@ SAM 3D Objects:
 
 ---
 
+## 8 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+> 数据来源：[facebookresearch/sam-3d-objects](https://github.com/facebookresearch/sam-3d-objects) — **6.7k★ · 103 open issues**（发布 6 个月达到 65× issues/月，远高于 FoundationPose 5× 的速率，是 hype-cycle 信号而非健康度信号）。Last code activity 2026-01-07（Layout Post-Optimization merge），**maintainer 仍活跃**（gleize / Sasha Sax 在 issue 区有实质回复，与 FP 形成对比）。下方按主题轴切片；legacy SA3D（[Jumpat/SegmentAnythingin3D](https://github.com/Jumpat/SegmentAnythingin3D)）和 SAGA（[Jumpat/SegAnyGAussians](https://github.com/Jumpat/SegAnyGAussians)）2025 后无 commit，本节聚焦 SAM 3D Objects。
+
+### 8.1 单物体 vs 场景：API 混淆是 top issue
+
+- **GitHub-validated**：[#21 (open, 13c) "How to inference with multiview input?"](https://github.com/facebookresearch/sam-3d-objects/issues/21)、[#37 (open) "Support multi-view inference"](https://github.com/facebookresearch/sam-3d-objects/issues/37)、[#20 (open, 9c) "How to inference with pointcloud input?"](https://github.com/facebookresearch/sam-3d-objects/issues/20)、[#103 (closed, 7c) "From single objects to scene"](https://github.com/facebookresearch/sam-3d-objects/issues/103)、[#110 (open) "Scene Inference Speedup"](https://github.com/facebookresearch/sam-3d-objects/issues/110) — 用户反复期待"多视角 / 点云 / 场景"输入，但模型**强制单图单物体**。`make_scene` 是 for-loop 串行 per-object，几分钟级延迟。
+- **实地后果**：与 dissection §6 "单物体导向，不重建场景" 一致。机器人栈想做"扫场景一次 3Dfy"必须自接 SAM 3 → per-object crop → SAM 3D 循环 → 自己拼 scene；多视角融合**模型不支持**，要么挑最佳视角要么自己做 mesh 融合。
+
+### 8.2 Canonical scale alignment：metric-aware pipeline 必须额外补
+
+- **GitHub-validated**：[#57 (closed, 6c) "How to preserve real-world scale when using SAM3D with a real depth pointmap?"](https://github.com/facebookresearch/sam-3d-objects/issues/57) — 用 D435 真 depth 提示，**重建出 15 cm，真值 5 cm**；[#121 (open) "Controlling output mesh scale for scene integration"](https://github.com/facebookresearch/sam-3d-objects/issues/121)、[#98 (open, 2c) "Object GLB from sam_3d_objects has large scale/translation"](https://github.com/facebookresearch/sam-3d-objects/issues/98)、[#186 (open) "Orientation and scale of objects in coords grid"](https://github.com/facebookresearch/sam-3d-objects/issues/186)、[#174 (open) "Pointmap contains Inf values causing NaN scale"](https://github.com/facebookresearch/sam-3d-objects/issues/174)。
+- **根因**：模型在 canonical space 训练，scale 是相对的；与 input depth 的 metric scale 对齐**需外部 alignment 步骤**（典型做法：用 mask + depth 拟合 scale factor，issue #57 closed 的方案）。
+- **实地后果**：机器人闭环消费 metric pose / 抓取规划前必须额外做 scale alignment，否则 grasp planner 输入是几何形状对但尺寸错的 mesh。
+
+### 8.3 弱纹理 / 白纸 / 镜面：foundation 仍 hallucinate
+
+- **GitHub-validated**：[#149 (open) "Weird pose estimation on white paper"](https://github.com/facebookresearch/sam-3d-objects/issues/149) — 白纸被渲到立方体右侧（pose drift）；[#162 (open, 6c) "Prediction is not aligned with depth or mask"](https://github.com/facebookresearch/sam-3d-objects/issues/162) 用通用 web 图测试 pose 不对齐 mask；[#71 (open, 12c) "Bug: Incorrect Rotational Pose in Scene Reconstruction"](https://github.com/facebookresearch/sam-3d-objects/issues/71) — translation/scale "plausible" 但 **rotation 普遍错**（基于 mesh.glb + parameters.json 复构场景）。
+- **实地后果**：与 dissection §6 "high reflection / glass 几何 stage 拓扑错" 同类，但更广 — **任何低纹理 / 大平面物体都进入风险区**。Demo 漂亮 ≠ 任意输入鲁棒；human-pref 5:1 win rate 也不告诉你 rotation 是否对。
+
+### 8.4 License：SAM License 不是 MIT，commercial 谨慎
+
+- **GitHub-validated**：repo 的 LICENSE 文件首行明确 `SAM License · Last Updated: November 19, 2025`（不是 Apache/MIT/CC，GitHub API 显示 SPDX = `NOASSERTION`）。Meta SAM License 历史上对商用有约束（典型 600M+ MAU clause + 不得用 SAM output 训竞品 model）。SAM 3 / SAM 3D 沿用变体。issue 区目前没有 license-specific 高 comment thread，但 [#12 (open) "Generation of STL/OBJ files"](https://github.com/facebookresearch/sam-3d-objects/issues/12) 等下游集成讨论隐含商用诉求。
+- **实地后果**：commercial 部署前**必须读完整 LICENSE**；与 vggt-omega 等 CC-BY-NC 路径不同但也不是无限制 commercial-friendly。**不要默认当 Apache 用**。
+
+### 8.5 HuggingFace 模型访问：审批拒绝高发
+
+- **GitHub-validated**：[#82 (open, 9c) "Why was my request to download the checkpoint file rejected?"](https://github.com/facebookresearch/sam-3d-objects/issues/82)、[#158 (open) "Why can't I get the access to the checkpoint on Huggingface"](https://github.com/facebookresearch/sam-3d-objects/issues/158)、[#5 (closed, 8c) "HF Model Approval Duration"](https://github.com/facebookresearch/sam-3d-objects/issues/5)、[#165 / #182 "HF Approval"](https://github.com/facebookresearch/sam-3d-objects/issues/165) — 多用户反复被拒，无明确拒绝理由。
+- **实地后果**：与 vggt-omega 早期同模式（HF gating 是 Meta release 通病）。production 团队应预留 1-2 周审批 buffer，团队邮箱 + 公司组织名 + 明确用途文案能提高通过率。
+
+### 8.6 TensorRT / 生产部署：尚无成熟路径
+
+- **GitHub-validated**：repo 至今**没有** TRT / ONNX 相关 issue 或 PR（grep 无结果）。[#19 (open, 18c) "Windows System Compatibility Build"](https://github.com/facebookresearch/sam-3d-objects/issues/19) 是社区在协作做 Windows 适配；[#110 (open) "Scene Inference Speedup"](https://github.com/facebookresearch/sam-3d-objects/issues/110) 反映 per-object 串行延迟；[#119 (open) "Is the model the four-step distilled one?"](https://github.com/facebookresearch/sam-3d-objects/issues/119) 显示**释出权重的蒸馏档位仍不明确**（paper 提 25→4 step distillation，但 HF ckpt 是否已蒸馏未公开确认）。
+- **实地后果**：32 GB VRAM 门槛 + 串行 scene 装配 + 无 TRT 路径 → 当前**只能离线批处理**或服务器侧推理，边缘端不可行（与 dissection §4 "32 GB+ 边缘端不可" 一致）。
+
+### 8.7 与 Wonder3D / Zero123 的混淆：定位错位高发
+
+- **观察**：issue 区频繁出现"为何与 X 不同"或"输入要求差异"类讨论（[#21 multi-view](https://github.com/facebookresearch/sam-3d-objects/issues/21)、[#20 pointcloud](https://github.com/facebookresearch/sam-3d-objects/issues/20)），背后是用户把 SAM 3D 当 **Wonder3D / Zero123-XL / TRELLIS** 类 image-to-3D 通用工具用。**实际**：SAM 3D 强制 image + 单物体 mask（依赖 SAM 3 上游），输出是 mesh + 6-DoF layout（含场景内 pose 信息，Wonder3D 没有），主打 in-the-wild 3D 重建（SAM 3D Artist Objects benchmark）而非 novel-view synthesis。
+- **实地后果**：选型时**不要按"另一个 image-to-3D"评估**；要按 "image + mask → mesh + 物体 6-DoF" 接口评估。如果你要 multi-view → 走 TRELLIS；要 NeRF 重建 → 走 Instant-NGP；要 in-the-wild 单图带 pose → SAM 3D 是唯一。
+
+### 8.8 Texture 质量降级：mesh 输出 vs splat 输出有显著差异
+
+- **GitHub-validated**：[#75 (closed, 10c) "Baked Texture on Mesh (.glb) is extremely washed-out/pale compared to Gaussian Splat (.ply)"](https://github.com/facebookresearch/sam-3d-objects/issues/75) — splat 颜色对，但 baked mesh 颜色严重褪色；[#178 (open) "ply result of demo_multi_object has no color"](https://github.com/facebookresearch/sam-3d-objects/issues/178)。
+- **实地后果**：如果下游需要"看着像照片"的 mesh，直接用 .glb 会失望；保留 .ply Gaussian splat 出 rendering，mesh 仅用于碰撞 / 物理。
+
+### 8.9 Maintainer 响应度：仍活跃，与 FoundationPose 形成对比
+
+- **观察**：gleize (Contributor)、Sasha Sax 等 Meta 工程师在 issue 区实质回复（[#15](https://github.com/facebookresearch/sam-3d-objects/issues/15) 等），2026-01-07 还在 merge PR (#134 Layout Post-Optimization)、2025-12-12 add posed SA — 6 个月内的 repo 活跃度健康。
+- **判断**：与 FoundationPose（社区维护）相反，SAM 3D Objects 当前处 *vendor-maintained foundation* 阶段；中短期可期待官方修一部分上述 issues（特别是 scale alignment / TRT / scene speedup）。但 license 限制和 32 GB 硬约束**不会消失**。
+
+### 8.10 与 dissection §6.y atlas 的回灌
+
+- 已记录 §6.y 的三条（#162 alignment、#149 white paper、#57 scale）→ **8.2 + 8.3 扩展**至 7 条同类 issue，确认是**类别性失败**而非个例。
+- 新增维度：**8.4 license**、**8.5 HF gating**、**8.6 TRT 缺失**、**8.7 定位混淆**、**8.9 maintainer 健康** — 与 [`github_failure_atlas.md`](./github_failure_atlas.md) 互补；选型时建议按 8.4–8.7 四轴做 production-readiness gate。
+- 对比 [`foundation_pose_dissection.md`](../pose-tracking/foundation_pose_dissection.md) §8：FP issue 集中在「输入资产 + 硬件 + 部署」，SAM 3D 集中在「单图限制 + scale + license」 — **两类 foundation 的失败族正交**，搭栈时不要互相代偿。
+
+---
+
 ## References
 
 - **SA3D** — Cen et al. *NeurIPS 2023*. [arXiv:2304.12308](https://arxiv.org/abs/2304.12308) · [project](https://jumpat.github.io/SA3D/) · [code](https://github.com/Jumpat/SegmentAnythingin3D)

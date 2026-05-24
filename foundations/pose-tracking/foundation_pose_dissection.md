@@ -160,6 +160,63 @@ Multi-object 不批处理则线性 scale. 蒸馏后 Orin 上单物体 30 Hz trac
 
 ---
 
+## 8 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+> 数据来源：[NVlabs/FoundationPose](https://github.com/NVlabs/FoundationPose) — **3.2k★ · 140 open issues**（2026-05-24）。按 comment 降序扫前 25 + topic-grep。结论：repo 仍是 W1 anchor，但 **maintainer 半休眠**（last code commit 2025-03，社区 PR #369 RTX 50 + #364 TRT 至今未 merge），实地坑集中在「输入资产」「硬件 / 部署」「symmetric & tracking 失稳」三轴。
+
+### 8.1 First-frame mask：仍是 deployment 最大单点失败
+
+- **GitHub-validated**：[#51 (closed, 11c)](https://github.com/NVlabs/FoundationPose/issues/51) 显式要求"无 mask 工作流"，[#186 (closed, 11c)](https://github.com/NVlabs/FoundationPose/issues/186) 追问"第一帧怎么选"，[#383 (open, 4c)](https://github.com/NVlabs/FoundationPose/issues/383) "Correct Frame 0 but Poor Tracking" — 都指向同一根因：repo 自身**不提供** mask 工具，必须外接 XMem / SAM / Grounded-SAM，[#257 (open)](https://github.com/NVlabs/FoundationPose/issues/257) 提议 ROS + Grounded-SAM 拼装至今无官方支持。**实地后果**：first-frame mask 偏一点 → tracking 几十帧内 drift；与 dissection §6 "无干净 2D 检测的重杂乱" 失败模式同因，但严重程度高一档（90% 部署痛点）。
+- **缓解**：自接 SAM2 / XMem 做 mask propagation；不要相信 single-frame mask 稳定性。
+
+### 8.2 TensorRT / ONNX export：社区 PR 4 月未 merge
+
+- **GitHub-validated**：[#56 (closed-without-solution, 5c)](https://github.com/NVlabs/FoundationPose/issues/56) "How to export to TensorRT"、[#124 (closed, 1c)](https://github.com/NVlabs/FoundationPose/issues/124) "accessing the onnx file for inference on jetson"、[#298 (open, 11c)](https://github.com/NVlabs/FoundationPose/issues/298) "INT8 Quantization 显著精度退化 (FP16 OK)"。社区 PR [#364 "Adds TRT support"（2025-04-30 提交，至今 open）](https://github.com/NVlabs/FoundationPose/pull/364) **未 merge**。
+- **实地后果**：想上 TensorRT 必须 fork 自己改 + 调 quantization；INT8 报道精度崩，FP16 稳。NVIDIA 官方路径是 [isaac_ros_foundationpose](https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_pose_estimation)，但 [#274 (closed, 5c)](https://github.com/NVlabs/FoundationPose/issues/274) 报告 isaac_ros 版 demo_data 上 pose 严重偏离 NV 版 — 跨 ROS 包精度漂移待官方对齐。
+
+### 8.3 RTX 50 / 4090 / Jetson：硬件覆盖滞后于市场
+
+- **GitHub-validated**：
+  - **RTX 50 (Blackwell, sm_120)**：[PR #369 (2025-07-31, open 至今)](https://github.com/NVlabs/FoundationPose/pull/369) 由社区提交修 PyTorch 2.7 + CUDA 12.8 + C++17 + sm_120，**未 merge**；[#398 (open, 3c)](https://github.com/NVlabs/FoundationPose/issues/398) 5070 Blackwell 上 pytorch3D 装不上。
+  - **RTX 40**：[#27 (closed, 20c)](https://github.com/NVlabs/FoundationPose/issues/27)、[#9 (closed, 15c)](https://github.com/NVlabs/FoundationPose/issues/9) Ada 6000 sm_89 编译错。
+  - **GTX 16xx (Turing)**：[#53 (open, 27c)](https://github.com/NVlabs/FoundationPose/issues/53) 长期 NaN scores — 2026-01 用户 Qiyue-Chen-robo **找到根因**：PoseRefine stage 的 CUDA AMP autocast 在 GTX 16xx 上崩，关掉 AMP 即可；issue 仍 open，官方未吸收 fix。
+  - **Jetson Orin**：[#292 (closed)](https://github.com/NVlabs/FoundationPose/issues/292) 社区 fork [Jetpose](https://github.com/Kaivalya192/Jetpose) 做 Orin NX 适配；[#391 (open)](https://github.com/NVlabs/FoundationPose/issues/391) "Orin Nano 8G 够吗" 至今无 maintainer 回答；[#226 "register on Orin NX 极慢"](https://github.com/NVlabs/FoundationPose/issues/226)。
+- **实地后果**：新一代硬件（5090 / Blackwell Jetson Thor）一律 fork + 等社区；不要假设 README 装得起来。
+
+### 8.4 Latency 真值：tracking 不是 Hz，是 ms/frame，且首帧贵 10×
+
+- **GitHub-validated**：[#402 "Low inference speed on RTX 4050"](https://github.com/NVlabs/FoundationPose/issues/402)、[#256 "How can I speed up the long inference time in first frame?"](https://github.com/NVlabs/FoundationPose/issues/256)、[#334 "Is Inference speed margin reasonable?"](https://github.com/NVlabs/FoundationPose/issues/334)。社区一致报告：register（首帧 N=252 hypothesis）远慢于 tracking（K=5 refine 单 prior）；桌面 80–150 ms 是 **tracking 稳态**，首帧 300–1000 ms 正常。dissection §4 表格的 desktop / Orin 数字与社区报告同量级 → 维持 `UNVERIFIED` 但**可信**。
+- **实地后果**：30 Hz 目标只在 distilled + tracking 稳态下可期；register 阶段闭环必须容忍秒级延迟，否则换 detection-only fallback。
+
+### 8.5 Symmetric 对象：固有失败，需上游消歧
+
+- **GitHub-validated**：[#395 (open) "Orientation flips for Symmetry objects"](https://github.com/NVlabs/FoundationPose/issues/395) — 旋转对称物体跨帧在等价 pose 间跳变；[#107 (closed, 6c)](https://github.com/NVlabs/FoundationPose/issues/107) 无纹理圆柱 tracking 时绕轴旋；[#269 (open, 7c)](https://github.com/NVlabs/FoundationPose/issues/269) YCBV ADD-S 评测 BOP leaderboard 数字对不上。
+- **实地后果**：与 dissection §6 已列「严重对称（旋转歧义固有）」一致；scorer 无方向先验，**只能上游消歧**（语义标记 canonical orientation，或加 AprilTag / 纹理标签）。不要期待算法侧修。
+
+### 8.6 Mesh / 输入资产门槛：单位 / 对齐 / mask 三大坑
+
+- **GitHub-validated**：[#44 (closed, 35c — top thread)](https://github.com/NVlabs/FoundationPose/issues/44) 是 repo 最常被引用的"先看这条"，用户 savidini 总结三大坑 — (1) **mesh 必须米单位**（不是 mm，违反默认）、(2) RGB & depth 必须对齐、(3) intrinsics K 矩阵格式；[#83 (closed, 16c)](https://github.com/NVlabs/FoundationPose/issues/83)、[#60 (closed, 10c)](https://github.com/NVlabs/FoundationPose/issues/60)、[#32 (closed, 10c)](https://github.com/NVlabs/FoundationPose/issues/32) "model-free 怎么转 ycb-video 格式" 反复出现 — 卖点是 mesh-free 但 issue 区落地为 "要么扫 mesh 要么没法用"。
+- **实地后果**：onboarding 一个新物体 80% 时间花在资产对齐而非 pose 本身。低-poly CAD 通常 OK；过粗（< 100 face）或 normals 反向会让 scorer 退化但不会立刻报错，**silent failure 模式**。
+
+### 8.7 光照 / 杂乱 / Tracking 失稳：score 涨不等于对
+
+- **GitHub-validated**：[#233 (closed) "Score value goes up during occlusion"](https://github.com/NVlabs/FoundationPose/issues/233) — confidence 与正确性脱钩的危险模式；[#136 (open, 6c) "Detect when tracking is lost"](https://github.com/NVlabs/FoundationPose/issues/136) 至今无官方答案；[#279 (closed, 15c) "Large centroid error"](https://github.com/NVlabs/FoundationPose/issues/279)、[#131 (closed, 5c)](https://github.com/NVlabs/FoundationPose/issues/131) "tracking 失稳"。
+- **实地后果**：闭环不能仅靠 scorer confidence 触发 grasp；必须叠 IoU mask 一致性 / depth residual 等独立 gate。
+
+### 8.8 Maintainer 响应度：拐点信号
+
+- **观察**：last code commit **2025-03-03**（一年多前），仅 2026-04-29 一次第三方 conda 修复 PR 合入；issue 区主要靠社区互助（savidini / Qiyue-Chen-robo 等贡献了实质 fix），核心作者 wenbowen123 2024-Q3 后基本停止回复。**未 merge 的关键 PR：#369 RTX 50、#364 TensorRT、#337 Dockerfile**。
+- **判断**：repo 进入 *community-maintained foundation* 阶段（与 ontology §13.5 的 "foundation disputed" 互证 H7 maintainer responsiveness）。production 团队应假设：(a) 新硬件支持要自己 fork；(b) 关键修复要从 issue 评论区考古而非 README；(c) 2026+ 真正的接力可能来自 isaac_ros 分支或 BundleSDF 续作，而非 main repo。
+
+### 8.9 与 ontology §13.5 / §10.2 的回灌
+
+- §13.5 H5 real-time ❌ → **8.4 实证**（首帧 register 秒级，tracking 稳态 80–150 ms 与 30 FPS 阈值仍差 2-3×）。
+- §13.5 M2 foundation disputed → **8.1 + 8.6 实证**（first-frame mask + 输入资产门槛吃掉真正"零样本"卖点）。
+- §13.5 H7 maintainer responsiveness（如有此项）→ **8.8 实证**。
+- 与 [`github_failure_atlas.md`](./github_failure_atlas.md) 已记录的 §6.x 同源；本节是按主题轴的二次切片。
+
+---
+
 ## References
 
 - FoundationPose — Wen et al. *CVPR 2024*（best paper）. https://arxiv.org/abs/2312.08344

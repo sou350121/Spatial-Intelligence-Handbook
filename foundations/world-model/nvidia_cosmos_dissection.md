@@ -175,6 +175,91 @@ VLA 训练数据 pipeline 视图：
 
 ---
 
+## 8 · GitHub-validated pitfalls (2026-05-24 deep dive)
+
+原 `NVIDIA/Cosmos` monolithic repo（8096★）已 deprecate（#167），代碼拆到 `nvidia-cosmos/` org 下五個子庫。下表按子庫整理 2026-05 實地 issue tracker，凡引用「Cosmos repo」的舊教程 / 論文 baseline 都必須先確認指的是哪個 2.5 子庫。
+
+### 8.1 · `cosmos-predict2.5` (1.2k★, 22 open issues) — video FM
+
+| Issue | Theme | What it reveals |
+|---|---|---|
+| **#135** | RTX 5090 32GB VRAM CUDA OOM across text2world / image2world / video2world | 14B video2world **需 ~32.6GB VRAM**；32GB 消費卡仍 OOM。Datacenter-only baseline；`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` 不解 |
+| **#141** | "OOM while load the whole model" — limited capacity hardware | 證實 #135 不是 5090 個案；模型 footprint 對非 H100/A100 用戶 effectively 鎖死 |
+| **#136** | Paper-code mismatch on rCM distillation | **論文 method ≠ 開源 code**；distillation pipeline reproduce 不出來——和 §4 「Cosmos 數據是否真帮 VLA」未解問同源 |
+| **#134** | Missing eval script for action-conditioned post-training quantization | **沒有官方 eval harness** 衡量 quantized policy 性能——讀者要自己造 benchmark |
+| **#143, #148, #144, #131** | FSDP shard size 1 bug / multi-batch autoview / multiview checkpoint / single-GPU validation 不一致 | Distributed-training paper code，single-node 場景一堆隱性 bug |
+| **#142** | DGX Spark 兼容性 | 連 NVIDIA 自家新硬件都還沒適配齊 |
+| **#124** | Text2World training 文檔缺口 | "How do I train this?" 仍是公開問題 |
+
+**核心結論**：14B Predict-2 在 32GB 消費卡上**跑不起來**（#135/#141），這把「個人研究者用 Cosmos 增廣自己的 VLA dataset」路徑事實上鎖死到 H100/A100 用戶。§4.y 的「Cosmos 助 VLA」claim 因此**雙重難證**——既沒有 paper-code parity（#136），也沒有官方 eval harness（#134）。
+
+### 8.2 · `cosmos-transfer2.5` (657★, ≥232 open issues) — sim→real bridge
+
+| Issue | Theme | What it reveals |
+|---|---|---|
+| **#224** | "Low quality results using CARLA inputs for cosmos-transfer2.5 auto multiview" | **直接打臉 §3「Cosmos-Transfer 對 sim 資產 sim2real bridging」**——CARLA depth/seg 進 Transfer 出 garbage。讀者不要假設任意 sim source 自動工作 |
+| **#209** | "Background lost during object editing when vace_has_mask is enabled" | Mask conditioning 漏背景——VLA wrist-cam augmentation 常用 mask，這是現役 bug |
+| **#207** | "Support for frame-by-frame video generation with control inputs (closed-loop simulation)" | **closed-loop sim 還是 open feature request**，Transfer 今天只能 batch generate，不能 step-wise——與「rollout 引擎」幻想不符 |
+| **#225** | Request for access to Cosmos-Transfer2.5-2B/robot/multiview-agibot weights | 部分 robot-specific weights **未公開**——Apache 2.0 不等於全 checkpoint 開放 |
+| **#218** | 文檔 reference 未文檔化 env var for edge/distilled model | 蒸餾版本走後門 env var 開啟，未進文檔 |
+| **#216, #212, #232** | Missing `VelocityPassthroughWrapper`, camera inference module ImportError, `cosmos-oss==0.1.0` vs workspace 1.5.0 衝突 | **基本 pip install 走不通**——code/dependency 還在 churn |
+| **#221** | Prompt engineering for Real→Real augmentation | 沒有官方 cookbook；社區自己摸 |
+
+**核心結論**：Transfer2.5 對 **CARLA-class sim assets 質量不保**（#224），closed-loop sim 不支持（#207），部分 robot weights 不開（#225）。§5 「Transfer 優先於 Predict」的建議仍成立，但**前提是你用 Isaac-class assets**——把任意 sim 餵進去等失敗。
+
+### 8.3 · `cosmos-rl` (426★, ≥681 open issues) — RL post-training
+
+| Issue | Theme | What it reveals |
+|---|---|---|
+| **#681** | `torch.distributed.DistNetworkError` client socket timeout 300000ms | RL training distributed setup 卡網路握手——個人 / 小團隊基礎設施門檻高 |
+| **#672** | Shape mismatch when dim0 not divisible by global_rank_size | 對 batch / GPU 數有未文檔化整除約束 |
+| **#642** | Tool to convert checkpoint internal format to HuggingFace format | **checkpoint 不可直接 HF inference**——deploy 要自己寫轉換 |
+| **#526** | vLLM weight + kvcache offload for colocated-separated mode | 推理 stack 還在補基礎 RL 工具鏈 |
+| **#475, #495, #534, #535, #547, #551, #552** | MoE token dispatcher decouple / reward service isolation / control flow overlap / rollout balance / controller backup / RDMA-NCCL / container hybrid launch | **本質上是分布式 RL 訓練框架在 build-out 階段**——不是 turnkey "post-train 你的 VLA" 工具 |
+
+**核心結論**：`cosmos-rl` 是 NVIDIA 內部 large-scale RL training infra 開源，**不是面向 VLA practitioner 的 fine-tune kit**。§2 表格裡「Cosmos-Policy 在 LIBERO/RoboCasa SOTA」**沒有公開 reproduce path**——issue tracker 裡找不到「How to reproduce LIBERO numbers」對話，這對「world-model-as-policy 範式落地」的 claim 是負面信號。
+
+### 8.4 · `cosmos-curate` (184★, 1 closed issue, 0 open) — data curation
+
+唯一 surfaceable issue 是 **#4**（2025-09 closed）關於 `internvideo2_mm_config_model.json` 格式文檔。**Tracker 異常安靜**有兩種讀法：
+- (a) 工具穩定到沒人遇到問題 — unlikely given 184★ 用戶 base；
+- (b) **沒有人真在用** — 更可能；data curation 工作流通常各家自己寫，NVIDIA 的 curate pipeline 黏合度低。
+
+任何引用「我們用 cosmos-curate 處理了 X 小時數據」的論文都該核對：他們是真用整條 pipeline，還是只 import 了一個 video tokenizer？
+
+### 8.5 · `cosmos-reason2` (8 open issues) — 7B reasoning VLM
+
+| Issue | Theme | What it reveals |
+|---|---|---|
+| **#52** | **無法 reproduce 官方 Cosmos-Reason2-2B 在 Physical AI Bench 結果**（~6 點 gap） | **官方 benchmark 數字第三方驗不出來**——這是 §4 「Reason 是承重判別器」的直接風險：critic 本身的 reasoning 都 reproduce 不出，怎麼信它 filter 你的 rollout？ |
+| **#54** | Recurrent CUDA OOM during SFT of Cosmos-Reason2-32B | 32B 變體 fine-tune 對普通研究組不可及 |
+| **#56** | Video data SFT in post-training tutorial 不清楚 | "如何在自己 video 上 fine-tune critic" 仍是 open question — §4.x hidden assumption 「Reason 訓練分布覆蓋你的物理 regime」必須走 fine-tune 才解，而 fine-tune 路徑 undocumented |
+| **#37** | Vision Processor 把 `total_pixels` 誤當 `longest_edge` overflow | Tokenizer 配置 silent bug——影響任何 high-resolution wrist-cam 輸入 |
+| **#38, #41** | Cosmos-RL 集成問題 / "Put it in a virtual simulator" | 跨子庫拼裝（Reason × RL × sim）社區自己摸 |
+| **#51, #53** | Bounding box prediction reliability / AV sector capability | Critic 在 detection / domain-specific 上限未知 |
+
+**核心結論**：**Cosmos-Reason2 官方數字 reproduce 不出（#52）** 是本批 deep dive 最尖銳的發現——它直接動搖 §4 「Reason 當 critic 過濾物理違規片段」的可信度。如果第三方驗證者拿不到 paper 數字，那「Reason filter 出來的 rollout 真乾淨」這個 §5 deployment pattern #3 的承諾無從審計。
+
+### 8.6 · 跨庫遷移（從舊 `NVIDIA/Cosmos` 到 `nvidia-cosmos/*`）
+
+讀者要記三條：
+
+1. **舊 8096★ repo 已死**（issue #167）— 任何 `git clone NVIDIA/Cosmos` 教程 / Colab 失效；遷移到 5 子庫拼裝。
+2. **predict1 / reason1 / transfer1 / predict2 都已被 2.5 替代** — 任何 baseline ablation 引用 v1 / v2 數字必須註明，2.5 在 architecture 上不同（per **#136** 連 2.5 paper-code 都 mismatch，跨 major 版本可比性更弱）。
+3. **Apache 2.0 commercial use 形式上允許**，但 **#225** 顯示部分 robot-tuned weights（multiview-agibot 等）**未公開**——商用前要逐 model card 核對 license + 權重可用性，不能假設「Apache → 全部可用」。
+
+### 8.7 · 「Cosmos-Policy 在 LIBERO/RoboCasa SOTA」claim 的 GitHub 驗證狀態
+
+§2 表格列出 **Cosmos-Policy** 作 "post-trained world model as policy，LIBERO/RoboCasa SOTA"。GitHub 實地查證：
+
+- **無獨立 `nvidia-cosmos/cosmos-policy` repo 存在於 2026-05**（5 個子庫均不直接以 Policy 命名）；Policy 訓練應走 `cosmos-rl` post-training pipeline。
+- `cosmos-rl` issue tracker **無 LIBERO / RoboCasa 復現討論線索**——arXiv 2511.00062 報的 SOTA 數字目前**只有 NVIDIA 內部 reproduce path**。
+- §4.y "Cosmos-trained VLA improves task X by Y 至今無獨立第三方驗證" — 本 deep dive **再次確認**，且把範圍從「Predict 數據增廣助 VLA」擴到「Policy 本身作為 VLA」。
+
+**Interview Tip 升級**：被問 Cosmos-Policy LIBERO SOTA 時，先答「arXiv 報過，獨立復現尚無；`cosmos-rl` issue tracker 沒有 reproduce 對話」——這把跟蹤論文與跟蹤工程現實的人分開。
+
+---
+
 ## References
 
 - NVIDIA Cosmos announcement — CES 2025 keynote. https://www.nvidia.com/en-us/ai/cosmos/
