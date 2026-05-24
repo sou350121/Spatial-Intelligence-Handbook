@@ -7,8 +7,8 @@
 [![Docs Live](https://img.shields.io/badge/docs-kensou.mintlify.app-0EA5E9?style=for-the-badge&logo=readme&logoColor=white)](https://kensou.mintlify.app)
 [![Audit CI](https://github.com/sou350121/Spatial-Intelligence-Handbook/actions/workflows/audit.yml/badge.svg)](https://github.com/sou350121/Spatial-Intelligence-Handbook/actions)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC--BY--4.0-green)](./LICENSE)
-[![Pages](https://img.shields.io/badge/pages-189-orange)](./cheat-sheet/functional_map.md)
-[![Dissections](https://img.shields.io/badge/dissections-36-purple)](./cheat-sheet/cross_zone_failure_atlas.md)
+[![Pages](https://img.shields.io/badge/pages-190-orange)](./cheat-sheet/functional_map.md)
+[![Dissections](https://img.shields.io/badge/dissections-37-purple)](./cheat-sheet/cross_zone_failure_atlas.md)
 [![Ontology](https://img.shields.io/badge/5--axis_ontology-v2-red)](./cheat-sheet/ontology.md)
 [![Audit Checks](https://img.shields.io/badge/audit_checks-8/8_pass-success)](./scripts/handbook_audit.py)
 
@@ -61,7 +61,7 @@
 
 ```mermaid
 graph TD
-    START["⚔️ START HERE<br/>选你的角色"] --> FOUND["🏗️ Foundations<br/>跨 embodiment 共享底层<br/>13 zones · 82 篇"]
+    START["⚔️ START HERE<br/>选你的角色"] --> FOUND["🏗️ Foundations<br/>跨 embodiment 共享底层<br/>13 zones · 83 篇"]
     START --> CROSS["🔭 Crossing ★ USP<br/>跨 embodiment 合流<br/>5 wedges"]
 
     FOUND -->|"工具箱原语"| EMB["🤖 Embodiments<br/>各 embodiment 应用层<br/>manip / humanoid / ground<br/>driving / aerial ★ / marine"]
@@ -104,7 +104,7 @@ graph TD
 &nbsp;
 
 <details open>
-<summary><h3>🏗️ 1. <code>foundations/</code> — 跨 embodiment 共享底层 &nbsp;<code>13 zones · 82 篇</code></h3></summary>
+<summary><h3>🏗️ 1. <code>foundations/</code> — 跨 embodiment 共享底层 &nbsp;<code>13 zones · 83 篇</code></h3></summary>
 
 **一句话**：3DGS / VGGT / Depth Foundation / 经典 SLAM 这些"工具箱"原语 — 无论你做 manipulation、aerial 还是 marine，最终都会回到这里。
 

@@ -441,6 +441,8 @@ Learned geometry foundations
 │   ├── **Linear-scaling: VGG-T³ (NVIDIA DVL Feb 2026)** ★ NEW v3 — KV-distillation MLP, 11.6× speedup
 │   ├── **Kilometer-scale: VGGT-Long (Deng ICRA 2026)** ★ NEW v3 — chunked + loop closure
 │   ├── Online streaming: CUT3R (Wang CVPR 2025, Meta+UCB)，Spann3R (Wang 3DV 2025)
+│   ├── **VGGT 自帶 streaming (causal attention + KV cache) ★ NEW v3.1**: StreamVGGT (ICLR 2026, arXiv 2507.11539)，INCVGGT (ICLR 2026)
+│   │       — LLM 式 autoregressive；O(N) per frame；distilled from bidirectional VGGT；仍 un-metric 仍 ≥ 50 ms/frame
 │   ├── SfM-replacement frontend: MASt3R-SfM (Duisterhof 2024)，ACE-Zero
 │   └── Dynamic / 4D: MonST3R (Zhang 2024)，Stereo4D
 │
@@ -592,6 +594,8 @@ CVPR 2026 已開 [3D-LLM/VLA workshop](https://3d-llm-vla.github.io/) — 信號
 | **DUSt3R / MASt3R** | Two-view → 3D + matching | Dense pointmap (up-to-scale) | 2 RGB images | Learned end-to-end | Feed-forward | 🔬 |
 | **MapAnything (Meta) ★ NEW v3** | FF3D universal interface | Pointmap + DepthMap + Pose | Multi-view RGB (any setup) | Learned-MultiTask (吸收 VGGT/DUSt3R 為 backend) | Feed-forward | 🔬 |
 | **CUT3R / Spann3R** | Online feed-forward 3D | Persistent state + pointmap | RGB stream | Learned RNN-style | Online feed-forward | 🔬 |
+| **StreamVGGT (ICLR 2026) ★ NEW v3.1** | Online streaming feed-forward 3D | Dense pointmap + KV cache memory | Mono RGB video | Learned + temporal causal attention + KV cache (LLM-style) + distill from bidirectional VGGT | Online feed-forward streaming | 🔬 |
+| **INCVGGT (ICLR 2026) ★ NEW v3.1** | Incremental feed-forward 3D | Same family as StreamVGGT | Mono RGB | Learned incremental | Online feed-forward streaming | 🔬 |
 | **SLAM3R / Flash-Mono / EC3R-SLAM ★ NEW v3** | **3R-SLAM Hybrid** | Dense + keyframe graph | Mono (+ IMU) | Hybrid: learned 3D + classical SLAM | Online incremental | 🔬 |
 | **FeatureSLAM / VIGS-SLAM ★ NEW v3** | Dense Gaussian SLAM | 3D Gaussians (live map) | RGB(-D) + IMU | Hybrid: tracking + GS map | Online | 🔬 |
 | **Depth Anything v2** ⚠ relative only, brittle on reflective | Relative depth | DepthMap | Single RGB | Learned-Foundation | Feed-forward | 🚀 |
@@ -732,7 +736,9 @@ MASt3R (Leroy ECCV 2024) — + matching head
 │   ↓
 │   ├── VGGT-Long (Deng ICRA 2026) — kilometer-scale + loop closure
 │   ├── FastVGGT (arXiv 2509.02560) — memory optim
-│   └── VGG-T³ (NVIDIA Feb 2026) — TTT/KV-distillation → linear scaling
+│   ├── VGG-T³ (NVIDIA Feb 2026) — TTT/KV-distillation → linear scaling
+│   ├── **StreamVGGT (ICLR 2026) ★ v3.1** — causal attention + KV cache → O(N) per-frame streaming
+│   └── **INCVGGT (ICLR 2026) ★ v3.1** — parallel incremental line
 ├── π³ / Pi3 (Yu ICLR 2026) — permutation-equivariant, reference-free
 ├── MapAnything (Meta) — universal interface
 └── Aether (OpenRobotLab ICCV 2025) — geometry-aware unified world modeling
@@ -792,6 +798,8 @@ keyframe selection + factor graph + loop closure (classical SLAM back-end)
 | **MASt3R-SfM** | MASt3R 替 COLMAP frontend | Duisterhof 2024 |
 | **VGGT** | feed-forward 多 view → pose + depth + tracks（CVPR 2025 best paper）⚠ paradigm shift 爭議 § 13 | Wang CVPR 2025 · [`vggt_cvpr2025_dissection.md`](../foundations/feed-forward-3d/vggt_cvpr2025_dissection.md) |
 | **VGGT-Long ★ NEW v3** | chunked + loop closure for km-scale | Deng ICRA 2026 (arXiv 2507.16443) |
+| **StreamVGGT ★ NEW v3.1** | VGGT 自帶 streaming：causal attention + KV cache (LLM-style) → O(N) per frame；distilled from bidirectional VGGT；典型 sub-second per scene | Wang et al. ICLR 2026 (arXiv 2507.11539) · [GitHub 913★](https://github.com/wzzheng/StreamVGGT) · [`streamvggt_dissection.md`](../foundations/feed-forward-3d/streamvggt_dissection.md) |
+| **INCVGGT ★ NEW v3.1** | 平行另一條 incremental VGGT 路線 | ICLR 2026 [OpenReview](https://openreview.net/pdf/1995d220697c6b5a0dc0dde14751e3ee4c351422.pdf) |
 | **VGG-T³ / VGG-TTT ★ NEW v3** | TTT/KV-distillation MLP → 11.6× speedup vs VGGT | NVIDIA DVL Feb 2026 (arXiv 2602.23361) |
 | **FastVGGT ★ NEW v3** | memory-optim VGGT | arXiv 2509.02560 |
 | **π³ / Pi3 ★ NEW v3** | permutation-equivariant feed-forward 3D (reference-free, scale-invariant) | Yu ICLR 2026 (arXiv 2507.13347) |

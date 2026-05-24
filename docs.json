@@ -77,6 +77,7 @@
               "foundations/feed-forward-3d/overview.md",
               "foundations/feed-forward-3d/github_failure_atlas.md",
               "foundations/feed-forward-3d/mapanything_dissection.md",
+              "foundations/feed-forward-3d/streamvggt_dissection.md",
               "foundations/feed-forward-3d/vggt_cvpr2025_dissection.md",
               "foundations/feed-forward-3d/vggt_omega_dissection.md"
             ]

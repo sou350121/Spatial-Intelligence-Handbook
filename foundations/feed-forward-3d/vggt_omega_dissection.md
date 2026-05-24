@@ -256,9 +256,9 @@ VGGT-Ω 改的层与 aerial real-time VIO 替代题无关：
 
 ### 7.1 Falsifiable predictions
 
-1. **2027-06 前**：会出现 VGGT-Ω 衍生 **streaming variant**（可能叫 VGGT-Σ 或类似），把 N-view batch 改成 increment-per-frame。来源不明显但 register attention 天然适配 streaming（register 当 state cache）。
+1. ✅ **VERIFIED 2026-07 (預測時間 2027-06，早 ~1 年)**：StreamVGGT（ICLR 2026）+ INCVGGT（ICLR 2026）兩條 streaming variant 已出。StreamVGGT 用 *temporal causal attention + cached memory token* 達 incremental on-the-fly reconstruction —— 跟我們預測「register 當 state cache」方向一致，**memory token = register cache 的 streaming 化**。詳見 [`streamvggt_dissection.md`](./streamvggt_dissection.md)。
 2. **2027-12 前**：第一篇 metric-aware feed-forward 3D 论文会借鉴 Ω 的 register architecture + 额外 scale anchor head（stereo 或 IMU）。
-3. **2027-12 前不会发生**：VGGT 谱系（含 Ω 后代）成为 aerial 200 Hz 主前端 — operational envelope 限制不在 N 多少能解。
+3. **2027-12 前不会发生**：VGGT 谱系（含 Ω 后代 + StreamVGGT）成為 aerial 200 Hz 主前端 — operational envelope 限制不在 N 多少 / streaming 與否能解（streaming 解 latency 一半，但 metric scale + vibration robustness 還沒解）。
 
 ---
 
