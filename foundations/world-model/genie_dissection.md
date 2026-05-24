@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: World model (action-conditioned video gen)
+representation: Latent video tokens
+sensor: Video
+paradigm: Generative-VideoWorldModel (action-conditioned)
+time: FeedForward
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # Genie / Genie 2 解构 (Genie / Genie 2 — DeepMind, Dissection)
 
 > **发布时间**: Genie 1 — ICML 2024 (Bruce et al.); Genie 2 — DeepMind blog, December 2024

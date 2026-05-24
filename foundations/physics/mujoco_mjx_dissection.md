@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Differentiable physics simulation (rigid body)
+representation: Rigid body state + contact constraints
+sensor: NoSensor (simulator)
+paradigm: Hybrid-DiffSim (XLA-JIT)
+time: Offline-Batch / Diff-Optim
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # MuJoCo MJX Dissection (MuJoCo MJX 解构 — JAX/XLA 上的 GPU 化 MuJoCo)
 
 > **发布时间**: 2024-初 (与 MuJoCo 3.0 同步引入)；MJX 仍为 active 开发，跟随 MuJoCo 主版本号

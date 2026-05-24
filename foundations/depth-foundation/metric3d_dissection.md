@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Metric depth estimation
+representation: Per-pixel depth map (metric)
+sensor: Single RGB (+ intrinsic)
+paradigm: Learned-Foundation (metric)
+time: FeedForward-OneShot
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # Metric3D v1 + v2 (Metric3D 度量单目深度解构 — ICCV 2023 + 2024)
 
 > **Published**: 2023-07 (v1, ICCV 2023) / 2024-04 (v2)

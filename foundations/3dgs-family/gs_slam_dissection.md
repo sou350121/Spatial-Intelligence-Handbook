@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: VSLAM + Reconstruction (Gaussian-based)
+representation: 3DGS + camera tracking
+sensor: RGB-D / Mono
+paradigm: Hybrid-DiffRender + tracking
+time: Online (per-scene incremental)
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # GS-SLAM — Gaussian Splatting Inside the SLAM Loop (GS-SLAM 在线 SLAM 解构 — CVPR 2024)
 
 > **Published**: 2023-11 (arXiv) / CVPR 2024

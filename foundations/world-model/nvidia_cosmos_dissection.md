@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: World model (robotics foundation video)
+representation: Video tokens + 3D generation
+sensor: Video (multi-modal)
+paradigm: Generative-VideoWorldModel + 3D
+time: FeedForward
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # NVIDIA Cosmos 解构 (NVIDIA Cosmos World Foundation Models — Dissection)
 
 > ⚠️ **2026-05 状态**: 原 `NVIDIA/Cosmos` repo 已 deprecate (#167)；新代码在 [`nvidia-cosmos/` org](https://github.com/nvidia-cosmos)（14+ 子库）。本文档 url/clone 命令以新 org 为准。

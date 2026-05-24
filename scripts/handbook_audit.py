@@ -488,6 +488,66 @@ def check_8_mintlify_nav_coverage(repo_root: Path) -> CheckResult:
     )
 
 
+def check_9_ontology_5axis_header(repo_root: Path) -> CheckResult:
+    """每篇 *_dissection.md 必含 <!-- ontology-5axis ... --> header，且 5 axes 全有。
+
+    解 ontology v2 → 落地驗證：每篇 dissection 必須宣告自己在 5 軸上的座標。
+    """
+    required_axes = ["problem", "representation", "sensor", "paradigm", "time"]
+    HEADER_MARKER = "<!-- ontology-5axis"
+    HEADER_END = "-->"
+
+    dissections = list(repo_root.rglob("*_dissection.md"))
+    dissections = [d for d in dissections if ".git" not in d.parts]
+
+    missing_header = []
+    missing_axes = []
+    for d in dissections:
+        text = d.read_text(encoding="utf-8")
+        if not text.lstrip().startswith(HEADER_MARKER):
+            missing_header.append(str(d.relative_to(repo_root)))
+            continue
+        # Parse header block
+        end_idx = text.find(HEADER_END, len(HEADER_MARKER))
+        if end_idx < 0:
+            missing_header.append(str(d.relative_to(repo_root)) + " (未閉合 -->)")
+            continue
+        header_block = text[: end_idx + len(HEADER_END)]
+        # Each required axis must appear as key:
+        missing = [ax for ax in required_axes if f"{ax}:" not in header_block]
+        if missing:
+            missing_axes.append(
+                f"  {d.relative_to(repo_root)} 缺軸：{', '.join(missing)}"
+            )
+
+    details = []
+    if missing_header:
+        details.append(f"  {len(missing_header)} dissection(s) 缺 ontology-5axis header:")
+        for p in missing_header[:10]:
+            details.append(f"    - {p}")
+        if len(missing_header) > 10:
+            details.append(f"    ... and {len(missing_header) - 10} more")
+        details.append("  修復：run `python3 scripts/inject_ontology_headers.py`")
+    if missing_axes:
+        details.append(f"  {len(missing_axes)} dissection(s) header 缺軸:")
+        details.extend(missing_axes[:10])
+
+    if missing_header or missing_axes:
+        return CheckResult(
+            name="Ontology 5-axis",
+            status="FAIL",
+            summary=f"{len(missing_header)} 缺 header + {len(missing_axes)} 缺軸 / {len(dissections)} 總",
+            details=details,
+        )
+
+    return CheckResult(
+        name="Ontology 5-axis",
+        status="PASS",
+        summary=f"all {len(dissections)} dissections 帶完整 5-axis header",
+        details=[],
+    )
+
+
 CHECKS = [
     check_1_atlas_recall,
     check_2_fourteen_item_gate,
@@ -497,6 +557,7 @@ CHECKS = [
     check_6_unverified_discipline,
     check_7_stale_todo,
     check_8_mintlify_nav_coverage,
+    check_9_ontology_5axis_header,
 ]
 
 

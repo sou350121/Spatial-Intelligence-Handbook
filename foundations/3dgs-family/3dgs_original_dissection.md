@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Novel-view synthesis / Reconstruction
+representation: N×Gaussian primitives (μ, Σ, SH, α)
+sensor: RGB + poses (from COLMAP)
+paradigm: Hybrid-DiffRender (Gaussian rasterize + GD)
+time: PerScene-Optimization
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # 3D Gaussian Splatting (3DGS 原始论文解构 — SIGGRAPH 2023)
 
 > **Published**: 2023-07 (SIGGRAPH 2023)

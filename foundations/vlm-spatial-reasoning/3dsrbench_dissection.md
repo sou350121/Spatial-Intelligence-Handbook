@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Spatial reasoning benchmark (VLM QA)
+representation: Image-QA pair (benchmark dataset)
+sensor: Image input
+paradigm: Benchmark / Evaluation
+time: Offline evaluation
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # 3DSRBench 解构 (3DSRBench: A Comprehensive 3D Spatial Reasoning Benchmark — Dissection)
 
 > **发布时间**: arXiv 2024-12-10 / ICCV 2025

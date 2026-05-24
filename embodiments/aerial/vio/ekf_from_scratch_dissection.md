@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: VIO (教學 baseline)
+representation: 15-state / 21-state vector + covariance
+sensor: IMU + Camera
+paradigm: Filter-EKF
+time: Filter-Streaming
+ref: ../../../cheat-sheet/ontology.md §7
+-->
+
 # 从零手写 EKF — 15-state 与 21-state Augmented (EKF from Scratch — 15-state & 21-state Augmented Dissection)
 
 > **教材出处**：HKUST ELEC5660 *Introduction to Aerial Robotics* (Spring 2026, 沈劭劼主講) L8-L9 + Project 3 (proj3phase1 `ekf` + proj3phase2 `aug_ekf` packages)

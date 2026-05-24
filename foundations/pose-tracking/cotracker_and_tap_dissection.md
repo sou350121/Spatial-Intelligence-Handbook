@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: PointTracking (任意點長時跟蹤)
+representation: Per-point trajectory
+sensor: Video (RGB)
+paradigm: Learned-Transformer (iterative refinement)
+time: Online
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # CoTracker & TAP-Vid (任意点的时序追踪)
 
 > **发布时间**: CoTracker — ECCV 2024 (Karaev et al., Meta + Oxford) · TAP-Vid / TAP-Net — NeurIPS 2022 (Doersch et al., DeepMind)

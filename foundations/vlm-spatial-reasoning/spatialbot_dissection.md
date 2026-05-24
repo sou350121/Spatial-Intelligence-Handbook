@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Spatial reasoning (depth-aware VLM)
+representation: Image + depth conditioned QA
+sensor: RGB + Depth
+paradigm: Learned-VLM (depth-aware)
+time: FeedForward
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # SpatialBot 解构 (SpatialBot: Precise Spatial Understanding with Vision Language Models — Dissection)
 
 > **发布时间**: arXiv 2024-06-19（v1）/ 2025-03-19（v7 修订）

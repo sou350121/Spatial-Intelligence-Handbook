@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: VIO
+representation: Sparse + 21-state augmented (含 IMU bias + cam intrinsic)
+sensor: Mono / Stereo + IMU
+paradigm: Filter-MSCKF (null-space projection)
+time: Filter-Streaming
+ref: ../../../cheat-sheet/ontology.md §7
+-->
+
 # OpenVINS 解构 (OpenVINS Dissection)
 
 > **发布时间**：2019（arXiv）/ 2020（ICRA）

@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Trajectory generation (aerial)
+representation: Polynomial pieces + waypoints
+sensor: NoSensor (planner)
+paradigm: Geometric-Optimization (QP)
+time: Offline
+ref: ../../../cheat-sheet/ontology.md §7
+-->
+
 # 最小 Snap 轨迹生成 (Minimum-Snap Trajectory Generation Dissection)
 
 > 📚 **教材出处**：HKUST ELEC5660 *Introduction to Aerial Robotics* (Spring 2026, 沈劭劼主讲)

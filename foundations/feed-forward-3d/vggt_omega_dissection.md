@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: FeedForward3D (VGGT variant)
+representation: Dense pointmap + depth + pose
+sensor: Multi-view RGB
+paradigm: Learned-EndToEnd
+time: FeedForward-OneShot
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # VGGT-Ω 解构 (VGGT-Omega Dissection)
 
 > **发布时间**: 2026-05 · arXiv [2605.15195](https://arxiv.org/abs/2605.15195)

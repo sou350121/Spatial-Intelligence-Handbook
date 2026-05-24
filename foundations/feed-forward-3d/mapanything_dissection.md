@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: FeedForward3D (universal metric, varied camera setups)
+representation: Pointmap + DepthMap + Pose
+sensor: Multi-view RGB (varied)
+paradigm: Learned-Foundation-MultiTask
+time: FeedForward-OneShot
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # MapAnything 解构 (MapAnything Dissection)
 
 > **发布时间**: 2025-09 (arXiv v1) / 2026-01 (v2 revised) · 发表 **3DV 2026**

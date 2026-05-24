@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Novel-view synthesis
+representation: Implicit MLP radiance field
+sensor: RGB + poses
+paradigm: Hybrid-DiffRender (MLP + volume rendering)
+time: PerScene-Optimization
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # NeRF 原作解构 (NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis)
 
 > **Publication:** ECCV 2020 (best paper)

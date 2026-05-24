@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: VSLAM + Reloc + MultiSession (Atlas)
+representation: Sparse landmarks + Keyframe graph + Atlas multi-map
+sensor: Mono / Stereo / RGB-D + IMU optional
+paradigm: Geometric-Indirect + BA + DBoW2
+time: Incremental-Smoother
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # ORB-SLAM3 Dissection (ORB-SLAM3 解构)
 
 > **Published:** arXiv 2020, *IEEE T-RO* 2021 · Campos, Elvira, Gómez Rodríguez, Montiel, Tardós (Univ. of Zaragoza)

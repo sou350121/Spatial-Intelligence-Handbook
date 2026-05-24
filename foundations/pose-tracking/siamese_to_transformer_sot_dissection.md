@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: VisualTracking (single object, SOT)
+representation: Template matching + correlation
+sensor: Video (RGB)
+paradigm: Learned (Siamese → Transformer 譜系)
+time: Online (per-frame)
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # Siamese 到 Transformer 到 SAM 2：单物体 Tracking 八年演进 (Siamese → Transformer → SAM 2: Eight Years of Single-Object Tracking)
 
 > **发布时间**: SiamFC — ECCV 2016 / arXiv 1606.09549 · SiamRPN — CVPR 2018 · SiamMask — CVPR 2019 / arXiv 1812.05050 · SiamRPN++ — CVPR 2019 · STARK — ICCV 2021 / arXiv 2103.17154 · MixFormer — CVPR 2022 oral / arXiv 2203.11082 · SAM 2 — Meta 2024 / arXiv 2408.00714

@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: FeedForward3D (pose + depth + points + tracks)
+representation: Dense pointmap + depth + pose + tracks
+sensor: Multi-view RGB
+paradigm: Learned-EndToEnd-MultiTask
+time: FeedForward-OneShot (batch)
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # VGGT (CVPR 2025) Dissection (VGGT 解构 — CVPR 2025 best paper)
 
 > **发布时间**: 2025-03 (arXiv) / CVPR 2025

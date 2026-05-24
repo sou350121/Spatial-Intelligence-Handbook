@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Object 6-DoF pose (foundation)
+representation: Mesh template + RGBD features
+sensor: RGBD + Object mesh
+paradigm: Learned + DiffRender refine
+time: Online
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # FoundationPose (新物体 6D 位姿，无需逐物体训练)
 
 > **发布时间**: 2024-03 (CVPR 2024 *best paper* — Wen, Yang et al., NVIDIA)

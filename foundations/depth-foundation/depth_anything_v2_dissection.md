@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Relative depth estimation
+representation: Per-pixel depth map (relative)
+sensor: Single RGB
+paradigm: Learned-Foundation (monocular)
+time: FeedForward-OneShot
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # Depth Anything v2 (Depth Anything v2 解构 — NeurIPS 2024)
 
 > **Published**: 2024-06 (arXiv) / NeurIPS 2024

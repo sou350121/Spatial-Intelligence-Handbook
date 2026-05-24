@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: NVS / Reconstruction
+representation: Multi-resolution hash grid + tiny MLP
+sensor: RGB + poses
+paradigm: Hybrid (explicit hash + MLP decoder)
+time: PerScene-Optimization (秒級)
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # Instant-NGP 解构 (Instant Neural Graphics Primitives with a Multiresolution Hash Encoding)
 
 > **Publication:** SIGGRAPH 2022

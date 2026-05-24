@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: VO + ObstacleAvoidance + PointTracking (high-speed / low-light)
+representation: Sparse event stream
+sensor: Event camera (DVS) + IMU
+paradigm: Event-driven classical + Learned
+time: Streaming async
+ref: ../../../cheat-sheet/ontology.md §7
+-->
+
 # 无人机事件相机解构 — UZH RPG 谱系 (Event Cameras for Aerial — UZH RPG Line Dissection)
 
 > **发布时间**：2008（DVS 首发论文）/ 2023（Nature racing 里程碑）

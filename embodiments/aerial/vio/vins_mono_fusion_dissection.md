@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: VI-SLAM (含 loop closure) + GPS fusion
+representation: Sparse landmarks + IMU bias + Marginalization prior
+sensor: Mono + IMU + GNSS optional
+paradigm: Geometric-FactorGraph + Ceres
+time: FixedLag-Smoother
+ref: ../../../cheat-sheet/ontology.md §7
+-->
+
 # VINS-Mono / VINS-Fusion 解构 (VINS-Mono / VINS-Fusion Dissection)
 
 > **发布时间**：2018（T-RO 论文）/ 2019（VINS-Fusion 跟进）

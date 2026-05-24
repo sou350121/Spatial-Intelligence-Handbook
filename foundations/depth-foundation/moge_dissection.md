@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Affine-invariant point map (single-task)
+representation: Dense point map (up-to-scale)
+sensor: Single RGB
+paradigm: Learned-Foundation
+time: FeedForward-OneShot
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # MoGe — Monocular Geometry Estimation (MoGe 单目几何估计解构 — Microsoft 2024)
 
 > **Published**: 2024 (arXiv ID TBD UNVERIFIED)

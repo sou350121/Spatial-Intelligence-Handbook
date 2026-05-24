@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Differentiable physics (continuum + rigid)
+representation: Particle field + rigid body
+sensor: NoSensor
+paradigm: Hybrid-DiffSim (CUDA kernels)
+time: Offline-Batch
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # NVIDIA Warp Dissection (NVIDIA Warp 解构 — kernel-based differentiable physics framework)
 
 > **发布时间**: 2022 (初次开源) → active development through 2026

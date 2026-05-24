@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Multi-object 2D tracking (MOT)
+representation: BBox + ID + Kalman state
+sensor: Detection input (RGB)
+paradigm: Data association (Hungarian / IoU) + Kalman
+time: Streaming
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # SORT & ByteTrack — 2D 多目标追踪两座里程碑 (SORT & ByteTrack Dissection)
 
 > **发布时间**: 2016 (SORT) / 2022 (ByteTrack); dissection 写于 2026-05-21

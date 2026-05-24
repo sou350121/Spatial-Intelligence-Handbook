@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Promptable 3D / Image-to-3D (SA3D / SAGA / SAM 3D Objects)
+representation: NeRF + 3DGS feature / Mesh
+sensor: RGB / RGBD / 單 image
+paradigm: Hybrid + Generative (SAM 3D Objects 2025)
+time: PerScene + FeedForward (依變體)
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # SAM-in-3D 解构 (Promptable 3D Segmentation / Reconstruction — Dissection)
 
 > **覆盖范围**: SA3D (NeurIPS 2023) · SAGA (AAAI 2025) · **SAM 3D / SAM 3** (Meta, 2025-11-19)

@@ -1,3 +1,12 @@
+<!-- ontology-5axis
+problem: Open-vocabulary 3D
+representation: NeRF + CLIP feature field
+sensor: RGB + CLIP
+paradigm: Hybrid + Distillation
+time: PerScene-Optimization
+ref: ../../cheat-sheet/ontology.md §7
+-->
+
 # LERF 解构 (LERF: Language Embedded Radiance Fields — Dissection)
 
 > **发布时间**: ICCV 2023 (Kerr, Kim, Goldberg, Kanazawa, Tancik — UC Berkeley)
