@@ -21,26 +21,34 @@
 ## Env vars
 
 ```bash
+# Required
 export DASHSCOPE_API_KEY=sk-xxx            # Aliyun qwen3.5-plus
-export TELEGRAM_BOT_TOKEN=123:abc          # reuse ai_agent_dailybot
-export TELEGRAM_CHAT_ID=-1001234567890     # new target for spatial
-# optional:
-export SPATIAL_DRY_RUN=1                   # skip TG push, only write reports
+
+# Optional — TG push (default: skipped, integration via git)
+export TELEGRAM_BOT_TOKEN=123:abc          # opt-in TG push
+export TELEGRAM_CHAT_ID=-1001234567890
+
+# Optional — dev/test
+export SPATIAL_DRY_RUN=1                   # skip writes (no markdown, no TG)
 export SPATIAL_DATE=2026-05-24             # backfill mode
 ```
 
+**Default workflow**: handbook integration via git — `reports/spatial-daily/YYYY-MM-DD.md`
+auto-committed to repo, Mintlify rebuild picks it up. No TG bot needed.
+
 ---
 
-## Try it locally (dry run, no TG push)
+## Try it locally
 
 ```bash
 cd /home/claudeuser/Spatial-Intelligence-Handbook
 export DASHSCOPE_API_KEY=sk-xxx
-export SPATIAL_DRY_RUN=1
 python3 scripts/pulsar/run_daily.py
 ```
 
-Output: `reports/spatial-daily/YYYY-MM-DD.md` will be created. No TG push.
+Output: `reports/spatial-daily/YYYY-MM-DD.md` created. No TG push (no token set).
+
+For true dry-run (skip even markdown write), add `SPATIAL_DRY_RUN=1`.
 
 ---
 

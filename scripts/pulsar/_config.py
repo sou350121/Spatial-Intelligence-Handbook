@@ -5,12 +5,15 @@ Future: integrate with Pulsar's `memory/domains.json` multi-domain registry.
 
 Env vars required:
     DASHSCOPE_API_KEY   — Aliyun qwen3.5-plus (OpenAI-compatible)
-    TELEGRAM_BOT_TOKEN  — reuse ai_agent_dailybot token
-    TELEGRAM_CHAT_ID    — new target for spatial (user provides)
 
-Optional:
-    SPATIAL_DRY_RUN=1   — collect + rate, skip TG + reports write
+Env vars optional:
+    TELEGRAM_BOT_TOKEN  — enable TG push (skipped gracefully if absent)
+    TELEGRAM_CHAT_ID    — TG target chat ID
+    SPATIAL_DRY_RUN=1   — collect + rate only, skip writes (dev/test)
     SPATIAL_DATE        — override "today" in YYYY-MM-DD (for backfill)
+
+Default workflow: handbook integration via git (commit reports/spatial-daily/).
+TG is optional opt-in.
 """
 from __future__ import annotations
 import os

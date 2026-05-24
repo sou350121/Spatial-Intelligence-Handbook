@@ -1,22 +1,30 @@
 #!/usr/bin/env python3
-"""Generate daily markdown report + push to Telegram.
+"""Generate daily markdown report (+ optional Telegram push).
 
 Usage:
     python3 scripts/pulsar/rate.py | python3 scripts/pulsar/post.py
     # or:
     python3 scripts/pulsar/post.py --in rated.json
 
-Outputs:
+Outputs (required):
     reports/spatial-daily/YYYY-MM-DD.md  (full report)
+
+Outputs (optional, only if env vars set):
     Telegram message (top REPORT_TOP_N picks, summary only)
 
-Requires: TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID env vars.
-Skips TG push (and exits 0) if SPATIAL_DRY_RUN=1.
+Env vars:
+    (required) — none for default behavior
+    (optional) TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID — enable TG push
+    (optional) SPATIAL_DRY_RUN=1 — skip TG push even if tokens set
+
+Default workflow: handbook integration via git (commit + push reports/spatial-daily/).
+TG is optional opt-in (gracefully skipped if no token).
 """
 from __future__ import annotations
 import argparse
 import datetime
 import json
+import os
 import sys
 import urllib.request
 import urllib.error
@@ -212,6 +220,13 @@ def main() -> int:
 
     if is_dry_run():
         print(f"  (dry run — skipping TG push)", file=sys.stderr)
+        return 0
+
+    # TG push is optional (handbook integration via git push instead)
+    # If TELEGRAM_BOT_TOKEN not set, gracefully skip.
+    if not os.environ.get("TELEGRAM_BOT_TOKEN"):
+        print(f"  (no TELEGRAM_BOT_TOKEN env — skipping TG push; handbook integration via git)",
+              file=sys.stderr)
         return 0
 
     tg_msg = build_tg_message(papers, date)
