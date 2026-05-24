@@ -159,7 +159,7 @@ def main() -> int:
         "$schema": "https://mintlify.com/docs.json",
         "theme": "mint",
         "name": "Spatial Intelligence Handbook",
-        "description": "Spatial AI for manipulation / aerial / driving / marine — 37 dissection / 83 篇深度解析 / 5-axis ontology / GitHub-validated atlas",
+        "description": "Spatial AI for manipulation / aerial / driving / marine — 46 dissection / 92 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
         "colors": {
             "primary": "#0EA5E9",
             "light": "#38BDF8",

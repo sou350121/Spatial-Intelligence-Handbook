@@ -171,11 +171,13 @@
 
 &nbsp;
 
-**4 dissections** · 全部 2025-2026 新 paper · Meta 系 + Tsinghua 系作者
+**8 dissections** · 全部 2024-2026 新 paper · CroCo 譜系全收齊
 
-**演进逻辑**：VGGT v1 开创范式 → MapAnything 解 metric → VGGT-Ω 解 efficiency
-→ **StreamVGGT (2025-07) 解 streaming via causal+KV cache**
-→ 下一代 (2027?) 四者合一 + IMU coupling
+**演进逻辑**：
+- 譜系起源：**DUSt3R (CVPR 2024)** → **MASt3R (ECCV 2024)** → **VGGT (CVPR 2025 best)** → **π³ (ICLR 2026 permutation-equivariant)**
+- 並列：MapAnything (metric) / VGGT-Ω (efficient batch)
+- Streaming 子分支：**StreamVGGT (causal+KV cache)** → **OVGGT (O(1) constant memory production-recommended)**
+- 下一代 (2027?): metric + streaming + IMU coupling 一鍋訓
 
 **Pulsar pipeline**：本区是 spatial AI 最热的轴，平均每 3-6 个月有重大新论文。
 Pulsar `vla-rss-collect.py` 监控 cs.CV arxiv，命中 feed-forward 3D 类
