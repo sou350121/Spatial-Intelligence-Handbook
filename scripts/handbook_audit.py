@@ -598,6 +598,174 @@ def check_10_readme_overview_sync(repo_root: Path) -> CheckResult:
     )
 
 
+def check_11_docs_json_description_count(repo_root: Path) -> CheckResult:
+    """docs.json description 内的 dissection 数字 vs 实际 dissection 数。
+
+    docs.json description 是 Mintlify 站点的 metadata；过时数字会误导读者
+    （前面已踩坑「187 dissection」实际 37 个的 bug）。
+    """
+    import json
+    import re
+
+    docs_json = repo_root / "docs.json"
+    if not docs_json.exists():
+        return CheckResult(
+            name="docs.json count",
+            status="INFO",
+            summary="docs.json 不存在；跳过",
+            details=[],
+        )
+
+    try:
+        desc = json.loads(docs_json.read_text(encoding="utf-8")).get("description", "")
+    except Exception as e:
+        return CheckResult(name="docs.json count", status="FAIL",
+                           summary=f"解析失败: {e}", details=[])
+
+    # actual dissection count = *_dissection.md outside .git
+    actual = sum(
+        1 for p in repo_root.rglob("*_dissection.md") if ".git" not in p.parts
+    )
+
+    # extract "N dissection" from description (允许 "37 dissection" / "37 dissections")
+    m = re.search(r"(\d+)\s*dissection", desc, re.IGNORECASE)
+    if not m:
+        return CheckResult(
+            name="docs.json count",
+            status="WARN",
+            summary="docs.json description 没找到 'N dissection' 模式",
+            details=[f"  description: {desc[:120]}..."],
+        )
+
+    declared = int(m.group(1))
+    if declared != actual:
+        return CheckResult(
+            name="docs.json count",
+            status="FAIL",
+            summary=f"docs.json description 写 {declared} dissection，实际 {actual}",
+            details=[
+                f"  description: {desc[:120]}...",
+                f"  修复: edit gen_mintlify_nav.py description 字段 + regen docs.json",
+            ],
+        )
+
+    return CheckResult(
+        name="docs.json count",
+        status="PASS",
+        summary=f"docs.json description = {declared} dissection = 实际",
+        details=[],
+    )
+
+
+def check_12_zone_overview_counts(repo_root: Path) -> CheckResult:
+    """每个 zone overview.md 内 'N dissection(s)' 数字 vs 实际同目录 dissection 数。
+
+    Zone overview 散在 13+ foundations 子目录，常见过时（加新 dissection 忘了同步）。
+    """
+    import re
+
+    # Word boundary before \d to avoid matching "SLAM3 dissection" / "4DGS dissection"
+    # (where the digit is part of a method name, not a count)
+    pattern = re.compile(r"(?<![A-Za-z0-9])(\d+)\s*dissections?", re.IGNORECASE)
+    mismatches = []
+    checked = 0
+
+    for overview in repo_root.rglob("overview.md"):
+        if ".git" in overview.parts:
+            continue
+        text = overview.read_text(encoding="utf-8")
+        if "dissection" not in text.lower():
+            continue
+        # actual dissection count in same dir
+        actual = sum(
+            1 for p in overview.parent.glob("*_dissection.md")
+        )
+        # Skip meta-overview (no sibling dissection) — it describes sub-zone counts
+        if actual == 0:
+            continue
+        checked += 1
+        # find all "N dissection" mentions in overview
+        for m in pattern.finditer(text):
+            declared = int(m.group(1))
+            # only flag if number ≤ 20 (likely zone count, not e.g. "82 篇" total)
+            if declared <= 20 and declared != actual:
+                rel = overview.relative_to(repo_root)
+                mismatches.append(
+                    f"  {rel}: 说 {declared} dissection 实际 {actual}"
+                )
+
+    if mismatches:
+        return CheckResult(
+            name="Zone overview counts",
+            status="FAIL",
+            summary=f"{len(mismatches)} zone overview 数字过时",
+            details=mismatches[:10] + (
+                [f"  ... and {len(mismatches)-10} more"] if len(mismatches) > 10 else []
+            ),
+        )
+    return CheckResult(
+        name="Zone overview counts",
+        status="PASS",
+        summary=f"all {checked} zone overview 数字与实际一致",
+        details=[],
+    )
+
+
+def check_13_no_empty_nav_groups(repo_root: Path) -> CheckResult:
+    """docs.json 不应含 pages=[] 的空 group（gen_mintlify_nav 历史 bug）。
+
+    空 group 在 Mintlify 侧渲染为空 sidebar 项，体验差。
+    """
+    import json
+
+    docs_json = repo_root / "docs.json"
+    if not docs_json.exists():
+        return CheckResult(name="No empty groups", status="INFO",
+                           summary="docs.json 不存在；跳过", details=[])
+
+    cfg = json.loads(docs_json.read_text(encoding="utf-8"))
+    empties = []
+
+    def walk(node, path=""):
+        if isinstance(node, dict):
+            if "group" in node and "pages" in node:
+                if not node["pages"]:
+                    empties.append(f"  {path} → group='{node['group']}' pages=[]")
+                for i, p in enumerate(node["pages"]):
+                    walk(p, f"{path}/{node['group']}#{i}")
+            elif "tabs" in node:
+                for t in node["tabs"]:
+                    walk(t, f"{path}/tabs")
+            elif "groups" in node:
+                tab_name = node.get("tab", "?")
+                for g in node["groups"]:
+                    walk(g, f"{path}/{tab_name}")
+        elif isinstance(node, list):
+            for x in node:
+                walk(x, path)
+
+    walk(cfg.get("navigation", {}))
+
+    if empties:
+        return CheckResult(
+            name="No empty groups",
+            status="FAIL",
+            summary=f"docs.json 含 {len(empties)} 个空 group",
+            details=empties[:10] + (
+                [f"  ... and {len(empties)-10} more"] if len(empties) > 10 else []
+            ) + [
+                "  修复: gen_mintlify_nav.py main loop 应 if g.get('pages'): groups.append(g)",
+                "  然后 regen: python3 scripts/gen_mintlify_nav.py > docs.json",
+            ],
+        )
+    return CheckResult(
+        name="No empty groups",
+        status="PASS",
+        summary="docs.json 所有 group 都非空",
+        details=[],
+    )
+
+
 CHECKS = [
     check_1_atlas_recall,
     check_2_fourteen_item_gate,
@@ -609,6 +777,9 @@ CHECKS = [
     check_8_mintlify_nav_coverage,
     check_9_ontology_5axis_header,
     check_10_readme_overview_sync,
+    check_11_docs_json_description_count,
+    check_12_zone_overview_counts,
+    check_13_no_empty_nav_groups,
 ]
 
 

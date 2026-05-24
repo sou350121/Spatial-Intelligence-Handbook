@@ -240,7 +240,7 @@ foundations/physics/
 
 &nbsp;
 
-**4 dissections + 1 primer + 1 comparison** · 2026-05-22 从 seed 扩展（之前仅 1 篇 PhysGaussian）
+**3 dissections + 1 primer + 1 comparison** · 2026-05-22 从 seed 扩展（之前仅 1 篇 PhysGaussian）
 
 **类型分布**：
 - 2 篇 dissection (MJX, Warp) — 14 项严格门槛
