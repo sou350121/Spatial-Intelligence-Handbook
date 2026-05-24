@@ -39,7 +39,8 @@
 | **🔥 Hot (爆发期, ★ 短期暴涨)** | 6 个月内 momentum 极强，issue 雪崩 | facebookresearch/sam2 (19204★/474 open)；facebookresearch/vggt (13.2k★/246)；ByteDance-Seed/Depth-Anything-3 (★5326, 2025-11 发布)；facebookresearch/sam-3d-objects (6665★/103) |
 | **⚡ Active (官方持续维护)** | 近 6 月有 commit + issue 回复 | DepthAnything/Depth-Anything-V2 (★8149)；NVlabs/FoundationStereo (2706★)；NVlabs/FoundationPose (3213★)；microsoft/MoGe (2476★, v2)；facebookresearch/co-tracker (4955★)；facebookresearch/map-anything (3.4k★, Apache 2.0)；rpng/open_vins (2.9k★, 2025-11 push)；graphdeco-inria/gaussian-splatting (22k★/45 open PR)；nerfstudio-project/nerfstudio (11.6k★)；nvidia-cosmos/cosmos-predict2.5 (1212★, 2026-05)；nvidia-cosmos/cosmos-transfer2.5 (657★)；nvidia-cosmos/cosmos-rl (426★, 2026-05-20)；3DSRBench (benchmark 影响力大) |
 | **🔧 Slow but alive (维护放缓, 算法成熟)** | 6-18 月仍有 commit 但节奏明显放慢 | minghanqin/LangSplat (1045★, 2025-10)；BAAI-DCAI/SpatialBot (344★, 2025-09)；autonomousvision/mip-splatting (1.4k★)；YvanYin/Metric3D (2195★, >1 年无 push)；NVlabs/instant-ngp (17.4k★, v2.0 2025-07)；ethz-asl/kalibr (5.4k★, 社区围 ROS 2)；princeton-vl/DROID-SLAM (2.6k★, 2025-05)；princeton-vl/RAFT (4035★, 2025-08)；naver/dust3r (7.1k★)；naver/mast3r (2.9k★)；nvidia-cosmos/cosmos-curate (184★)；nvidia-cosmos/cosmos-reason2 |
-| **❌ Stale / Archived / 无 repo** | 已 archived / 1+ 年无 push / 完全闭源 | google-research/multinerf (3.8k★, archived 2025-02-11)；bmild/nerf (10.9k★, stale)；yenchenlin/nerf-pytorch (6.0k★, stale)；JakobEngel/dso (2.4k★, 2018 后冻结)；tum-vision/lsd_slam (2.7k★, 2014 后冻结)；ethz-asl/maplab (2.8k★, 2024-05)；UZ-SLAMLab/ORB_SLAM3 (8.6k★, frozen + 用户活跃)；HKUST-Aerial-Robotics/VINS-Mono (5.9k★)；HKUST-Aerial-Robotics/VINS-Fusion (4.5k★)；megapose6d (348★)；kerrj/lerf (727★, 2024-07)；pengsongyou/openscene (820★, 2023-10，OpenSeg ckpt 链接死)；hustvl/4DGaussians (3.6k★, 半弃养)；GS-SLAM 主仓 `UNVERIFIED`；NVIDIA/Cosmos (deprecate)；Google Genie (闭源)；World Labs Marble (产品)；SpatialVLM (无官方 repo)；VGGT-Ω (论文刚出，repo `UNVERIFIED`) |
+| **❌ Stale / Archived / 无 repo** | 已 archived / 1+ 年无 push / 完全闭源 | google-research/multinerf (3.8k★, archived 2025-02-11)；bmild/nerf (10.9k★, stale)；yenchenlin/nerf-pytorch (6.0k★, stale)；JakobEngel/dso (2.4k★, 2018 后冻结)；tum-vision/lsd_slam (2.7k★, 2014 后冻结)；ethz-asl/maplab (2.8k★, 2024-05)；UZ-SLAMLab/ORB_SLAM3 (8.6k★, frozen + 用户活跃)；HKUST-Aerial-Robotics/VINS-Mono (5.9k★)；HKUST-Aerial-Robotics/VINS-Fusion (4.5k★)；megapose6d (348★)；kerrj/lerf (727★, 2024-07)；pengsongyou/openscene (820★, 2023-10，OpenSeg ckpt 链接死)；hustvl/4DGaussians (3.6k★, 半弃养)；GS-SLAM 主仓 `UNVERIFIED`；NVIDIA/Cosmos (deprecate)；Google Genie (闭源)；World Labs Marble (产品)；SpatialVLM (无官方 repo) |
+| **🦴 Release-and-forget (NEW v3.2)** | 開源但 maintainer 不回 issue / 0 closed | facebookresearch/vggt-omega (CVPR 2026 Oral, 15 open / **0 closed**, Multi-view fusion #17 / install #18 / HF access #26 全 unresolved)；wzzheng/StreamVGGT (913★, 25 open / **0 closed**, 1300 frame → >100GB GPU memory #24 不回應 8 月+) |
 
 **惊讶**:
 - **🔥 全部来自 Meta + ByteDance + NVlabs**；学术 lab 几乎没有 🔥 级工具。
@@ -60,6 +61,7 @@
 8. **ORB-SLAM3 production 用户**: 锁版本 fork + 自接 ROS 2 + 自接硬件 trigger（IMU-cam 时间同步）；不要等官方维护回归。
 9. **NeRF 谱系收尾**: 新项目用 3DGS / VGGT / MapAnything；NeRF 留作教学 + 数学起点；不要再为 multinerf 补管线工具（archived 后没回报）。
 10. **Windows / RTX 50 系列**: 3DGS / Instant-NGP / FoundationPose 都在新硬件 + 新 CUDA 路径上踩坑（3DGS #1313 RTX 50、Instant-NGP #1603 gcc 14、FoundationPose #27 RTX 4090）；预算"踩编译坑"时间或用 WSL2 / Docker。
+11. **Release-and-forget 警告 (NEW v3.2)**: VGGT-Ω + StreamVGGT 都是 ICLR/CVPR 2026 重要 paper 但 maintainer 0 closed issue / 8 個月不回應。**用 streaming feed-forward 3D 直接看 follow-up**：OVGGT (O(1) constant memory) > XStreamVGGT (4.42× memory ↓ + 5.48× speedup) > FrameVGGT > STAC > StreamVGGT 原版（memory 災難 issue #24）。Production 候選看 closed issue 比例，不看 stars。
 
 ---
 
@@ -67,7 +69,7 @@
 
 | Zone | Atlas 路径 | 最关键发现（一句话） |
 |---|---|---|
-| Feed-Forward 3D | [`feed-forward-3d/github_failure_atlas.md`](../foundations/feed-forward-3d/github_failure_atlas.md) | DUSt3R/MASt3R 2025-Q3 后被 Naver 自己后继吞并；momentum 全在 Meta 三件套（VGGT / VGGT-Ω / MapAnything） |
+| Feed-Forward 3D | [`feed-forward-3d/github_failure_atlas.md`](../foundations/feed-forward-3d/github_failure_atlas.md) | DUSt3R/MASt3R 2025-Q3 后被 Naver 自己后继吞并；momentum 在 Meta 三件套（VGGT / VGGT-Ω / MapAnything）+ NEW: StreamVGGT 系（StreamVGGT / XStreamVGGT / OVGGT / FrameVGGT / STAC）；**VGGT-Ω + StreamVGGT 兩個都 release-and-forget**（15/25 open issue 0 closed）；2026-05 update |
 | 3DGS Family | [`3dgs-family/github_failure_atlas.md`](../foundations/3dgs-family/github_failure_atlas.md) | 原版 22k★ + 45 open PR + HIP/AMD 移植在动；衍生 4DGS / GS-SLAM 寿命 ~18 个月即半弃养 |
 | NeRF Family | [`nerf-family/github_failure_atlas.md`](../foundations/nerf-family/github_failure_atlas.md) | multinerf 2025-02-11 被 Google archived；NeRF 时代标志日；Block-NeRF 公开实现 gap 仍空缺 |
 | Classical SLAM | [`classical-slam/github_failure_atlas.md`](../foundations/classical-slam/github_failure_atlas.md) | 5/5 repo 官方 commit 1-2 年前；Kalibr 是事实标准但官方不接 ROS 2；ORB-SLAM3 用户多 ≠ 维护强典型 |

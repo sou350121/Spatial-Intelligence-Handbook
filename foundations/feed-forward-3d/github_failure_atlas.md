@@ -20,7 +20,12 @@
 | facebookresearch/map-anything | 3.4k | 254 | 28 | Apache 2.0 | 活跃 |
 | naver/dust3r | 7.1k | 752 | 133 | CC-BY-NC-SA 4.0 | 慢 |
 | naver/mast3r | 2.9k | 263 | 94 | CC-BY-NC-SA 4.0 | 慢 |
-| VGGT-Ω | — | — | — | — | 论文 2026-05 刚出，开源状态 `UNVERIFIED`（arXiv 2605.15195 未确认 code release） |
+| facebookresearch/vggt-omega | — | — | **15 open / 0 closed** | — | ⚠ Meta FAIR 開源不維護 — 同 StreamVGGT 模式 |
+| wzzheng/StreamVGGT | 913 | 47 | **25 open / 0 closed** | — | ⚠ research artefact，maintainer 8 個月不回 |
+| XStreamVGGT | — | — | — | — | 2026-01 follow-up，KV pruning+quant → 4.42× memory ↓ + 5.48× speedup |
+| OVGGT | — | — | — | — | 2026-03 follow-up，**O(1) constant memory** |
+| FrameVGGT | — | — | — | — | 2026-03 follow-up，frame evidence rolling |
+| STAC | — | — | — | — | follow-up，spatio-temporal aware compression |
 
 > 数字 last-commit-date 仍 `UNVERIFIED` — WebFetch 未能稳定抓到精确日期，issue 编号是更可靠的活跃度代理（VGGT 一年内累积到 #476，DUSt3R 一年多才到 #243）。
 
@@ -46,12 +51,52 @@
 
 ## VGGT-Ω
 
-- **Repo**: arXiv 2605.15195；**GitHub repo `UNVERIFIED`** — 论文 2026-05 刚出，code release 状态未确认（搜 facebookresearch 下没有独立的 `vggt-omega` 公开 repo；可能在 main `vggt` repo 里 branch / 待发布）。
-- **Stats**: 全部 `UNVERIFIED`。
-- **Top failure cases**: N/A — 没 GitHub 就没 issue history。论文宣称的 register attn / 自监督 / 30% memory 三个轴一旦开源会立刻被社区压测。
-- **PR 方向**: N/A。
-- **Project momentum**: ⚠️ **未知** — 论文已 Meta 自家，VGGT v1 的活跃度暗示 Ω 会接住，但 *没有 code* 之前不能算社区项目。
-- **是否该选**: **等开源** — 现在只能读 paper，部署还是用 VGGT v1。建议维护者 2026-Q3 重查此 repo 状态。
+- **Repo**: https://github.com/facebookresearch/vggt-omega（**已開源 2026-05；deep dive 2026-05-24 更新**）
+- **Stats**: 15 open issue / **0 closed**（Meta FAIR 開源不維護模式）
+- **Top failure cases**:
+  1. **Multi-view fusion 失敗** (#17) — "generated point cloud has poor geometric quality... I do not see an obvious fusion of point clouds from different views" — maintainer 無回應；遺傳 VGGT v1 同問題
+  2. **Sparse-view face 重建失敗** (#15) — 同 StreamVGGT #29 主題；multi-view alignment 仍未解
+  3. **Install 失敗** (#18) — `pip install -e .` → "ERROR: File 'setup.py' not found"，缺 setup.py
+  4. **HF model access 被拒** (#26) — Edinburgh PhD academic 用途被拒，無 transparent criteria
+  5. **Training code 未發布** (#27) — maintainer 無回應
+  6. **COLMAP export 問題** (#28)
+  7. **Original VGGT export script 不相容** (#21)
+  8. **10B model variant 不可得** (#29) — paper 提到但未發布
+- **PR 方向**: N/A — release-and-forget 模式
+- **Project momentum**: 🔴 Meta FAIR 開源不維護 — 0 closed issue / 0 maintainer reply 8 month
+- **是否該選**:
+  - 學 architecture: ✅ 讀 paper / 看 code OK
+  - Production deploy: ❌ 不要（HF access + install + training code 都卡）
+  - Academic baseline: ⚠ 用，但記得 multi-view fusion 仍是繼承問題
+- **詳細 dissection**: [`vggt_omega_dissection.md`](./vggt_omega_dissection.md) §6.2.x
+
+## StreamVGGT
+
+- **Repo**: https://github.com/wzzheng/StreamVGGT（清華系，ICLR 2026；deep dive 2026-05-24）
+- **Stats**: 913★ / 47 fork / **25 open issue / 0 closed** — research artefact 模式
+- **Top failure cases**:
+  1. **KV cache 顯存爆炸** (#24) — 1300 frame @ 518px → **>100 GB GPU memory**；maintainer 8 個月無回應；24 GB 卡 ~300 frame 就 OOM
+  2. **Multi-view alignment 失敗** (#29) — 6 張 face 不同角度 → misaligned point clouds（VGGT batch 遺傳）
+  3. **TensorRT 部署未驗證** (#30) — 用戶問 KV cache 怎麼轉 TRT，maintainer 無回應
+  4. **KV cache 策略不透明** (#25, #27) — 多 layer cache 設計細節 maintainer 不答
+  5. **長視頻處理無官方解** (#24 + #34 + #28) — 集中 long-sequence / training reproducibility 問題
+- **PR 方向**: N/A
+- **Project momentum**: 🔴 25 open / 0 closed — proof-of-concept 非 maintained product
+- **是否該選**: ❌ production 不可用 — 看 follow-up papers (XStreamVGGT / OVGGT / FrameVGGT)
+- **詳細 dissection**: [`streamvggt_dissection.md`](./streamvggt_dissection.md)
+
+## Streaming memory-compression follow-up family (6 個月內 4 篇)
+
+對應 StreamVGGT KV cache 災難的學界反應：
+
+| Paper | Date | 設計 | 性能 |
+|---|---|---|---|
+| **XStreamVGGT** | 2026-01 | KV pruning + quantization | **4.42× memory ↓** + **5.48× speedup**，perf degradation "mostly negligible" |
+| **OVGGT** | 2026-03 | Self-Selective Caching + Dynamic Anchor Protection | **O(1) constant memory** 任意序列長度 |
+| **FrameVGGT** | 2026-03 | Frame Evidence Rolling Memory | bounded memory |
+| **STAC** | 2026 | Spatio-Temporal Aware Cache Compression | bounded memory |
+
+→ Production 候選排序：**OVGGT (O(1)) > XStreamVGGT (4× ↓) > FrameVGGT / STAC > StreamVGGT 原版**
 
 ## MapAnything
 
@@ -97,15 +142,32 @@
 
 ---
 
-## 谱系总结 (Zone-level momentum)
+## 谱系总结 (Zone-level momentum, updated 2026-05-24)
 
-**FF-3D 谱系 momentum 集中在 Meta 三件套（VGGT / VGGT-Ω / MapAnything），Naver DUSt3R 系明显放缓**。
+**FF-3D 谱系 momentum 仍集中在 Meta 三件套（VGGT / VGGT-Ω / MapAnything）+ 新加 streaming 子分支（StreamVGGT 系），Naver DUSt3R 系持续放缓**。
 
-四条 actionable 线索：
+**6 条 actionable 线索（2026-05 update）**：
 1. **License 二极分化** — Meta 系（Apache 2.0 / 自定义含 commercial checkpoint）vs Naver 系（CC-BY-NC-SA 4.0 全锁死商用）；商用决策一目了然。
 2. **VGGT v1 的 OOM / batch / scale 三大限制**全部在 issue 显现（#470 OOM、#474 long-video、#471 scale ambiguity）— 与 README §三件套对照表里"VGGT v1 仍未解"列完全对得上，**社区已经在压测同一条边界**。
 3. **MapAnything 的暗坑是 reprojection consistency**（#147）而非 metric scale — 提示下游 grasp / control 场景实测时别只信 metric loss。
-4. **VGGT-Ω 的 GitHub repo 状态 `UNVERIFIED`** — 这是本 atlas 最大的开放问题；维护者建议每月重查 facebookresearch 组织页。
+4. ✅ **VGGT-Ω 已開源 2026-05** — Meta FAIR `vggt-omega` repo 已 live；但 15 open issue / 0 closed，**release-and-forget 模式**，與 StreamVGGT 同。重要：**multi-view fusion failure (#17 / #15) 仍未解**，VGGT v1 → Ω → StreamVGGT 三代都繼承這個問題。
+5. ✅ **StreamVGGT 已開源 2025-07** — wzzheng/StreamVGGT (913★) ICLR 2026，但 **25 open / 0 closed**，issue #24 顯示 1300 frame → >100 GB GPU memory 是真實災難。
+6. **NEW streaming memory-compression sub-paradigm** (2026 6 個月內 4 paper 反應)：XStreamVGGT (4.42× ↓) / OVGGT (O(1)) / FrameVGGT / STAC — production 候選優先看這些，**不是原 paper repo**。
+
+**Maintainer 響應度警告 (2026-05 update)**：
+- Meta FAIR + 清華 release-and-forget 是普遍模式（vggt-omega + StreamVGGT 都 0 closed issue）
+- 真正能 deploy 的是社區後繼工作（MapAnything 是反例 — 3 個 patch + 28 issue 維護良好）
+- 選 repo 時看 *closed issue 比例*，不只看 stars
+
+**讀者實用排序**（2026-05-24）：
+
+| 用途 | 推薦 | 不推薦 |
+|---|---|---|
+| Commercial deploy | MapAnything (Apache 2.0) | DUSt3R / MASt3R (CC-BY-NC) |
+| Multi-view 重建 | MapAnything + 自測 reprojection | VGGT-Ω (multi-view fusion #17 broken) |
+| Streaming 3D | OVGGT (O(1)) > XStreamVGGT (4× ↓) | StreamVGGT 原版 (memory 災難) |
+| Research baseline | VGGT v1 (issue 活躍) | StreamVGGT (25 open / 0 closed) |
+| Aerial real-time | 無一可用（仍 ≥ 50 ms/frame） | 全部 |
 
 **Surprise 发现**: DUSt3R / MASt3R 在 2025 年还是热论文，但 2025-Q3 起 issue 增速断崖式下降，远比预期更"被自己后继工作吞并"；从 maintainer 视角看，**这是个早期 lifecycle 信号 — 一篇 paper 的代码 ≠ 一个长期项目**。
 

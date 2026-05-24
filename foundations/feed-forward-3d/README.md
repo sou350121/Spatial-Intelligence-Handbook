@@ -2,9 +2,11 @@
 
 > **3D 不再是离线拟合的目标，而是单次 transformer 前向就能输出的 tensor。**
 >
-> 2020-2024 NeRF / 3DGS 是 per-scene 拟合；2024 DUSt3R 把成对前向打通；2025-2026 是 **feed-forward foundation model 时代** — VGGT、VGGT-Ω、MapAnything 三件套互补，把 efficiency × dynamic × **metric** 三条核心轴各解一条。
+> 2020-2024 NeRF / 3DGS 是 per-scene 拟合；2024 DUSt3R 把成对前向打通；2025-2026 是 **feed-forward foundation model 时代** — VGGT、VGGT-Ω、MapAnything 三件套互补，把 efficiency × dynamic × **metric** 三条核心轴各解一条；2026 **streaming 子分支爆發**（StreamVGGT → XStreamVGGT / OVGGT / FrameVGGT 4 個 follow-up），把第 4 條軸 **online streaming** 解了一半。
 >
-> 目前收录 **3 篇深度解析** + 本 region 导读。
+> 目前收录 **4 篇深度解析** + 本 region 导读。
+>
+> ⚠ **2026-05 重要更新（GitHub deep dive）**：VGGT-Ω + StreamVGGT 都已開源但 **Meta FAIR + 清華 release-and-forget 模式** — 15/25 open issue / **0 closed**；**production 候選看 follow-up papers**（OVGGT O(1) constant memory / XStreamVGGT 4.42× memory ↓），不是原 repo。詳見 [`github_failure_atlas.md`](./github_failure_atlas.md)。
 
 &nbsp;
 
