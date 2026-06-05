@@ -540,6 +540,18 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Changelog",
+        "icon": "clock-rotate-left",
+        "groups": [
+          {
+            "group": "What's new",
+            "pages": [
+              "changelog/overview"
+            ]
+          }
+        ]
       }
     ]
   },

@@ -1,0 +1,32 @@
+---
+title: "Changelog"
+description: "What's new in the Spatial Intelligence Handbook."
+---
+
+Updates to the handbook — new dissections, atlases, and ontology revisions. Subscribe via the repo's [release feed](https://github.com/sou350121/Spatial-Intelligence-Handbook/releases).
+
+<Update label="2026-06-05" description="9 new dissections, ontology v3.2, GitHub failure atlas">
+
+### New
+
+- **9 new paper dissections** added across feed-forward 3D, classical SLAM, 3DGS, NeRF, and world models — closing gaps where the ontology referenced a paper but no dedicated page existed. Total dissections: **37 → 46**.
+  - Feed-forward 3D origins: [DUSt3R](/foundations/feed-forward-3d/dust3r_dissection) and [MASt3R](/foundations/feed-forward-3d/mast3r_dissection) — the CroCo → DUSt3R → MASt3R → VGGT lineage now reads end to end.
+  - Feed-forward 3D frontier: [π³ (Pi3)](/foundations/feed-forward-3d/pi3_dissection) — permutation-equivariant, drops the reference-view assumption — and [OVGGT](/foundations/feed-forward-3d/ovggt_dissection) — O(1) constant-memory streaming, currently the top production candidate in the streaming family.
+  - Classical SLAM: [DSO](/foundations/classical-slam/dso_dissection) (direct VO + photometric calibration) and [SVO](/foundations/classical-slam/svo_dissection) (semi-direct, up to 200 fps on embedded).
+  - 3DGS anti-aliasing: [Mip-Splatting](/foundations/3dgs-family/mip_splatting_dissection) — drop-in fix for zoom-level aliasing artifacts.
+  - NeRF surfaces: [NeuS](/foundations/nerf-family/neus_dissection) — SDF + unbiased volume rendering bridge between radiance fields and meshes.
+  - World models: [Aether](/foundations/world-model/aether_dissection) — ICCV 2025 Outstanding Paper, first formal bridge between generative video (Sora / Cosmos / Genie) and 3D reconstruction (DUSt3R / VGGT).
+
+- **GitHub failure atlas (§8.x)** is now present on every new dissection. Each page surfaces real open issues, maintainer response times, and reproducibility caveats — so you know what breaks before you `git clone`.
+
+### Improved
+
+- **Ontology upgraded to v3.2.** The 5-axis taxonomy (problem / representation / sensor / paradigm / time) now covers all 46 dissections, and every page carries a machine-readable ontology header. Browse the taxonomy at [`cheat-sheet/ontology`](/cheat-sheet/ontology).
+- **Audit coverage expanded** from 8/8 to 13/13 checks passing — atlas recall, 14-item template gate, 1,290+ internal link resolution, and ontology coverage all verified on every push.
+- **Page count refresh.** Foundations now ships **92 deep dives across 199 pages**. README badges, the [foundations overview](/foundations/overview), and the [feed-forward 3D overview](/foundations/feed-forward-3d/overview) reflect the new totals.
+
+### Notes
+
+- Several new pages ship under non-commercial licenses upstream (DUSt3R / MASt3R / π³ weights are CC BY-NC; Mip-Splatting inherits INRIA 3DGS's non-commercial clause). License flags are surfaced inline on each dissection — check before deploying.
+
+</Update>
