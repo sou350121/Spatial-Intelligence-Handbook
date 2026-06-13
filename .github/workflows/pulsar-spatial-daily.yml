@@ -40,11 +40,11 @@ jobs:
         run: |
           python3 scripts/pulsar/run_daily.py
 
-      - name: Sync README + audit
-        run: |
-          python3 scripts/sync_readme_from_overview.py
-          python3 scripts/handbook_audit.py
-
+      # Commit the dated archive FIRST, before any audit. The daily report is
+      # append-only archive content (reports/spatial-daily/) and must never be
+      # silently discarded because of unrelated handbook drift elsewhere. The
+      # full-handbook audit runs afterwards as an informational signal only; the
+      # separate audit.yml workflow remains the real gate for content PRs/pushes.
       - name: Commit + push (if changed)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,3 +85,11 @@ jobs:
             git pull --rebase origin main
             git push origin main
           }
+
+      # Informational only — never blocks (or reverts) the archive commit above.
+      - name: Handbook audit (informational)
+        if: always()
+        continue-on-error: true
+        run: |
+          python3 scripts/sync_readme_from_overview.py || true
+          python3 scripts/handbook_audit.py

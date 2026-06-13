@@ -448,16 +448,39 @@ def check_8_mintlify_nav_coverage(repo_root: Path) -> CheckResult:
     # page_id docstring for why), so we compare with extension here too.
     # README.md excluded: Mintlify silently drops them; overview.md is canonical.
     excluded_stems = {"LOGIC_AUDIT_2026-05-22", "README"}
-    repo_md: set[str] = set()
+
+    # Dated report archives (reports/<sub>/*.md, e.g. reports/spatial-daily/2026-06-12.md)
+    # are archive content surfaced via the Reports landing page + RSS, NOT individual
+    # sidebar pages. They are exempt from the orphan requirement so the autonomous daily
+    # pipeline can append a report without each dated file needing its own nav entry
+    # (which would otherwise bloat the sidebar to hundreds of dated entries and — worse —
+    # make the audit FAIL on the freshly-written report, deadlocking the commit).
+    def is_report_archive(rel: Path) -> bool:
+        return rel.parts[:1] == ("reports",) and len(rel.parts) >= 3
+
+    repo_md: set[str] = set()    # files that MUST appear in nav (orphan check target)
+    nav_known: set[str] = set()  # every page id that legitimately maps to a real file
     for md in repo_root.rglob("*.md"):
         if ".git" in md.parts:
             continue
         if md.stem in excluded_stems:
             continue
-        repo_md.add(str(md.relative_to(repo_root)))
+        rel = md.relative_to(repo_root)
+        pid = str(rel)
+        nav_known.add(pid)
+        if not is_report_archive(rel):
+            repo_md.add(pid)
+
+    # Mintlify serves .mdx at extensionless URLs (unlike .md which keep the suffix),
+    # so a nav entry like "changelog/overview" maps to changelog/overview.mdx. Register
+    # .mdx files as known nav targets so they aren't reported as dangling.
+    for mdx in repo_root.rglob("*.mdx"):
+        if ".git" in mdx.parts:
+            continue
+        nav_known.add(str(mdx.relative_to(repo_root).with_suffix("")))
 
     missing_in_nav = sorted(repo_md - nav_pages)
-    missing_files = sorted(nav_pages - repo_md)
+    missing_files = sorted(nav_pages - nav_known)
 
     details = []
     if missing_in_nav:

@@ -30,6 +30,7 @@ TABS = [
     ("Companies", "companies", "building"),
     ("Reports", "reports", "file-lines"),
     ("Docs", "docs", "book"),
+    ("Changelog", "changelog", "clock-rotate-left"),
 ]
 
 # Files at repo root that go under "Get Started" — order matters.
@@ -52,6 +53,10 @@ def page_id(path: Path) -> str:
     so sidebar clicks resolve.
     """
     rel = path.relative_to(REPO_ROOT)
+    # Mintlify keeps the .md suffix in the served URL, but serves .mdx files
+    # extensionless (e.g. changelog/overview.mdx → page id "changelog/overview").
+    if rel.suffix == ".mdx":
+        return str(rel.with_suffix(""))
     return str(rel)
 
 
@@ -69,6 +74,7 @@ def collect_md(d: Path) -> list[Path]:
     becomes the directory's default landing page in sidebar.
     """
     files = [p for p in d.glob("*.md") if p.stem not in EXCLUDE_PATTERNS]
+    files += [p for p in d.glob("*.mdx") if p.stem not in EXCLUDE_PATTERNS]
     files.sort(key=lambda p: (p.stem not in ("overview", "README"), p.stem.lower()))
     return files
 
@@ -148,7 +154,12 @@ def main() -> int:
         groups = []
         if direct_files:
             groups.append({"group": "Overview", "pages": [page_id(f) for f in direct_files]})
-        for sub in collect_subdirs(d):
+        # Reports: dated archives under reports/<sub>/ (e.g. reports/spatial-daily/*.md)
+        # are archive content, NOT individual sidebar pages — surfaced via the landing
+        # page + RSS. Only the landing page(s) directly under reports/ appear in nav,
+        # so the sidebar never bloats with hundreds of dated entries.
+        subdirs = [] if dir_name == "reports" else collect_subdirs(d)
+        for sub in subdirs:
             g = build_group(sub)
             # Skip empty groups (e.g. sub-folder with only README.md, which is excluded)
             if g.get("pages"):
@@ -192,8 +203,18 @@ def main() -> int:
         return 0
 
     total_in_nav = sum(count_pages(t) for t in tabs_json)
-    repo_md_count = sum(1 for p in REPO_ROOT.rglob("*.md")
-                        if ".git" not in p.parts and p.stem not in EXCLUDE_PATTERNS)
+
+    def in_nav_scope(p: Path) -> bool:
+        if ".git" in p.parts or p.stem in EXCLUDE_PATTERNS:
+            return False
+        rel = p.relative_to(REPO_ROOT)
+        # dated report archives are intentionally not nav pages
+        if rel.parts[:1] == ("reports",) and len(rel.parts) >= 3:
+            return False
+        return True
+
+    repo_md_count = sum(1 for p in [*REPO_ROOT.rglob("*.md"), *REPO_ROOT.rglob("*.mdx")]
+                        if in_nav_scope(p))
 
     print(json.dumps(docs, indent=2, ensure_ascii=False))
     print(f"\n# nav pages: {total_in_nav}, repo md (ex-excluded): {repo_md_count}",
