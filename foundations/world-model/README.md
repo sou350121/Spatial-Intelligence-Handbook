@@ -11,9 +11,11 @@ World model 是 2025 年空间 AI 里最被过度宣称的品类。论文承诺"
 
 | File | Tier | Decision-useful angle |
 |---|---|---|
-| `nvidia_cosmos_dissection.md` | W2 🔧 [WorldModel] | 机器人训练数据工厂（sim2real video synthesis） |
-| `genie_dissection.md` | W2 ⚡ [WorldModel] | 推理时 action-conditional 规划器，**不是**数据源 |
-| `marble_decision_view.md` | W3 📖 [WorldModel] | depth-from-video + NVS 作策略数据增广；消费级 3D 场景生成显式排除 |
+| [`nvidia_cosmos_dissection.md`](./nvidia_cosmos_dissection.md) | W2 🔧 [WorldModel] | 机器人训练数据工厂（sim2real video synthesis） |
+| [`genie_dissection.md`](./genie_dissection.md) | W2 ⚡ [WorldModel] | 推理时 action-conditional 规划器，**不是**数据源 |
+| [`aether_dissection.md`](./aether_dissection.md) | [WorldModel] | geometry-aware 统一世界模型（4D 重建 + action-conditioned video + 规划），ICCV 2025 Outstanding |
+| [`marble_decision_view.md`](./marble_decision_view.md) | W3 📖 [WorldModel] | depth-from-video + NVS 作策略数据增广；消费级 3D 场景生成显式排除 |
+| [`github_failure_atlas.md`](./github_failure_atlas.md) | atlas | Cosmos / Genie / Marble 三线 repo 与产品页的 momentum + 失败模式（非 dissection）|
 
 **Boundary**：单方法的物理真实度解构去 `foundations/physics/`；具身侧的"它真的有助于我的 VLA 吗？"等真实测量出来后去 `bridge-to-vla/` 与 `embodiments/manipulation/`。跨方法对比（Cosmos vs Genie vs UniSim vs DriveDreamer）归 `crossing/representation-migration/`——不在每篇解构里重复。
 

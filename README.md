@@ -7,7 +7,7 @@
 [![Docs Live](https://img.shields.io/badge/docs-kensou.mintlify.app-0EA5E9?style=for-the-badge&logo=readme&logoColor=white)](https://kensou.mintlify.app)
 [![Audit CI](https://github.com/sou350121/Spatial-Intelligence-Handbook/actions/workflows/audit.yml/badge.svg)](https://github.com/sou350121/Spatial-Intelligence-Handbook/actions)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC--BY--4.0-green)](./LICENSE)
-[![Pages](https://img.shields.io/badge/pages-199-orange)](./cheat-sheet/functional_map.md)
+[![Pages](https://img.shields.io/badge/md_pages-200-orange)](./cheat-sheet/functional_map.md)
 [![Dissections](https://img.shields.io/badge/dissections-46-purple)](./cheat-sheet/cross_zone_failure_atlas.md)
 [![Ontology](https://img.shields.io/badge/5--axis_ontology-v3.2-red)](./cheat-sheet/ontology.md)
 [![Audit Checks](https://img.shields.io/badge/audit_checks-13/13_pass-success)](./scripts/handbook_audit.py)
@@ -18,11 +18,11 @@
 | 🚪 **5 分鐘 onboarding** | [`ONBOARDING.md`](./ONBOARDING.md) — 6 場景分流（production / 範式 / paper idea / 學生 / 轉崗 / ML 研究員）|
 | 🧭 **學術 taxonomy** | [`cheat-sheet/ontology.md`](./cheat-sheet/ontology.md) — 5 軸分類 + 120+ glossary + 51 canonical refs（4-expert reviewed v2）|
 | 🤖 **AI access via MCP** | `https://kensou.mintlify.app/mcp` — Claude / agent 直接查 handbook（[setup](./docs/mcp-integration.md)）|
-| 🌉 **姊妹仓** | [VLA-Handbook](https://github.com/sou350121/VLA-Handbook) · VLA 管 action policy，Spatial 管 world representation；交集 → [`bridge-to-vla/`](./bridge-to-vla/) |
+| 🌉 **三冊一体 · 姊妹仓** | [VLA-Handbook](https://github.com/sou350121/VLA-Handbook)（action 端）· **本仓 = perception 端** · [Physics-Gen-Handbook](https://github.com/sou350121/Physics-Controllable-Generation-Handbook)（generation 端）；与 VLA 的交集 → [`bridge-to-vla/`](./bridge-to-vla/)（详见下方 [三冊一体](#-三册一体照见-trilogy)）|
 
 &nbsp;
 
-## 三句话说清楚这个 Handbook 的价值
+## 💡 三句话说清楚这个 Handbook 的价值
 
 1. **不只是综述**：每篇给出表示选型理由、关键超参、shape sanity-check、部署陷阱——"看懂论文"和"跑通代码"之间的坑，都标出来。
 2. **跨 embodiment 横向比较**：市场上所有 spatial intelligence 综述都是单 embodiment 闭门写。这本是第一本把 manipulation / driving / aerial / marine 的同一类问题摊在桌上对比的。
@@ -36,7 +36,7 @@
 
 ## 🎭 你是谁？
 
-> *选你的角色 → 跳到对应入口。整本 handbook 9 个顶层目录都有自己的旗舰。*
+> *选你的角色 → 跳到对应入口。整本 handbook 9 个内容目录都有自己的旗舰。*
 
 | | 角色 | 你的背景 | 👉 推荐起点 |
 |:---:|------|---------|-----------|
@@ -99,7 +99,9 @@ graph TD
 
 &nbsp;
 
-## 🏛️ 九大顶层目录
+## 🏛️ 顶层目录导览
+
+> 下面是 9 个 **内容** 目录（另有 `scripts/` · `docs/` · `changelog/` 三个工程支撑目录不在此列）。
 
 &nbsp;
 
@@ -407,7 +409,8 @@ bridge-to-vla/feature-cloud-to-action.md
 
 &nbsp;
 
-## 🏆 Achievements
+<details>
+<summary><h2>🏆 Achievements &amp; Boss Monsters（点开）</h2></summary>
 
 读完一篇就算解锁。看看你能拿几个？
 
@@ -420,10 +423,9 @@ bridge-to-vla/feature-cloud-to-action.md
 | 🐉 | **Boss Hunter** | 读完 3 篇 "整本 handbook 最难"的文章（见下表） |
 | ⚡ | **Speed Runner** | 完成任意一条 Speed Run |
 | 🧮 | **Math Initiated** | 读完 SE(3) primer + Bundle Adjustment + IMU preintegration |
-| 👑 | **Handbook Master** | 9 个顶层目录都至少读 1 篇 + 完成 ≥3 条 Speed Run |
+| 👑 | **Handbook Master** | 9 个内容目录都至少读 1 篇 + 完成 ≥3 条 Speed Run |
 
-<details>
-<summary>🐉 Boss Monsters（整本 handbook 最难的 5 篇）</summary>
+**🐉 Boss Monsters（整本 handbook 最难的 5 篇）**
 
 | 文章 | Why It's Hard |
 |------|---------------|
@@ -441,7 +443,21 @@ bridge-to-vla/feature-cloud-to-action.md
 
 &nbsp;
 
-## 与 VLA-Handbook 的边界
+## 🧭 三册一体（照见 trilogy）
+
+「照见」由三本独立但互引的 handbook 组成 — 同一条 paper 在不同册里读出的结论不一样。Spatial 是其中的 **perception 端**。
+
+| 册 | 角色 | 管什么 | 仓库 |
+|---|---|---|---|
+| VLA-Handbook | **action** | action policy（diffusion / flow matching / RL） | [github](https://github.com/sou350121/VLA-Handbook) |
+| **Spatial-Handbook**（本仓） | **perception** | world representation（3DGS / VGGT / depth / sensor 物理） | [github](https://github.com/sou350121/Spatial-Intelligence-Handbook) · [live](https://kensou.mintlify.app) |
+| Physics-Gen-Handbook | **generation** | 物理可控生成（video WM / diff-sim / neural surrogate） | [github](https://github.com/sou350121/Physics-Controllable-Generation-Handbook) |
+
+穿越时走对应 `bridge-to-*` 目录：与 VLA 接口见 [`bridge-to-vla/`](./bridge-to-vla/)；与 Physics-Gen 的交界由对方仓的 [`bridge-to-spatial/`](https://github.com/sou350121/Physics-Controllable-Generation-Handbook/tree/main/bridge-to-spatial) 维护（3D-aware video gen / spatial conditioning）。
+
+&nbsp;
+
+### 与 VLA-Handbook 的边界
 
 | 内容类型 | 主入口 | 另一侧 |
 |---|---|---|
@@ -451,7 +467,7 @@ bridge-to-vla/feature-cloud-to-action.md
 | Action policy 训练（diffusion / flow matching） | VLA-Handbook | 不收 |
 | Sensor 物理 / 硬件选型 | Spatial-Handbook | 不收 |
 | Sim2Real（动力学侧） | VLA-Handbook | Spatial 引 representation 侧 |
-| World model（作为 data generator） | 两边都收，视角不同 | 互引 |
+| World model（作为 data generator） | Physics-Gen-Handbook | Spatial / VLA 引结论 |
 
 &nbsp;
 
@@ -459,7 +475,7 @@ bridge-to-vla/feature-cloud-to-action.md
 
 &nbsp;
 
-## 许可证与贡献
+## 📜 许可证与贡献
 
 CC BY 4.0 · 欢迎 Issue 和 PR：补论文解读 · 真机经验 · sensor 选型实测 · 跨 embodiment 对比案例
 
@@ -474,4 +490,4 @@ CC BY 4.0 · 欢迎 Issue 和 PR：补论文解读 · 真机经验 · sensor 选
 
 &nbsp;
 
-[→ Foundations (工具箱)](./foundations/overview.md) · [→ Crossing ★ USP](./crossing/) · [→ Embodiments](./embodiments/) · [→ Bridge to VLA-Handbook](./bridge-to-vla/) · [姊妹仓：VLA-Handbook](https://github.com/sou350121/VLA-Handbook)
+[→ Foundations (工具箱)](./foundations/overview.md) · [→ Crossing ★ USP](./crossing/) · [→ Embodiments](./embodiments/) · [→ Bridge to VLA-Handbook](./bridge-to-vla/) · 三冊一体姊妹仓：[VLA-Handbook](https://github.com/sou350121/VLA-Handbook)（action）· [Physics-Gen-Handbook](https://github.com/sou350121/Physics-Controllable-Generation-Handbook)（generation）

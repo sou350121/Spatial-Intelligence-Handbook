@@ -25,9 +25,10 @@
 
 | File | Topic | Tier |
 |---|---|---|
-| `spatialvlm_dissection.md` | Chen et al. CVPR 2024 — 2B 自动合成的空间 QA，"数据规模"论点 | ⚡ |
-| `spatialbot_dissection.md` | Cai et al. 2024 — depth map 当第二模态喂 VLM，3B `UNVERIFIED` 追平 GPT-4o depth tasks | ⚡ |
-| `3dsrbench_dissection.md` | Ma et al. ICCV 2025 — 2,772 题 4×12 子类 benchmark，旗舰 VLM 仅 49% real-split | 🔧 |
+| [`spatialvlm_dissection.md`](./spatialvlm_dissection.md) | Chen et al. CVPR 2024 — 2B 自动合成的空间 QA，"数据规模"论点 | ⚡ |
+| [`spatialbot_dissection.md`](./spatialbot_dissection.md) | Cai et al. 2024 — depth map 当第二模态喂 VLM，3B `UNVERIFIED` 追平 GPT-4o depth tasks | ⚡ |
+| [`3dsrbench_dissection.md`](./3dsrbench_dissection.md) | Ma et al. ICCV 2025 — 2,772 题 4×12 子类 benchmark，旗舰 VLM 仅 49% real-split | 🔧 |
+| [`github_failure_atlas.md`](./github_failure_atlas.md) | SpatialVLM / SpatialBot / 3DSRBench 三工具 repo 的失败模式与 PR 方向（ecosystem 文档）| — |
 
 Zone 从 seed（仅 SpatialVLM）扩为完整 zone：两路 model（implicit pretraining vs explicit depth tokens）+ 独立 benchmark 裁判。`UNVERIFIED` SpatialRGPT、ManipLLM、具身 VLA 联合训练 queued for v2。
 

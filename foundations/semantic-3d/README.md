@@ -47,10 +47,11 @@ CLIP、SAM、DINO 都活在像素空间。机器人活在 metric 空间。每次
 
 | File | Topic | Tier |
 |---|---|---|
-| `lerf_dissection.md` | Kerr et al. ICCV 2023 — CLIP distilled into NeRF feature field, multi-scale queries | ⚡ |
-| `openscene_dissection.md` | Peng et al. CVPR 2023 — direct CLIP fusion into 3D voxels, zero-shot open-vocab | ⚡ |
-| `langsplat_dissection.md` | Qin et al. CVPR 2024 Highlight — 3DGS feature field + scene autoencoder + SAM 三层级, 199× over LERF | ⚡ |
-| `sam3d_dissection.md` | SA3D / SAGA / SAM 3D Objects — promptable 路线三条（NeRF / 3DGS / image-to-3D, Meta 2025-11） | ⚡ |
+| [`lerf_dissection.md`](./lerf_dissection.md) | Kerr et al. ICCV 2023 — CLIP distilled into NeRF feature field, multi-scale queries | ⚡ |
+| [`openscene_dissection.md`](./openscene_dissection.md) | Peng et al. CVPR 2023 — direct CLIP fusion into 3D voxels, zero-shot open-vocab | ⚡ |
+| [`langsplat_dissection.md`](./langsplat_dissection.md) | Qin et al. CVPR 2024 Highlight — 3DGS feature field + scene autoencoder + SAM 三层级, 199× over LERF | ⚡ |
+| [`sam3d_dissection.md`](./sam3d_dissection.md) | SA3D / SAGA / SAM 3D Objects — promptable 路线三条（NeRF / 3DGS / image-to-3D, Meta 2025-11） | ⚡ |
+| [`github_failure_atlas.md`](./github_failure_atlas.md) | LERF / OpenScene / LangSplat / SAM 3D Objects 四线 repo 的 issue 失败模式与 PR 方向（ecosystem 文档）| — |
 
 > 4D LangSplat (CVPR 2025) queued for v2；ConceptGraphs / OVIR-3D / SG-Reg 详见下方 watch list。
 

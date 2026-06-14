@@ -3,20 +3,25 @@
 > **本文是 Spatial AI 領域的「概念骨架」** — 不是手冊章節指南（→ [`functional_map.md`](./functional_map.md)）；不是論文目錄（→ 各 zone overview）；不是失敗圖鑑（→ [`cross_zone_failure_atlas.md`](./cross_zone_failure_atlas.md)）。
 >
 > **本文回答**：這個領域的概念是怎麼被分類的？它們之間什麼關係？什麼是子集 / 什麼是並列 / 什麼是同義 / 什麼是 2026 還在爭論的？
->
-> **v3 (2026-05-24)**: v2 經 4 個 web-searched expert agent 再審（Academic surveys / Production reality / Adversarial counter-evidence / 2026 frontier sweep）。v2 共識：5 軸框架對，但 (a) 跟 2026 academic survey consensus 比，少 pointmap / hash-grid / spatio-temporal SLAM / foundation-model representation 4 個 entry; (b) production reality 與我們列的 research-tier 方法不對等 — 0 個 shipped robot 用 VGGT/DUSt3R/CUT3R，3DGS 只作 offline asset 用; (c) 我們漏整類 **3R-SLAM Hybrid family** (SLAM3R / Flash-Mono / EC3R-SLAM / MUSt3R / Fast3R) 與 **World Foundation Models** (Cosmos-Predict-2/Reason-2/Policy / Genie 3 / GAIA-3 / Aether); (d) 我們對 VGGT 過度樂觀（Wu et al. 2025 peer-reviewed 直接反駁 paradigm shift；attention collapse rank-1 已被 arXiv 2512.21691 證實）。
->
-> **v3 主要改動**：
-> 1. §1.5 加 5-axis 對立分類學 disclaimer（Cadena 4-axis / Chen 3-axis / NAP transduction-principle 都存在）
-> 2. §2 加 Spatio-temporal SLAM (Khronos RSS 2024) 為 peer；加 End-to-end VLA Policy
-> 3. §3 加 pointmap / hash-grid / HD-map / audio / tokenized-scene 為獨立 representation
-> 4. §4 加 imaging radar (4D) / audio perception / V2X
-> 5. §5 加 **3R-SLAM Hybrid** + **World-Model-as-Policy** + Flow matching + 3D-aware VLA 4 個 paradigm
-> 6. §6 加 Temporal transformer rolling buffer (FSD v13)
-> 7. §7 cross-axis 加 11 新方法（π³, DA3, MoGe-2, VGG-T³, AnySplat, FeatureSLAM, Aether, Cosmos-Policy, π0, TAPNext, FAST-LIVO2），改 VGGT 加 caveat
-> 8. §9.5 modern foundation 加 14 entry，tag 5 stale (DreamFusion / PoseDiffusion / MegaPose 等)
-> 9. §11 canonical refs 加 13 篇 2025-2026 papers + surveys
-> 10. §13 (new) **Open controversies + UNVERIFIED claims** — VGGT paradigm 爭議 / 3DGS-vs-NeRF 反光例外 / 「world model」定義之爭 / TRL deployment status
+
+<details>
+<summary>v3.2 變更紀錄（點開）</summary>
+
+**v3 (2026-05-24)**: v2 經 4 個 web-searched expert agent 再審（Academic surveys / Production reality / Adversarial counter-evidence / 2026 frontier sweep）。v2 共識：5 軸框架對，但 (a) 跟 2026 academic survey consensus 比，少 pointmap / hash-grid / spatio-temporal SLAM / foundation-model representation 4 個 entry; (b) production reality 與我們列的 research-tier 方法不對等 — 0 個 shipped robot 用 VGGT/DUSt3R/CUT3R，3DGS 只作 offline asset 用; (c) 我們漏整類 **3R-SLAM Hybrid family** (SLAM3R / Flash-Mono / EC3R-SLAM / MUSt3R / Fast3R) 與 **World Foundation Models** (Cosmos-Predict-2/Reason-2/Policy / Genie 3 / GAIA-3 / Aether); (d) 我們對 VGGT 過度樂觀（Wu et al. 2025 peer-reviewed 直接反駁 paradigm shift；attention collapse rank-1 已被 arXiv 2512.21691 證實）。
+
+**v3 主要改動**：
+1. §1.5 加 5-axis 對立分類學 disclaimer（Cadena 4-axis / Chen 3-axis / NAP transduction-principle 都存在）
+2. §2 加 Spatio-temporal SLAM (Khronos RSS 2024) 為 peer；加 End-to-end VLA Policy
+3. §3 加 pointmap / hash-grid / HD-map / audio / tokenized-scene 為獨立 representation
+4. §4 加 imaging radar (4D) / audio perception / V2X
+5. §5 加 **3R-SLAM Hybrid** + **World-Model-as-Policy** + Flow matching + 3D-aware VLA 4 個 paradigm
+6. §6 加 Temporal transformer rolling buffer (FSD v13)
+7. §7 cross-axis 加 11 新方法（π³, DA3, MoGe-2, VGG-T³, AnySplat, FeatureSLAM, Aether, Cosmos-Policy, π0, TAPNext, FAST-LIVO2），改 VGGT 加 caveat
+8. §9.5 modern foundation 加 14 entry，tag 5 stale (DreamFusion / PoseDiffusion / MegaPose 等)
+9. §11 canonical refs 加 13 篇 2025-2026 papers + surveys
+10. §13 (new) **Open controversies + UNVERIFIED claims** — VGGT paradigm 爭議 / 3DGS-vs-NeRF 反光例外 / 「world model」定義之爭 / TRL deployment status
+
+</details>
 
 ---
 
@@ -39,6 +44,8 @@ Spatial AI 不是一個方法，是 **5 個正交軸的張量積**：
 ---
 
 ## §1 · 5 個分類軸
+
+> **約定**：`+` = 組合使用 · `/` = 可替代 · `optional` = 可省略 · `n/a` = 此軸不適用。
 
 | 軸 | 問什麼 | 取值範例 |
 |---|---|---|
@@ -359,6 +366,7 @@ Sensor modality
 
 ![Sensor modality failure heatmap](./assets/sensor-failure-heatmap.svg)
 
+> **圖例**：✅ 正常 · ⚠️ 退化 · ❌ 失效 · n/a 不適用。
 
 | 環境/物體 | RGB | Active stereo (D435) | LiDAR (905 nm) | LiDAR (1550 nm) | mmWave radar | Imaging radar (4D) | Sonar |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -584,6 +592,7 @@ CVPR 2026 已開 [3D-LLM/VLA workshop](https://3d-llm-vla.github.io/) — 信號
 
 ![Method TRL distribution — shipped vs pilot vs research](./assets/method-trl-distribution.svg)
 
+> **約定**：`+` = 組合使用 · `/` = 可替代 · `optional` = 可省略 · `n/a` = 此軸不適用。上標 ¹²³… = caveat 註腳（見表下）。
 
 | 方法 | Problem | Representation | Sensor | Paradigm | Time | TRL |
 |---|---|---|---|---|---|---|
@@ -595,47 +604,59 @@ CVPR 2026 已開 [3D-LLM/VLA workshop](https://3d-llm-vla.github.io/) — 信號
 | **Kimera (Rosinol MIT)** | VI-SLAM + 3D mesh + scene graph | landmarks + mesh + Hydra graph | stereo + IMU | factor graph + GTSAM | Incremental-Smoother | 🚀 |
 | **DSO (Engel 2018)** | Direct VO | Sparse photometric points | Mono | Direct (photometric) | Fixed-lag Smoother | 🔬 |
 | **DROID-SLAM** | VO / VSLAM | Dense flow + pose graph | Mono + IMU optional | Hybrid-LearnedFE + Diff-BA | Online (GPU 需) | 🔬 |
-| **VGGT** ⚠ paradigm shift 爭議見 §13 | Feed-forward 3D | Dense pointmap + depth + pose + tracks | Multi-view RGB | Learned-EndToEnd | Feed-forward one-shot | 🔬 |
+| **VGGT** ¹ | Feed-forward 3D | Dense pointmap + depth + pose + tracks | Multi-view RGB | Learned-EndToEnd | Feed-forward one-shot | 🔬 |
 | **π³ / Pi3 (Yu ICLR 2026) ★ NEW v3** | Feed-forward 3D | Dense pointmap (reference-free) | Multi-view RGB | Learned + Permutation-equivariant | Feed-forward batch | 🔬 |
-| **VGG-T³ (NVIDIA Feb 2026) ★ NEW v3** | Feed-forward 3D at scale | Dense pointmap | Multi-view RGB | Learned + TTT/KV-distillation → linear scaling | Feed-forward batch (linear) | 🔬 |
+| **VGG-T³ (NVIDIA Feb 2026) ★ NEW v3** | Feed-forward 3D at scale | Dense pointmap | Multi-view RGB | Learned + KV-distillation (linear) | Feed-forward batch (linear) | 🔬 |
 | **DUSt3R / MASt3R** | Two-view → 3D + matching | Dense pointmap (up-to-scale) | 2 RGB images | Learned end-to-end | Feed-forward | 🔬 |
-| **MapAnything (Meta) ★ NEW v3** | FF3D universal interface | Pointmap + DepthMap + Pose | Multi-view RGB (any setup) | Learned-MultiTask (吸收 VGGT/DUSt3R 為 backend) | Feed-forward | 🔬 |
+| **MapAnything (Meta) ★ NEW v3** | FF3D universal interface | Pointmap + DepthMap + Pose | Multi-view RGB (any setup) | Learned-MultiTask ² | Feed-forward | 🔬 |
 | **CUT3R / Spann3R** | Online feed-forward 3D | Persistent state + pointmap | RGB stream | Learned RNN-style | Online feed-forward | 🔬 |
-| **StreamVGGT (ICLR 2026) ★ NEW v3.1** ⚠ memory 災難 issue #24 | Online streaming feed-forward 3D | Dense pointmap + KV cache memory | Mono RGB video | Learned + temporal causal attention + KV cache (LLM-style) + distill from bidirectional VGGT | Online feed-forward streaming | 🔬 |
+| **StreamVGGT (ICLR 2026) ★ NEW v3.1** ³ | Online streaming feed-forward 3D | Dense pointmap + KV cache memory | Mono RGB video | Learned + causal attention + KV cache ⁴ | Online feed-forward streaming | 🔬 |
 | **INCVGGT (ICLR 2026) ★ NEW v3.1** | Incremental feed-forward 3D | Same family as StreamVGGT | Mono RGB | Learned incremental | Online feed-forward streaming | 🔬 |
 | **XStreamVGGT (2026-01) ★ NEW v3.2** | Streaming + memory compression | Compressed KV cache (pruning + quantization) | Mono RGB | StreamVGGT + KV pruning/quant | Online feed-forward streaming (bounded memory) | 🔬 |
 | **OVGGT (2026-03) ★ NEW v3.2** | Streaming + O(1) memory | Self-selective + dynamic-anchor protected KV | Mono RGB | Streaming + constant-memory eviction | Online feed-forward streaming **O(1)** | 🔬 |
 | **FrameVGGT / STAC (2026) ★ NEW v3.2** | Streaming + frame evidence rolling | Compressed KV cache | Mono RGB | Frame evidence rolling memory | Online feed-forward streaming | 🔬 |
 | **SLAM3R / Flash-Mono / EC3R-SLAM ★ NEW v3** | **3R-SLAM Hybrid** | Dense + keyframe graph | Mono (+ IMU) | Hybrid: learned 3D + classical SLAM | Online incremental | 🔬 |
 | **FeatureSLAM / VIGS-SLAM ★ NEW v3** | Dense Gaussian SLAM | 3D Gaussians (live map) | RGB(-D) + IMU | Hybrid: tracking + GS map | Online | 🔬 |
-| **Depth Anything v2** ⚠ relative only, brittle on reflective | Relative depth | DepthMap | Single RGB | Learned-Foundation | Feed-forward | 🚀 |
+| **Depth Anything v2** ⁵ | Relative depth | DepthMap | Single RGB | Learned-Foundation | Feed-forward | 🚀 |
 | **Depth Anything 3 (DA3 ICLR 2026) ★ NEW v3** | Multi-view depth + ray + metric | DepthMap (metric variant) | Single → multi-view RGB | Learned-Foundation (DINOv2 backbone) | Feed-forward | 🔬 |
 | **MoGE → MoGe-2 ★ NEW v3** | Affine-invariant → **metric** point map | Pointmap | Single RGB | Learned-Foundation | Feed-forward | 🔬 |
 | **Marigold** | Depth via diffusion | DepthMap | Single RGB | Diffusion + iterative | Feed-forward (many steps) | 🔬 |
 | **NeRF / Mip-NeRF 360** | Novel-view synthesis | Implicit MLP radiance | RGB + poses | Hybrid-DiffRender | Per-scene optim | 🔬 |
-| **3DGS / Mip-Splatting** ⚠ 反光例外見 §13 | NVS / Reconstruction | N×Gaussian primitives | RGB + poses | Hybrid-DiffRender | Per-scene optim | ⭐ (作 offline asset) |
+| **3DGS / Mip-Splatting** ⁶ | NVS / Reconstruction | N×Gaussian primitives | RGB + poses | Hybrid-DiffRender | Per-scene optim | ⭐ (offline asset) |
 | **AnySplat (arXiv 2505.23716) ★ NEW v3** | Feed-forward 3DGS pose-free | 3D Gaussians | Multi-view RGB (no pose) | Feed-forward | One-shot | 🔬 |
 | **Instant-NGP** | NV + reconstruction | Hash grid + tiny MLP | RGB + poses | Hybrid | Per-scene (秒級) | 🚀 |
 | **NeuS / VolSDF** | Surface reconstruction | Implicit SDF | RGB + poses | Hybrid-DiffRender | Per-scene | 🔬 |
 | **LangSplat / LERF** | Open-vocab 3D | 3DGS / NeRF + CLIP feature | RGB + CLIP teacher | Hybrid + Distillation | Per-scene | 🔬 |
 | **OpenScene** | Open-vocab 3D segmentation | Voxel + CLIP feature | RGBD + CLIP | Zero-shot CLIP fusion | Streaming / Batch | 🔬 |
-| **FoundationPose** ⚠ 需 first-frame mask, &gt;200ms | 6-DoF object pose | Mesh template + RGBD | RGBD + Object mesh | Learned + DiffRender refine | Online | 🚀 |
-| **PoseDiffusion / RayDiffusion [HISTORICAL]** | Camera pose | pose distribution via diffusion | sparse RGB | Generative (diffusion) | Feed-forward | 🔬 已被 VGGT 吸收 |
+| **FoundationPose** ⁷ | 6-DoF object pose | Mesh template + RGBD | RGBD + Object mesh | Learned + DiffRender refine | Online | 🚀 |
+| **PoseDiffusion / RayDiffusion [HISTORICAL]** | Camera pose | pose distribution via diffusion | sparse RGB | Generative (diffusion) | Feed-forward | 🔬 ⁸ |
 | **RAFT** | Optical flow | dense 2D flow | 2 RGB frames | Learned iterative | Feed-forward | ⭐ |
 | **CoTracker / TAP** | Point tracking | per-point trajectory | video | Learned transformer | Online | 🚀 |
-| **TAPNext / TAPNext++ ★ NEW v3** | Long-horizon point tracking (1024 frame) | Point trajectories | Mono video | Next-token transformer (sequence parallelism) | Online streaming | 🔬 |
+| **TAPNext / TAPNext++ ★ NEW v3** | Long-horizon point tracking (1024 frame) | Point trajectories | Mono video | Next-token transformer (seq-parallel) | Online streaming | 🔬 |
 | **ByteTrack** | Multi-object 2D tracking | bbox + ID | detection input | Data assoc + Kalman | Streaming online | ⭐ |
 | **EKF (from scratch)** | VIO baseline | 15-state vector + cov | IMU + camera | Filter (EKF) | Streaming | 🔬 (教學) |
 | **Min-snap (Mellinger ICRA 2011)** | Trajectory generation | Polynomial + waypoints | (no sensor) | Optimization (QP) | Offline | ⭐ |
 | **π0 / π0-FAST (Physical Intelligence) ★ NEW v3** | VLA (manipulation policy) | Action chunks | RGB + language | Flow matching VLA | Online policy | 🚀 |
 | **Gemini Robotics 1.5 ★ NEW v3** | Agentic VLA | Action + reasoning trace | RGB + language | VLM + agentic loop | Online policy | 🚀 |
-| **Helix (Figure 02) ★ NEW v3** | Tier-2 VLA | Action chunks | 6 RGB + IMU | Slow VLM (7-9 Hz) + fast motor (200 Hz) | Online policy | 🚀 |
+| **Helix (Figure 02) ★ NEW v3** | Tier-2 VLA | Action chunks | 6 RGB + IMU | Slow VLM + fast motor ⁹ | Online policy | 🚀 |
 | **Aether (ICCV 2025 Outstanding) ★ NEW v3** | World model + 4D recon + policy | 4D + video + action | Multi-view RGB | Generative + geometry-aware | Online rollout | 🔬 |
 | **Cosmos-Policy (NVIDIA GTC 2026) ★ NEW v3** | VLA via post-trained world model | Video latent + action | RGB | Diffusion world-model post-trained | Online policy | 🚀 |
 | **Genie 3 (DeepMind Aug 2025) ★ NEW v3** | Interactive world model | Latent video tokens | Action input | Autoregressive 11B transformer | Real-time 24 fps | 🔬 |
 | **GAIA-2 / GAIA-3 (Wayve 2026) ★ NEW v3** | Closed-loop driving evaluation | Multi-view video latent | RGB | Diffusion world model | Offline eval / online sim | 🚀 |
-| **Tesla FSD v13 ★ NEW v3** | End-to-end driving | Occupancy v3 + 10s recursive temporal buffer | 8 cameras | E2E neural network + temporal transformer | **Temporal transformer rolling buffer** | ⭐ |
-| **Waymo 6th-gen Driver ★ NEW v3** | AD perception + planning | BEV + HD map + occupancy | 13 cam + 4 LiDAR + 6 imaging radar + EARs audio | Hybrid neural + classical + HD-map | Streaming + recursive | ⭐ |
+| **Tesla FSD v13 ★ NEW v3** | End-to-end driving | Occupancy v3 + 10s temporal buffer | 8 cameras | E2E neural net + temporal transformer | Temporal transformer rolling buffer | ⭐ |
+| **Waymo 6th-gen Driver ★ NEW v3** | AD perception + planning | BEV + HD map + occupancy | 13 cam + 4 LiDAR + 6 imaging radar + audio ¹⁰ | Hybrid neural + classical + HD-map | Streaming + recursive | ⭐ |
+
+**caveat 註腳**：
+1. **VGGT**：paradigm shift 爭議見 §13.1。
+2. **MapAnything**：Learned-MultiTask，吸收 VGGT/DUSt3R 為 backend。
+3. **StreamVGGT**：memory 災難（1300 frame → >100GB，issue #24）。
+4. **StreamVGGT Paradigm**：causal attention + KV cache 為 LLM-style autoregressive，distilled from bidirectional VGGT。
+5. **Depth Anything v2**：relative depth only，brittle on reflective / thin / rotated（見 §13.4）。
+6. **3DGS / Mip-Splatting**：反光 / specular 場景例外，見 §13.2。
+7. **FoundationPose**：需 first-frame mask，>200ms（非 real-time），見 §13.5。
+8. **PoseDiffusion / RayDiffusion**：已被 VGGT/π³ 吸收（見 §14）。
+9. **Helix**：slow VLM 7-9 Hz scene + fast motor 200 Hz。
+10. **Waymo audio**：EARs siren / 緊急車輛偵測。
 
 ---
 

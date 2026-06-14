@@ -36,10 +36,12 @@
 
 | File | Topic | Tier |
 |---|---|---|
-| `nerf_original_dissection.md` | Mildenhall et al. ECCV 2020 — 改写规则的论文；volumetric rendering + positional encoding；训练为何要数小时 | ⚡ |
-| `instant_ngp_dissection.md` | Müller et al. SIGGRAPH 2022 (NVIDIA) — multi-resolution hash encoding；NeRF 训练从数小时降到几分钟 | ⚡ |
-| `mip_nerf_360_dissection.md` | Barron et al. CVPR 2022 (Google) — 无界场景 + cone-tracing 抗锯齿；3DGS 仍在追的质量 benchmark | 🔧 |
-| `block_nerf_large_scenes.md` | Tancik et al. CVPR 2022 (Google/Waymo) — 通过空间块分解做城市级重建；已部署在 Waymo AV stack | 🔧 |
+| [`nerf_original_dissection.md`](./nerf_original_dissection.md) | Mildenhall et al. ECCV 2020 — 改写规则的论文；volumetric rendering + positional encoding；训练为何要数小时 | ⚡ |
+| [`instant_ngp_dissection.md`](./instant_ngp_dissection.md) | Müller et al. SIGGRAPH 2022 (NVIDIA) — multi-resolution hash encoding；NeRF 训练从数小时降到几分钟 | ⚡ |
+| [`mip_nerf_360_dissection.md`](./mip_nerf_360_dissection.md) | Barron et al. CVPR 2022 (Google) — 无界场景 + cone-tracing 抗锯齿；3DGS 仍在追的质量 benchmark | 🔧 |
+| [`block_nerf_large_scenes.md`](./block_nerf_large_scenes.md) | Tancik et al. CVPR 2022 (Google/Waymo) — 通过空间块分解做城市级重建；已部署在 Waymo AV stack | 🔧 |
+| [`neus_dissection.md`](./neus_dissection.md) | Wang et al. NeurIPS 2021 — neural implicit SDF + unbiased volume rendering；多视图表面重建仍在 meshing 上赢 | 🔧 |
+| [`github_failure_atlas.md`](./github_failure_atlas.md) | NeRF 谱系四件套 GitHub issues 失败图谱：multinerf 已归档、Instant-NGP 仍维护（ecosystem 文档）| — |
 
 ## 阅读顺序（推荐）
 

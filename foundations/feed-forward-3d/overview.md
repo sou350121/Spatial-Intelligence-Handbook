@@ -136,13 +136,18 @@
 
 &nbsp;
 
-## 📖 三篇深度解析
+## 📖 八篇深度解析（全收录）
 
 | 篇 | 文件 | 何时读 |
 |---|---|---|
+| **DUSt3R** (CVPR 2024) | [dust3r_dissection.md](./dust3r_dissection.md) | 谱系开创 — 成对前向无约束 3D 重建（pointmap pair）的起点 |
+| **MASt3R** (ECCV 2024) | [mast3r_dissection.md](./mast3r_dissection.md) | DUSt3R + 3D-grounded 稠密匹配头 — 图像匹配立足 3D |
 | **VGGT v1** (CVPR 2025 best paper) | [vggt_cvpr2025_dissection.md](./vggt_cvpr2025_dissection.md) | 想理解 feed-forward N-view 3D 的范式开创 — 必读起点 |
 | **VGGT-Ω** (2026-05) | [vggt_omega_dissection.md](./vggt_omega_dissection.md) | 想看 efficiency × scale × dynamic 怎么解（v0.5 verified）|
 | **MapAnything** (3DV 2026) | [mapanything_dissection.md](./mapanything_dissection.md) | 想看 metric scale 怎么解 + universal multi-task（v0.7 verified）|
+| **π³ / Pi3** (ICLR 2026) | [pi3_dissection.md](./pi3_dissection.md) | permutation-equivariant 变体 — 砍掉 reference-view 假设 |
+| **StreamVGGT** (ICLR 2026) | [streamvggt_dissection.md](./streamvggt_dissection.md) | online streaming 变体 — temporal causal attention + KV cache |
+| **OVGGT** (2026-03) | [ovggt_dissection.md](./ovggt_dissection.md) | O(1) constant-memory streaming — 修 StreamVGGT KV cache 爆炸 |
 
 &nbsp;
 

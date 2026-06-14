@@ -564,6 +564,10 @@
       {
         "label": "VLA-Handbook",
         "href": "https://github.com/sou350121/VLA-Handbook"
+      },
+      {
+        "label": "Physics-Gen",
+        "href": "https://github.com/sou350121/Physics-Controllable-Generation-Handbook"
       }
     ]
   },

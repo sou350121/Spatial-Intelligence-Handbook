@@ -182,6 +182,7 @@ def main() -> int:
             "links": [
                 {"label": "GitHub", "href": "https://github.com/sou350121/Spatial-Intelligence-Handbook"},
                 {"label": "VLA-Handbook", "href": "https://github.com/sou350121/VLA-Handbook"},
+                {"label": "Physics-Gen", "href": "https://github.com/sou350121/Physics-Controllable-Generation-Handbook"},
             ]
         },
         "footer": {
