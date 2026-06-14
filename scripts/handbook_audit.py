@@ -215,6 +215,27 @@ def strip_fenced_code_blocks(text: str) -> str:
     return "\n".join(out)
 
 
+def _exists_case_sensitive(target: Path, repo_root: Path) -> bool:
+    """Path.exists() is case-INSENSITIVE on some filesystems (macOS, and the dev box).
+    GitHub Pages / Mintlify run on case-SENSITIVE storage, so a link whose case is wrong
+    passes a local .exists() but 404s live. Verify each path component against the on-disk
+    listing with exact case so the audit matches the deployed surface."""
+    try:
+        rel = target.resolve().relative_to(repo_root.resolve())
+    except (ValueError, OSError):
+        return False
+    cur = repo_root.resolve()
+    for part in rel.parts:
+        try:
+            names = {p.name for p in cur.iterdir()}
+        except OSError:
+            return False
+        if part not in names:
+            return False
+        cur = cur / part
+    return True
+
+
 def check_3_broken_links(repo_root: Path) -> CheckResult:
     broken: list[str] = []
     total = 0
@@ -231,7 +252,7 @@ def check_3_broken_links(repo_root: Path) -> CheckResult:
             except (ValueError, OSError):
                 broken.append(f"{md.relative_to(repo_root)} → {rel_path}（解析失败）")
                 continue
-            if not target.exists():
+            if not _exists_case_sensitive(target, repo_root):
                 broken.append(f"{md.relative_to(repo_root)} → {rel_path}")
     ok = total - len(broken)
     if broken:
