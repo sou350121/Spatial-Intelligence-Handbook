@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: write  # need to push back to main
+  issues: write    # failure sentinel opens/comments an issue
 
 concurrency:
   group: pulsar-spatial-daily
@@ -62,12 +63,6 @@ jobs:
             exit 0
           fi
 
-          # Pull latest before commit to minimize push conflicts
-          git pull --rebase origin main || {
-            echo "Rebase failed — manual intervention needed."
-            exit 1
-          }
-
           # Commit with date in message (use here-doc to keep YAML indentation safe)
           DATE=$(date +%F)
           MSG=$(cat <<EOF
@@ -78,6 +73,13 @@ jobs:
           EOF
           )
           git commit -m "$MSG"
+
+          # Rebase AFTER commit — git refuses to pull-rebase with a staged index,
+          # so pulling before commit kills every run that has a report to save.
+          git pull --rebase origin main || {
+            echo "Rebase failed — manual intervention needed."
+            exit 1
+          }
 
           # Push (retry once on conflict)
           git push origin main || {
@@ -93,3 +95,19 @@ jobs:
         run: |
           python3 scripts/sync_readme_from_overview.py || true
           python3 scripts/handbook_audit.py
+
+      # Sentinel: this pipeline silently produced nothing for weeks, twice.
+      # Any step failure now surfaces as an issue instead of an ignored email.
+      - name: Alert on failure (sentinel issue)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="[pipeline-alert] Pulsar spatial daily is failing"
+          BODY="Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} ($(date -u +%FT%TZ))"
+          NUM=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty' || true)
+          if [ -n "$NUM" ]; then
+            gh issue comment "$NUM" --body "$BODY"
+          else
+            gh issue create --title "$TITLE" --body "$BODY"
+          fi

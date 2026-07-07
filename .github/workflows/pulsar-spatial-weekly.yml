@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  issues: write    # failure sentinel opens/comments an issue
 
 concurrency:
   group: pulsar-spatial-weekly
@@ -50,7 +51,6 @@ jobs:
             echo "No new weekly report (no dailies in window?) — skipping commit."
             exit 0
           fi
-          git pull --rebase origin main || { echo "Rebase failed — manual intervention needed."; exit 1; }
           DATE=$(date +%F)
           MSG=$(cat <<EOF
           auto(pulsar): spatial weekly ${DATE}
@@ -60,6 +60,8 @@ jobs:
           EOF
           )
           git commit -m "$MSG"
+          # Rebase AFTER commit — pull-rebase refuses a staged index (bug that killed the daily pipeline).
+          git pull --rebase origin main || { echo "Rebase failed — manual intervention needed."; exit 1; }
           git push origin main || {
             echo "Push conflict, retrying after rebase..."
             git pull --rebase origin main
@@ -72,3 +74,18 @@ jobs:
         run: |
           python3 scripts/sync_readme_from_overview.py || true
           python3 scripts/handbook_audit.py
+
+      # Sentinel: surface failures as an issue instead of an ignored email.
+      - name: Alert on failure (sentinel issue)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="[pipeline-alert] Pulsar spatial weekly is failing"
+          BODY="Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} ($(date -u +%FT%TZ))"
+          NUM=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty' || true)
+          if [ -n "$NUM" ]; then
+            gh issue comment "$NUM" --body "$BODY"
+          else
+            gh issue create --title "$TITLE" --body "$BODY"
+          fi
