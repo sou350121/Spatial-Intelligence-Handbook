@@ -63,7 +63,9 @@ crossing/slam-vio-migration/vggt_vs_drone_vio.md。
 
 10. **## 7 · 与相关工作对比**：对比表 + 结尾 **1 条面试 Tip**（被问到怎么答）。
 
-11. 文末：
+11. **## 8 · GitHub-validated pitfalls (atlas 联动, <今天日期>)**：若论文有官方 repo 且已发布社区 issue，则据此写实地失败；否则**诚实注明** repo early-release / 暂无 issue 流,并由 §6 失败模式 + 方法约束**推导** 2-3 条 pitfall。（这段是 foundations atlas-bearing zone 的硬性要求。）
+
+12. 文末：
     ---
     [← Back to <module> README](./README.md)
     > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
@@ -132,6 +134,67 @@ def ontology_header(axes: dict) -> str:
         "ref: ../../cheat-sheet/ontology.md §5\n"
         "-->\n\n"
     )
+
+
+# 14-item structural guard: qwen drafts that miss required sections never ship.
+GUARD_CHECKS = [
+    ("meta block", r"> \*\*发布时间\*\*"),
+    ("X-Ray opening", r"X-Ray"),
+    ("研究全景时间线", r"研究全景时间线"),
+    ("架构/信息流图", r"信息流|架构图|```"),
+    ("系统对比表", r"\|.*模块.*\||\|.*Method.*\|"),
+    ("Eureka Moment", r"Eureka\s*Moment|关键洞见|核心洞见"),
+    ("Napkin Formula", r"Napkin Formula"),
+    ("数学核心", r"##\s*2\s*·\s*数学核心|数学核心"),
+    ("玩具例子", r"带数字走一遍|玩具例子"),
+    ("工程视角", r"工程视角"),
+    ("隐含假设", r"隐含假设|Hidden Assumptions"),
+    ("面试 Tip", r"面试\s*Tip"),
+    ("atlas 联动", r"atlas 联动|GitHub-validated"),
+    ("back-link", r"\[← Back to"),
+    ("ontology header", r"ontology-5axis"),
+]
+
+
+def structural_guard(md: str) -> list[str]:
+    """Return the list of required sections MISSING from the draft (empty = pass)."""
+    return [name for name, pat in GUARD_CHECKS if not re.search(pat, md)]
+
+
+def pick_candidate(atlas_path: Path, covered_titles: set[str]) -> dict | None:
+    """Top perception ⚡/🔧 paper from the atlas not already dissected.
+
+    Respects the trilogy boundary: excludes VLA/action-policy papers (those belong
+    in VLA-Handbook). Ranks ⚡ first, then perception-core keyword bonus.
+    """
+    perc_para = {"geometric", "learned", "hybrid", "generative", "3R-SLAM-hybrid"}
+    perc_prob = {"VO", "VIO", "VSLAM", "SfM", "reconstruction", "depth", "pose",
+                 "tracking", "mapping", "occupancy"}
+    kws = ("gaussian", "splatting", "3dgs", "vggt", "slam", "depth", "nerf",
+           "reconstruction", "sfm", "vio", "feed-forward", "pointmap", "radar", "lidar")
+    cands = []
+    for line in atlas_path.read_text().splitlines():
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        ax = r.get("axes", {})
+        if ax.get("paradigm") in ("VLA", "world-model-as-policy"):
+            continue
+        if ax.get("problem") in ("VLA", "spatial-reasoning"):
+            continue
+        if ax.get("paradigm") not in perc_para and ax.get("problem") not in perc_prob:
+            continue
+        slug = re.sub(r"[^a-z0-9]+", "", r["title"].lower())[:40]
+        if any(slug[:20] in c or c[:20] in slug for c in covered_titles):
+            continue
+        t = r["title"].lower()
+        score = (3 if r["rating"] == "⚡" else 2 if r["rating"] == "🔧" else 0)
+        score += sum(1 for k in kws if k in t)
+        cands.append((score, r))
+    if not cands:
+        return None
+    cands.sort(key=lambda x: x[0], reverse=True)
+    return cands[0][1]
 
 
 def main() -> int:
