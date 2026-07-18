@@ -1,15 +1,14 @@
 name: Pulsar Spatial Dissection
 
-# Weekly: qwen drafts one new deep-dive dissection from a surfaced ⚡ paper and
-# opens a PR. Opus/a human verifies the facts against the source and merges — the
-# "qwen 跑 / Opus 验" contract. Nothing auto-lands on main; the PR review is the gate.
+# Weekly: qwen drafts one new deep-dive dissection from a surfaced perception paper
+# and opens a PR. Opus/a human verifies the facts against the source and merges —
+# the "qwen 跑 / Opus 验" contract. Nothing auto-lands on main.
 #
 # Required secret: DASHSCOPE_API_KEY (shared with the daily pipeline).
-# Manual trigger: Actions tab → Pulsar Spatial Dissection → Run workflow.
 
 on:
   schedule:
-    - cron: '0 6 * * 3'   # Wednesday 06:00 UTC (~14:00 CN), low cadence
+    - cron: '0 6 * * 3'
   workflow_dispatch:
 
 permissions:
@@ -36,10 +35,9 @@ jobs:
       - name: qwen writes a dissection (guarded)
         env:
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
-        run: |
-          python3 scripts/pulsar/run_dissection.py || true
+        run: python3 scripts/pulsar/run_dissection.py || true
 
-      - name: Sync counts + nav, open PR if a dissection was placed
+      - name: Sync counts and open a PR if a dissection was placed
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -49,37 +47,31 @@ jobs:
             exit 0
           fi
           echo "New dissection: $NEW"
-
-          # Mechanical landing so the PR is audit-green and ready to merge on verify.
           python3 scripts/sync_counts.py
           python3 scripts/gen_mintlify_nav.py > docs.json
           python3 scripts/sync_readme_from_overview.py || true
-
           git config user.name "Pulsar Bot"
           git config user.email "noreply@anthropic.com"
-          BR="dissection/$(basename "$NEW" _dissection.md)-$(date +%s)"
+          SLUG=$(basename "$NEW" _dissection.md)
+          BR="dissection/${SLUG}-$(date +%s)"
           git checkout -b "$BR"
           git add -A
-          git commit -q -m "feat(handbook): +1 dissection (qwen draft) — $(basename "$NEW" _dissection.md)
-
-Auto-drafted by qwen from arXiv full text (scripts/pulsar/run_dissection.py),
-structural guard passed, counts synced. Needs Opus/human verification (below)."
+          git commit -q -m "feat(handbook): +1 dissection (qwen draft) — ${SLUG}"
           git push -u origin "$BR"
-
           SRC=$(grep -oE 'https://arxiv.org/abs/[0-9.]+' "$NEW" | head -1)
+          {
+            echo "qwen drafted this dissection from arXiv full text. Source: ${SRC:-n/a}"
+            echo "File: \`${NEW}\`"
+            echo ""
+            echo "**Opus / human verification gate (do before merge):**"
+            echo "- [ ] Facts vs source: model name / benchmark numbers / specific layer indices (qwen occasionally hallucinates)"
+            echo "- [ ] Archive zone is correct"
+            echo "- [ ] UNVERIFIED discipline on numbers the paper does not give / not reproduced on hardware"
+            echo "- [ ] 14-item structure is guard-enforced; audit CI should be green (counts synced)"
+            echo ""
+            echo "Merge once verified. Contract: qwen generates, Opus/human verifies before it lands."
+          } > /tmp/pr_body.md
           gh pr create --base main --head "$BR" \
-            --title "dissection: $(basename "$NEW" _dissection.md) (qwen draft — verify + merge)" \
-            --body "$(cat <<EOF
-          qwen 从 arXiv 全文起草的新 dissection · 源: ${SRC:-n/a}
-          文件: \`$NEW\`
-
-          **Opus / 人工验证门（合并前必做）：**
-          - [ ] 事实核对：模型名 / 关键数字 (benchmark, params) / 具体层号 vs arXiv 原文（qwen 会偶发幻觉）
-          - [ ] 归档 zone 是否正确
-          - [ ] UNVERIFIED 纪律：未在真机复现 / 论文没给的数字有没有标注
-          - [ ] 结构 14 项已由 guard 机械保证；audit CI 应为绿（计数已同步）
-
-          验证通过即 merge。这是 "qwen 跑 / Opus 验" 契约：生成自动化，落地要人过目。
-          EOF
-          )"
+            --title "dissection: ${SLUG} (qwen draft — verify + merge)" \
+            --body-file /tmp/pr_body.md
           echo "PR opened for $BR"
