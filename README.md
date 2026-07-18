@@ -8,7 +8,7 @@
 [![Atlas](https://img.shields.io/badge/paper_atlas-329_papers-38BDF8?style=flat-square)](./reports/atlas/overview.md)
 [![Daily pipeline](https://img.shields.io/badge/pipeline-daily_arxiv-0369A1?style=flat-square)](./reports/spatial-daily/)
 [![Audit](https://github.com/sou350121/Spatial-Intelligence-Handbook/actions/workflows/audit.yml/badge.svg)](https://github.com/sou350121/Spatial-Intelligence-Handbook/actions)
-[![Dissections](https://img.shields.io/badge/dissections-46-1f6feb?style=flat-square)](./crossing/failure-modes-atlas/)
+[![Dissections](https://img.shields.io/badge/dissections-47-1f6feb?style=flat-square)](./crossing/failure-modes-atlas/)
 [![Ontology](https://img.shields.io/badge/ontology-5--axis_v3.2-475569?style=flat-square)](./cheat-sheet/ontology.md)
 [![License](https://img.shields.io/badge/license-CC_BY_4.0-475569?style=flat-square)](./LICENSE)
 
@@ -78,7 +78,7 @@ world-model-as-policy  ████████················ 
 是应用层,其余是支撑层。
 
 <details open>
-<summary><b><code>foundations/</code></b> — 跨 embodiment 共享底层 · <code>13 zones · 92 篇</code></summary>
+<summary><b><code>foundations/</code></b> — 跨 embodiment 共享底层 · <code>13 zones · 93 篇</code></summary>
 
 3DGS / VGGT / Depth Foundation / 经典 SLAM 这些原语 —— 无论做 manipulation、aerial 还是 marine 最终都回到这里。学界按 "方法" 切,本书把所有 embodiment 共用的底层收齐一份,让上层不必重复造轮子。
 

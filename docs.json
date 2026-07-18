@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 46 dissection / 92 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 47 dissection / 93 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -85,6 +85,7 @@
               "foundations/feed-forward-3d/ovggt_dissection.md",
               "foundations/feed-forward-3d/pi3_dissection.md",
               "foundations/feed-forward-3d/streamvggt_dissection.md",
+              "foundations/feed-forward-3d/vggt_covisibility_probing_dissection.md",
               "foundations/feed-forward-3d/vggt_cvpr2025_dissection.md",
               "foundations/feed-forward-3d/vggt_omega_dissection.md"
             ]
@@ -546,7 +547,7 @@
         "icon": "clock-rotate-left",
         "groups": [
           {
-            "group": "What's new",
+            "group": "Overview",
             "pages": [
               "changelog/overview"
             ]
