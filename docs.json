@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 47 dissection / 93 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 50 dissection / 96 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -42,10 +42,13 @@
               "foundations/3dgs-family/overview.md",
               "foundations/3dgs-family/3dgs_original_dissection.md",
               "foundations/3dgs-family/4dgs_dynamic_scenes.md",
+              "foundations/3dgs-family/diffradar_differentiable_physics_aware_radar_slam__dissection.md",
               "foundations/3dgs-family/github_failure_atlas.md",
               "foundations/3dgs-family/gs_slam_dissection.md",
               "foundations/3dgs-family/mip_splatting.md",
-              "foundations/3dgs-family/mip_splatting_dissection.md"
+              "foundations/3dgs-family/mip_splatting_dissection.md",
+              "foundations/3dgs-family/real_time_lidar_gaussian_splatting_slam_dissection.md",
+              "foundations/3dgs-family/sharpsplat_edge_regularized_3d_gaussian_splatting__dissection.md"
             ]
           },
           {
