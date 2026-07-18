@@ -133,6 +133,22 @@ def collect_today() -> list[dict]:
     for c, n in cat_counts.items():
         print(f"    {c}: {n}", file=sys.stderr)
 
+    # Within-day dedup across feeds: arxiv cross-lists the same paper under
+    # multiple categories (e.g. cs.RO AND cs.CV), so the raw union double-counts
+    # it — inflating the daily total, double-spending qwen calls, and letting one
+    # cross-listed ⚡ appear twice. Keep the first occurrence (ARXIV_FEEDS order
+    # is priority: cs.RO > cs.CV > cs.AI > cs.LG).
+    deduped, seen_today = [], set()
+    for p in all_papers:
+        if p["id"] in seen_today:
+            continue
+        seen_today.add(p["id"])
+        deduped.append(p)
+    if len(deduped) < len(all_papers):
+        print(f"  Cross-feed dedup: {len(all_papers)} → {len(deduped)} "
+              f"(dropped {len(all_papers) - len(deduped)} cross-listed dupes)", file=sys.stderr)
+    all_papers = deduped
+
     # Dedup against seen
     new_papers = [p for p in all_papers if p["id"] not in seen]
     print(f"  After dedup: {len(new_papers)} new (was {len(all_papers)})", file=sys.stderr)

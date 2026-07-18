@@ -36,6 +36,7 @@ from _config import (
     TG_API, TG_PARSE_MODE, TG_MAX_LEN,
     today_str, is_dry_run, get_env,
 )
+import atlas
 
 RATING_ORDER = {"⚡": 0, "🔧": 1, "📖": 2, "❌": 3}
 
@@ -213,6 +214,14 @@ def main() -> int:
     md = build_markdown(papers, date)
     out_path = write_report(md, date)
     print(f"  Wrote {out_path}", file=sys.stderr)
+
+    # Atlas: accumulate the 5-axis coordinate stream + regenerate the overview.
+    # This is the analytical layer — the daily .md is the archive, atlas.jsonl is
+    # the measurable coordinate cloud. Both persist; the workflow commits both.
+    records = [atlas.make_record(p, date, source="pipeline") for p in papers]
+    added, updated = atlas.upsert(records)
+    atlas.write_overview()
+    print(f"  Atlas: +{added} new / {updated} updated coordinates", file=sys.stderr)
 
     pruned = prune_old_reports()
     if pruned:

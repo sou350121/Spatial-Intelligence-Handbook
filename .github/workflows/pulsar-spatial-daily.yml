@@ -54,8 +54,10 @@ jobs:
           git config user.name "Pulsar Bot"
           git config user.email "noreply@anthropic.com"
 
-          # Add scoped changes only (don't accidentally commit anything else)
-          git add reports/spatial-daily/
+          # Add scoped changes only (don't accidentally commit anything else).
+          # reports/atlas/ = the 5-axis coordinate stream (atlas.jsonl) + its
+          # generated overview, written by post.py alongside the daily report.
+          git add reports/spatial-daily/ reports/atlas/
 
           # Exit cleanly if nothing changed (e.g. weekend or zero qualifying papers)
           if git diff --staged --quiet; then

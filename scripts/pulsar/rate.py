@@ -25,8 +25,33 @@ sys.path.insert(0, str(Path(__file__).parent))
 from _config import (
     DASHSCOPE_BASE_URL, LLM_MODEL, LLM_TIMEOUT,
     LLM_RETRY, LLM_RETRY_BACKOFF,
-    RATING_PROMPT_SYSTEM, get_env,
+    RATING_PROMPT_SYSTEM, AXIS_VOCAB, get_env,
 )
+
+VALID_RATINGS = {"⚡", "🔧", "📖", "❌"}
+
+
+def clean_axes(raw: dict) -> dict:
+    """Coerce the model's axes dict onto the controlled vocabulary.
+
+    Off-vocab / missing values become 'n/a' so the atlas never accumulates
+    junk coordinates. Case/space tolerant; the vocab is the source of truth.
+    """
+    axes: dict[str, str] = {}
+    raw = raw if isinstance(raw, dict) else {}
+    for axis, vocab in AXIS_VOCAB.items():
+        val = str(raw.get(axis, "n/a")).strip()
+        lut = {v.lower(): v for v in vocab}
+        axes[axis] = lut.get(val.lower(), "n/a")
+    return axes
+
+
+def derive_tags(axes: dict) -> list[str]:
+    """Human/agent-readable coordinate labels for markdown, e.g. 'paradigm: VLA'.
+    Only non-n/a axes are shown; paradigm/time (the ordered axes) come first.
+    """
+    order = ["paradigm", "time", "problem", "representation", "sensor"]
+    return [f"{a}: {axes[a]}" for a in order if axes.get(a, "n/a") != "n/a"]
 
 
 def call_qwen(messages: list[dict], api_key: str) -> str:
@@ -83,11 +108,13 @@ def rate_one(paper: dict, api_key: str) -> dict:
     except json.JSONDecodeError:
         # Best-effort recovery if model didn't return valid JSON
         print(f"  WARN: invalid JSON from qwen for {paper['id']}", file=sys.stderr)
-        result = {"rating": "📖", "reason": "(parse error)", "tags": []}
+        result = {"rating": "📖", "reason": "(parse error)", "axes": {}}
 
-    paper["rating"] = result.get("rating", "📖")
+    rating = result.get("rating", "📖")
+    paper["rating"] = rating if rating in VALID_RATINGS else "📖"
     paper["reason"] = result.get("reason", "")
-    paper["tags"] = result.get("tags", [])
+    paper["axes"] = clean_axes(result.get("axes", {}))
+    paper["tags"] = derive_tags(paper["axes"])  # display labels, back-compat
     return paper
 
 
@@ -123,6 +150,7 @@ def main() -> int:
                 print(f"  ERROR rating {p['id']}: {e}", file=sys.stderr)
                 p["rating"] = "📖"
                 p["reason"] = f"(rating error: {e})"
+                p["axes"] = clean_axes({})
                 p["tags"] = []
                 rated.append(p)
 
