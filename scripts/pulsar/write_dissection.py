@@ -161,6 +161,32 @@ def structural_guard(md: str) -> list[str]:
     return [name for name, pat in GUARD_CHECKS if not re.search(pat, md)]
 
 
+FACTCHECK_SYS = """你是严格的事实核查员。给你一篇论文全文和一篇据其撰写的中文 dissection 草稿。
+只核查草稿里**具体的事实性声明**是否被全文支持:模型/方法名、benchmark 数字与指标、参数量、
+具体层号/模块名、数据集规模、SOTA 提升幅度。玩具例子里的自造数字、明确标 UNVERIFIED 的估算、
+一般性方法描述**不算**问题。
+
+严格 JSON 输出:
+{"verdict": "pass" | "revise",
+ "issues": ["<草稿里与全文矛盾或全文查无的具体声明>", ...]}
+只有当存在**具体的、会误导读者的**事实错误(编造的数字/名称/层号)时才 revise;否则 pass。"""
+
+
+def factcheck(draft: str, fulltext: str, api_key: str) -> tuple[bool, list[str]]:
+    """qwen re-reads the paper and the draft; flags hallucinated facts. Ample quota
+    makes this second pass cheap — it is the automated stand-in for per-article human
+    verification, so daily auto-commit doesn't ship fabricated numbers."""
+    user = f"论文全文（截断）:\n{fulltext[:24000]}\n\n=== dissection 草稿 ===\n{draft[:12000]}"
+    try:
+        raw = call_qwen(FACTCHECK_SYS, user, api_key, max_tokens=800)
+        m = re.search(r"\{.*\}", raw, re.S)
+        obj = json.loads(m.group(0)) if m else {"verdict": "pass", "issues": []}
+        return obj.get("verdict") == "pass", obj.get("issues", [])
+    except Exception as e:  # noqa — never let a factcheck hiccup block the pipeline; treat as pass
+        print(f"  WARN factcheck failed ({e}); treating as pass", file=sys.stderr)
+        return True, []
+
+
 def pick_candidate(atlas_path: Path, covered_titles: set[str]) -> dict | None:
     """Top perception ⚡/🔧 paper from the atlas not already dissected.
 

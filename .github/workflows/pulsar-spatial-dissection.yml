@@ -1,28 +1,37 @@
 name: Pulsar Spatial Dissection
 
-# Weekly: qwen drafts one new deep-dive dissection from a surfaced perception paper
-# and opens a PR. Opus/a human verifies the facts against the source and merges —
-# the "qwen 跑 / Opus 验" contract. Nothing auto-lands on main.
+# Daily: qwen drafts several new deep-dive dissections from surfaced perception
+# papers and auto-commits them to main. The handbook grows every day.
+#
+# Quality gates (no human in the daily loop — qwen quota is ample, so verification
+# is a second qwen pass, not a PR review):
+#   1. structural guard — 14-item template must be complete (regenerate up to 3x)
+#   2. qwen fact-check   — a second qwen pass flags hallucinated numbers/names/layers
+#   3. audit-green gate  — nothing is pushed unless handbook_audit.py passes
+# Opus/human review is periodic (spot-audit), not per-article.
 #
 # Required secret: DASHSCOPE_API_KEY (shared with the daily pipeline).
 
 on:
   schedule:
-    - cron: '0 6 * * 3'
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
-  pull-requests: write
+  issues: write
 
 concurrency:
   group: pulsar-spatial-dissection
   cancel-in-progress: false
 
+env:
+  DISSECTIONS_PER_DAY: '3'
+
 jobs:
   dissection:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,46 +41,47 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: qwen writes a dissection (guarded)
+      - name: qwen writes dissections (guarded + fact-checked)
         env:
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
-        run: python3 scripts/pulsar/run_dissection.py || true
+        run: python3 scripts/pulsar/run_dissection.py --count "${DISSECTIONS_PER_DAY}" || true
 
-      - name: Sync counts and open a PR if a dissection was placed
+      - name: Sync counts, audit-gate, commit to main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          NEW=$(git status --porcelain | grep '_dissection.md' | grep '^??' | awk '{print $2}' | head -1)
-          if [ -z "$NEW" ]; then
-            echo "No new dissection this run (no candidate, or guard rejected the draft)."
+          if ! git status --porcelain | grep -q '_dissection.md'; then
+            echo "No new dissection this run."
             exit 0
           fi
-          echo "New dissection: $NEW"
+          N=$(git status --porcelain | grep -c '_dissection.md')
+          echo "Placed $N new dissection(s)."
+
+          # Mechanical landing: recompute every audit-enforced count from the tree.
           python3 scripts/sync_counts.py
           python3 scripts/gen_mintlify_nav.py > docs.json
           python3 scripts/sync_readme_from_overview.py || true
+
+          # Audit-green gate: never push a red tree (bad counts / broken links / etc).
+          if ! python3 scripts/handbook_audit.py; then
+            echo "AUDIT FAILED — refusing to push. Drafts discarded this run."
+            exit 1
+          fi
+
           git config user.name "Pulsar Bot"
           git config user.email "noreply@anthropic.com"
-          SLUG=$(basename "$NEW" _dissection.md)
-          BR="dissection/${SLUG}-$(date +%s)"
-          git checkout -b "$BR"
           git add -A
-          git commit -q -m "feat(handbook): +1 dissection (qwen draft) — ${SLUG}"
-          git push -u origin "$BR"
-          SRC=$(grep -oE 'https://arxiv.org/abs/[0-9.]+' "$NEW" | head -1)
-          {
-            echo "qwen drafted this dissection from arXiv full text. Source: ${SRC:-n/a}"
-            echo "File: \`${NEW}\`"
-            echo ""
-            echo "**Opus / human verification gate (do before merge):**"
-            echo "- [ ] Facts vs source: model name / benchmark numbers / specific layer indices (qwen occasionally hallucinates)"
-            echo "- [ ] Archive zone is correct"
-            echo "- [ ] UNVERIFIED discipline on numbers the paper does not give / not reproduced on hardware"
-            echo "- [ ] 14-item structure is guard-enforced; audit CI should be green (counts synced)"
-            echo ""
-            echo "Merge once verified. Contract: qwen generates, Opus/human verifies before it lands."
-          } > /tmp/pr_body.md
-          gh pr create --base main --head "$BR" \
-            --title "dissection: ${SLUG} (qwen draft — verify + merge)" \
-            --body-file /tmp/pr_body.md
-          echo "PR opened for $BR"
+          git commit -q -m "feat(handbook): +${N} dissection(s) (qwen daily, guard+factcheck+audit-green)"
+          git pull --rebase origin main || { echo "rebase conflict"; exit 1; }
+          git push origin main || { git pull --rebase origin main && git push origin main; }
+          echo "Pushed ${N} dissection(s) to main."
+
+      - name: Alert on failure (sentinel)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="[pipeline-alert] Pulsar spatial dissection is failing"
+          BODY="Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} ($(date -u +%FT%TZ))"
+          NUM=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty' || true)
+          if [ -n "$NUM" ]; then gh issue comment "$NUM" --body "$BODY"; else gh issue create --title "$TITLE" --body "$BODY"; fi

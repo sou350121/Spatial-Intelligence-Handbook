@@ -58,53 +58,68 @@ def classify_zone(title: str, axes: dict, api_key: str) -> str:
     return "foundations/feed-forward-3d"  # safe default
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--dry", action="store_true")
-    args = ap.parse_args()
-    api_key = get_env("DASHSCOPE_API_KEY")
-
-    cand = wd.pick_candidate(ATLAS, covered_slugs())
-    if not cand:
-        print("NO_CANDIDATE", file=sys.stderr)
-        return 0
+def write_one(cand: dict, api_key: str, dry: bool) -> str | None:
+    """Generate one guarded + fact-checked dissection; place it. Return rel path or None."""
     aid, axes, title0 = cand["id"], cand["axes"], cand["title"]
-    print(f"  candidate: {cand['rating']} {title0[:60]} ({aid})", file=sys.stderr)
-
+    print(f"  candidate: {cand['rating']} {title0[:58]} ({aid})", file=sys.stderr)
     zone = classify_zone(title0, axes, api_key)
-    print(f"  zone: {zone}", file=sys.stderr)
-
-    title, text = wd.fetch_fulltext(aid)
+    try:
+        title, text = wd.fetch_fulltext(aid)
+    except Exception as e:
+        print(f"  skip {aid}: full text fetch failed ({e})", file=sys.stderr)
+        return None
     today = datetime.date.today().isoformat()
     user = (f"arXiv id: {aid}\nTitle: {title}\nontology 5-axis: {json.dumps(axes, ensure_ascii=False)}\n"
             f"今天日期: {today}\n\n论文全文（已截断）:\n{text}")
 
-    # qwen is stochastic — regenerate a few times until the structural guard passes.
-    full, missing = "", ["(not generated)"]
+    # generate → structural guard → qwen fact-check; regenerate on either failure.
     for attempt in range(3):
         md = wd.call_qwen(wd.TEMPLATE, user, api_key)
         md = re.sub(r"^```markdown\s*|\s*```$", "", md.strip()).replace("<module>", zone.split("/")[-1])
         full = wd.ontology_header(axes) + md + f"\n\n<!-- source: https://arxiv.org/abs/{aid} -->\n"
         missing = wd.structural_guard(full)
-        if not missing:
+        if missing:
+            print(f"  attempt {attempt+1}: guard missing {missing}; regen", file=sys.stderr)
+            continue
+        ok, issues = wd.factcheck(full, text, api_key)
+        if not ok:
+            print(f"  attempt {attempt+1}: factcheck flagged {issues[:2]}; regen", file=sys.stderr)
+            continue
+        # passed both gates
+        if dry:
+            Path("/tmp/dry_dissection.md").write_text(full)
+            print(f"  DRY ok · {zone} · guard+factcheck PASS", file=sys.stderr)
+            return f"{zone}/(dry)"
+        slug = re.sub(r"[^a-z0-9]+", "_", title0.lower()).strip("_")[:50]
+        rel = f"{zone}/{slug}_dissection.md"
+        (REPO / rel).write_text(full, encoding="utf-8")
+        print(f"  placed {rel}", file=sys.stderr)
+        return rel
+    print(f"  skip {aid}: failed guard/factcheck after retries", file=sys.stderr)
+    return None
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry", action="store_true")
+    ap.add_argument("--count", type=int, default=1, help="dissections to write this run")
+    args = ap.parse_args()
+    api_key = get_env("DASHSCOPE_API_KEY")
+
+    placed = []
+    for _ in range(args.count):
+        cand = wd.pick_candidate(ATLAS, covered_slugs() | {re.sub(r'[^a-z0-9]+','',Path(p).name.replace('_dissection.md','').lower())[:40] for p in placed})
+        if not cand:
+            print("NO_CANDIDATE (pool exhausted)", file=sys.stderr)
             break
-        print(f"  guard attempt {attempt+1} missing {missing}; regenerating", file=sys.stderr)
-    if missing:
-        print(f"GUARD_FAIL after retries: {missing}", file=sys.stderr)
-        return 2  # workflow: don't open a PR for a structurally-incomplete draft
-
-    slug = re.sub(r"[^a-z0-9]+", "_", title0.lower()).strip("_")[:50]
-    rel = f"{zone}/{slug}_dissection.md"
-    if args.dry:
-        Path("/tmp/dry_dissection.md").write_text(full)
-        print(f"DRY ok · would place at {rel} · {len(full)} chars · guard PASS", file=sys.stderr)
-        return 0
-
-    (REPO / rel).write_text(full, encoding="utf-8")
-    # Emit PR metadata for the workflow (GITHUB_OUTPUT style key=value).
-    print(f"path={rel}")
-    print(f"arxiv={aid}")
-    print(f"title={title0[:80]}")
+        rel = write_one(cand, api_key, args.dry)
+        if rel and not args.dry:
+            placed.append(rel)
+        if args.dry:
+            break
+    for p in placed:
+        print(f"path={p}")
+    print(f"placed={len(placed)}", file=sys.stderr)
     return 0
 
 
