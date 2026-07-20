@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 53 dissection / 99 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 56 dissection / 102 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -44,10 +44,12 @@
               "foundations/3dgs-family/4dgs_dynamic_scenes.md",
               "foundations/3dgs-family/anythingreality_robust_online_gaussian_splatting_s_dissection.md",
               "foundations/3dgs-family/diffradar_differentiable_physics_aware_radar_slam__dissection.md",
+              "foundations/3dgs-family/e3dgs_unified_geometric_photometric_equivariance_f_dissection.md",
               "foundations/3dgs-family/github_failure_atlas.md",
               "foundations/3dgs-family/gs_slam_dissection.md",
               "foundations/3dgs-family/mip_splatting.md",
               "foundations/3dgs-family/mip_splatting_dissection.md",
+              "foundations/3dgs-family/on_the_design_of_mixture_of_experts_for_dynamic_ga_dissection.md",
               "foundations/3dgs-family/real_time_lidar_gaussian_splatting_slam_dissection.md",
               "foundations/3dgs-family/sharpsplat_edge_regularized_3d_gaussian_splatting__dissection.md",
               "foundations/3dgs-family/stereosplat_feed_forward_stereo_gaussian_splatting_dissection.md"
@@ -93,7 +95,8 @@
               "foundations/feed-forward-3d/streamvggt_dissection.md",
               "foundations/feed-forward-3d/vggt_covisibility_probing_dissection.md",
               "foundations/feed-forward-3d/vggt_cvpr2025_dissection.md",
-              "foundations/feed-forward-3d/vggt_omega_dissection.md"
+              "foundations/feed-forward-3d/vggt_omega_dissection.md",
+              "foundations/feed-forward-3d/what_vggt_knows_about_overlap_probing_geometric_fo_dissection.md"
             ]
           },
           {

@@ -176,7 +176,7 @@
 
 &nbsp;
 
-**9 dissections** · 全部 2024-2026 新 paper · CroCo 譜系全收齊
+**10 dissections** · 全部 2024-2026 新 paper · CroCo 譜系全收齊
 
 **演进逻辑**：
 - 譜系起源：**DUSt3R (CVPR 2024)** → **MASt3R (ECCV 2024)** → **VGGT (CVPR 2025 best)** → **π³ (ICLR 2026 permutation-equivariant)**
