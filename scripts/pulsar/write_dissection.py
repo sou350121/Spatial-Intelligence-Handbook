@@ -91,7 +91,7 @@ crossing/slam-vio-migration/vggt_vs_drone_vio.md。
 # test set this raised grounding 0.875→1.00 (fabricated numbers/article 0.38→0.00)
 # and the strict pass-rate 0.62→0.88 vs the hand-written fallback. Regenerable by
 # re-running the SkillOpt loop; edit the .md, not the code.
-_SKILL_FILE = Path(__file__).parent / "dissection_skill.md"
+_SKILL_FILE = Path(__file__).parent / "dissection_skill.txt"
 TEMPLATE = _SKILL_FILE.read_text(encoding="utf-8") if _SKILL_FILE.exists() else _TEMPLATE_FALLBACK
 
 
