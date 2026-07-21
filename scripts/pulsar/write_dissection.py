@@ -70,11 +70,19 @@ crossing/slam-vio-migration/vggt_vs_drone_vio.md。
     [← Back to <module> README](./README.md)
     > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-# 铁律
-- **只依据提供的全文**。数字 / 超参 / benchmark 只写全文里出现的；全文没有就写 `UNVERIFIED` 或不写，**绝不编造**。
-- 表格优先；术语中英一致（首次给全称）；避免与导语同句式复述。
-- 全中文正文，专名保留英文（VGGT / SfM / 3DGS）。
-- 输出**纯 markdown 正文**，不要 ```markdown 代码围栏包整篇，不要任何解释性前言/后语。
+# 铁律（违反=草稿被机械 gate 拒绝重写）
+
+**反捏造是第一原则。** 审计发现:模型能忠实描述"论文是什么/怎么做",但一到"在什么数据集上、比 baseline 好多少、跑多快"就倾向填空造数。以下三个高发区绝对禁止编造:
+
+1. **§4 工程视角**:论文若**没给** latency / VRAM / FPS / 吞吐 / 硬件型号,就**写「论文未报告」**,或标 `UNVERIFIED` 明示是你的估算——**绝不凭空写一个数字塞进表格**。宁可这格空着写「未报告」。
+2. **§5 数据与评测**:数据集名 / benchmark 名 / 指标数字**必须逐字来自全文**。**严禁**把论文真实用的数据集(如 N3V / Technicolor / KITTI)替换成你以为常见的别的名字。写之前在全文里搜一下这个名字确实存在。
+3. **§8 GitHub pitfalls**:**除非全文里出现了 github.com 链接**,否则**绝不写任何 repo URL / commit hash / issue 编号**。没有 repo 就写「官方 repo 未在论文中给出,以下 pitfall 由 §6 失败模式推导(未经 issue 验证)」。**严禁编造 issue #N 及其标题、日期、引文**。
+
+其他:
+- **对比数字 / SOTA 提升幅度**(如"超越 X +Y%"、"APE 0.12m")只写全文明确出现的真值;不确定就写方向不写数字,或标 UNVERIFIED。
+- §3 玩具例子的演示数字可以自造(它明确是示范),但要写清是玩具设定。
+- 表格优先;术语中英一致;全中文正文,专名保留英文(VGGT / SfM / 3DGS)。
+- 输出**纯 markdown 正文**,不要 ```markdown 围栏包整篇,不要解释性前言/后语。
 """
 
 
@@ -161,15 +169,65 @@ def structural_guard(md: str) -> list[str]:
     return [name for name, pat in GUARD_CHECKS if not re.search(pat, md)]
 
 
+# Sections where numbers are claims about the paper (must be grounded), vs the toy
+# example (§3) where invented demonstration numbers are legitimate.
+_TOY_MARKERS = ("走一遍", "玩具", "toy", "napkin", "示范", "示範")
+_NUM_RE = re.compile(r"\d+(?:\.\d+)?\s*(?:dB|GB|MB|ms|fps|FPS|Hz|%)|\d+\.\d{2,}")
+_GH_RE = re.compile(r"github\.com/[\w.\-]+/[\w.\-]+")
+
+
+def _norm_num(tok: str) -> str:
+    return re.sub(r"[^\d.]", "", tok).rstrip(".")
+
+
+def numeric_grounding_issues(draft: str, source: str) -> list[str]:
+    """Mechanical anti-fabrication gate. qwen is faithful on mechanism but invents
+    benchmark/engineering numbers and GitHub repos, presenting them as from tables.
+    A string-match check can't be fooled the way qwen-judging-qwen was: every
+    non-toy, non-UNVERIFIED number and every GitHub URL must literally appear in the
+    source text. Returns the list of ungrounded claims (empty = pass).
+    """
+    src_digits = re.sub(r"[^\d.]", " ", source)
+    issues: list[str] = []
+    # Only enforce grounding in the benchmark/engineering zones where auditors found
+    # fabrication (§4 eng, §5 data, §6 capabilities, §7 comparison). §1-3 (overview/
+    # math/toy) legitimately carry derivation constants; §8 URLs are checked separately.
+    hot_headers = ("工程", "数据与评测", "數據與評測", "能力与失败", "能力與失敗",
+                   "相关工作", "相關工作", "对比", "對比")
+    in_hot = in_code = False
+    for line in draft.splitlines():
+        if line.startswith("## "):
+            in_hot = any(h in line for h in hot_headers)
+        if line.strip().startswith("```"):
+            in_code = not in_code
+        if not in_hot or in_code:
+            continue
+        if "UNVERIFIED" in line or "论文未报告" in line or "未报告" in line:
+            continue
+        for tok in _NUM_RE.findall(line):
+            v = _norm_num(tok)
+            if len(v) < 3:            # skip tiny values (0, 1, 24…) — too common to be meaningful
+                continue
+            if v not in src_digits and v.rstrip("0").rstrip(".") not in src_digits:
+                issues.append(f"number not in source: {tok.strip()}  ({line.strip()[:70]})")
+    for url in _GH_RE.findall(draft):
+        if url not in source:
+            issues.append(f"GitHub repo not in source: {url}")
+    return issues
+
+
 FACTCHECK_SYS = """你是严格的事实核查员。给你一篇论文全文和一篇据其撰写的中文 dissection 草稿。
-只核查草稿里**具体的事实性声明**是否被全文支持:模型/方法名、benchmark 数字与指标、参数量、
-具体层号/模块名、数据集规模、SOTA 提升幅度。玩具例子里的自造数字、明确标 UNVERIFIED 的估算、
-一般性方法描述**不算**问题。
+审计经验表明草稿最爱在三处造假,请**重点核这三处**:
+1. **数据集 / benchmark 名字**:草稿 §5 写的每个数据集名,在全文里搜得到吗?(常见造假:把真实的 N3V/Technicolor 换成不存在的 Dynamic Replica 之类。)
+2. **对比数字 / SOTA 值**:草稿写的"baseline 是 X"、"超越 +Y%"、"APE 0.12m"、"F-score 62.1%"这类,和全文 Table 里的真值一致吗?
+3. **GitHub repo / issue**:草稿 §8 若写了 repo URL 或 issue 编号,全文里真有这个链接吗?(全文没有=编造。)
+
+玩具例子(§3)里明确的示范数字、标了 UNVERIFIED 的估算、一般性方法描述**不算**问题。
 
 严格 JSON 输出:
 {"verdict": "pass" | "revise",
- "issues": ["<草稿里与全文矛盾或全文查无的具体声明>", ...]}
-只有当存在**具体的、会误导读者的**事实错误(编造的数字/名称/层号)时才 revise;否则 pass。"""
+ "issues": ["<草稿写X → 全文实为Y 或 全文查无>", ...]}
+只要存在**会误导读者的**具体事实错误(编造的数据集名/对比数字/repo/层号)就 revise。"""
 
 
 def factcheck(draft: str, fulltext: str, api_key: str) -> tuple[bool, list[str]]:
@@ -187,22 +245,29 @@ def factcheck(draft: str, fulltext: str, api_key: str) -> tuple[bool, list[str]]
         return True, []
 
 
-def pick_candidate(atlas_path: Path, covered_titles: set[str]) -> dict | None:
+def pick_candidate(atlas_path: Path, covered_ids: set[str],
+                   repr_counts: dict | None = None) -> dict | None:
     """Top perception ⚡/🔧 paper from the atlas not already dissected.
 
     Respects the trilogy boundary: excludes VLA/action-policy papers (those belong
-    in VLA-Handbook). Ranks ⚡ first, then perception-core keyword bonus.
+    in VLA-Handbook). Dedup is by **arXiv id** (the canonical key) — fuzzy title-slug
+    matching once let the same paper (2607.09503) get dissected twice under two
+    different title slugs. Ranks ⚡ first, with a mild representation-axis diversity
+    penalty so a "cross-embodiment" handbook doesn't grind only 3DGS/SLAM papers.
     """
     perc_para = {"geometric", "learned", "hybrid", "generative", "3R-SLAM-hybrid"}
     perc_prob = {"VO", "VIO", "VSLAM", "SfM", "reconstruction", "depth", "pose",
                  "tracking", "mapping", "occupancy"}
     kws = ("gaussian", "splatting", "3dgs", "vggt", "slam", "depth", "nerf",
            "reconstruction", "sfm", "vio", "feed-forward", "pointmap", "radar", "lidar")
+    repr_counts = repr_counts or {}
     cands = []
     for line in atlas_path.read_text().splitlines():
         if not line.strip():
             continue
         r = json.loads(line)
+        if r.get("id") in covered_ids:            # dedup by canonical arXiv id
+            continue
         ax = r.get("axes", {})
         if ax.get("paradigm") in ("VLA", "world-model-as-policy"):
             continue
@@ -210,12 +275,10 @@ def pick_candidate(atlas_path: Path, covered_titles: set[str]) -> dict | None:
             continue
         if ax.get("paradigm") not in perc_para and ax.get("problem") not in perc_prob:
             continue
-        slug = re.sub(r"[^a-z0-9]+", "", r["title"].lower())[:40]
-        if any(slug[:20] in c or c[:20] in slug for c in covered_titles):
-            continue
         t = r["title"].lower()
-        score = (3 if r["rating"] == "⚡" else 2 if r["rating"] == "🔧" else 0)
-        score += sum(1 for k in kws if k in t)
+        score = (3.0 if r["rating"] == "⚡" else 2.0 if r["rating"] == "🔧" else 0.0)
+        score += 0.5 * sum(1 for k in kws if k in t)          # perception relevance (down-weighted)
+        score -= 0.4 * repr_counts.get(ax.get("representation"), 0)  # diversity: spread across representations
         cands.append((score, r))
     if not cands:
         return None

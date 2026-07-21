@@ -37,11 +37,30 @@ ZONES = [
 ]
 
 
-def covered_slugs() -> set[str]:
+def covered_ids() -> set[str]:
+    """arXiv ids already dissected (from each file's `<!-- source: .../abs/<id> -->`)."""
     out = set()
     for f in REPO.glob("**/*_dissection.md"):
-        out.add(re.sub(r"[^a-z0-9]+", "", f.name.replace("_dissection.md", "").lower())[:40])
+        m = re.search(r"abs/(\d{4}\.\d{4,5})", f.read_text(encoding="utf-8", errors="ignore"))
+        if m:
+            out.add(m.group(1))
     return out
+
+
+def covered_repr(ids: set[str]) -> dict:
+    """Representation-axis histogram of already-dissected papers (for diversity)."""
+    counts: dict[str, int] = {}
+    if not ATLAS.exists():
+        return counts
+    for line in ATLAS.read_text().splitlines():
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        if r.get("id") in ids:
+            rep = r.get("axes", {}).get("representation")
+            if rep and rep != "n/a":
+                counts[rep] = counts.get(rep, 0) + 1
+    return counts
 
 
 def classify_zone(title: str, axes: dict, api_key: str) -> str:
@@ -81,11 +100,16 @@ def write_one(cand: dict, api_key: str, dry: bool) -> str | None:
         if missing:
             print(f"  attempt {attempt+1}: guard missing {missing}; regen", file=sys.stderr)
             continue
+        # Mechanical anti-fabrication gate (string-match; can't be fooled like qwen-judging-qwen).
+        ng = wd.numeric_grounding_issues(full, text)
+        if len(ng) > 1 or any("GitHub" in i for i in ng):
+            print(f"  attempt {attempt+1}: {len(ng)} ungrounded numbers/URLs (e.g. {ng[:2]}); regen", file=sys.stderr)
+            continue
         ok, issues = wd.factcheck(full, text, api_key)
         if not ok:
             print(f"  attempt {attempt+1}: factcheck flagged {issues[:2]}; regen", file=sys.stderr)
             continue
-        # passed both gates
+        # passed all gates
         if dry:
             Path("/tmp/dry_dissection.md").write_text(full)
             print(f"  DRY ok · {zone} · guard+factcheck PASS", file=sys.stderr)
@@ -107,11 +131,13 @@ def main() -> int:
     api_key = get_env("DASHSCOPE_API_KEY")
 
     placed = []
+    done_ids = covered_ids()
     for _ in range(args.count):
-        cand = wd.pick_candidate(ATLAS, covered_slugs() | {re.sub(r'[^a-z0-9]+','',Path(p).name.replace('_dissection.md','').lower())[:40] for p in placed})
+        cand = wd.pick_candidate(ATLAS, done_ids, covered_repr(done_ids))
         if not cand:
             print("NO_CANDIDATE (pool exhausted)", file=sys.stderr)
             break
+        done_ids.add(cand["id"])          # don't re-pick within this run
         rel = write_one(cand, api_key, args.dry)
         if rel and not args.dry:
             placed.append(rel)
