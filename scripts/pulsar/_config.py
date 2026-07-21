@@ -60,6 +60,36 @@ ARXIV_FEEDS = {
 # Skip arxiv on weekends (no new papers; same as VLA-Handbook)
 SKIP_WEEKENDS = True
 
+# ---- Curated non-arxiv feeds (high-signal, machine-readable) ---------
+# Discovered by 24 qwen scout subagents + mechanical live-fetch vetting (round 2). These
+# carry signal arxiv misses: tool/model releases (GitHub releases.atom), industry blogs,
+# curated newsletters. collect_curated.py fetches + dedups + qwen-gates these into a
+# reports/curated-signal digest. (name, feed_url, type, subfield)
+CURATED_FEEDS = [
+    # GitHub release feeds — a new release = a shipped tool/model (high signal, low noise)
+    ("nerfstudio", "https://github.com/nerfstudio-project/nerfstudio/releases.atom", "github", "3dgs-nerf"),
+    ("co-tracker", "https://github.com/facebookresearch/co-tracker/releases.atom", "github", "tracking"),
+    ("Open3D", "https://github.com/intel-isl/Open3D/releases.atom", "github", "point-cloud"),
+    ("COLMAP", "https://github.com/colmap/colmap/releases.atom", "github", "sfm-mvs"),
+    ("pySLAM", "https://github.com/luigifreda/pyslam/releases.atom", "github", "slam"),
+    ("XRSLAM", "https://github.com/OpenXRLab/XRSLAM/releases.atom", "github", "slam"),
+    ("dexbotic", "https://github.com/Dexmal/dexbotic/releases.atom", "github", "vla-worldmodel"),
+    # Industry / lab / newsletter RSS — announcements, deep posts arxiv doesn't carry
+    ("NVIDIA Neural Rendering Blog", "https://developer.nvidia.com/blog/category/ai/neural-rendering/feed/", "industry", "3dgs-nerf"),
+    ("Google DeepMind Blog", "https://deepmind.google/discover/blog/feed/", "industry", "vla-worldmodel"),
+    ("OpenCV Community News", "https://opencv.org/feed/", "community", "general"),
+    ("HUST Vision Lab", "https://hustvl.github.io/feed.xml", "lab", "general"),
+    ("OpenDriveLab", "https://opendrivelab.substack.com/feed", "lab", "vla-worldmodel"),
+    ("Spatial Intelligence Newsletter", "https://spatial-intelligence.substack.com/feed", "newsletter", "general"),
+    ("The Gradient", "https://thegradient.pub/feed/", "newsletter", "general"),
+    ("量子位", "https://www.qbitai.com/feed", "industry", "general"),
+    ("HyperAI", "https://hyper.ai/feed.xml", "aggregator", "general"),
+]
+CURATED_DIR = REPORTS_DIR.parent / "curated-signal"
+CURATED_SEEN = STATE_DIR / "curated_seen.json"
+CURATED_LOOKBACK_DAYS = 14      # rolling window; dedup makes daily/weekly runs both safe
+CURATED_RETENTION_DAYS = 120
+
 # ---- Filter keywords (Layer A — broad inclusion) --------------------
 # A paper passes Layer A if title or abstract contains any of these.
 # Tuned for Spatial AI (per ontology §2 problem axis).

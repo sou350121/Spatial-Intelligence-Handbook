@@ -63,6 +63,11 @@ if ! python3 scripts/pulsar/run_daily.py; then
   exit 2
 fi
 
+# --- 1b. Curated non-arxiv signal (supplementary — never abort the run) ---
+echo ""
+echo "--- Stage 1b: Curated non-arxiv signal ---"
+python3 scripts/pulsar/collect_curated.py || echo "WARN: curated signal failed (non-fatal), continuing." >&2
+
 # --- 2. Sync README + audit -----------------------------------------
 echo ""
 echo "--- Stage 2: Sync README + audit ---"
@@ -82,8 +87,8 @@ fi
 echo ""
 echo "--- Stage 3: git commit + push ---"
 
-# Scope add to spatial-daily only (safe — won't touch unrelated WIP)
-git add reports/spatial-daily/
+# Scope add to spatial-daily + curated-signal only (safe — won't touch unrelated WIP)
+git add reports/spatial-daily/ reports/curated-signal/
 
 # Skip if no new files
 if git diff --staged --quiet; then
