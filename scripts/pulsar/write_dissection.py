@@ -111,8 +111,9 @@ def call_qwen(system: str, user: str, api_key: str, model=GEN_MODEL, max_tokens=
     raise RuntimeError(f"qwen failed: {last}")
 
 
-def fetch_fulltext(arxiv_id: str) -> tuple[str, str]:
-    """arxiv HTML -> (title, trimmed plain text). Cuts references/appendix."""
+def fetch_fulltext(arxiv_id: str, cap: int = FULLTEXT_CAP) -> tuple[str, str]:
+    """arxiv HTML -> (title, trimmed plain text). Cuts references/appendix.
+    `cap` can be raised for auditing (so results tables past 30k are visible)."""
     url = f"https://arxiv.org/html/{arxiv_id}"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 PulsarSpatial/1.0"})
     html = urllib.request.urlopen(req, timeout=40).read().decode("utf-8", "replace")
@@ -128,7 +129,7 @@ def fetch_fulltext(arxiv_id: str) -> tuple[str, str]:
         if idx > len(body) * 0.4:
             body = body[:idx]
             break
-    return title, body[:FULLTEXT_CAP]
+    return title, body[:cap]
 
 
 def ontology_header(axes: dict) -> str:

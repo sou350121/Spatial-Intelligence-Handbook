@@ -1,0 +1,74 @@
+name: Pulsar Spatial Dissection Audit
+
+# Weekly fabrication safety-net over the week's auto-committed dissections.
+# The daily pipeline's inline qwen-factcheck has a blind spot (it passed its own
+# fabrications, 2026-07-21). This independent re-audit copies what made the Opus
+# audit succeed — fresh fuller source fetch + mechanical numeric-grounding gate +
+# a qwen cite-or-NOTFOUND pass — and files a GitHub issue listing SUSPECT articles
+# for human review. It does not auto-retract (surfacing, not destroying).
+#
+# Required secret: DASHSCOPE_API_KEY.
+
+on:
+  schedule:
+    - cron: '0 7 * * 0'   # Sunday 07:00 UTC, after the week's daily runs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: pulsar-spatial-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Re-audit the week's dissections for fabrication
+        env:
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+        run: |
+          python3 scripts/pulsar/audit_dissections.py --days 8 > /tmp/audit.md 2> /tmp/audit.err || true
+          cat /tmp/audit.md
+          echo "---"
+          grep -oE 'SUSPECT_COUNT=[0-9]+' /tmp/audit.err | tail -1 | cut -d= -f2 > /tmp/suspects || echo 0 > /tmp/suspects
+
+      - name: File an issue if any article is suspect
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          N=$(cat /tmp/suspects 2>/dev/null || echo 0)
+          if [ "${N:-0}" = "0" ]; then
+            echo "No suspect dissections this week — nothing to file."
+            exit 0
+          fi
+          TITLE="[dissection-audit] ${N} suspect article(s) need verification"
+          {
+            echo "Weekly qwen+mechanical fabrication audit flagged ${N} dissection(s)."
+            echo "Each SUSPECT has ungrounded numbers (\`[num]\`, not in source) and/or"
+            echo "unciteable claims (\`[cite]\`, qwen found NO supporting sentence)."
+            echo "Review + fix (mark UNVERIFIED / correct to source value) or retract."
+            echo ""
+            cat /tmp/audit.md
+            echo ""
+            echo "_Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}_"
+          } > /tmp/issue.md
+          NUM=$(gh issue list --state open --search "[dissection-audit] in:title" --json number --jq '.[0].number // empty' || true)
+          if [ -n "$NUM" ]; then
+            gh issue edit "$NUM" --title "$TITLE" --body-file /tmp/issue.md
+            echo "Updated issue #$NUM"
+          else
+            gh issue create --title "$TITLE" --body-file /tmp/issue.md --label "audit"
+            echo "Opened new audit issue"
+          fi

@@ -80,7 +80,7 @@ UAV Image ──[SAM3 + text prompt]──→ Building Mask M
 若某 building corner 在 `E_SAM_norm` 中对应像素值为 0.92（强边缘），而 `E_render_norm` 为 0.31（模糊），则该 pixel 贡献 `|0.31−0.92|=0.61` 到 loss → 梯度回传迫使 nearby Gaussians shift/reshape以增强该方向梯度。
 
 ## 4 · 工程视角  
-- **延迟**：Sobel Conv2d（3×3 kernel）≈ 0.8 ms / image（RTX 4090, 64×64）；`E_SAM` 预加载，无 runtime overhead。  
+- **延迟**：Sobel Conv2d（3×3 kernel）≈ 0.8 ms / image（`UNVERIFIED` 估算，论文未报告 runtime）；`E_SAM` 预加载，无 runtime overhead。  
 - **步数**：7K–15K iterations（vs baseline 3DGS），收敛更快（边缘 loss 提供强局部信号）。  
 - **内存**：`E_SAM` 以 float16 存储，64×64 图 ≈ 8 KB / image；batch=4 → <32 KB 额外显存，UNVERIFIED for full-res。  
 - **吞吐**：≈ same as vanilla 3DGS（loss computation negligible vs rasterization）。  
@@ -94,7 +94,7 @@ UAV Image ──[SAM3 + text prompt]──→ Building Mask M
   - resolution factor = 1/2（原文未给原始分辨率，UNVERIFIED）  
   - camera poses from COLMAP（SfM pipeline，非 ground truth）  
   - metrics：PSNR / SSIM / LPIPS（per-image mean，UNVERIFIED if scene-level aggregation）  
-  - ablation：7K & 15K iterations；baseline = vanilla 3DGS；comparators：2DGS, SuGaR, DET-GS（UNVERIFIED if all run on same data）
+  - ablation：7K & 15K iterations；量化对比 baseline = vanilla 3DGS（Table）；2DGS / SuGaR / DET-GS 出现在定性/related-work，非量化主表（`UNVERIFIED` 是否同数据对比）
 
 ## 6 · 能力与失败模式  
 - **能做**：  
