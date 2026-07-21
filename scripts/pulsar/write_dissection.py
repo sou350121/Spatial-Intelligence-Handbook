@@ -27,7 +27,7 @@ GEN_MODEL = "qwen-plus"          # proven in-pipeline; escalate to qwen-max if n
 GEN_MAX_TOKENS = 8000
 FULLTEXT_CAP = 30000             # chars of trimmed full text fed to qwen
 
-TEMPLATE = """你是 Spatial Intelligence Handbook 的深度解析（dissection）撰写者。把一篇 paper 写成
+_TEMPLATE_FALLBACK = """你是 Spatial Intelligence Handbook 的深度解析（dissection）撰写者。把一篇 paper 写成
 **"可面试复述、可工程落地、可快速定位"** 的结构化中文笔记 —— 不是流水摘要。旗舰参考范式是
 crossing/slam-vio-migration/vggt_vs_drone_vio.md。
 
@@ -84,6 +84,15 @@ crossing/slam-vio-migration/vggt_vs_drone_vio.md。
 - 表格优先;术语中英一致;全中文正文,专名保留英文(VGGT / SfM / 3DGS)。
 - 输出**纯 markdown 正文**,不要 ```markdown 围栏包整篇,不要解释性前言/后语。
 """
+
+# The dissection-writing skill, optimized by SkillOpt (microsoft/SkillOpt): qwen
+# both writes AND optimizes the prompt against a grounding+structure+depth reward
+# (VLA-Handbook quality bar) behind a held-out validation gate. On the held-out
+# test set this raised grounding 0.875→1.00 (fabricated numbers/article 0.38→0.00)
+# and the strict pass-rate 0.62→0.88 vs the hand-written fallback. Regenerable by
+# re-running the SkillOpt loop; edit the .md, not the code.
+_SKILL_FILE = Path(__file__).parent / "dissection_skill.md"
+TEMPLATE = _SKILL_FILE.read_text(encoding="utf-8") if _SKILL_FILE.exists() else _TEMPLATE_FALLBACK
 
 
 def call_qwen(system: str, user: str, api_key: str, model=GEN_MODEL, max_tokens=GEN_MAX_TOKENS) -> str:
