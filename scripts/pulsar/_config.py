@@ -48,10 +48,13 @@ TG_MAX_LEN = 4096  # Telegram message limit
 # ---- RSS sources ----------------------------------------------------
 # arxiv categories most relevant to Spatial AI (per ontology v3 §5.2 / §5.6)
 ARXIV_FEEDS = {
-    "cs.RO": "http://export.arxiv.org/rss/cs.RO",   # Robotics
-    "cs.CV": "http://export.arxiv.org/rss/cs.CV",   # Computer Vision (3DGS/NeRF/VGGT live here)
-    "cs.AI": "http://export.arxiv.org/rss/cs.AI",   # AI foundation models
-    "cs.LG": "http://export.arxiv.org/rss/cs.LG",   # Learning (for VLA / world models)
+    "cs.RO": "http://export.arxiv.org/rss/cs.RO",     # Robotics
+    "cs.CV": "http://export.arxiv.org/rss/cs.CV",     # Computer Vision (3DGS/NeRF/VGGT live here)
+    "cs.GR": "http://export.arxiv.org/rss/cs.GR",     # Graphics — 3DGS/NeRF/neural+inverse rendering/SDF (57% spatial; was the biggest gap)
+    "cs.AI": "http://export.arxiv.org/rss/cs.AI",     # AI foundation models
+    "cs.LG": "http://export.arxiv.org/rss/cs.LG",     # Learning (for VLA / world models)
+    "eess.IV": "http://export.arxiv.org/rss/eess.IV", # Image/Video Processing — depth/reconstruction (keyword-A gated; medical rejected by KEYWORDS_C)
+    "cs.MM": "http://export.arxiv.org/rss/cs.MM",     # Multimedia — spatial-AR/3DGS work that skips cs.CV (dedup handles cross-listing)
 }
 
 # Skip arxiv on weekends (no new papers; same as VLA-Handbook)
@@ -64,17 +67,24 @@ KEYWORDS_A = [
     # Foundation / SLAM
     "SLAM", "VIO", "VINS", "VSLAM", "visual odometry", "visual-inertial",
     "pose estimation", "camera pose", "bundle adjustment", "factor graph",
+    "structure from motion", "SfM", "loop closure", "relocalization",
     # 3D representation
     "NeRF", "Gaussian splatting", "3DGS", "radiance field", "point map",
-    "depth estimation", "monocular depth", "stereo", "MVS",
+    "depth estimation", "monocular depth", "stereo", "MVS", "multi-view stereo",
+    "point cloud", "3D reconstruction", "3D scene", "novel view synthesis",
+    "signed distance", "implicit surface", "SDF", "mesh reconstruction",
+    # Rendering (cs.GR home turf — was uncovered)
+    "neural rendering", "differentiable rendering", "inverse rendering",
+    "metric depth", "Depth Anything", "MoGe",
     # Modern feed-forward
     "feed-forward 3D", "DUSt3R", "MASt3R", "VGGT", "MapAnything",
-    "foundation model", "world model",
-    # VLA / action
+    "foundation model", "world model", "world foundation model",
+    # VLA / action / spatial reasoning
     "VLA", "vision-language-action", "embodied AI", "manipulation",
+    "spatial reasoning", "spatial intelligence", "spatial understanding",
     # Sensors / specific
     "event camera", "LiDAR-Inertial", "scene graph", "occupancy network",
-    "BEV", "bird's-eye-view",
+    "BEV", "bird's-eye-view", "4D radar", "radar odometry", "tactile sensing",
     # Tracking
     "object pose", "6-DoF", "point tracking", "multi-object tracking",
 ]
@@ -84,8 +94,8 @@ KEYWORDS_A = [
 KEYWORDS_B_BOOST = [
     "drone", "UAV", "quadrotor", "aerial",
     "real-time", "online", "streaming",
-    "production", "deployment", "field test",
-    "benchmark", "EuRoC", "TUM", "KITTI",
+    "production", "deployment", "field test", "real robot", "zero-shot",
+    "benchmark", "EuRoC", "TUM", "KITTI", "open-source", "state-of-the-art",
 ]
 
 # ---- Filter keywords (Layer C — reject / noise) ---------------------

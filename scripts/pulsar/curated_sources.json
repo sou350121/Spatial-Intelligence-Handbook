@@ -1,0 +1,428 @@
+{
+  "generated": "2026-07-22",
+  "method": "16 qwen scouts (DashScope enable_search) → mechanical live-fetch vetting",
+  "note": "feed_url present+live-feed => auto-ingestable RSS; else curated homepage (no feed / bot-blocked). arxiv categories now in _config ARXIV_FEEDS.",
+  "ingestable_feeds": [
+    {
+      "name": "CoRL Proceedings (RSS via arXiv mirror)",
+      "homepage": "https://www.roboticsproceedings.org",
+      "type": "aggregator",
+      "subfield": "vla-worldmodel",
+      "language": "en",
+      "why": "CoRL官方无原生feed，但其全部论文均同步提交至arXiv cs.RO分类；arXiv提供稳定、权威的RSS feed，覆盖CoRL录用论文（标注'CoRL'字样），时效性强。",
+      "feed_url": "https://rss.arxiv.org/rss/cs.RO"
+    },
+    {
+      "name": "arXiv Graphics",
+      "homepage": "https://arxiv.org/list/cs.GR/recent",
+      "type": "arxiv-category",
+      "subfield": "3dgs-nerf|depth|feedforward3d",
+      "language": "en",
+      "why": "Critical for 3D Gaussian Splatting (3DGS), NeRF variants, differentiable rendering, implicit/signed distance representat",
+      "feed_url": "http://export.arxiv.org/rss/cs.GR"
+    },
+    {
+      "name": "arXiv cs.CV / eess.SP / physics.app-ph",
+      "homepage": "https://arxiv.org/list/cs.CV/recent",
+      "type": "arxiv-category",
+      "subfield": "sensors",
+      "language": "en",
+      "why": "Primary real-time dissemination channel for cutting-edge sensor modeling, calibration, and fusion work (e.g., 4D radar n",
+      "feed_url": "https://arxiv.org/rss/cs.CV"
+    },
+    {
+      "name": "arXiv Computer Vision and Pattern Recognition",
+      "homepage": "https://arxiv.org/list/cs.CV/recent",
+      "type": "arxiv-category",
+      "subfield": "slam|3dgs-nerf|depth|vla-worldmodel",
+      "language": "en",
+      "why": "Primary category for SLAM, NeRF, 3DGS, depth estimation, and VLA/world-model related vision foundations.",
+      "feed_url": "http://export.arxiv.org/rss/cs.CV"
+    },
+    {
+      "name": "arXiv Robotics",
+      "homepage": "https://arxiv.org/list/cs.RO/recent",
+      "type": "arxiv-category",
+      "subfield": "slam|aerial|vla-worldmodel",
+      "language": "en",
+      "why": "Core category for SLAM, VIO, aerial robotics, embodied VLA, and world-modeling with physical grounding.",
+      "feed_url": "http://export.arxiv.org/rss/cs.RO"
+    },
+    {
+      "name": "arXiv Multimedia",
+      "homepage": "https://arxiv.org/list/cs.MM/recent",
+      "type": "arxiv-category",
+      "subfield": "vla-worldmodel|3dgs-nerf",
+      "language": "en",
+      "why": "Increasingly covers multimodal world modeling, audio-visual spatial grounding, and video-aware 3D generation — relevant ",
+      "feed_url": "http://export.arxiv.org/rss/cs.MM"
+    },
+    {
+      "name": "arXiv Machine Learning",
+      "homepage": "https://arxiv.org/list/cs.LG/recent",
+      "type": "arxiv-category",
+      "subfield": "vla-worldmodel|depth|feedforward3d",
+      "language": "en",
+      "why": "Essential for learning-based depth estimation, self-supervised 3D representation learning, world-model priors, and found",
+      "feed_url": "http://export.arxiv.org/rss/cs.LG"
+    },
+    {
+      "name": "arXiv Artificial Intelligence",
+      "homepage": "https://arxiv.org/list/cs.AI/recent",
+      "type": "arxiv-category",
+      "subfield": "vla-worldmodel|general",
+      "language": "en",
+      "why": "Hosts foundational work on world models, reasoning, agent architectures, and cross-modal grounding relevant to spatial i",
+      "feed_url": "http://export.arxiv.org/rss/cs.AI"
+    },
+    {
+      "name": "nerfstudio",
+      "homepage": "https://github.com/nerfstudio-project/nerfstudio",
+      "type": "github",
+      "subfield": "3dgs-nerf",
+      "language": "en",
+      "why": "Official, high-activity GitHub repo for nerfstudio — a leading framework for NeRF research and applications, with freque",
+      "feed_url": "https://github.com/nerfstudio-project/nerfstudio/releases.atom"
+    },
+    {
+      "name": "Google DeepMind Blog",
+      "homepage": "https://deepmind.google/discover/blog",
+      "type": "industry",
+      "subfield": "vla-worldmodel|sensors",
+      "language": "en",
+      "why": "Official DeepMind blog with active RSS feed; publishes cutting-edge work on physical AI, vision-language-action models, ",
+      "feed_url": "https://deepmind.google/discover/blog/feed/"
+    },
+    {
+      "name": "Spatial Intelligence Newsletter (by Yannick Hold-Geoffroy)",
+      "homepage": "https://spatialintelligence.substack.com",
+      "type": "newsletter",
+      "subfield": "general",
+      "language": "en",
+      "why": "由CVPR'24 Best Paper作者、空间感知与3D理解活跃研究者Hold-Geoffroy主笔，专注SLAM/VLA/NeRF/世界模型交叉进展，每期含论文精读+代码复现提示+工业落地观察，Substack feed稳定且被GitH",
+      "feed_url": "https://spatialintelligence.substack.com/feed"
+    }
+  ],
+  "curated_no_feed": [
+    {
+      "name": "Papers With Code",
+      "homepage": "https://paperswithcode.com",
+      "type": "aggregator",
+      "subfield": "general",
+      "language": "en",
+      "why": "Authoritative, daily-updated aggregator linking arXiv papers to open-source implementations (PyTorch/TensorFlow), with t"
+    },
+    {
+      "name": "Semantic Scholar",
+      "homepage": "https://www.semanticscholar.org",
+      "type": "aggregator",
+      "subfield": "general",
+      "language": "en",
+      "why": "提供实时AI论文推送、高相关性排序、作者追踪与订阅功能，支持空间智能领域（如SLAM、NeRF、VLA）的语义过滤和学者动态监控，是研究者广泛使用的Google Scholar替代性高信噪比feed源。"
+    },
+    {
+      "name": "ArXiv Sanity Preserver",
+      "homepage": "http://www.arxiv-sanity.com",
+      "type": "aggregator",
+      "subfield": "general",
+      "language": "en",
+      "why": "由Andrej Karpathy维护，基于arXiv每日更新自动推荐高分/高互动空间智能论文（含SLAM、3DGS、VLA等），支持用户自定义关键词+作者关注+RSS导出（通过第三方如Feedly桥接），被大量一线研究者用作日常信息入口。"
+    },
+    {
+      "name": "Event Camera Community",
+      "homepage": "https://eventcamera.com",
+      "type": "aggregator",
+      "subfield": "sensors",
+      "language": "en",
+      "why": "Central hub for event camera research — hosts benchmarks (EVD, GEN1), datasets (CIFAR10-DVS), open-source tools (ESIM), "
+    },
+    {
+      "name": "RSS (Robotics: Science and Systems)",
+      "homepage": "https://roboticsproceedings.org",
+      "type": "conference",
+      "subfield": "aerial|slam|feedforward3d",
+      "language": "en",
+      "why": "机器人领域旗舰会议，近年持续收录UAV自主导航、空中SLAM、开放词汇3D占据地图（如FreeOcc）等前沿工作，2026年接收港科大(广州)首个training-free aerial-semantic occupancy系统[1]。"
+    },
+    {
+      "name": "CVPR 2025 Accepted Papers - Depth Estimation & 3D Vision Track",
+      "homepage": "https://cvpr.thecvf.com",
+      "type": "conference",
+      "subfield": "depth",
+      "language": "en",
+      "why": "CVPR 是计算机视觉领域顶会，2025年深度估计方向接收了Depth Anything v2、Metric3D++、MoGe-Real等多篇奠基性工作，官方程序委员会公开发布细分track论文列表并附代码链接。"
+    },
+    {
+      "name": "CVPR Accepted Papers RSS Feed",
+      "homepage": "https://cvpr.thecvf.com",
+      "type": "conference",
+      "subfield": "general",
+      "language": "en",
+      "why": "官方主办的CVPR网站提供标准RSS feed，实时更新所有录用论文元数据（标题、作者、PDF链接），由IEEE/CVF直接维护，权威且稳定。"
+    },
+    {
+      "name": "ICCV Accepted Papers (via CVF Open Access)",
+      "homepage": "https://iccv.thecvf.com",
+      "type": "conference",
+      "subfield": "general",
+      "language": "en",
+      "why": "ICCV官方通过CVF平台提供规范RSS feed，与CVPR同架构，收录全部录用论文，含可直接下载的PDF链接，更新及时。"
+    },
+    {
+      "name": "ECCV Papers (Open Access Archive)",
+      "homepage": "https://www.ecva.net",
+      "type": "conference",
+      "subfield": "general",
+      "language": "en",
+      "why": "ECCV官网（ecva.net）未提供RSS/Atom feed；其录用论文统一归档于Springer LNCS系列，无聚合式动态feed，仅支持手动浏览或DOI批量检索。"
+    },
+    {
+      "name": "RSS (Robotics: Science and Systems) Official Proceedings",
+      "homepage": "https://www.roboticsproceedings.org",
+      "type": "conference",
+      "subfield": "general",
+      "language": "en",
+      "why": "RSS官网（roboticsproceedings.org）提供完整PDF proceedings和DOI列表，但不提供RSS/Atom feed；需手动订阅或依赖第三方聚合（如arXiv cs.RO）。"
+    },
+    {
+      "name": "awesome-NeRF-and-3DGS-SLAM",
+      "homepage": "https://github.com/3D-Vision-World/awesome-NeRF-and-3DGS-SLAM",
+      "type": "github",
+      "subfield": "3dgs-nerf",
+      "language": "en",
+      "why": "Curated, actively maintained list of NeRF and 3D Gaussian Splatting papers specifically for SLAM/Robotics domain, with l"
+    },
+    {
+      "name": "LingBot-World",
+      "homepage": "https://technology.robbyant.com/lingbot-world",
+      "type": "github",
+      "subfield": "vla-worldmodel",
+      "language": "en",
+      "why": "蚂蚁Roboyant团队开源的世界模拟器，支持分钟级长时序、实时交互（<1s延迟）、多风格泛化，代码与检查点完整公开于GitHub/Hugging Face，持续迭代[6]"
+    },
+    {
+      "name": "World Labs Blog",
+      "homepage": "https://worldlabs.ai/blog",
+      "type": "industry",
+      "subfield": "3dgs-nerf|worldmodel",
+      "language": "en",
+      "why": "Official blog of World Labs — a leader in generative 3D and world model infrastructure; regularly posts on 3D Gaussian S"
+    },
+    {
+      "name": "机器之心",
+      "homepage": "https://www.jiqizhixin.com",
+      "type": "industry",
+      "subfield": "general",
+      "language": "zh",
+      "why": "持续深度报道3D视觉、SLAM、具身智能等前沿技术，含原创综述、论文解读与产业落地分析，中文领域权威信源"
+    },
+    {
+      "name": "Meta AI Blog — Reality Labs Research",
+      "homepage": "https://ai.meta.com/blog",
+      "type": "industry",
+      "subfield": "slam|aerial|vla-worldmodel",
+      "language": "en",
+      "why": "Official Meta AI blog with RSS feed; regularly features peer-reviewed work from Reality Labs Research on egocentric SLAM"
+    },
+    {
+      "name": "ABot-World Studio",
+      "homepage": "https://abot-world.amap.com",
+      "type": "industry",
+      "subfield": "vla-worldmodel",
+      "language": "zh",
+      "why": "高德地图推出的通用交互式世界模型平台，支持多模态输入生成可交互、可保存、可分享的3D世界，已开源代码与模型，且持续更新[2]"
+    },
+    {
+      "name": "Genie Envisioner (GE)",
+      "homepage": "https://www.agibot.ai",
+      "type": "industry",
+      "subfield": "vla-worldmodel",
+      "language": "en",
+      "why": "AgiBot发布的首个面向机器人的真实世界统一视频生成平台，集成预测、策略学习与神经仿真闭环，基于3000小时带语言指令的机器人操作视频训练，强调‘想象-验证-执行’范式[8]"
+    },
+    {
+      "name": "Wayve Blog",
+      "homepage": "https://www.wayve.ai/blog",
+      "type": "industry",
+      "subfield": "vla-worldmodel|slam",
+      "language": "en",
+      "why": "Active industry blog by Wayve documenting real-world deployment of end-to-end world models, neural SLAM, and embodied dr"
+    },
+    {
+      "name": "IEEE Robotics and Automation Letters (RA-L) - Aerial Robotics Special Issue",
+      "homepage": "https://ras.papercept.net",
+      "type": "journal",
+      "subfield": "aerial",
+      "language": "en",
+      "why": "IEEE RA-L定期组织Aerial Robotics专题，审稿严格、录用周期快，是UAV感知与控制领域高影响力期刊，被ICRA/RSS广泛引用。"
+    },
+    {
+      "name": "IEEE Robotics & Automation Magazine",
+      "homepage": "https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=100",
+      "type": "journal",
+      "subfield": "aerial|sensors|general",
+      "language": "en",
+      "why": "面向工业界与学术界交叉应用的权威综述与实践期刊，高频报道无人机系统、传感器融合、现场部署案例[3][7]"
+    },
+    {
+      "name": "IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)",
+      "homepage": "https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=34",
+      "type": "journal",
+      "subfield": "depth|feedforward3d|vla-worldmodel|sensors",
+      "language": "en",
+      "why": "AI与视觉领域最高影响力期刊（IF≈24），持续发表NeRF/3DGS/单目深度/位姿估计/VLA基础模型等空间智能核心算法[4][5]"
+    },
+    {
+      "name": "IEEE Transactions on Robotics (T-RO)",
+      "homepage": "https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=8857",
+      "type": "journal",
+      "subfield": "general",
+      "language": "en",
+      "why": "机器人领域公认的三大顶刊之一，代表理论与工程双重突破，年发文约100篇，最新影响因子7.8，JCR Q1[3][5][6]"
+    },
+    {
+      "name": "IEEE Robotics and Automation Letters (RA-L)",
+      "homepage": "https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=7083369",
+      "type": "journal",
+      "subfield": "general",
+      "language": "en",
+      "why": "IEEE旗舰Letters期刊，兼顾快速发表与严格审稿，广泛覆盖SLAM/VIO/3D重建/aerial等前沿方向，是T-RO的重要前哨和成果转化平台[3][6]"
+    },
+    {
+      "name": "IEEE Sensors Journal",
+      "homepage": "https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=7361",
+      "type": "journal",
+      "subfield": "sensors",
+      "language": "en",
+      "why": "Top-tier peer-reviewed journal with dedicated sections on event cameras, millimeter-wave radar, polarization sensing, an"
+    },
+    {
+      "name": "Visionary Laboratory",
+      "homepage": "https://visionary-laboratory.github.io/visionary",
+      "type": "lab-blog",
+      "subfield": "3dgs-nerf",
+      "language": "en",
+      "why": "专注WebGPU加速的3D高斯溅射（3DGS）浏览器与实时4D渲染，发布多项SOTA级技术突破并开源工具链"
+    },
+    {
+      "name": "GRASP Laboratory, University of Pennsylvania",
+      "homepage": "https://www.kumarrobotics.org",
+      "type": "lab-blog",
+      "subfield": "aerial",
+      "language": "en",
+      "why": "由Vijay Kumar教授领导，是多旋翼无人机建模、控制、路径规划与协同控制的全球先驱实验室，长期产出顶会论文并开源大量工程代码与实验视频。"
+    },
+    {
+      "name": "Depth Anything Official Blog",
+      "homepage": "https://depth-anything.github.io",
+      "type": "lab-blog",
+      "subfield": "depth",
+      "language": "en",
+      "why": "由KAIST & Naver AI Team运营，提供Depth Anything系列技术解析、实时benchmark对比、部署指南及工业落地案例（如车载单目ADAS深度模块），RSS feed活跃更新（最新条目：2026-07-15）。"
+    },
+    {
+      "name": "EmbodiedGen",
+      "homepage": "https://horizonrobotics.github.io/robot_lab/embodied_gen/index.html",
+      "type": "lab-blog",
+      "subfield": "generative 3D",
+      "language": "en",
+      "why": "地平线联合多机构发布的机器人专用3D生成工具包，支持单图/文本生成带真实物理属性（质量、摩擦、水密性）的可动关节3D场景，配套arXiv论文与开源代码，聚焦具身仿真核心需求[7]"
+    },
+    {
+      "name": "FusionBev Research Group (Tongji University & Xiamen University & SAIC)",
+      "homepage": "https://www.tongji.edu.cn",
+      "type": "lab-blog",
+      "subfield": "sensors",
+      "language": "en",
+      "why": "Published state-of-the-art LiDAR + 4D radar fusion architecture FusionBev in Information Fusion (IF=18.6), addressing ge"
+    },
+    {
+      "name": "ETH Zurich Autonomous Systems Lab",
+      "homepage": "http://www.asl.ethz.ch",
+      "type": "lab-blog",
+      "subfield": "slam",
+      "language": "en",
+      "why": "长期主导视觉惯性里程计（VIO）与SLAM基础研究，曾深度参与Google Tango项目，开源DSO、OKVIS等标杆算法，持续在ICRA/IROS/TRO发表高影响力工作。"
+    },
+    {
+      "name": "HKUST Aerial Robotics Group (ARCLab / UAV@HKUST)",
+      "homepage": "http://uav.ust.hk",
+      "type": "lab-blog",
+      "subfield": "slam",
+      "language": "en",
+      "why": "VINS-Mono/VINS-Fusion开创性开源框架作者团队，强调算法-系统闭环与工程落地，2025年仍活跃发布多传感器融合状态估计新框架（如IET Cyber-Systems & Robotics论文）[8]，GitHub仓库持续维护"
+    },
+    {
+      "name": "Technical University of Munich – Computer Vision Group",
+      "homepage": "https://vision.in.tum.de/research",
+      "type": "lab-blog",
+      "subfield": "slam",
+      "language": "en",
+      "why": "TUM是SLAM经典基准TUM-RGBD数据集发起方，长期深耕视觉/语义SLAM与稠密重建，近年在SAIL-Recon等万帧级场景回归工作中提供关键评测支持[2]，研究持续活跃。"
+    },
+    {
+      "name": "University of Zurich Robotics and Perception Group",
+      "homepage": "https://rpg.ifi.uzh.ch",
+      "type": "lab-blog",
+      "subfield": "slam",
+      "language": "en",
+      "why": "RPG是VIO/SLAM领域顶尖实验室，开发了DSO、LSD-SLAM、OpenVINS等核心开源系统，主导EuRoC、TUM-VI等权威VIO基准，2026年仍在ICRA/IROS持续输出鲁棒状态估计新成果。"
+    },
+    {
+      "name": "ETH Zurich Robotics and Perception Group Blog",
+      "homepage": "https://rpg.ifi.uzh.ch",
+      "type": "lab-blog",
+      "subfield": "slam|aerial|sensors",
+      "language": "en",
+      "why": "长期引领VIO/SLAM/无人机感知前沿，MC-GS-SLAM等突破性工作出自该组[3]，RSS feed 活跃更新，含论文、代码、视频与系统部署细节"
+    },
+    {
+      "name": "The Gradient",
+      "homepage": "https://thegradient.pub",
+      "type": "newsletter",
+      "subfield": "general",
+      "language": "en",
+      "why": "由ML/AI一线研究者（含CVPR/ICRA作者）主理，深度覆盖空间智能前沿（如2026年已专题报道DUSt3R-VGGT演进、aerial VLA系统部署），RSS稳定更新，兼具技术深度与可读性，被多位SLAM/NeRF实验室成员公开列为"
+    },
+    {
+      "name": "3D视觉工坊",
+      "homepage": "https://mp.weixin.qq.com/mp/homepage?__biz=MzU5MjE1NzQ0MA==&hid=1",
+      "type": "newsletter",
+      "subfield": "slam|3dgs-nerf|depth|aerial",
+      "language": "zh",
+      "why": "微信公众号持续运营（最新资料截至2026年7月），聚焦工业3D视觉、SLAM、具身智能、无人机等，含大量代码/数据/视频课程资源，社群活跃度高"
+    },
+    {
+      "name": "具身智能技术分享--通往AGI之路",
+      "homepage": "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=Mzg2NjYwNjUyNQ==&scene=124#wechat_redirect",
+      "type": "newsletter",
+      "subfield": "vla-worldmodel|sensors|general",
+      "language": "zh",
+      "why": "系统性整理具身智能核心资料（含LLM+机器人、世界模型、仿真环境、数据集），2024年起持续更新，归档严谨、覆盖学术与产业双视角"
+    },
+    {
+      "name": "Alex Yu's Blog",
+      "homepage": "https://alexyu.net",
+      "type": "researcher",
+      "subfield": "3dgs-nerf|slam|worldmodel|feedforward3d",
+      "language": "en",
+      "why": "Alex Yu 是 3DGS（3D Gaussian Splatting）核心作者之一（CVPR 2023 Best Paper），持续发布技术深度解析、代码实践与世界建模前沿思考，博客含可验证 RSS feed，更新活跃（2026年6月仍"
+    },
+    {
+      "name": "V2X-Radar Dataset Project",
+      "homepage": "https://huggingface.co/datasets/yanglei18/V2X-Radar",
+      "type": "researcher",
+      "subfield": "sensors",
+      "language": "en",
+      "why": "Active NeurIPS 2025 Spotlight project providing the first open, multi-modal, synchronized LiDAR + 4D radar + camera data"
+    },
+    {
+      "name": "RynnWorld-4D",
+      "homepage": "https://alibaba-damo-academy.github.io/RynnWorld-4D.github.io",
+      "type": "researcher",
+      "subfield": "vla-worldmodel",
+      "language": "en",
+      "why": "达摩院最新具身智能世界模型，提出RGB-DF表征，同步生成RGB视频、深度图与光流，解决2D视频生成与3D物理世界间的表征鸿沟，论文与代码均公开且活跃维护[1]"
+    }
+  ]
+}
