@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 53 dissection / 99 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 55 dissection / 101 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -58,6 +58,7 @@
               "foundations/classical-slam/continuous_time_gaussian_belief_trees_for_motion_p_dissection.md",
               "foundations/classical-slam/direct_methods_dso_lsd.md",
               "foundations/classical-slam/dso_dissection.md",
+              "foundations/classical-slam/g_probe_cross_fov_place_recognition_and_certainty__dissection.md",
               "foundations/classical-slam/github_failure_atlas.md",
               "foundations/classical-slam/orb_slam3_dissection.md",
               "foundations/classical-slam/pnp_dlt_primer.md",
@@ -219,7 +220,8 @@
               "foundations/world-model/genie_dissection.md",
               "foundations/world-model/github_failure_atlas.md",
               "foundations/world-model/marble_decision_view.md",
-              "foundations/world-model/nvidia_cosmos_dissection.md"
+              "foundations/world-model/nvidia_cosmos_dissection.md",
+              "foundations/world-model/panoworld_real_world_panoramic_generation_dissection.md"
             ]
           }
         ]
