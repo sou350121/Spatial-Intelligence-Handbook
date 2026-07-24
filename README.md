@@ -78,7 +78,7 @@ world-model-as-policy  ████████················ 
 是应用层,其余是支撑层。
 
 <details open>
-<summary><b><code>foundations/</code></b> — 跨 embodiment 共享底层 · <code>13 zones · 101 篇</code></summary>
+<summary><b><code>foundations/</code></b> — 跨 embodiment 共享底层 · <code>13 zones · 102 篇</code></summary>
 
 3DGS / VGGT / Depth Foundation / 经典 SLAM 这些原语 —— 无论做 manipulation、aerial 还是 marine 最终都回到这里。学界按 "方法" 切,本书把所有 embodiment 共用的底层收齐一份,让上层不必重复造轮子。
 

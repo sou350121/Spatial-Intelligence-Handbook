@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 55 dissection / 101 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 57 dissection / 102 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -138,6 +138,7 @@
               "foundations/pose-tracking/github_failure_atlas.md",
               "foundations/pose-tracking/lost_in_time_continuous_symmetry_and_identifiabili_dissection.md",
               "foundations/pose-tracking/megapose_dissection.md",
+              "foundations/pose-tracking/pixelloop_shortcut_topological_navigation_with_pix_dissection.md",
               "foundations/pose-tracking/raft_optical_flow.md",
               "foundations/pose-tracking/siamese_to_transformer_sot_dissection.md",
               "foundations/pose-tracking/sort_bytetrack_mot_dissection.md",
@@ -320,6 +321,7 @@
             "pages": [
               "embodiments/manipulation/overview.md",
               "embodiments/manipulation/3d_feature_cloud_representations.md",
+              "embodiments/manipulation/action_map_policy_learning_3d_closed_loop_manipula_dissection.md",
               "embodiments/manipulation/bimanual_and_dexterous_hand.md"
             ]
           },

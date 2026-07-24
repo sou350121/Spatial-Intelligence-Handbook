@@ -2,7 +2,7 @@
 
 > **Foundations** 是跨 embodiment 共享的底层 — 3DGS / VGGT / Depth Foundation / 经典 SLAM 这些"工具箱"原语，无论你做 manipulation、aerial 还是 marine，最终都会回到这里。
 >
-> 目前收录 **101 篇深度解析** + **13 区导读**，是华语世界对空间智能底层最系统的拆解。
+> 目前收录 **102 篇深度解析** + **13 区导读**，是华语世界对空间智能底层最系统的拆解。
 >
 > **2026-05 重要更新（多轮叠加）**：
 > - 🔮 Feed-Forward 3D：+ VGGT-Ω + **MapAnything ★ (metric solved)** + 即将 Depth Anything 3
