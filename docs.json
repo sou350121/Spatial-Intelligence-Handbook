@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 61 dissection / 106 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 62 dissection / 107 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -73,6 +73,7 @@
             "pages": [
               "foundations/depth-foundation/overview.md",
               "foundations/depth-foundation/classical_stereo_primer.md",
+              "foundations/depth-foundation/degunet_depth_guided_ultra_compact_backbones_for_e_dissection.md",
               "foundations/depth-foundation/depth_anything_v2_dissection.md",
               "foundations/depth-foundation/depth_models_comparison.md",
               "foundations/depth-foundation/droid_anchor_odometry_anchored_recurrent_metric_de_dissection.md",
