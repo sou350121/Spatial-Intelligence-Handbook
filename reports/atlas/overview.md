@@ -4,7 +4,7 @@
 > The point is not the list — it is the **drift**: watch where mass accumulates on the
 > paradigm axis (geometric → … → world-model-as-policy) as the field moves.
 
-**Coverage:** 716 papers · 2026-07-08 → 2026-07-31 · ⚡ 112 · 🔧 454 · 📖 150
+**Coverage:** 761 papers · 2026-07-08 → 2026-08-03 · ⚡ 120 · 🔧 486 · 📖 155
 
 > Seed corpus — grows every weekday as the daily pipeline runs. Machine-readable source: [`atlas.jsonl`](./atlas.jsonl).
 
@@ -16,13 +16,13 @@ _The money axis. Ordered classical → frontier; read the mass migrating rightwa
 
 ```
 axis value                 count
-geometric                  ██████·················· 49
-learned                    ██████████████████████·· 169
-hybrid                     ████████████████········ 125
-generative                 █████··················· 39
+geometric                  ███████················· 54
+learned                    ██████████████████████·· 181
+hybrid                     ████████████████········ 132
+generative                 █████··················· 42
 3R-SLAM-hybrid             █······················· 6
-VLA                        ████████████████████████ 186
-world-model-as-policy      ██████████·············· 78
+VLA                        ████████████████████████ 194
+world-model-as-policy      ██████████·············· 84
 ```
 
 ### Paradigm drift by week
@@ -30,41 +30,41 @@ world-model-as-policy      ██████████···········�
 _Rows ordered classical → frontier. The field moving toward world models reads as
 the lower rows getting heavier week over week. (`·` = 0; **total** = weekly sample.)_
 
-| paradigm \ week | W28 | W29 | W30 | W31 |
-|---|---:|---:|---:|---:|
-| geometric | 9 | 13 | 15 | 12 |
-| learned | 37 | 39 | 38 | 55 |
-| hybrid | 17 | 37 | 45 | 26 |
-| generative | 8 | 13 | 11 | 7 |
-| 3R-SLAM-hybrid | · | 3 | 3 | · |
-| VLA | 37 | 50 | 52 | 47 |
-| world-model-as-policy | 11 | 19 | 18 | 30 |
-| **total** | **119** | **174** | **182** | **177** |
+| paradigm \ week | W28 | W29 | W30 | W31 | W32 |
+|---|---:|---:|---:|---:|---:|
+| geometric | 9 | 13 | 15 | 12 | 5 |
+| learned | 37 | 39 | 38 | 55 | 12 |
+| hybrid | 17 | 37 | 45 | 26 | 7 |
+| generative | 8 | 13 | 11 | 7 | 3 |
+| 3R-SLAM-hybrid | · | 3 | 3 | · | · |
+| VLA | 37 | 50 | 51 | 47 | 9 |
+| world-model-as-policy | 11 | 19 | 18 | 27 | 9 |
+| **total** | **119** | **174** | **181** | **174** | **45** |
 
 ## Time axis — batch → streaming frontier
 
 ```
 axis value                 count
-filter-streaming           █████████··············· 115
-incremental                ████████················ 102
-per-scene                  ████████████████████████ 323
-feed-forward               ████···················· 57
-temporal-transformer-rolling █████··················· 68
+filter-streaming           █████████··············· 122
+incremental                ████████················ 109
+per-scene                  ████████████████████████ 338
+feed-forward               ████···················· 61
+temporal-transformer-rolling █████··················· 77
 ```
 
 ## Problem axis — what is being solved
 
 ```
 axis value                 count
-VLA                        ████████████████████████ 164
-navigation                 █████████████████████··· 144
-spatial-reasoning          █████████··············· 63
-reconstruction             █████████··············· 62
+VLA                        ████████████████████████ 177
+navigation                 █████████████████████··· 153
+reconstruction             ██████████·············· 71
+spatial-reasoning          █████████··············· 65
 pose                       ████···················· 27
-tracking                   ███····················· 18
-VSLAM                      ███····················· 18
-depth                      ██······················ 17
-VIO                        ██······················ 11
+tracking                   ███····················· 19
+VSLAM                      ██······················ 18
+depth                      ██······················ 18
+VIO                        █······················· 11
 mapping                    █······················· 9
 SfM                        █······················· 7
 VO                         █······················· 6
@@ -75,16 +75,16 @@ occupancy                  ························ 3
 
 ```
 axis value                 count
-feature-grid               ████████████████████████ 165
-scene-graph                ██████████████·········· 99
-3DGS                       ████████················ 57
-sparse                     ████████················ 53
-pointmap                   ██████·················· 38
-BEV                        ██······················ 16
-NeRF                       ██······················ 14
-implicit-sdf               ██······················ 14
-voxel                      ██······················ 14
-mesh                       █······················· 6
+feature-grid               ████████████████████████ 174
+scene-graph                ██████████████·········· 103
+3DGS                       █████████··············· 62
+sparse                     ███████················· 54
+pointmap                   ██████·················· 44
+BEV                        ██······················ 17
+NeRF                       ██······················ 16
+implicit-sdf               ██······················ 15
+voxel                      ██······················ 15
+mesh                       █······················· 7
 HD-map                     ························ 3
 ```
 
@@ -92,36 +92,36 @@ HD-map                     ························ 3
 
 ```
 axis value                 count
-mono                       ████████████████████████ 283
-multi-modal                ██████████·············· 118
-RGBD                       █████████··············· 112
-LiDAR                      ██······················ 21
-stereo                     █······················· 12
-event                      █······················· 11
+mono                       ████████████████████████ 297
+multi-modal                ██████████·············· 127
+RGBD                       ██████████·············· 120
+LiDAR                      ██······················ 22
+event                      █······················· 13
+stereo                     █······················· 13
 IMU                        █······················· 9
-4D-radar                   █······················· 6
+4D-radar                   ························ 6
 ```
 
 ---
 
 ## ⚡ Leading edge (recent frontier-paradigm breakthroughs)
 
-- **[Temporal-Distance JEPA: Plan-Aware Representation Learning for Latent World Model Predictive Control](https://arxiv.org/abs/2607.25337)** — `world-model-as-policy` · 2026-07-31
-  - _首次將JEPA範式從被動表徵學習升級為主動時序距離挖掘，引入可從無獎勵軌跡中端到端學習有向時間成本（而非依賴嵌入空間的副產物歐氏距離），解決了latent world model中長期存在的‘規劃成本與表徵學習目標錯配’這一ontology §13核心爭議。_
-- **[$\pi\mathbf{R}^2$: Reactive Real-time Flow Policies](https://arxiv.org/abs/2607.26055)** — `world-model-as-policy` · 2026-07-31
-  - _首次實現「在保留大型多模態生成式策略 backbone 的前提下，達成毫秒級感官反饋驅動的動態重規劃」——新在 paradigm 軸：將 world-model-as-policy 從固定 chunking 的開環生成範式，升級為具 latency-adaptive inpainting conditioning 的閉環流式策略範式，解決了生成式操作策略長期無法實時響應 proprioceptive 突變的根本性瓶頸。_
-- **[Learning Implicit Causal World Models from Multi-Agent Demonstrations](https://arxiv.org/abs/2607.26336)** — `world-model-as-policy` · 2026-07-31
-  - _首次在 Spatial AI 中提出隱式因果世界模型範式（paradigm 軸），透過策略方差誘導 sequential backdoor 條件，從多智能體示範中無需先驗因果圖地解耦物理動力學與戰略意圖，解決長期存在的因果混淆導致分布外泛化失敗這一 ontology §13 核心爭議。_
-- **[Explicit Kinematic Guidance from Analytic Concepts for Vision-Language-Action Models](https://arxiv.org/abs/2607.26513)** — `VLA` · 2026-07-31
-  - _首次將可執行的、基於解析性3D運動學建模的'Analytic Concepts'嵌入VLA範式，使VLA具備顯式、程序化、動態更新的物體級運動學約束能力——此前VLA僅能隱式泛化空間行為，無法在推理時維持物理一致的關節參數與結構不變量。_
-- **[ContactFlow: A video action conditioning that transfers across embodiments](https://arxiv.org/abs/2607.26579)** — `world-model-as-policy` · 2026-07-31
-  - _首度提出 embodiment-agnostic action representation（Contact Flow）作為 world model 的 conditioning 軸，將 manipulation 建模為 3D 接觸點軌跡，從根本上解耦動作語義與具身形態，使 video-based world model 首次能跨 human/robot embodiment 泛化物理互動預測——此前所有 VLA/world model 均綁定特定執行器（gripper/arm kinematics），此為 paradigm 軸的範式轉移：從 VLA 或 world-model-as-policy 升級為 world-model-as-contact-dynamics-policy。_
-- **[Genie Sim PanoWorld: An Infinite Indoor 3D World Generation Pipeline via Panoramic Scene Modeling and Simulation](https://arxiv.org/abs/2607.26646)** — `world-model-as-policy` · 2026-07-31
-  - _首次實現從單張360°全景圖端到端生成具SE(3)軌跡可控性、可自由導航的高保真3D高斯場（3DGS），且無需每場景優化或多視圖輸入——解決了長期存在的「單圖→可導航世界模型」範式斷裂，開闢了panoramic-world-model-as-policy新軸。_
-- **[ActSWM: Action-Sensitive World Models for Long-Horizon Planning in Open-World Games](https://arxiv.org/abs/2607.26712)** — `world-model-as-policy` · 2026-07-31
-  - _首次將 latent world model 的 rollout 穩定性與行動可辨識性解耦，提出 'transition-separation principle' 並以 action-sensitive constraint 強制保持不同動作序列在潛在空間中的軌跡可分離性——解決了長期存在的 Context Collapse 問題（ontology §13 中 'world-model-as-policy 軸上的因果不可逆性與行動反事實保真度' 爭議），使 world-model-based action recovery 從 offline video 成為可量化的實用能力。_
-- **[CheckVLA: Execution-Time Verification with Action-Conditioned World Model for Long-Horizon Mobile Manipulation](https://arxiv.org/abs/2607.26789)** — `world-model-as-policy` · 2026-07-31
-  - _首次將 conformal risk calibration 與 action-conditioned world model 結合，實現 episode-level 可控置信度的執行時干預決策——解決了 VLA 長程操作中「開環承諾與在線偏差不可調和」這一 ontology §13 中長期懸而未決的範式衝突（即：如何在不重規劃前提下，對已發出但尚未執行完的 action chunk 做語義一致性的動態驗證）。_
+- **[Temporally Centered SIGReg Improves Multi-Task LeWorldModel Learning: From Analysis to Method](https://arxiv.org/abs/2607.26924)** — `world-model-as-policy` · 2026-08-03
+  - _首次提出將正則化目標從靜態潛在邊際分佈轉向**時序中心化殘差**（temporally centered residuals），在保持抗坍塌效果的同時解耦任務間表徵分離與簇內變異，從根本上解決多任務LeWorldModel中因邊際高斯化導致的表徵混疊問題——這是paradigm軸上對world-model-as-policy範式的關鍵修正。_
+- **[What Can Latent World Models Know? Physical Parameter Identifiability in Multimodal Predictive Representations](https://arxiv.org/abs/2607.27017)** — `world-model-as-policy` · 2026-08-03
+  - _首次建立可證偽的物理參數可識別性理論框架，定義並實證驗證「輸入約束」與「預測目標選擇」兩條軸如何 jointly決定 latent world model 能否收斂到物理參數（如 stiffness/drag），破解長期爭議『世界模型是否真學到物理』——提供 ontology §13 中 'identifiability under predictive objectives' 的可量化解。_
+- **[ST-WAM: Semantic-Temporal World Action Model for Robust Manipulation under Visual Distribution Shifts](https://arxiv.org/abs/2607.28993)** — `world-model-as-policy` · 2026-08-03
+  - _首度將世界模型範式（world-model-as-policy）從像素生成轉向語義-時序雙空間解耦建模，以DINOv3語義特徵為錨定的‘不生成未來影像’的隱式動作策略，解決了長期存在的訓練分佈幻覺（Training-Distribution Hallucination）這一 ontology §13 中關於 world model 可靠性與分布外魯棒性的核心爭議。_
+- **[Auto-JEPA: A Latent World Model of Continuous Intent for End-to-End Autonomous Driving](https://arxiv.org/abs/2607.29031)** — `world-model-as-policy` · 2026-08-03
+  - _首次將 JEPA（Joint Embedding Predictive Architecture）範式引入 autonomous driving 的 world model，以連續 latent intent 為核心表徵取代傳統世界重建（video/occupancy/BEV 預測），實現「不重建世界、只建模行動因果」的範式轉移——解了 ontology §13 中長期爭議『world model 是否必須具備感知保真度？』，並給出可量化的因果敏感性證據（語義遮蔽實驗）。_
+- **[ActFovea: Runtime Safeguarding for VLA Policies via Spatiotemporal Visual-Action Consistency](https://arxiv.org/abs/2607.29169)** — `world-model-as-policy` · 2026-08-03
+  - _首次提出 runtime safeguarding 范式，將 VLA 政策的魯棒性保障從 offline training-time robustness（learned）轉向 online spatiotemporal visual-action consistency verification（world-model-as-policy 的 runtime monitoring 軸），實現了對「視覺-動作時序對齊崩潰」這一長期隱性失效模式的可量化檢測與分級恢復——此前所有 VLA 工作均假設 observation-action pipeline 完全可信，無 runtime consistency ontology。_
+- **[BWM: A Low-Cost High-Fidelity World Simulator for Robot Learning](https://arxiv.org/abs/2607.29302)** — `world-model-as-policy` · 2026-08-03
+  - _首次提出將世界模型明確架構為雙重功能實體（data engine + policy evaluator），並實現可閉環風險預測與策略排序的stateful autoregressive action-conditioned視覺預測，解決了既有world model在robot learning中缺乏可驗證、可介入、可評估的行動因果推理能力這一長期爭議（ontology §13.2）。_
+- **[HAM-VLN: Harnessing Hierarchical Agentic Memory for Zero-Shot Vision-and-Language Navigation](https://arxiv.org/abs/2607.29600)** — `world-model-as-policy` · 2026-08-03
+  - _首次提出‘decision-coupled, agent-authored memory’範式，將世界建模從被動表徵（如BEV/scene-graph）升級為主動構建、深度接地、可檢索重構的動態世界圖（world graph），解決了VLN中長期存在的記憶膨脹與推理不可擴展性這一范疇級瓶頸（ontology §13 爭議：‘how to ground language in persistent spatial memory without training or dense mapping’）。_
+- **[WCM: A World Critic Model for Vision-Language-Action Reinforcement Learning](https://arxiv.org/abs/2607.29613)** — `world-model-as-policy` · 2026-08-03
+  - _首次將 critic 設計從 scalar-return regression 范式升級為 world-model-as-policy 范式：WCM 強制 critic 學習可預測的 latent world state（而非僅擬合 Q 值），從根本上解決 VLA 中 partially observable control 下 temporal credit assignment 的表示崩潰問題，實現 critic 表示與世界動態建模的耦合。_
 
 ---
 
