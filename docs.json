@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 69 dissection / 113 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 70 dissection / 114 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -119,6 +119,7 @@
               "foundations/nerf-family/overview.md",
               "foundations/nerf-family/block_nerf_large_scenes.md",
               "foundations/nerf-family/github_failure_atlas.md",
+              "foundations/nerf-family/go_pre_goal_oriented_next_best_view_selection_via__dissection.md",
               "foundations/nerf-family/instant_ngp_dissection.md",
               "foundations/nerf-family/mip_nerf_360_dissection.md",
               "foundations/nerf-family/nerf_original_dissection.md",
