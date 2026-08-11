@@ -4,7 +4,7 @@
 > The point is not the list — it is the **drift**: watch where mass accumulates on the
 > paradigm axis (geometric → … → world-model-as-policy) as the field moves.
 
-**Coverage:** 909 papers · 2026-07-08 → 2026-08-07 · ⚡ 154 · 🔧 571 · 📖 184
+**Coverage:** 985 papers · 2026-07-08 → 2026-08-11 · ⚡ 154 · 🔧 567 · 📖 264
 
 > Seed corpus — grows every weekday as the daily pipeline runs. Machine-readable source: [`atlas.jsonl`](./atlas.jsonl).
 
@@ -17,11 +17,11 @@ _The money axis. Ordered classical → frontier; read the mass migrating rightwa
 ```
 axis value                 count
 geometric                  ██████·················· 62
-learned                    █████████████████████··· 210
-hybrid                     ██████████████·········· 147
+learned                    █████████████████████··· 209
+hybrid                     ███████████████········· 147
 generative                 █████··················· 50
 3R-SLAM-hybrid             █······················· 7
-VLA                        ████████████████████████ 245
+VLA                        ████████████████████████ 242
 world-model-as-policy      ██████████·············· 104
 ```
 
@@ -33,37 +33,37 @@ the lower rows getting heavier week over week. (`·` = 0; **total** = weekly sam
 | paradigm \ week | W28 | W29 | W30 | W31 | W32 |
 |---|---:|---:|---:|---:|---:|
 | geometric | 9 | 13 | 15 | 12 | 13 |
-| learned | 37 | 39 | 38 | 54 | 42 |
+| learned | 37 | 39 | 38 | 54 | 41 |
 | hybrid | 17 | 37 | 44 | 26 | 23 |
 | generative | 8 | 13 | 10 | 7 | 12 |
 | 3R-SLAM-hybrid | · | 3 | 3 | · | 1 |
-| VLA | 37 | 50 | 50 | 46 | 62 |
+| VLA | 37 | 50 | 50 | 45 | 60 |
 | world-model-as-policy | 11 | 18 | 18 | 26 | 31 |
-| **total** | **119** | **173** | **178** | **171** | **184** |
+| **total** | **119** | **173** | **178** | **170** | **181** |
 
 ## Time axis — batch → streaming frontier
 
 ```
 axis value                 count
-filter-streaming           █████████··············· 143
+filter-streaming           █████████··············· 142
 fixed-lag                  ························ 1
 incremental                ████████················ 125
-per-scene                  ████████████████████████ 400
-feed-forward               █████··················· 79
-temporal-transformer-rolling ██████·················· 94
+per-scene                  ████████████████████████ 399
+feed-forward               █████··················· 78
+temporal-transformer-rolling ██████·················· 93
 ```
 
 ## Problem axis — what is being solved
 
 ```
 axis value                 count
-VLA                        ████████████████████████ 230
-navigation                 █████████████████······· 167
+VLA                        ████████████████████████ 227
+navigation                 ██████████████████······ 167
 spatial-reasoning          █████████··············· 87
 reconstruction             ████████················ 77
 pose                       ███····················· 32
 tracking                   ██······················ 22
-depth                      ██······················ 22
+depth                      ██······················ 21
 VSLAM                      ██······················ 19
 VIO                        █······················· 13
 mapping                    █······················· 10
@@ -76,7 +76,7 @@ occupancy                  ························ 3
 
 ```
 axis value                 count
-feature-grid               ████████████████████████ 221
+feature-grid               ████████████████████████ 219
 scene-graph                ████████████············ 114
 3DGS                       ████████················ 77
 sparse                     ██████·················· 58
@@ -93,8 +93,8 @@ HD-map                     ························ 4
 
 ```
 axis value                 count
-mono                       ████████████████████████ 351
-multi-modal                ██████████·············· 152
+mono                       ████████████████████████ 349
+multi-modal                ██████████·············· 150
 RGBD                       ██████████·············· 145
 LiDAR                      ██······················ 25
 event                      █······················· 17
