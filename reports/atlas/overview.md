@@ -4,7 +4,7 @@
 > The point is not the list — it is the **drift**: watch where mass accumulates on the
 > paradigm axis (geometric → … → world-model-as-policy) as the field moves.
 
-**Coverage:** 1344 papers · 2026-07-08 → 2026-08-19 · ⚡ 164 · 🔧 594 · 📖 586
+**Coverage:** 1420 papers · 2026-07-08 → 2026-08-20 · ⚡ 164 · 🔧 591 · 📖 665
 
 > Seed corpus — grows every weekday as the daily pipeline runs. Machine-readable source: [`atlas.jsonl`](./atlas.jsonl).
 
@@ -18,10 +18,10 @@ _The money axis. Ordered classical → frontier; read the mass migrating rightwa
 axis value                 count
 geometric                  ██████·················· 63
 learned                    █████████████████████··· 220
-hybrid                     ██████████████·········· 154
-generative                 █████··················· 53
+hybrid                     ███████████████········· 154
+generative                 █████··················· 52
 3R-SLAM-hybrid             █······················· 8
-VLA                        ████████████████████████ 256
+VLA                        ████████████████████████ 254
 world-model-as-policy      ██████████·············· 111
 ```
 
@@ -35,30 +35,30 @@ the lower rows getting heavier week over week. (`·` = 0; **total** = weekly sam
 | geometric | 9 | 13 | 15 | 12 | 13 | 1 |
 | learned | 37 | 39 | 38 | 54 | 40 | 12 |
 | hybrid | 17 | 37 | 44 | 25 | 23 | 8 |
-| generative | 8 | 13 | 10 | 7 | 12 | 3 |
+| generative | 7 | 13 | 10 | 7 | 12 | 3 |
 | 3R-SLAM-hybrid | · | 3 | 3 | · | 1 | 1 |
-| VLA | 37 | 49 | 50 | 44 | 59 | 17 |
+| VLA | 37 | 49 | 50 | 43 | 58 | 17 |
 | world-model-as-policy | 11 | 18 | 18 | 26 | 30 | 8 |
-| **total** | **119** | **172** | **178** | **168** | **178** | **50** |
+| **total** | **118** | **172** | **178** | **167** | **177** | **50** |
 
 ## Time axis — batch → streaming frontier
 
 ```
 axis value                 count
-filter-streaming           ████████················ 144
+filter-streaming           ████████················ 143
 fixed-lag                  ························ 1
 incremental                ███████················· 128
-per-scene                  ████████████████████████ 428
+per-scene                  ████████████████████████ 427
 feed-forward               █████··················· 82
-temporal-transformer-rolling █████··················· 97
+temporal-transformer-rolling █████··················· 96
 ```
 
 ## Problem axis — what is being solved
 
 ```
 axis value                 count
-VLA                        ████████████████████████ 241
-navigation                 █████████████████······· 175
+VLA                        ████████████████████████ 239
+navigation                 █████████████████······· 174
 spatial-reasoning          █████████··············· 92
 reconstruction             ████████················ 82
 pose                       ███····················· 34
@@ -76,9 +76,9 @@ occupancy                  ························ 3
 
 ```
 axis value                 count
-feature-grid               ████████████████████████ 226
-scene-graph                █████████████··········· 125
-3DGS                       ████████················ 80
+feature-grid               ████████████████████████ 224
+scene-graph                █████████████··········· 124
+3DGS                       █████████··············· 80
 sparse                     ██████·················· 60
 pointmap                   ██████·················· 59
 BEV                        ██······················ 23
@@ -93,9 +93,9 @@ HD-map                     ························ 3
 
 ```
 axis value                 count
-mono                       ████████████████████████ 363
-multi-modal                ███████████············· 164
-RGBD                       ██████████·············· 152
+mono                       ████████████████████████ 362
+multi-modal                ███████████············· 163
+RGBD                       ██████████·············· 151
 LiDAR                      ██······················ 26
 event                      █······················· 17
 stereo                     █······················· 14
