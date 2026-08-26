@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 77 dissection / 120 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 79 dissection / 121 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -52,7 +52,8 @@
               "foundations/3dgs-family/mip_splatting_dissection.md",
               "foundations/3dgs-family/real_time_lidar_gaussian_splatting_slam_dissection.md",
               "foundations/3dgs-family/sharpsplat_edge_regularized_3d_gaussian_splatting__dissection.md",
-              "foundations/3dgs-family/sm4rt_learning_structured_motion_geometry_for_4d_r_dissection.md"
+              "foundations/3dgs-family/sm4rt_learning_structured_motion_geometry_for_4d_r_dissection.md",
+              "foundations/3dgs-family/vidar_visual_inertial_dense_alignment_and_reconstr_dissection.md"
             ]
           },
           {
@@ -261,6 +262,7 @@
               "embodiments/aerial/overview.md",
               "embodiments/aerial/dynamics_and_control_primer.md",
               "embodiments/aerial/embodied_passive_aeroacoustic_perception_enables_r_dissection.md",
+              "embodiments/aerial/ngps_gps_denied_aerial_geo_localization_and_2_5d_r_dissection.md",
               "embodiments/aerial/real_flight_production_gotchas.md",
               {
                 "group": "Active Tracking",
