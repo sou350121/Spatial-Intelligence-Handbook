@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 80 dissection / 121 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 82 dissection / 123 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -69,6 +69,7 @@
               "foundations/classical-slam/improving_map_consistency_in_graph_based_lidar_sla_dissection.md",
               "foundations/classical-slam/orb_slam3_dissection.md",
               "foundations/classical-slam/pnp_dlt_primer.md",
+              "foundations/classical-slam/scarf_slam_scale_consistent_reconstruction_with_fe_dissection.md",
               "foundations/classical-slam/slam_toolchain_ecosystem.md",
               "foundations/classical-slam/slamformer_infty_infinite_slam_transformer_for_unb_dissection.md",
               "foundations/classical-slam/svo_dissection.md"
@@ -167,6 +168,7 @@
             "group": "Semantic 3d",
             "pages": [
               "foundations/semantic-3d/overview.md",
+              "foundations/semantic-3d/generative_semantic_scene_completion_dissection.md",
               "foundations/semantic-3d/github_failure_atlas.md",
               "foundations/semantic-3d/langsplat_dissection.md",
               "foundations/semantic-3d/lerf_dissection.md",
