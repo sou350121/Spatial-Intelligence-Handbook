@@ -4,7 +4,7 @@
 > The point is not the list — it is the **drift**: watch where mass accumulates on the
 > paradigm axis (geometric → … → world-model-as-policy) as the field moves.
 
-**Coverage:** 1911 papers · 2026-07-08 → 2026-09-02 · ⚡ 211 · 🔧 707 · 📖 993
+**Coverage:** 1949 papers · 2026-07-08 → 2026-09-03 · ⚡ 211 · 🔧 707 · 📖 1031
 
 > Seed corpus — grows every weekday as the daily pipeline runs. Machine-readable source: [`atlas.jsonl`](./atlas.jsonl).
 
