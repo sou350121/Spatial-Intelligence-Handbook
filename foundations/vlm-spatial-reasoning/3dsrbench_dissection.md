@@ -18,11 +18,11 @@ ref: ../../cheat-sheet/ontology.md §7
 
 **Status:** v1 — first draft. 数值引自论文 Table 1 / 项目页公开 leaderboard，`UNVERIFIED` 标记未亲自重跑的具体百分点。
 **Zone tier:** `foundations/vlm-spatial-reasoning/` anchor #3 — benchmark 文档，与两篇 model dissection 互补。
-**TL;DR:** 3DSRBench 标注 2,772 条 3D 空间推理 QA（2,100 real-image 来自 MS-COCO + 672 synthetic 来自 HSSD 渲染），分 4 大类 12 子类（height / location / orientation / multi-object），引入 CircularEval / FlipEval 两种位置偏置鲁棒指标，并切出 common / uncommon viewpoint 两个 synthetic split 显式测视角泛化。结果残酷：最强模型仅 49.6%（LLaVA-NeXT-8B），uncommon viewpoint 下普跌 13-19 个百分点 `UNVERIFIED`。**Random++ baseline 45.8% —— 多个旗舰模型仅勉强超过随机。**
+**TL;DR:** 3DSRBench 标注 2,772 条 3D 空间推理 QA（2,100 real-image 来自 MS-COCO + 672 synthetic 来自 HSSD 渲染），分 4 大类 12 子类（height / location / orientation / multi-object），引入 CircularEval / FlipEval 两种位置偏置鲁棒指标，并切出 common / uncommon viewpoint 两个 synthetic split 显式测视角泛化。结果残酷：整体最高也只有 52.0%（QWenVLMax），8B 级开源最高 50.9%（InternVL2.5-8B），uncommon viewpoint 下普跌 13-19 个百分点 `UNVERIFIED`。**Random++ baseline 45.8% —— 多个旗舰模型仅勉强超过随机。**
 
 ### X-Ray (non-expert friendly)
 
-(a) SpatialVLM 与 SpatialBot 都自称"会 3D 空间推理"，但用各自 benchmark 报告 —— 数字不可比。(b) 3DSRBench 是第一个把"3D 空间推理"切成 4 类 12 子类、要求 multi-view 视角鲁棒、还用 CircularEval 防答案位置偏置的 benchmark。它在 MS-COCO 真实图像上人工标了 2,100 题，又在 HSSD 多视角合成图上加了 672 题（含 common / uncommon viewpoint 对照）。(c) 对 zone 读者：跑这个 benchmark 是验证你的 VLM 是真的"理解 3D"还是只是"在熟悉视角下记答案"。它把 GPT-4o 打到 45% —— 比随机基线高不了多少。
+(a) SpatialVLM 与 SpatialBot 都自称"会 3D 空间推理"，但用各自 benchmark 报告 —— 数字不可比。(b) 3DSRBench 是第一个把"3D 空间推理"切成 4 类 12 子类、要求 multi-view 视角鲁棒、还用 CircularEval 防答案位置偏置的 benchmark。它在 MS-COCO 真实图像上人工标了 2,100 题，又在 HSSD 多视角合成图上加了 672 题（含 common / uncommon viewpoint 对照）。(c) 对 zone 读者：跑这个 benchmark 是验证你的 VLM 是真的"理解 3D"还是只是"在熟悉视角下记答案"。它把 GPT-4o 打到 44.2% —— 低于随机基线。
 
 ### 📍 Research Landscape Timeline
 
@@ -89,10 +89,10 @@ HEIGHT       LOCATION         ORIENTATION         MULTI-OBJECT
 | Model | Real Overall | 评注 |
 |---|---|---|
 | Random++ baseline | 45.8% | 加权随机，已考虑选项分布 |
-| **LLaVA-NeXT-8B** | **49.6%** | 开源 SOTA，仅高 random ~4 点 |
+| **LLaVA-NeXT-8B** | **48.4%** | 仅高 random ~2.6 点；开源最高其实是 InternVL2.5-8B 50.9% |
 | Gemini-Pro | 49.1% | 闭源旗舰，几乎与开源持平 |
 | Claude-Sonnet | 46.9% | |
-| GPT-4o | 45.3% | **低于** Random++ |
+| GPT-4o | 44.2% | **低于** Random++ (45.8%) |
 
 **关键观察**：闭源不胜开源；GPT-4o 在严格指标下**低于**随机基线。这是 zone 内最反直觉的事实 —— 也是该 benchmark 最大贡献。
 
@@ -179,7 +179,7 @@ HEIGHT       LOCATION         ORIENTATION         MULTI-OBJECT
 
 ### 6.1.x GitHub 实地失败（atlas 联动）
 
-- **GitHub-validated**："GPT-4o 45.3% < Random++ 45.8%"在 sub-axis 粒度被独立用户在 issue 区验证 — 某些 orientation / height 4-choice 子项确实低于 25% baseline，因为模型有**系统性偏好**（永远答最常见类别），比真随机更差；benchmark 仅给 HF dataset + project page、**无训练 repo**，"我 fine-tune 后 65%"类声称无法 fair-verify，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
+- **GitHub-validated**："GPT-4o 44.2% < Random++ 45.8%"在 sub-axis 粒度被独立用户在 issue 区验证 — 某些 orientation / height 4-choice 子项确实低于 25% baseline，因为模型有**系统性偏好**（永远答最常见类别），比真随机更差；benchmark 仅给 HF dataset + project page、**无训练 repo**，"我 fine-tune 后 65%"类声称无法 fair-verify，详见 [`github_failure_atlas.md`](./github_failure_atlas.md)
 
 ### 6.2 Hidden Assumptions
 
@@ -202,7 +202,7 @@ HEIGHT       LOCATION         ORIENTATION         MULTI-OBJECT
 
 **3DSRBench 独占地位**：唯一同时具备 (i) 真实图像题量 ≥2k (ii) 视角鲁棒性切片 (iii) 鲁棒评测指标的 spatial benchmark。这是为什么 ICCV 2025 接收。
 
-**Interview Tip**："3DSRBench 不是新模型，是新裁判。它的关键创新是 CircularEval+FlipEval+uncommon viewpoint split —— 把以前 'GPT-4o 70%' 这种虚高数字打回 45%（低于 Random++）。要论证你的 VLM 真的会 3D 推理，跑这个；要说服别人 VLM-VLA 还远，引这个 benchmark 的 LLaVA-NeXT 49.6% 数字。"
+**Interview Tip**："3DSRBench 不是新模型，是新裁判。它的关键创新是 CircularEval+FlipEval+uncommon viewpoint split —— 把以前 'GPT-4o 70%' 这种虚高数字打回 44.2%（低于 Random++ 45.8%）。要论证你的 VLM 真的会 3D 推理，跑这个；要说服别人 VLM-VLA 还远，引这个 benchmark 的 GPT-4o 44.2% 低于随机基线这一点。"
 
 ---
 
