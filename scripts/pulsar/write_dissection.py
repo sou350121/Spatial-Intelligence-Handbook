@@ -184,6 +184,12 @@ def structural_guard(md: str) -> list[str]:
 _TOY_MARKERS = ("走一遍", "玩具", "toy", "napkin", "示范", "示範")
 _NUM_RE = re.compile(r"\d+(?:\.\d+)?\s*(?:dB|GB|MB|ms|fps|FPS|Hz|%)|\d+\.\d{2,}")
 _GH_RE = re.compile(r"github\.com/[\w.\-]+/[\w.\-]+")
+# Links to our own sibling handbooks are internal cross-references. They can never
+# appear in the paper being audited, so "not in source" is guaranteed and carries
+# zero signal. Measured 2026-09-04: only 3 of 82 dissections carry such a link and
+# all 3 were reported as fabrications — the better-cross-referenced the article,
+# the more likely it was falsely accused.
+_GH_SELF_RE = re.compile(r"github\.com/sou350121/", re.I)
 
 
 def _norm_num(tok: str) -> str:
@@ -210,9 +216,36 @@ def numeric_grounding_issues(draft: str, source: str) -> list[str]:
             in_hot = any(h in line for h in hot_headers)
         if line.strip().startswith("```"):
             in_code = not in_code
-        if not in_hot or in_code:
+        if in_code:
             continue
-        if "UNVERIFIED" in line or "论文未报告" in line or "未报告" in line:
+        exempt = ("UNVERIFIED" in line or "论文未报告" in line or "未报告" in line)
+        # §8 cross-reference URLs are checked on every line (they live outside the
+        # hot zones), but they must honour the same code-fence and UNVERIFIED
+        # exemptions as the numbers. The previous version ran this as a separate
+        # `for url in _GH_RE.findall(draft)` pass AFTER this loop, which bypassed
+        # both guards plus the self-repo skip — 6 of 6 of its findings in the
+        # 2026-08-24 audit were false positives.
+        if not exempt:
+            for url in _GH_RE.findall(line):
+                if _GH_SELF_RE.search(url):
+                    continue
+                if url in source:
+                    continue
+                # `source` is truncated at the fetch cap, so a genuine URL that
+                # appears late in the paper reads as "missing" — that is exactly
+                # what happened to aether_dissection.md, whose OpenRobotLab URL
+                # IS in the paper HTML but past the cap (and which 301-redirects
+                # to InternRobotics, so the article was simply more current than
+                # the PDF). Require the repo NAME to be absent as well: an
+                # invented repo will not share its name with the paper's own
+                # project. This deliberately trades some sensitivity (a wrong ORG
+                # on a right project slips through) for usability — a gate whose
+                # findings are mostly false gets ignored, which is worse. The
+                # qwen cite-or-NOTFOUND arm still covers claim-level fabrication.
+                repo = url.rsplit("/", 1)[-1]
+                if repo and repo.lower() not in source.lower():
+                    issues.append(f"GitHub repo not in source: {url}")
+        if not in_hot or exempt:
             continue
         for tok in _NUM_RE.findall(line):
             v = _norm_num(tok)
@@ -220,16 +253,13 @@ def numeric_grounding_issues(draft: str, source: str) -> list[str]:
                 continue
             if v not in src_digits and v.rstrip("0").rstrip(".") not in src_digits:
                 issues.append(f"number not in source: {tok.strip()}  ({line.strip()[:70]})")
-    for url in _GH_RE.findall(draft):
-        if url not in source:
-            issues.append(f"GitHub repo not in source: {url}")
     return issues
 
 
 FACTCHECK_SYS = """你是严格的事实核查员。给你一篇论文全文和一篇据其撰写的中文 dissection 草稿。
 审计经验表明草稿最爱在三处造假,请**重点核这三处**:
 1. **数据集 / benchmark 名字**:草稿 §5 写的每个数据集名,在全文里搜得到吗?(常见造假:把真实的 N3V/Technicolor 换成不存在的 Dynamic Replica 之类。)
-2. **对比数字 / SOTA 值**:草稿写的"baseline 是 X"、"超越 +Y%"、"APE 0.12m"、"F-score 62.1%"这类,和全文 Table 里的真值一致吗?
+2. **对比数字 / SOTA 值**:草稿写的"baseline 是 X"、"超越 +Y%"、"APE <值>m"、"F-score <值>%"这类,和全文 Table 里的真值一致吗?
 3. **GitHub repo / issue**:草稿 §8 若写了 repo URL 或 issue 编号,全文里真有这个链接吗?(全文没有=编造。)
 
 玩具例子(§3)里明确的示范数字、标了 UNVERIFIED 的估算、一般性方法描述**不算**问题。

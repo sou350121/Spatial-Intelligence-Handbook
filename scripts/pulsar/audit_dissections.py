@@ -41,7 +41,8 @@ CITE_SYS = """你是论文事实核查员。给你一篇论文全文(截断)和�
 
 严格 JSON 输出:
 {"claims": [
-  {"claim": "<草稿里的声明,如 'baseline Splat-LOAM F-score 62.1%'>",
+  {"claim": "<草稿里的声明,格式如 '<方法名> <指标名> <数值>'——务必逐字抄草稿原文,
+             绝不可套用本模板里的占位符>",
    "evidence": "<全文原句 或 NOT_FOUND>"}
 ]}
 只列评测类事实声明(数据集名 + 对比数字),不列方法论描述。"""
@@ -82,10 +83,18 @@ def audit_one(path: Path, api_key: str) -> dict:
     except Exception as e:  # noqa — qwen hiccup shouldn't crash the audit; mech gate still stands
         notfound = [f"(qwen cite-audit error: {e})"]
 
-    issues = [f"[num] {i}" for i in mech] + [f"[cite] {c}" for c in notfound if not c.startswith("(qwen")]
+    # A qwen failure is recorded as a single "(qwen cite-audit error: …)" entry.
+    # It was already excluded from `issues`, but `len(notfound)` counted it, so a
+    # dead LLM made every article report "cite 1" — the 2026-08-23 run showed a
+    # uniform cite=1 across the board that was purely this sentinel. Report the
+    # real claim count, and surface the error separately instead of hiding it.
+    real_notfound = [c for c in notfound if not c.startswith("(qwen")]
+    cite_errored = len(real_notfound) != len(notfound)
+    issues = [f"[num] {i}" for i in mech] + [f"[cite] {c}" for c in real_notfound]
     verdict = "SUSPECT" if issues else "CLEAN"
     return {"path": _disp(path), "arxiv": aid, "verdict": verdict,
-            "mech": len(mech), "notfound": len(notfound), "issues": issues[:8]}
+            "mech": len(mech), "notfound": len(real_notfound),
+            "cite_errored": cite_errored, "issues": issues[:8]}
 
 
 def _eval_sections(draft: str) -> str:
@@ -112,7 +121,15 @@ def target_files(args) -> list[Path]:
          "--diff-filter=A", "--name-only", "--format="],
         capture_output=True, text=True).stdout
     recent = {REPO / p for p in since.splitlines() if p.endswith("_dissection.md")}
-    return sorted(f for f in allf if f in recent) or allf[-args.days:]
+    picked = sorted(f for f in allf if f in recent)
+    if not picked:
+        # Previously this fell back to `allf[-args.days:]` — the alphabetically
+        # LAST N files in the repo, which the workflow then reported as "the
+        # week's dissections". On 2026-08-24 that silently audited 8 old,
+        # hand-polished articles instead of the zero new ones. Say zero.
+        print("no dissections added in the last %d days — nothing to audit"
+              % args.days, file=sys.stderr)
+    return picked
 
 
 def main() -> int:

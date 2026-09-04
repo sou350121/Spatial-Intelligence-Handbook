@@ -44,7 +44,25 @@ jobs:
       - name: qwen writes dissections (guarded + fact-checked)
         env:
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
-        run: python3 scripts/pulsar/run_dissection.py --count "${DISSECTIONS_PER_DAY}" || true
+        run: |
+          # `|| true` used to be the whole line. It was there for a real reason —
+          # run_dissection.py exits non-zero when the quality gate rejects a
+          # draft, which is a designed no-op, not a failure. But it also
+          # swallowed genuine upstream deaths: from 2026-08-15 to 08-24 every run
+          # logged `RuntimeError: qwen failed: HTTP Error 400` (the DashScope key
+          # was in Arrearage) and this job still reported success — ten
+          # consecutive days, zero dissections, zero alerts, and the failure()
+          # sentinel below could never fire because the step never failed.
+          # Same shape as vla-industry-radar/cron-radar.sh: stay green on the
+          # no-op, go red on an upstream error.
+          set +e
+          python3 scripts/pulsar/run_dissection.py --count "${DISSECTIONS_PER_DAY}" 2>&1 | tee /tmp/dissect.log
+          set -e
+          if grep -qiE 'Arrearage|invalid_api_key|insufficient_quota|HTTP Error 4[0-9][0-9]|qwen failed' /tmp/dissect.log; then
+            echo "::error::upstream LLM/API failure (see log above) — not a quality-gate no-op"
+            exit 1
+          fi
+          exit 0
 
       - name: Sync counts, audit-gate, commit to main
         env:
