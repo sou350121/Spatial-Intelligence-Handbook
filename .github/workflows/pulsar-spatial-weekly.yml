@@ -89,3 +89,21 @@ jobs:
           else
             gh issue create --title "$TITLE" --body "$BODY"
           fi
+
+      - name: Clear the alert if we recovered (sentinel)
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The failure() step above opens (or comments on) an alert issue, but
+          # nothing ever closed one. Spatial #3 and Physics #2 both stayed open
+          # long after the 2026-08-21 DashScope-arrearage failures self-healed on
+          # 08-28, so "an open pipeline-alert" stopped meaning "currently broken"
+          # — which is the only thing that made it worth reading.
+          TITLE="[pipeline-alert] Pulsar spatial weekly is failing"
+          NUM=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty' || true)
+          if [ -n "$NUM" ]; then
+            gh issue comment "$NUM" --body "Recovered: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} succeeded at $(date -u +%FT%TZ)"
+            gh issue close "$NUM"
+            echo "closed #$NUM"
+          fi
