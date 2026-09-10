@@ -4,7 +4,7 @@
 > The point is not the list — it is the **drift**: watch where mass accumulates on the
 > paradigm axis (geometric → … → world-model-as-policy) as the field moves.
 
-**Coverage:** 2099 papers · 2026-07-08 → 2026-09-07 · ⚡ 211 · 🔧 704 · 📖 1184
+**Coverage:** 2174 papers · 2026-07-08 → 2026-09-10 · ⚡ 211 · 🔧 703 · 📖 1260
 
 > Seed corpus — grows every weekday as the daily pipeline runs. Machine-readable source: [`atlas.jsonl`](./atlas.jsonl).
 
@@ -21,8 +21,8 @@ learned                    █████████████████�
 hybrid                     ███████████████········· 190
 generative                 █████··················· 65
 3R-SLAM-hybrid             █······················· 9
-VLA                        ████████████████████████ 307
-world-model-as-policy      ██████████·············· 134
+VLA                        ████████████████████████ 306
+world-model-as-policy      ███████████············· 134
 ```
 
 ### Paradigm drift by week
@@ -37,15 +37,15 @@ the lower rows getting heavier week over week. (`·` = 0; **total** = weekly sam
 | hybrid | 17 | 37 | 44 | 25 | 23 | 8 | 36 |
 | generative | 7 | 13 | 10 | 7 | 12 | 3 | 13 |
 | 3R-SLAM-hybrid | · | 3 | 3 | · | 1 | 1 | 1 |
-| VLA | 37 | 49 | 48 | 42 | 57 | 17 | 57 |
+| VLA | 37 | 49 | 48 | 42 | 56 | 17 | 57 |
 | world-model-as-policy | 11 | 17 | 17 | 26 | 29 | 7 | 27 |
-| **total** | **117** | **171** | **172** | **165** | **175** | **48** | **189** |
+| **total** | **117** | **171** | **172** | **165** | **174** | **48** | **189** |
 
 ## Time axis — batch → streaming frontier
 
 ```
 axis value                 count
-filter-streaming           █████████··············· 180
+filter-streaming           █████████··············· 179
 fixed-lag                  ························ 1
 incremental                ███████················· 150
 per-scene                  ████████████████████████ 495
@@ -57,7 +57,7 @@ temporal-transformer-rolling ██████················�
 
 ```
 axis value                 count
-VLA                        ████████████████████████ 294
+VLA                        ████████████████████████ 293
 navigation                 ██████████████████······ 215
 spatial-reasoning          █████████··············· 110
 reconstruction             ████████················ 96
@@ -76,7 +76,7 @@ occupancy                  ························ 4
 
 ```
 axis value                 count
-feature-grid               ████████████████████████ 273
+feature-grid               ████████████████████████ 272
 scene-graph                ██████████████·········· 156
 3DGS                       ████████················ 92
 sparse                     ██████·················· 73
@@ -93,7 +93,7 @@ HD-map                     ························ 3
 
 ```
 axis value                 count
-mono                       ████████████████████████ 444
+mono                       ████████████████████████ 443
 multi-modal                ███████████············· 195
 RGBD                       █████████··············· 170
 LiDAR                      ██······················ 34
