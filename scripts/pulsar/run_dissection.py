@@ -9,8 +9,8 @@ facts, confirms the zone, and merges (merge triggers the mechanical count-sync).
 Nothing auto-lands on main: the "Opus 验" gate is the PR review.
 
 Usage:
-    DASHSCOPE_API_KEY=... python3 scripts/pulsar/run_dissection.py            # place + emit PR metadata
-    DASHSCOPE_API_KEY=... python3 scripts/pulsar/run_dissection.py --dry      # /tmp preview, no placement
+    DEEPSEEK_API_KEY=... python3 scripts/pulsar/run_dissection.py            # place + emit PR metadata
+    DEEPSEEK_API_KEY=... python3 scripts/pulsar/run_dissection.py --dry      # /tmp preview, no placement
 """
 from __future__ import annotations
 import argparse
@@ -69,6 +69,8 @@ def classify_zone(title: str, axes: dict, api_key: str) -> str:
         + "\n".join(ZONES)
         + f"\n\n论文标题: {title}\nontology: {json.dumps(axes, ensure_ascii=False)}\n只输出一个目录路径。"
     )
+    # max_tokens=40 caps the qwen fallback; DeepSeek gets the full reasoning
+    # budget instead (a 40-token DeepSeek call returns only truncation).
     ans = wd.call_qwen("你是 Spatial-Handbook 的归档分类器，只输出一个目录路径。", prompt,
                        api_key, max_tokens=40).strip().strip("`").strip()
     for z in ZONES:
@@ -128,7 +130,7 @@ def main() -> int:
     ap.add_argument("--dry", action="store_true")
     ap.add_argument("--count", type=int, default=1, help="dissections to write this run")
     args = ap.parse_args()
-    api_key = get_env("DASHSCOPE_API_KEY")
+    api_key = get_env("DASHSCOPE_API_KEY", required=False)  # fallback only; see _llm.py
 
     placed = []
     done_ids = covered_ids()

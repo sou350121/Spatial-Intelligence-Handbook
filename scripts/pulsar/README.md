@@ -11,8 +11,9 @@
 | Script | Function | I/O |
 |---|---|---|
 | `_config.py` | Central config (RSS feeds / TG / model / keywords) | (imported) |
+| `_llm.py` | Shared LLM transport: DeepSeek primary → qwen fallback + JSON salvage | (imported) |
 | `collect.py` | Fetch arxiv RSS → keyword filter A → dedup → JSON | stdout JSON |
-| `rate.py` | LLM qwen3.5-plus rate ⚡/🔧/📖/❌ | stdin → stdout JSON |
+| `rate.py` | LLM rate ⚡/🔧/📖/❌ (deepseek-flash) | stdin → stdout JSON |
 | `post.py` | Write daily markdown + Telegram push | stdin JSON → file + TG |
 | `run_daily.py` | Single-cron orchestrator (chains 1→2→3) | env vars only |
 
@@ -21,8 +22,14 @@
 ## Env vars
 
 ```bash
-# Required
-export DASHSCOPE_API_KEY=sk-xxx            # Aliyun qwen3.5-plus
+# Required — at least one. DeepSeek is primary, qwen is the fallback.
+export DEEPSEEK_API_KEY=sk-xxx             # DeepSeek deepseek-flash
+export DASHSCOPE_API_KEY=sk-xxx            # Aliyun qwen (fallback)
+
+# Optional — only if your DashScope key is a CodingPlan key, which serves a
+# different catalog from a different host (qwen-plus does not exist there):
+export SPATIAL_DASHSCOPE_BASE_URL=https://coding.dashscope.aliyuncs.com/v1
+export SPATIAL_LLM_MODEL=qwen3.5-plus
 
 # Optional — TG push (default: skipped, integration via git)
 export TELEGRAM_BOT_TOKEN=123:abc          # opt-in TG push
@@ -42,8 +49,8 @@ auto-committed to repo, Mintlify rebuild picks it up. No TG bot needed.
 
 ```bash
 cd /home/claudeuser/Spatial-Intelligence-Handbook
-export DASHSCOPE_API_KEY=sk-xxx
-python3 scripts/pulsar/run_daily.py
+export DEEPSEEK_API_KEY=sk-xxx
+python3.11 scripts/pulsar/run_daily.py
 ```
 
 Output: `reports/spatial-daily/YYYY-MM-DD.md` created. No TG push (no token set).
@@ -62,7 +69,7 @@ For true dry-run (skip even markdown write), add `SPATIAL_DRY_RUN=1`.
 
 **Setup**：
 1. GitHub repo → Settings → Secrets and variables → Actions → New repository secret
-2. Add `DASHSCOPE_API_KEY` = `sk-xxx`
+2. Add `DEEPSEEK_API_KEY` = `sk-xxx` (and `DASHSCOPE_API_KEY` for the fallback)
 3. 完成。第一次手動觸發測試：Actions tab → "Pulsar Spatial Daily" → Run workflow
 
 **Workflow 做什麼**：
@@ -82,7 +89,7 @@ For true dry-run (skip even markdown write), add `SPATIAL_DRY_RUN=1`.
 **Setup**：
 ```bash
 # 在 server 上 (assume Spatial-Intelligence-Handbook checked out at /opt/handbook)
-export DASHSCOPE_API_KEY=sk-xxx  # 加到 ~/.profile or wrapper script
+export DEEPSEEK_API_KEY=sk-xxx   # 加到 ~/.profile or wrapper script
 
 # 加 crontab
 crontab -e
@@ -99,7 +106,7 @@ crontab -e
 - Log to `/tmp/pulsar-spatial-YYYY-MM-DD.log`，30 天自動 rotate
 
 **環境變數**：
-- `DASHSCOPE_API_KEY` (required)
+- `DEEPSEEK_API_KEY` / `DASHSCOPE_API_KEY` (至少一個；DeepSeek 優先，qwen 兜底)
 - `PULSAR_NO_PUSH=1` (test mode — commit local only, no push)
 - `PULSAR_NO_COMMIT=1` (test — pipeline only, no git ops)
 - `PULSAR_LOG_DIR=/var/log/pulsar` (override default `/tmp`)
@@ -135,10 +142,13 @@ Server 假設 UTC+8。arxiv RSS 凌晨 UTC 更新，CN 08:00 後可用。
 1. 讀 stdin JSON
 2. 按 boost + category 排序（boost 先，cs.RO 先）
 3. Cap 80 paper (LLM cost guard)
-4. 每篇調 qwen3.5-plus 評 ⚡/🔧/📖/❌：
+4. 每篇調 deepseek-flash 評 ⚡/🔧/📖/❌（失敗才降到 qwen）：
    - Prompt 教 model 用 ontology v3 標準
    - 要求 JSON output: `{rating, reason, tags}`
    - Retry 3×, backoff 5s/10s/15s
+   - HTTP 200 但 body 解不出 JSON **算 provider 失敗**（觸發 qwen 兜底），
+     不是 parse error——後者會讓整批默默變成 📖 placeholder
+   - 全部 80 篇都失敗 → exit 1，不寫 placeholder report
 5. Drop ❌ (除非 `--keep-rejects`)
 6. Output: enriched JSON to stdout
 
@@ -168,7 +178,9 @@ State 目錄已加 `.gitignore`，runtime data 不進 git。
 
 | Failure | Symptom | Fix |
 |---|---|---|
-| DashScope rate limit (429) | "qwen call failed code=429" | rate.py 自動 retry；hour 配額耗盡需等 |
+| DeepSeek / DashScope 429 | "WARN rate/deepseek: HTTP 429, retry" | `_llm.py` 自動 retry；配額耗盡會降到另一家 |
+| Key 失效 | "all providers failed — deepseek(...): HTTP 401 \| qwen(...): HTTP 401" | rate.py exit 1 → workflow 紅 + sentinel issue（不會寫 placeholder） |
+| DeepSeek 回 200 但 JSON 壞 | "deepseek failed (unparseable_json_body) — falling back to qwen" | 預期行為，salvage 先試兩層修復 |
 | arxiv RSS timeout | "fetch failed" + 0 papers | stage 1 仍 OK，今天可能空 |
 | TG bot token wrong | "TG HTTP 401" | check `TELEGRAM_BOT_TOKEN` |
 | TG chat_id wrong | "TG HTTP 400 chat not found" | check `TELEGRAM_CHAT_ID` |

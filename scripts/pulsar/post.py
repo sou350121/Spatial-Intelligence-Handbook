@@ -63,12 +63,18 @@ def build_markdown(papers: list[dict], date: str) -> str:
         if r in by_rating:
             by_rating[r].append(p)
 
+    # Name the model(s) that actually answered. The banner used to hardcode
+    # "qwen3.5-plus" and went on claiming it through 8 days of HTTP 401s, so a
+    # reader could not tell a real report from a placeholder by its header.
+    models = sorted({p["model"] for p in papers if p.get("model")})
+    rated_by = " + ".join(models) if models else "unrated"
+
     lines = [
         f"# Spatial Daily — {date}",
         "",
         f"> Pulsar pipeline auto-generated. {len(papers)} papers rated; "
         f"⚡ {len(by_rating['⚡'])} · 🔧 {len(by_rating['🔧'])} · 📖 {len(by_rating['📖'])}",
-        f"> Sources: arxiv cs.RO / cs.CV / cs.AI / cs.LG · Filter: keyword-A ∩ ¬reject-C · Rate: qwen3.5-plus",
+        f"> Sources: arxiv cs.RO / cs.CV / cs.AI / cs.LG · Filter: keyword-A ∩ ¬reject-C · Rate: {rated_by}",
         "",
         "---",
         "",

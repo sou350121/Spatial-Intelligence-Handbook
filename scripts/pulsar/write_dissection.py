@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""qwen writes a handbook dissection from a paper's FULL TEXT; Opus/human verifies.
+"""An LLM writes a handbook dissection from a paper's FULL TEXT; Opus/human verifies.
 
-Division of labour (per Pulsar principle + operator directive): qwen RUNS the
-generation (cheap, at scale, in CI); Opus/a human VERIFIES quality before it
-lands. This is the generator half. It is full-text grounded (abstract-only
+Division of labour (per Pulsar principle + operator directive): a cheap model
+RUNS the generation (at scale, in CI) — DeepSeek deepseek-flash since
+2026-09-10, qwen before that and still the fallback; Opus/a human VERIFIES
+quality before it lands. This is the generator half. It is full-text grounded (abstract-only
 dissections are shallow slop) and template-driven (the 14-item AGENTS.md spec is
 the prompt), with mechanical guards so structurally-incomplete drafts never ship.
 
 Usage:
-    DASHSCOPE_API_KEY=... python3 scripts/pulsar/write_dissection.py \
+    DEEPSEEK_API_KEY=... python3 scripts/pulsar/write_dissection.py \
         --id 2607.09503 --axes-from-atlas --out /tmp/d.md
 """
 from __future__ import annotations
@@ -16,14 +17,16 @@ import argparse
 import json
 import re
 import sys
-import time
 import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _config import DASHSCOPE_BASE_URL, get_env
+import _llm
+from _config import LLM_MODEL, get_env
 
-GEN_MODEL = "qwen-plus"          # proven in-pipeline; escalate to qwen-max if needed
+# Generation now runs on DeepSeek (see _llm.py); GEN_MODEL/GEN_MAX_TOKENS are
+# the qwen-fallback knobs and the value of --model.
+GEN_MODEL = LLM_MODEL
 GEN_MAX_TOKENS = 8000
 FULLTEXT_CAP = 30000             # chars of trimmed full text fed to qwen
 
@@ -95,29 +98,22 @@ _SKILL_FILE = Path(__file__).parent / "dissection_skill.txt"
 TEMPLATE = _SKILL_FILE.read_text(encoding="utf-8") if _SKILL_FILE.exists() else _TEMPLATE_FALLBACK
 
 
-def call_qwen(system: str, user: str, api_key: str, model=GEN_MODEL, max_tokens=GEN_MAX_TOKENS) -> str:
-    payload = {
-        "model": model,
-        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-        "temperature": 0.4,
-        "max_tokens": max_tokens,
-    }
-    req = urllib.request.Request(
-        f"{DASHSCOPE_BASE_URL}/chat/completions",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
-        method="POST",
-    )
-    last = None
-    for attempt in range(3):
-        try:
-            with urllib.request.urlopen(req, timeout=300) as r:
-                return json.loads(r.read().decode("utf-8"))["choices"][0]["message"]["content"]
-        except Exception as e:  # noqa
-            last = e
-            print(f"  WARN qwen attempt {attempt+1}: {e}", file=sys.stderr)
-            time.sleep(6 * (attempt + 1))
-    raise RuntimeError(f"qwen failed: {last}")
+def call_qwen(system: str, user: str, api_key: str, model=GEN_MODEL,
+              max_tokens=GEN_MAX_TOKENS, require_json: str | None = None) -> str:
+    """Dissection generation / fact-check / zone classification.
+
+    DeepSeek primary, qwen fallback (see _llm.py). Signature preserved for
+    run_dissection.py and audit_dissections.py, which both call this as
+    `wd.call_qwen(...)`, including with small `max_tokens` (40 / 800 / 1500).
+    `model` and `max_tokens` apply to the qwen fallback only — DeepSeek treats
+    max_tokens as a reasoning budget, so _llm gives it the full floor instead
+    (a max_tokens=40 DeepSeek call returns nothing but truncation).
+    """
+    return _llm.chat([{"role": "system", "content": system},
+                      {"role": "user", "content": user}],
+                     temperature=0.4, max_tokens=max_tokens, timeout=300,
+                     require_json=require_json, qwen_key=api_key,
+                     qwen_model=model, label="dissection")
 
 
 def fetch_fulltext(arxiv_id: str, cap: int = FULLTEXT_CAP) -> tuple[str, str]:
@@ -276,7 +272,8 @@ def factcheck(draft: str, fulltext: str, api_key: str) -> tuple[bool, list[str]]
     verification, so daily auto-commit doesn't ship fabricated numbers."""
     user = f"论文全文（截断）:\n{fulltext[:24000]}\n\n=== dissection 草稿 ===\n{draft[:12000]}"
     try:
-        raw = call_qwen(FACTCHECK_SYS, user, api_key, max_tokens=800)
+        raw = call_qwen(FACTCHECK_SYS, user, api_key, max_tokens=800,
+                        require_json="object")
         m = re.search(r"\{.*\}", raw, re.S)
         obj = json.loads(m.group(0)) if m else {"verdict": "pass", "issues": []}
         return obj.get("verdict") == "pass", obj.get("issues", [])
@@ -351,7 +348,8 @@ def main() -> int:
         f"论文全文（已截断）:\n{text}"
     )
     print(f"  generating dissection via {args.model}...", file=sys.stderr)
-    md = call_qwen(TEMPLATE, user, get_env("DASHSCOPE_API_KEY"), model=args.model)
+    md = call_qwen(TEMPLATE, user, get_env("DASHSCOPE_API_KEY", required=False),
+                   model=args.model)
     md = re.sub(r"^```markdown\s*|\s*```$", "", md.strip())
 
     out = ontology_header(axes) + md + f"\n\n<!-- source: https://arxiv.org/abs/{args.id} -->\n"

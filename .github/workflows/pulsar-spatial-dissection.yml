@@ -10,7 +10,8 @@ name: Pulsar Spatial Dissection
 #   3. audit-green gate  — nothing is pushed unless handbook_audit.py passes
 # Opus/human review is periodic (spot-audit), not per-article.
 #
-# Required secret: DASHSCOPE_API_KEY (shared with the daily pipeline).
+# Required secrets: DEEPSEEK_API_KEY (primary) and/or DASHSCOPE_API_KEY (qwen
+# fallback) — shared with the daily pipeline.
 
 on:
   schedule:
@@ -43,6 +44,10 @@ jobs:
 
       - name: qwen writes dissections (guarded + fact-checked)
         env:
+          # DeepSeek is primary; DASHSCOPE stays as the qwen fallback.
+          # Either alone is enough to run — scripts/pulsar/_llm.py logs
+          # loudly and fails the step when neither works.
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
         run: |
           # `|| true` used to be the whole line. It was there for a real reason —
@@ -58,7 +63,12 @@ jobs:
           set +e
           python3 scripts/pulsar/run_dissection.py --count "${DISSECTIONS_PER_DAY}" 2>&1 | tee /tmp/dissect.log
           set -e
-          if grep -qiE 'Arrearage|invalid_api_key|insufficient_quota|HTTP Error 4[0-9][0-9]|qwen failed' /tmp/dissect.log; then
+          # Keep this in step with scripts/pulsar/_llm.py's error strings: it
+          # raises LLMError("… all providers failed — deepseek(…): HTTP 401 …")
+          # and ("… no usable LLM provider — …"), neither of which matches the
+          # old "HTTP Error 4xx"/"qwen failed" wording that urllib used to
+          # produce. A stale pattern here means a dead key stays green again.
+          if grep -qiE 'Arrearage|invalid_api_key|insufficient_quota|HTTP Error 4[0-9][0-9]|HTTP 4[0-9][0-9]|qwen failed|all providers failed|no usable LLM provider' /tmp/dissect.log; then
             echo "::error::upstream LLM/API failure (see log above) — not a quality-gate no-op"
             exit 1
           fi

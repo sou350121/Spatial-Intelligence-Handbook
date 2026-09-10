@@ -184,7 +184,7 @@ def main() -> int:
         print(f"  Resume: {len(have)} ids already in atlas will be skipped (use --force to re-rate)",
               file=sys.stderr)
 
-    api_key = get_env("DASHSCOPE_API_KEY")
+    api_key = get_env("DASHSCOPE_API_KEY", required=False)  # fallback only; see _llm.py
     total_added = total_updated = 0
 
     for rp in reports:

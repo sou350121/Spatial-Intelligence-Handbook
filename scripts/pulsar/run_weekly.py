@@ -11,23 +11,21 @@ Usage:
     PHYSGEN_DRY_RUN=1 python3 scripts/pulsar/run_weekly.py   # print to stdout, don't write
     PHYSGEN_DATE=2026-06-19 python3 scripts/pulsar/run_weekly.py   # override "today"
 
-Requires: DASHSCOPE_API_KEY. Pure stdlib + urllib.
+Requires: DEEPSEEK_API_KEY (primary) and/or DASHSCOPE_API_KEY (fallback).
+Pure stdlib + urllib.
 """
 from __future__ import annotations
 import datetime
 import json
 import re
 import sys
-import time
-import urllib.request
-import urllib.error
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
+import _llm
 from _config import (
     REPO_ROOT, REPORTS_DIR, WEEKLY_DIR, WEEKLY_TITLE, WEEKLY_LOOKBACK_DAYS, WEEKLY_RETENTION_WEEKS,
-    WEEKLY_PROMPT_SYSTEM, DASHSCOPE_BASE_URL, LLM_MODEL, LLM_TIMEOUT,
-    LLM_RETRY, LLM_RETRY_BACKOFF, today_str, is_dry_run, get_env,
+    WEEKLY_PROMPT_SYSTEM, today_str, is_dry_run, get_env,
 )
 
 # The weekly is now a VLA-method DEEP report. The system prompt lives in a file so
@@ -120,32 +118,14 @@ def _extract_load_bearing(md: str) -> str:
 
 
 def call_qwen(system: str, user: str, api_key: str) -> str:
-    payload = {
-        "model": LLM_MODEL,
-        "messages": [
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
-        "temperature": 0.3,
-    }
-    req = urllib.request.Request(
-        f"{DASHSCOPE_BASE_URL}/chat/completions",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
-        method="POST",
-    )
-    last_err = None
-    for attempt in range(LLM_RETRY):
-        try:
-            with urllib.request.urlopen(req, timeout=LLM_TIMEOUT) as r:
-                data = json.loads(r.read().decode("utf-8"))
-            return data["choices"][0]["message"]["content"]
-        except (urllib.error.HTTPError, urllib.error.URLError, KeyError) as e:
-            last_err = e
-            print(f"  WARN: qwen weekly call failed (attempt {attempt+1}): {e}", file=sys.stderr)
-            if attempt < LLM_RETRY - 1:
-                time.sleep(LLM_RETRY_BACKOFF * (attempt + 1))
-    raise RuntimeError(f"qwen weekly all {LLM_RETRY} attempts failed: {last_err}")
+    """Weekly synthesis. DeepSeek primary, qwen fallback (see _llm.py).
+
+    Free-form markdown, so no require_json — the grounding guard in main() is
+    what polices this output, not a schema.
+    """
+    return _llm.chat([{"role": "system", "content": system},
+                      {"role": "user", "content": user}],
+                     temperature=0.3, qwen_key=api_key, label="weekly")
 
 
 def iso_week_label(d: datetime.date) -> str:
@@ -187,7 +167,7 @@ def main() -> int:
     ) if anchor else corpus
     print(f"  Aggregating {len(used)} daily report(s) ({start}–{today}), anchor={len(anchor)} chars…", file=sys.stderr)
 
-    api_key = get_env("DASHSCOPE_API_KEY")
+    api_key = get_env("DASHSCOPE_API_KEY", required=False)  # fallback only; see _llm.py
     # Generation is stochastic; regenerate until the deterministic grounding guard passes
     # (or keep the cleanest of N tries). Fabrication is the one thing we refuse to ship.
     source = anchor + "\n" + corpus
@@ -210,7 +190,7 @@ def main() -> int:
     label = iso_week_label(today)
     header = (
         f"# {WEEKLY_TITLE} — {label}\n\n"
-        f"> Pulsar 週度深度偵察（belief 錨定 + Adversarial Triad）· {start} – {today} · 彙整 {len(used)} 份日報的 ⚡/🔧 · {LLM_MODEL}\n"
+        f"> Pulsar 週度深度偵察（belief 錨定 + Adversarial Triad）· {start} – {today} · 彙整 {len(used)} 份日報的 ⚡/🔧 · {_llm.active_model()}\n"
         f"> 源檔：{', '.join(f.stem for f in used)}\n\n---\n\n"
     )
     footer = (

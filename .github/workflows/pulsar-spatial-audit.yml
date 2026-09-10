@@ -7,7 +7,7 @@ name: Pulsar Spatial Dissection Audit
 # a qwen cite-or-NOTFOUND pass — and files a GitHub issue listing SUSPECT articles
 # for human review. It does not auto-retract (surfacing, not destroying).
 #
-# Required secret: DASHSCOPE_API_KEY.
+# Required secrets: DEEPSEEK_API_KEY (primary) and/or DASHSCOPE_API_KEY (fallback).
 
 on:
   schedule:
@@ -37,6 +37,10 @@ jobs:
 
       - name: Re-audit the week's dissections for fabrication
         env:
+          # DeepSeek is primary; DASHSCOPE stays as the qwen fallback.
+          # Either alone is enough to run — scripts/pulsar/_llm.py logs
+          # loudly and fails the step when neither works.
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
         run: |
           python3 scripts/pulsar/audit_dissections.py --days 8 > /tmp/audit.md 2> /tmp/audit.err || true

@@ -11,24 +11,23 @@ essays arxiv doesn't carry).
 Usage:
     python3 scripts/pulsar/collect_curated.py
     SPATIAL_DRY_RUN=1 python3 scripts/pulsar/collect_curated.py   # print, don't write/seen
-Requires: DASHSCOPE_API_KEY. Pure stdlib + urllib.
+Requires: DEEPSEEK_API_KEY (primary) and/or DASHSCOPE_API_KEY (fallback).
+Pure stdlib + urllib.
 """
 from __future__ import annotations
 import datetime
 import json
 import re
 import sys
-import time
 import urllib.request
-import urllib.error
 import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
+import _llm
 from _config import (
     CURATED_FEEDS, CURATED_DIR, CURATED_SEEN, CURATED_LOOKBACK_DAYS, CURATED_RETENTION_DAYS,
-    DASHSCOPE_BASE_URL, LLM_MODEL, LLM_TIMEOUT, LLM_RETRY, LLM_RETRY_BACKOFF,
     today_str, is_dry_run, get_env,
 )
 
@@ -92,22 +91,11 @@ def parse_feed(xml_text: str) -> list[dict]:
 
 
 def call_qwen(system: str, user: str, api_key: str) -> str:
-    payload = {"model": LLM_MODEL, "messages": [
-        {"role": "system", "content": system}, {"role": "user", "content": user}],
-        "temperature": 0.2}
-    req = urllib.request.Request(
-        f"{DASHSCOPE_BASE_URL}/chat/completions", data=json.dumps(payload).encode(),
-        headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}, method="POST")
-    last = None
-    for attempt in range(LLM_RETRY):
-        try:
-            with urllib.request.urlopen(req, timeout=LLM_TIMEOUT) as r:
-                return json.loads(r.read().decode())["choices"][0]["message"]["content"]
-        except (urllib.error.HTTPError, urllib.error.URLError, KeyError) as e:
-            last = e
-            if attempt < LLM_RETRY - 1:
-                time.sleep(LLM_RETRY_BACKOFF * (attempt + 1))
-    raise RuntimeError(f"qwen curated gate failed: {last}")
+    """Curated-signal gate. DeepSeek primary, qwen fallback (see _llm.py)."""
+    return _llm.chat([{"role": "system", "content": system},
+                      {"role": "user", "content": user}],
+                     temperature=0.2, require_json="object",
+                     qwen_key=api_key, label="curated-gate")
 
 
 GATE_SYS = """你是 Spatial Intelligence Handbook 的策展信號守門員。輸入是若干來自非 arxiv 源（GitHub release / 產業博客 / 實驗室 / newsletter）的條目。
@@ -174,16 +162,17 @@ def main() -> int:
         print("  No fresh curated items — skipping digest.", file=sys.stderr)
         return 0
 
-    api_key = get_env("DASHSCOPE_API_KEY")
+    api_key = get_env("DASHSCOPE_API_KEY", required=False)  # fallback only; see _llm.py
     kept = gate(fresh, api_key)
-    print(f"  qwen gate: {len(fresh)} → {len(kept)} kept", file=sys.stderr)
+    print(f"  LLM gate ({_llm.active_model()}): {len(fresh)} → {len(kept)} kept", file=sys.stderr)
 
     # ---- render digest ----
     hi = [k for k in kept if k["tier"].startswith("🔥")]
     lo = [k for k in kept if not k["tier"].startswith("🔥")]
     md = [f"# Spatial Curated Signal — {today}", "",
           f"> Pulsar 非 arxiv 策展信號 · {len(CURATED_FEEDS)} 源 (GitHub release / 產業 / 實驗室 / newsletter) · "
-          f"qwen 相關性+信號閘 {len(fresh)}→{len(kept)} · window {CURATED_LOOKBACK_DAYS}d", "", "---", ""]
+          f"{_llm.active_model()} 相關性+信號閘 {len(fresh)}→{len(kept)} · window {CURATED_LOOKBACK_DAYS}d",
+          "", "---", ""]
     for label, group in (("## 🔥 重大信號", hi), ("## 📌 值得注意", lo)):
         if not group:
             continue

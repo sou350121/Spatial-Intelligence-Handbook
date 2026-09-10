@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""LLM rate papers ⚡/🔧/📖/❌ via DashScope qwen3.5-plus.
+"""LLM rate papers ⚡/🔧/📖/❌ — DeepSeek deepseek-flash, qwen fallback.
 
 Usage:
     python3 scripts/pulsar/collect.py | python3 scripts/pulsar/rate.py
@@ -9,24 +9,18 @@ Usage:
 Reads JSON list from stdin, writes JSON list with added .rating / .reason / .tags
 to stdout. Skips ❌ papers from output (configurable).
 
-Requires: DASHSCOPE_API_KEY env var.
+Requires: DEEPSEEK_API_KEY (primary) and/or DASHSCOPE_API_KEY (fallback).
 Pure stdlib + urllib for HTTP (no openai SDK to keep deps light).
 """
 from __future__ import annotations
 import argparse
 import json
 import sys
-import time
-import urllib.request
-import urllib.error
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _config import (
-    DASHSCOPE_BASE_URL, LLM_MODEL, LLM_TIMEOUT,
-    LLM_RETRY, LLM_RETRY_BACKOFF,
-    RATING_PROMPT_SYSTEM, AXIS_VOCAB, get_env,
-)
+import _llm
+from _config import RATING_PROMPT_SYSTEM, AXIS_VOCAB, get_env
 
 VALID_RATINGS = {"⚡", "🔧", "📖", "❌"}
 
@@ -55,37 +49,14 @@ def derive_tags(axes: dict) -> list[str]:
 
 
 def call_qwen(messages: list[dict], api_key: str) -> str:
-    """Call DashScope qwen via OpenAI-compatible API. Return assistant text."""
-    payload = {
-        "model": LLM_MODEL,
-        "messages": messages,
-        "temperature": 0.1,  # low temp for rating consistency
-        "response_format": {"type": "json_object"},
-    }
-    req = urllib.request.Request(
-        f"{DASHSCOPE_BASE_URL}/chat/completions",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}",
-        },
-        method="POST",
-    )
+    """Rate one paper. DeepSeek primary, qwen fallback (see _llm.py).
 
-    last_err = None
-    for attempt in range(LLM_RETRY):
-        try:
-            with urllib.request.urlopen(req, timeout=LLM_TIMEOUT) as r:
-                body = r.read().decode("utf-8")
-            data = json.loads(body)
-            return data["choices"][0]["message"]["content"]
-        except (urllib.error.HTTPError, urllib.error.URLError, KeyError) as e:
-            last_err = e
-            code = getattr(e, "code", "n/a")
-            print(f"  WARN: qwen call failed (attempt {attempt+1}, code={code}): {e}", file=sys.stderr)
-            if attempt < LLM_RETRY - 1:
-                time.sleep(LLM_RETRY_BACKOFF * (attempt + 1))
-    raise RuntimeError(f"qwen all {LLM_RETRY} attempts failed: {last_err}")
+    Name kept for the call sites (backfill_atlas.py imports rate.rate_one).
+    `require_json="object"` is what makes an HTTP 200 with an unparseable body
+    fall back to qwen instead of silently becoming a 📖 placeholder.
+    """
+    return _llm.chat(messages, temperature=0.1,  # low temp for rating consistency
+                     require_json="object", qwen_key=api_key, label="rate")
 
 
 def rate_one(paper: dict, api_key: str) -> dict:
@@ -104,10 +75,12 @@ def rate_one(paper: dict, api_key: str) -> dict:
     ]
     raw = call_qwen(messages, api_key)
     try:
+        # _llm.chat(require_json=...) already salvaged and re-serialised this,
+        # so a decode error here means both providers were exhausted upstream
+        # (which raises) — kept as belt-and-braces only.
         result = json.loads(raw)
     except json.JSONDecodeError:
-        # Best-effort recovery if model didn't return valid JSON
-        print(f"  WARN: invalid JSON from qwen for {paper['id']}", file=sys.stderr)
+        print(f"  WARN: invalid JSON for {paper['id']}", file=sys.stderr)
         result = {"rating": "📖", "reason": "(parse error)", "axes": {}}
 
     rating = result.get("rating", "📖")
@@ -115,6 +88,9 @@ def rate_one(paper: dict, api_key: str) -> dict:
     paper["reason"] = result.get("reason", "")
     paper["axes"] = clean_axes(result.get("axes", {}))
     paper["tags"] = derive_tags(paper["axes"])  # display labels, back-compat
+    # Which model actually answered — the report banner used to hardcode
+    # "qwen3.5-plus" and kept claiming it through 8 days of 401s.
+    paper["model"] = _llm.LAST_MODEL
     return paper
 
 
@@ -140,19 +116,42 @@ def main() -> int:
         papers.sort(key=lambda p: (not p.get("boost"), cat_priority.get(p.get("category"), 9)))
         papers = papers[:args.max]
 
-        api_key = get_env("DASHSCOPE_API_KEY")
+        # Optional: _llm falls back to qwen only if this is set. An absent or
+        # dead DashScope key is no longer fatal on its own (DeepSeek is primary),
+        # but it must not be silently pretended-away either — _llm logs it.
+        api_key = get_env("DASHSCOPE_API_KEY", required=False)
+        if not api_key:
+            print("  NOTE: DASHSCOPE_API_KEY not set — qwen fallback disabled "
+                  "(DeepSeek only)", file=sys.stderr)
         rated = []
+        failed = 0
         for i, p in enumerate(papers):
             print(f"  Rating {i+1}/{len(papers)}: {p['id']} ({p.get('category')})", file=sys.stderr)
             try:
                 rated.append(rate_one(p, api_key))
             except Exception as e:
+                # Per-paper resilience is deliberate: one bad abstract or one
+                # timeout must not lose the other 79. What was NOT deliberate is
+                # what happens when EVERY call fails — 2026-08-31..09-07 each
+                # shipped a committed report of 80 papers, ⚡0 🔧0 📖80, every
+                # line "(rating error: … HTTP Error 401)". The all-failed guard
+                # below turns that into a red run instead.
+                failed += 1
                 print(f"  ERROR rating {p['id']}: {e}", file=sys.stderr)
                 p["rating"] = "📖"
                 p["reason"] = f"(rating error: {e})"
                 p["axes"] = clean_axes({})
                 p["tags"] = []
                 rated.append(p)
+
+        if failed and failed == len(papers):
+            print(f"  FATAL: all {failed} rating call(s) failed — refusing to emit a "
+                  f"placeholder report. Check DEEPSEEK_API_KEY / DASHSCOPE_API_KEY.",
+                  file=sys.stderr)
+            return 1
+        if failed:
+            print(f"  WARN: {failed}/{len(papers)} paper(s) could not be rated "
+                  f"(kept as 📖 with the error inline)", file=sys.stderr)
 
         if not args.keep_rejects:
             out = [p for p in rated if p.get("rating") != "❌"]

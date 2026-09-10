@@ -3,14 +3,19 @@
 Standalone version: runs anywhere with Python 3.9+ + the 4 env vars below.
 Future: integrate with Pulsar's `memory/domains.json` multi-domain registry.
 
-Env vars required:
-    DASHSCOPE_API_KEY   — Aliyun qwen3.5-plus (OpenAI-compatible)
+Env vars required (at least one LLM key):
+    DEEPSEEK_API_KEY    — DeepSeek deepseek-flash (primary, OpenAI-compatible)
+    DASHSCOPE_API_KEY   — Aliyun qwen (fallback, OpenAI-compatible)
 
 Env vars optional:
     TELEGRAM_BOT_TOKEN  — enable TG push (skipped gracefully if absent)
     TELEGRAM_CHAT_ID    — TG target chat ID
     SPATIAL_DRY_RUN=1   — collect + rate only, skip writes (dev/test)
     SPATIAL_DATE        — override "today" in YYYY-MM-DD (for backfill)
+    SPATIAL_LLM_PROVIDER=qwen        — skip DeepSeek, use the legacy qwen path
+    SPATIAL_DS_MODEL                 — override the DeepSeek model id
+    SPATIAL_DASHSCOPE_BASE_URL       — for a CodingPlan key (see the LLM block)
+    SPATIAL_LLM_MODEL                — qwen model id, must match the base URL
 
 Default workflow: handbook integration via git (commit reports/spatial-daily/).
 TG is optional opt-in.
@@ -31,10 +36,43 @@ ATLAS_JSONL = ATLAS_DIR / "atlas.jsonl"
 ATLAS_OVERVIEW = ATLAS_DIR / "overview.md"
 
 # ---- LLM ------------------------------------------------------------
-# DashScope OpenAI-compatible endpoint (CodingPlan Pro since 2026-04)
-DASHSCOPE_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-LLM_MODEL = "qwen-plus"  # qwen3.5-plus alias on DashScope; cheaper than max
-LLM_TIMEOUT = 180  # seconds; bumped for thinking mode
+# Two providers behind one transport (scripts/pulsar/_llm.py):
+#   primary  — DeepSeek `deepseek-flash`   (DEEPSEEK_API_KEY)
+#   fallback — DashScope qwen              (DASHSCOPE_API_KEY)
+# See _llm.py's module docstring for the measured DeepSeek behaviour that the
+# transport is built around; this block is only the knobs.
+
+# DeepSeek is OpenAI-compatible and single-endpoint. `deepseek-chat`,
+# `deepseek-reasoner` and `deepseek-v4-flash` are all aliases that resolve to
+# `deepseek-flash`; the only other model is `deepseek-v4-pro`. There is no
+# `deepseek-v4.1-*`.
+DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
+DEEPSEEK_MODEL = os.environ.get("SPATIAL_DS_MODEL", "deepseek-flash")
+# NOT an output cap — DeepSeek scales how much it *reasons* to the max_tokens it
+# is given, and the reasoning is billed against the same budget. Starve it and
+# reasoning eats everything, leaving truncated JSON. 65536 is the value proven
+# in production by the sibling VLA rater. See _llm.py.
+DEEPSEEK_MAX_TOKENS = 65536
+
+# DashScope ships TWO incompatible endpoint/catalog pairs, and any given key
+# works against exactly one of them:
+#   standard    https://dashscope.aliyuncs.com/compatible-mode/v1
+#               → qwen-plus, qwen-max, …
+#   CodingPlan  https://coding.dashscope.aliyuncs.com/v1
+#               → qwen3.5-plus, qwen3.6-plus, qwen3.7-plus, glm-5, kimi-k2.5,
+#                 MiniMax-M2.5 … and NOT qwen-plus
+# The defaults below are the standard pair — that is what this repo's
+# DASHSCOPE_API_KEY Actions secret was issued for, and the pairing is correct.
+# A CodingPlan key needs BOTH overrides set together; a mismatched pair fails
+# loudly (`invalid_api_key` or "model `qwen-plus` is not supported"), never
+# silently. Nothing here is hardcoded to a key.
+DASHSCOPE_BASE_URL = os.environ.get(
+    "SPATIAL_DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+LLM_MODEL = os.environ.get("SPATIAL_LLM_MODEL", "qwen-plus")
+
+# SPATIAL_LLM_PROVIDER=qwen forces the legacy single-provider path (skips DeepSeek).
+LLM_PROVIDER = os.environ.get("SPATIAL_LLM_PROVIDER", "deepseek").strip().lower()
+LLM_TIMEOUT = 300  # seconds; DeepSeek reasons for 3-20s/paper, minutes on long-form
 LLM_RETRY = 3
 LLM_RETRY_BACKOFF = 5  # base seconds; (attempt+1) * backoff
 

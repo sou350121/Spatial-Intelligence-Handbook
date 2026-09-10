@@ -74,7 +74,7 @@ def audit_one(path: Path, api_key: str) -> dict:
     notfound = []
     try:
         raw = wd.call_qwen(CITE_SYS, f"论文全文(截断):\n{src[:AUDIT_CAP]}\n\n=== 草稿评测段落 ===\n{eval_body[:8000]}",
-                           api_key, max_tokens=1500)
+                           api_key, max_tokens=1500, require_json="object")
         obj = json.loads(re.search(r"\{.*\}", raw, re.S).group(0))
         for c in obj.get("claims", []):
             ev = str(c.get("evidence", "")).strip()
@@ -138,7 +138,7 @@ def main() -> int:
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--file")
     args = ap.parse_args()
-    api_key = get_env("DASHSCOPE_API_KEY")
+    api_key = get_env("DASHSCOPE_API_KEY", required=False)  # fallback only; see _llm.py
 
     files = target_files(args)
     print(f"auditing {len(files)} dissection(s)", file=sys.stderr)
