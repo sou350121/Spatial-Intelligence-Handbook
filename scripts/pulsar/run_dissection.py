@@ -85,7 +85,17 @@ def write_one(cand: dict, api_key: str, dry: bool) -> str | None:
     print(f"  candidate: {cand['rating']} {title0[:58]} ({aid})", file=sys.stderr)
     zone = classify_zone(title0, axes, api_key)
     try:
-        title, text = wd.fetch_fulltext(aid)
+        # One fetch, two views. `fetch_fulltext` cuts the bibliography BEFORE
+        # applying the cap, so verify_text[:FULLTEXT_CAP] is byte-identical to what
+        # `fetch_fulltext(aid)` returns — the writer's input is unchanged by taking
+        # the wide fetch first, and we don't hit arxiv twice.
+        #
+        # The two gates below are then given `verify_text`, never `text`. A verifier
+        # holding less of the paper than the writer reports every correctly-copied
+        # fact from the tail as a fabrication; that is exactly what stalled this
+        # pipeline (see write_dissection.factcheck).
+        title, verify_text = wd.fetch_fulltext(aid, cap=wd.VERIFY_CAP)
+        text = verify_text[:wd.FULLTEXT_CAP]
     except Exception as e:
         print(f"  skip {aid}: full text fetch failed ({e})", file=sys.stderr)
         return None
@@ -103,11 +113,11 @@ def write_one(cand: dict, api_key: str, dry: bool) -> str | None:
             print(f"  attempt {attempt+1}: guard missing {missing}; regen", file=sys.stderr)
             continue
         # Mechanical anti-fabrication gate (string-match; can't be fooled like qwen-judging-qwen).
-        ng = wd.numeric_grounding_issues(full, text)
+        ng = wd.numeric_grounding_issues(full, verify_text)
         if len(ng) > 1 or any("GitHub" in i for i in ng):
             print(f"  attempt {attempt+1}: {len(ng)} ungrounded numbers/URLs (e.g. {ng[:2]}); regen", file=sys.stderr)
             continue
-        ok, issues = wd.factcheck(full, text, api_key)
+        ok, issues = wd.factcheck(full, verify_text, api_key)
         if not ok:
             print(f"  attempt {attempt+1}: factcheck flagged {issues[:2]}; regen", file=sys.stderr)
             continue

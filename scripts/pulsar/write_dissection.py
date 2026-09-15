@@ -28,7 +28,21 @@ from _config import LLM_MODEL, get_env
 # the qwen-fallback knobs and the value of --model.
 GEN_MODEL = LLM_MODEL
 GEN_MAX_TOKENS = 8000
-FULLTEXT_CAP = 30000             # chars of trimmed full text fed to qwen
+# Chars of trimmed full text fed to the WRITER. Was 30000 from 2026-07-18, when a
+# qwen context window was the binding constraint. Measured 2026-09-15 on
+# arXiv 2608.22896 (SuperMap, trimmed body 38881 chars): a 30000 cap cut the paper
+# off mid-§V-C, so §V-D (change-detection Table IV), §V-E (ablation Table V) and
+# §V-H (Runtime and Memory) were invisible. The draft then honestly wrote
+# 「论文未报告（截断）」 across §4 and §5 — not a fabrication, but an article missing
+# exactly the ablations and latency numbers a dissection exists to carry, and a
+# fact-checker holding the whole paper correctly called those disclaimers wrong.
+# DeepSeek is the generator now and has room for the whole paper.
+FULLTEXT_CAP = 90000
+# Chars fed to the VERIFICATION side (mechanical grounding gate + LLM fact-check).
+# INVARIANT: VERIFY_CAP >= FULLTEXT_CAP. A verifier that sees less of the paper
+# than the writer did cannot distinguish "the writer invented this" from "I was
+# handed a shorter copy", and it always resolves that ambiguity as fabrication.
+VERIFY_CAP = 200000
 
 _TEMPLATE_FALLBACK = """你是 Spatial Intelligence Handbook 的深度解析（dissection）撰写者。把一篇 paper 写成
 **"可面试复述、可工程落地、可快速定位"** 的结构化中文笔记 —— 不是流水摘要。旗舰参考范式是
@@ -260,6 +274,12 @@ FACTCHECK_SYS = """你是严格的事实核查员。给你一篇论文全文和�
 
 玩具例子(§3)里明确的示范数字、标了 UNVERIFIED 的估算、一般性方法描述**不算**问题。
 
+**关于截断（最重要的一条）**:给你的"全文"可能在中途被截断(例如止于 §IV)。
+草稿引用了你手上文本里**根本不存在的章节 / 表格 / 图**(Table II、§V-D、Fig. 3 …),
+那是**你看不到**,不是草稿编造——**一律不要报告**。
+只有当对应段落**在你手上的文本里看得到**、且草稿与它**直接矛盾**时才算问题。
+宁可漏报,也**绝不**把"我没搜到"当成"论文没有"。
+
 严格 JSON 输出:
 {"verdict": "pass" | "revise",
  "issues": ["<草稿写X → 全文实为Y 或 全文查无>", ...]}
@@ -267,10 +287,24 @@ FACTCHECK_SYS = """你是严格的事实核查员。给你一篇论文全文和�
 
 
 def factcheck(draft: str, fulltext: str, api_key: str) -> tuple[bool, list[str]]:
-    """qwen re-reads the paper and the draft; flags hallucinated facts. Ample quota
+    """The LLM re-reads the paper and the draft; flags hallucinated facts. Ample quota
     makes this second pass cheap — it is the automated stand-in for per-article human
-    verification, so daily auto-commit doesn't ship fabricated numbers."""
-    user = f"论文全文（截断）:\n{fulltext[:24000]}\n\n=== dissection 草稿 ===\n{draft[:12000]}"
+    verification, so daily auto-commit doesn't ship fabricated numbers.
+
+    `fulltext` MUST be at least everything the writer saw. It used to be sliced to
+    `[:24000]` here while the writer got FULLTEXT_CAP=30000, and that 6000-char gap
+    is what stalled the pipeline. Measured 2026-09-15, arXiv 2608.22896: every
+    evaluation fact in the paper (ScanNet, Table II, Table III, 55.48%, i9-14900H,
+    RTX 4090, GroundingDINO, SAM2, Fig. 3) sits at offset 25286-30000 — visible to
+    the writer, invisible here. The draft copied all of them verbatim and correctly;
+    this pass reported 13 fabrications, 13 of 13 false, in its own words
+    「全文查无 ScanNet」 and 「该数字校验提示是建立在编造表格之上的二次编造」.
+    Re-run against the whole 38881-char paper, the same draft came back with those
+    numbers explicitly certified as matching. The gate was not crying wolf about
+    fabrication; it was being shown a paper with its results section cut off.
+    """
+    user = (f"论文全文（可能被截断）:\n{fulltext[:VERIFY_CAP]}\n\n"
+            f"=== dissection 草稿 ===\n{draft[:12000]}")
     try:
         raw = call_qwen(FACTCHECK_SYS, user, api_key, max_tokens=800,
                         require_json="object")

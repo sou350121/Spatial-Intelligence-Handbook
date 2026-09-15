@@ -32,7 +32,12 @@ import write_dissection as wd
 from _config import get_env
 
 REPO = Path(__file__).resolve().parent.parent.parent
-AUDIT_CAP = 55000  # bigger than generation cap so results/tables are in view
+# Must stay >= write_dissection.FULLTEXT_CAP (the generation cap). The literal
+# 55000 was "bigger than the generation cap" when that cap was 30000; once the
+# generation cap moved it silently became SMALLER, which re-creates the exact
+# inversion that stalled the daily pipeline — an auditor holding less of the paper
+# than the writer reports correctly-copied tail facts as fabrications. Derive it.
+AUDIT_CAP = wd.VERIFY_CAP
 
 CITE_SYS = """你是论文事实核查员。给你一篇论文全文(截断)和一篇据其撰写的 dissection 草稿的**评测相关段落**。
 任务:把草稿里出现的 (a) 数据集/benchmark 名字 (b) 具体对比数字 / SOTA 值 / 指标值,逐条列出,

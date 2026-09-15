@@ -19,5 +19,11 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Anti-fabrication gate regression
+        # The gate has failed in both directions: crying wolf (2026-08-24, 6 of 7
+        # findings false) and going blind-then-rejecting-everything (2026-08-28..
+        # 09-15, 18 days with zero articles). Both incidents are pinned here.
+        run: python scripts/pulsar/test_gates.py
+
       - name: Run audit
         run: python scripts/handbook_audit.py
