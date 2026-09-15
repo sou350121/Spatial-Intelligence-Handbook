@@ -27,3 +27,13 @@ jobs:
 
       - name: Run audit
         run: python scripts/handbook_audit.py
+
+      # Added 2026-09-15. GitHub secret scanning AND push protection are both
+      # enabled on this repo and both missed a real DashScope key that sat in
+      # MAINTAINER.md and docs/pulsar-integration.md from the initial commit
+      # until 2026-09-10 -- zero alerts, because GitHub's scanner does not know
+      # Alibaba's key format. That key was most likely revoked by Alibaba's own
+      # scraping of public GitHub, which cost twelve days of dead pipeline. This
+      # step checks the formats we actually use.
+      - name: Refuse credentials in tracked files
+        run: python scripts/pulsar/check_secrets.py
