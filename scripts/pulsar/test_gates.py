@@ -62,6 +62,63 @@ class CapInvariants(unittest.TestCase):
         self.assertIn(tail_fact, seen["user"])
 
 
+class DedupInvariants(unittest.TestCase):
+    """Two windows that must agree, and a key that must be the same string form."""
+
+    def test_dedup_memory_outlives_the_published_archive(self):
+        """A paper must stay in the dedup memory for at least as long as the
+        report that published it stays readable, or the archive ends up holding
+        two live copies of it. 60 vs 90 until 2026-09-16."""
+        import _config
+        self.assertGreaterEqual(_config.DEDUP_WINDOW_DAYS, _config.REPORT_RETENTION_DAYS)
+
+    def test_curated_memory_outlives_its_lookback(self):
+        import _config
+        self.assertGreaterEqual(_config.CURATED_RETENTION_DAYS, _config.CURATED_LOOKBACK_DAYS)
+
+    def test_dedup_cache_is_tracked_by_git(self):
+        """The runner is stateless (actions/checkout). An ignored cache file is an
+        absent cache file: load_seen() returns {} and the dedup never fires. This
+        is the whole 2026-09-16 finding in one assertion."""
+        import subprocess
+        import _config
+        repo = _config.REPO_ROOT
+        rel = _config.DEDUP_FILE.relative_to(repo)
+        out = subprocess.run(["git", "check-ignore", "-q", str(rel)],
+                             cwd=repo, capture_output=True)
+        self.assertNotEqual(out.returncode, 0, f"{rel} is gitignored — the CI runner "
+                                               "will start every day with an empty cache")
+
+    def test_covered_id_comes_from_the_source_marker_not_a_citation(self):
+        """run_dissection.covered_ids() keyed on the first arxiv link anywhere in
+        the file, so a dissection opening with a related-work citation reported
+        that citation's id as 'already dissected'."""
+        import tempfile
+        body = ("# 某篇解析\n"
+                "对比 3DGS (https://arxiv.org/abs/2308.04079) 的做法。\n"
+                "<!-- source: https://arxiv.org/abs/2503.11651 -->\n")
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "x_dissection.md"
+            p.write_text(body, encoding="utf-8")
+            real, rd.REPO = rd.REPO, Path(td)
+            try:
+                self.assertEqual(rd.covered_ids(), {"2503.11651"})
+            finally:
+                rd.REPO = real
+
+    def test_legacy_file_without_a_marker_still_resolves(self):
+        """The 42 hand-written dissections have no marker; don't drop them."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "legacy_dissection.md"
+            p.write_text("见 https://arxiv.org/abs/2003.08934 (NeRF)。\n", encoding="utf-8")
+            real, rd.REPO = rd.REPO, Path(td)
+            try:
+                self.assertEqual(rd.covered_ids(), {"2003.08934"})
+            finally:
+                rd.REPO = real
+
+
 class MechanicalGateStillCatchesFabrication(unittest.TestCase):
     """Do not let a narrowing change turn the gate into a rubber stamp."""
 

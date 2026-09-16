@@ -37,11 +37,32 @@ ZONES = [
 ]
 
 
+# The id a pipeline-written dissection is ABOUT lives in the trailing source
+# marker. Any other arxiv link in the file is a citation of some *other* paper.
+_SOURCE_RE = re.compile(r"<!--\s*source:\s*https?://arxiv\.org/abs/(\d{4}\.\d{4,5})")
+_ANY_ABS_RE = re.compile(r"abs/(\d{4}\.\d{4,5})")
+
+
 def covered_ids() -> set[str]:
-    """arXiv ids already dissected (from each file's `<!-- source: .../abs/<id> -->`)."""
+    """arXiv ids already dissected (from each file's `<!-- source: .../abs/<id> -->`).
+
+    Read the marker, and only fall back to "first arxiv link in the file" for the
+    hand-written legacy dissections that predate it. The fallback used to be the
+    only rule, which made the dedup key a different string form from the thing it
+    keys on: `re.search` returns the first link ANYWHERE, and in a dissection that
+    opens with a related-work link that is a citation, not the subject. Measured
+    2026-09-16 over 84 files — vggt_cvpr2025_dissection.md resolved to 2308.04079
+    (3DGS, cited on line 43) instead of its own 2503.11651 on line 49, and
+    ekf_from_scratch_dissection.md to OpenVINS's 1910.00298. Two ids were both
+    wrongly marked done and wrongly left undone. Live impact today is zero (none
+    of the 42 fallback ids are in the atlas, and the top pick is unchanged either
+    way), but the marker is the canonical key and the moment a generated article
+    cites a paper in §7 the old rule would re-dissect it under a fresh zone.
+    """
     out = set()
     for f in REPO.glob("**/*_dissection.md"):
-        m = re.search(r"abs/(\d{4}\.\d{4,5})", f.read_text(encoding="utf-8", errors="ignore"))
+        text = f.read_text(encoding="utf-8", errors="ignore")
+        m = _SOURCE_RE.search(text) or _ANY_ABS_RE.search(text)
         if m:
             out.add(m.group(1))
     return out

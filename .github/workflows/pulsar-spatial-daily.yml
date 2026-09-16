@@ -71,6 +71,18 @@ jobs:
             exit 0
           fi
 
+          # Persist the dedup caches. This runner is stateless: every run starts
+          # from a fresh actions/checkout, so scripts/pulsar/state/ came back
+          # empty each morning, load_seen() returned {} and the 60-day dedup in
+          # collect.py never fired once — 478 cross-day re-emissions of the same
+          # arXiv id across reports/spatial-daily/, 477 of them inside the window
+          # (measured 2026-09-16). The repo is the only durable store here.
+          #
+          # Staged AFTER the no-change check on purpose: the caches are rewritten
+          # on every run (pruning alone changes them), so staging them earlier
+          # would turn "nothing to report" into a daily empty commit.
+          git add scripts/pulsar/state/seen_arxiv_ids.json scripts/pulsar/state/curated_seen.json
+
           # Commit with date in message (use here-doc to keep YAML indentation safe)
           DATE=$(date +%F)
           MSG=$(cat <<EOF

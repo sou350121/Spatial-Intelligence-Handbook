@@ -134,7 +134,7 @@ Server 假設 UTC+8。arxiv RSS 凌晨 UTC 更新，CN 08:00 後可用。
 4. **Layer A filter**: title OR abstract 含 spatial AI 關鍵詞（~30 個，見 `_config.py KEYWORDS_A`）
 5. **Layer C reject**: title 含 medical / speech / molecule 等明顯離題詞 → drop
 6. **Layer B boost**: title 含 drone / production / benchmark → 標 `boost=True`
-7. **Dedup**: 跟 `state/seen_arxiv_ids.json` (60 天 window) 比對，新 paper only
+7. **Dedup**: 跟 `state/seen_arxiv_ids.json` (90 天 window) 比對，新 paper only
 8. Output: JSON list to stdout
 
 ### Stage 2 — rate.py
@@ -168,9 +168,20 @@ Server 假設 UTC+8。arxiv RSS 凌晨 UTC 更新，CN 08:00 後可用。
 
 | Path | Purpose | Format |
 |---|---|---|
-| `state/seen_arxiv_ids.json` | dedup cache (60-day window) | `{id: date_seen}` |
+| `state/seen_arxiv_ids.json` | dedup cache (90-day window) | `{id: date_seen}` |
+| `state/curated_seen.json` | 非 arxiv 策展 dedup cache (120 天) | `{link: date_seen}` |
 
-State 目錄已加 `.gitignore`，runtime data 不進 git。
+**這兩個檔是 tracked 的，其餘 state 仍 gitignored。** 原本整個 `state/` 都不進 git —
+Phase 1 跑在有持久磁碟的 `cron_runner.sh` 上，那是對的。改跑 GitHub Actions 之後每次
+`actions/checkout` 都是全新工作區，**被 ignore 的 cache 就等於不存在的 cache**：
+`load_seen()` 每天回 `{}`，60 天 dedup 一次都沒生效過。2026-09-16 實測
+`reports/spatial-daily/`：478 次同一 arXiv id 跨日重複刊出，其中 477 次（99.8%）落在
+本該擋掉的窗口內。這個部署唯一的持久儲存就是 repo 本身，所以 cache 必須跟著 commit
+（workflow 的 `git add` 排在「沒新內容就不 commit」判斷**之後**，以免每天多出空 commit）。
+
+**不變式**：`DEDUP_WINDOW_DAYS >= REPORT_RETENTION_DAYS`，`CURATED_RETENTION_DAYS >=
+CURATED_LOOKBACK_DAYS`。記憶比檔案活得短，同一篇就會在兩份還看得到的報告裡各出現一次。
+由 `_config.py` 在 import 時直接 raise，並由 `test_gates.py` 守住。
 
 ---
 

@@ -305,7 +305,35 @@ depth / feed-forward 3D / VLA / world model / tracking / pose / sensor / spatial
 
 # ---- Memory / dedup -------------------------------------------------
 DEDUP_FILE = STATE_DIR / "seen_arxiv_ids.json"
-DEDUP_WINDOW_DAYS = 60  # don't re-rate papers seen in last 60 days
+# Don't re-rate a paper we have already published. This was 60 while
+# REPORT_RETENTION_DAYS was 90 — a pair that must agree with nothing enforcing
+# it, so a paper announced on day 0 and re-announced (arxiv replacement /
+# cross-list) on day 65 was re-rated and written into a second report while the
+# first one was still on disk. The reader sees the same paper twice in a live
+# archive and we pay for the rating twice.
+DEDUP_WINDOW_DAYS = 90
+
+# INVARIANT: DEDUP_WINDOW_DAYS >= REPORT_RETENTION_DAYS.
+# The dedup window is what stops a paper being emitted twice; the retention
+# window is how long an emission stays readable. If the memory is shorter than
+# the archive, the archive can contain two live copies of the same paper and
+# nothing upstream can tell. Checked here rather than in a test so it fires in
+# every process that imports the config, including the cron/CI path.
+if DEDUP_WINDOW_DAYS < REPORT_RETENTION_DAYS:
+    raise ValueError(
+        f"DEDUP_WINDOW_DAYS ({DEDUP_WINDOW_DAYS}) < REPORT_RETENTION_DAYS "
+        f"({REPORT_RETENTION_DAYS}): papers would fall out of the dedup memory "
+        "while their earlier report is still published, and be emitted twice."
+    )
+# INVARIANT: CURATED_RETENTION_DAYS >= CURATED_LOOKBACK_DAYS — same argument for
+# the non-arxiv feed: an item pruned from curated_seen.json while still inside
+# the lookback window comes straight back into the next digest.
+if CURATED_RETENTION_DAYS < CURATED_LOOKBACK_DAYS:
+    raise ValueError(
+        f"CURATED_RETENTION_DAYS ({CURATED_RETENTION_DAYS}) < "
+        f"CURATED_LOOKBACK_DAYS ({CURATED_LOOKBACK_DAYS}): dropped curated items "
+        "would re-surface in the next digest."
+    )
 
 # ---- Env vars -------------------------------------------------------
 def get_env(name: str, required: bool = True) -> str:

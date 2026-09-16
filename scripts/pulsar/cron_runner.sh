@@ -99,6 +99,13 @@ if git diff --staged --quiet; then
   exit 0
 fi
 
+# Persist the dedup caches (see the same block in pulsar-spatial-daily.yml).
+# This self-hosted path has a persistent disk so the caches survive locally
+# anyway, but they must still travel to the repo: the GitHub Actions runner is
+# stateless and reads its cache from the checkout.
+# Staged after the no-change check so a quiet day stays a no-commit day.
+git add scripts/pulsar/state/seen_arxiv_ids.json scripts/pulsar/state/curated_seen.json
+
 # Pull latest before commit (avoid concurrent agent conflicts)
 git pull --rebase origin main || {
   echo "ERROR: rebase failed, manual intervention needed." >&2
