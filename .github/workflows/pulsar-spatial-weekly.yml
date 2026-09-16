@@ -56,6 +56,14 @@ jobs:
             echo "No new weekly report (no dailies in window?) — skipping commit."
             exit 0
           fi
+          # 2026-09-16: sync BEFORE the commit. Same bug as the daily workflow --
+          # sync_readme_from_overview.py used to run after `git push`, so the
+          # pushed tree always had README.md out of step with overview.md and the
+          # Handbook Audit triggered by the push went red, while this job itself
+          # reported success because it repaired the tree locally afterwards.
+          python3 scripts/sync_readme_from_overview.py || true
+          git add -A reports/ || true
+
           DATE=$(date +%F)
           MSG=$(cat <<EOF
           auto(pulsar): spatial weekly ${DATE}

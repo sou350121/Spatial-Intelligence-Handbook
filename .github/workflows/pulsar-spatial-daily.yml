@@ -83,6 +83,35 @@ jobs:
           # would turn "nothing to report" into a daily empty commit.
           git add scripts/pulsar/state/seen_arxiv_ids.json scripts/pulsar/state/curated_seen.json
 
+          # 2026-09-16: sync BEFORE the commit, not in the informational audit step
+
+          # below. atlas.py regenerates reports/atlas/overview.md during the daily
+
+          # run, but README.md is a generated mirror of it -- and the sync used to
+
+          # live AFTER `git push`, so every day this workflow pushed an overview.md
+
+          # its README.md did not match, repaired the mismatch inside the runner,
+
+          # and threw the repair away. The daily job reported success while the tree
+
+          # it had just published was red, and the Handbook Audit triggered by that
+
+          # push failed. Observed 2026-09-16: README said 2163 papers / 09-15 while
+
+          # overview said 2223 / 09-16.
+
+          #
+
+          # The audit itself stays informational and stays after the push -- that is
+
+          # deliberate (never lose the day's archive over a count). Only sync moves.
+
+          python3 scripts/sync_readme_from_overview.py || true
+
+          git add -A reports/ || true
+
+
           # Commit with date in message (use here-doc to keep YAML indentation safe)
           DATE=$(date +%F)
           MSG=$(cat <<EOF
