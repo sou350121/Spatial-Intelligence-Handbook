@@ -20,7 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from _config import (
     ARXIV_FEEDS, KEYWORDS_A, KEYWORDS_B_BOOST, KEYWORDS_C_REJECT,
-    DEDUP_FILE, DEDUP_WINDOW_DAYS, SKIP_WEEKENDS, today_str,
+    DEDUP_FILE, DEDUP_WINDOW_DAYS, SKIP_WEEKENDS, today_str, is_dry_run,
 )
 
 
@@ -196,7 +196,17 @@ def collect_today() -> list[dict]:
     # Record IDs as seen
     for p in final:
         seen[p["id"]] = today
-    save_seen(seen)
+    # _config's docstring promises "SPATIAL_DRY_RUN=1 -- collect + rate only,
+    # skip writes", but this call never checked it. A dry run therefore wrote
+    # 232 ids into the dedup cache on 2026-09-16 -- papers the next REAL run
+    # would then silently skip. That became materially worse the same day, when
+    # state/ was un-gitignored so the cache ships with the repo: a dry run
+    # followed by any commit would publish a poisoned cache.
+    if is_dry_run():
+        print("  [dry-run] not writing seen-cache (%d ids would have been added)"
+              % len(seen), file=sys.stderr)
+    else:
+        save_seen(seen)
 
     print(f"  Total to rate: {len(final)}", file=sys.stderr)
     return final
