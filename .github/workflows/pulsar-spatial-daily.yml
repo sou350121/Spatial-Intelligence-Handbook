@@ -47,6 +47,20 @@ jobs:
         run: |
           python3 scripts/pulsar/run_daily.py
 
+          # Stage 1b: the non-arxiv intake layer -- GitHub release feeds, industry
+          # blogs, lab posts, newsletters. 16 sources, LLM-gated down to the few
+          # that matter. This is content arxiv does not carry at all (tool and model
+          # releases, deep essays), and it had been wired only into cron_runner.sh,
+          # the Phase-1 script for the box with a persistent disk. Since the pipeline
+          # moved to Actions it simply never ran: reports/curated-signal/ holds
+          # exactly one file, dated 2026-07-22. Two months lost silently.
+          #
+          # Non-fatal on purpose, matching cron_runner.sh -- a curated-feed outage
+          # must not cost us the day's arxiv report. Its seen-cache works here now
+          # because state/ was un-gitignored on 2026-09-16.
+          python3 scripts/pulsar/collect_curated.py \
+            || echo "WARN: curated signal failed (non-fatal), continuing." >&2
+
       # Commit the dated archive FIRST, before any audit. The daily report is
       # append-only archive content (reports/spatial-daily/) and must never be
       # silently discarded because of unrelated handbook drift elsewhere. The
@@ -63,7 +77,7 @@ jobs:
           # Add scoped changes only (don't accidentally commit anything else).
           # reports/atlas/ = the 5-axis coordinate stream (atlas.jsonl) + its
           # generated overview, written by post.py alongside the daily report.
-          git add reports/spatial-daily/ reports/atlas/
+          git add reports/spatial-daily/ reports/atlas/ reports/curated-signal/
 
           # Exit cleanly if nothing changed (e.g. weekend or zero qualifying papers)
           if git diff --staged --quiet; then

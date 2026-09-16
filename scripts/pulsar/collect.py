@@ -13,6 +13,7 @@ import json
 import re
 import sys
 import urllib.request
+import urllib.error
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -24,13 +25,27 @@ from _config import (
 
 
 def fetch_rss(url: str, timeout: int = 30) -> str:
-    """Fetch RSS feed. Returns body text or empty string on error."""
+    """Fetch RSS feed. Returns body text or empty string on error.
+
+    Prints the HTTP status, final URL and byte count on every fetch. Ported from
+    the physics-gen sibling, which added it after 2026-09-08/09: the retired
+    export.arxiv.org mirror answered 200 with a valid-but-empty channel, so there
+    was no exception to log, and the run printed "Fetched: 0 papers across 7
+    feeds" and exited 0. A redirect or an empty 200 is invisible without this.
+    """
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 PulsarSpatial/1.0"})
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            return r.read().decode("utf-8", errors="replace")
+            body = r.read().decode("utf-8", errors="replace")
+            final = r.geturl()
+            note = f" -> {final}" if final != url else ""
+            print(f"    HTTP {r.status} {url}{note} ({len(body)}B)", file=sys.stderr)
+            return body
+    except urllib.error.HTTPError as e:
+        print(f"    HTTP {e.code} {url}: {e.reason}", file=sys.stderr)
+        return ""
     except Exception as e:
-        print(f"  WARN: fetch failed {url}: {e}", file=sys.stderr)
+        print(f"    ERR  {url}: {type(e).__name__}: {e}", file=sys.stderr)
         return ""
 
 
@@ -132,6 +147,19 @@ def collect_today() -> list[dict]:
     print(f"  Fetched: {sum(cat_counts.values())} papers across {len(ARXIV_FEEDS)} feeds", file=sys.stderr)
     for c, n in cat_counts.items():
         print(f"    {c}: {n}", file=sys.stderr)
+
+    # Every feed empty on a weekday is an infrastructure failure, never a quiet
+    # news day -- arxiv announces tens to hundreds of items per category per
+    # weekday. Raising here is what turns a silent outage into a sentinel issue;
+    # returning [] instead lets run_daily.py exit 0 with "no new papers", which
+    # is exactly how 2026-09-08 and 09-09 passed unnoticed on the sibling repo.
+    if all_papers == []:
+        _host = list(ARXIV_FEEDS.values())[0].rsplit("/", 1)[0] if ARXIV_FEEDS else "?"
+        raise RuntimeError(
+            "all %d arxiv feeds returned zero items (feed host %s is likely "
+            "retired or blocking this runner; check the HTTP lines above)"
+            % (len(ARXIV_FEEDS), _host)
+        )
 
     # Within-day dedup across feeds: arxiv cross-lists the same paper under
     # multiple categories (e.g. cs.RO AND cs.CV), so the raw union double-counts
