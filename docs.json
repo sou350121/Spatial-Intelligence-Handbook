@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 94 dissection / 133 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 97 dissection / 134 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -192,6 +192,7 @@
               "foundations/sensor-physics/24ghz_doppler_radar_motion.md",
               "foundations/sensor-physics/active_nir_850nm_for_embodied_ai.md",
               "foundations/sensor-physics/barometer_pressure_altimetry.md",
+              "foundations/sensor-physics/beyond_heuristics_a_standardized_real2sim_pipeline_dissection.md",
               "foundations/sensor-physics/event_camera_dvs_physics.md",
               "foundations/sensor-physics/gnss_multi_constellation_rtk.md",
               "foundations/sensor-physics/imu_physics_and_noise_model.md",
@@ -272,6 +273,7 @@
             "group": "Aerial",
             "pages": [
               "embodiments/aerial/overview.md",
+              "embodiments/aerial/a_digital_twin_framework_for_traffic_aware_uav_pav_dissection.md",
               "embodiments/aerial/dynamics_and_control_primer.md",
               "embodiments/aerial/embodied_passive_aeroacoustic_perception_enables_r_dissection.md",
               "embodiments/aerial/ngps_gps_denied_aerial_geo_localization_and_2_5d_r_dissection.md",
@@ -357,6 +359,7 @@
               "embodiments/manipulation/3d_feature_cloud_representations.md",
               "embodiments/manipulation/action_map_policy_learning_3d_closed_loop_manipula_dissection.md",
               "embodiments/manipulation/bimanual_and_dexterous_hand.md",
+              "embodiments/manipulation/current_as_touch_proprioceptive_contact_feedback_f_dissection.md",
               "embodiments/manipulation/fast_generative_grasping_via_lie_group_constrained_dissection.md",
               "embodiments/manipulation/genvid2robot_from_video_generation_to_robot_manipu_dissection.md",
               "embodiments/manipulation/the_curse_of_precision_a_data_scaling_law_for_high_dissection.md"
