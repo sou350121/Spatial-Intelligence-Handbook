@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 97 dissection / 134 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 99 dissection / 134 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -276,9 +276,11 @@
               "embodiments/aerial/a_digital_twin_framework_for_traffic_aware_uav_pav_dissection.md",
               "embodiments/aerial/dynamics_and_control_primer.md",
               "embodiments/aerial/embodied_passive_aeroacoustic_perception_enables_r_dissection.md",
+              "embodiments/aerial/float_drone_for_physical_interaction_lateral_airfl_dissection.md",
               "embodiments/aerial/ngps_gps_denied_aerial_geo_localization_and_2_5d_r_dissection.md",
               "embodiments/aerial/quality_adaptive_multi_uav_3d_reconstruction_with__dissection.md",
               "embodiments/aerial/real_flight_production_gotchas.md",
+              "embodiments/aerial/tristar_triple_signal_stair_recognition_and_vision_dissection.md",
               {
                 "group": "Active Tracking",
                 "pages": [
