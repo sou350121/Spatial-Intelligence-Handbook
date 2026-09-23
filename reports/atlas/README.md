@@ -4,7 +4,7 @@
 > The point is not the list — it is the **drift**: watch where mass accumulates on the
 > paradigm axis (geometric → … → world-model-as-policy) as the field moves.
 
-**Coverage:** 2441 papers · 2026-07-08 → 2026-09-22 · ⚡ 239 · 🔧 1281 · 📖 921
+**Coverage:** 2494 papers · 2026-07-08 → 2026-09-23 · ⚡ 238 · 🔧 1325 · 📖 931
 
 > Seed corpus — grows every weekday as the daily pipeline runs. Machine-readable source: [`atlas.jsonl`](./atlas.jsonl).
 
@@ -16,13 +16,13 @@ _The money axis. Ordered classical → frontier; read the mass migrating rightwa
 
 ```
 axis value                 count
-geometric                  ███████················· 144
-learned                    ████████████████████···· 434
-hybrid                     ███████████████········· 317
-generative                 ██████·················· 137
+geometric                  ███████················· 150
+learned                    ████████████████████···· 442
+hybrid                     ██████████████·········· 325
+generative                 ██████·················· 140
 3R-SLAM-hybrid             ························ 10
-VLA                        ████████████████████████ 516
-world-model-as-policy      ██████████·············· 211
+VLA                        ████████████████████████ 540
+world-model-as-policy      ██████████·············· 214
 ```
 
 ### Paradigm drift by week
@@ -32,41 +32,41 @@ the lower rows getting heavier week over week. (`·` = 0; **total** = weekly sam
 
 | paradigm \ week | W31 | W32 | W33 | W35 | W36 | W37 | W38 | W39 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| geometric | 11 | 13 | 1 | 14 | 16 | 12 | 31 | 9 |
-| learned | 53 | 40 | 11 | 41 | 55 | 45 | 57 | 22 |
-| hybrid | 25 | 23 | 8 | 35 | 51 | 22 | 41 | 15 |
-| generative | 7 | 12 | 3 | 12 | 24 | 18 | 21 | 10 |
+| geometric | 11 | 13 | 1 | 14 | 16 | 12 | 31 | 15 |
+| learned | 53 | 40 | 11 | 41 | 55 | 45 | 57 | 30 |
+| hybrid | 25 | 23 | 8 | 35 | 51 | 22 | 41 | 23 |
+| generative | 7 | 12 | 3 | 12 | 24 | 18 | 20 | 14 |
 | 3R-SLAM-hybrid | · | 1 | 1 | 1 | 1 | · | · | · |
-| VLA | 41 | 56 | 16 | 57 | 55 | 37 | 83 | 37 |
-| world-model-as-policy | 26 | 29 | 7 | 26 | 19 | 12 | 31 | 17 |
-| **total** | **163** | **174** | **47** | **186** | **221** | **146** | **264** | **110** |
+| VLA | 41 | 56 | 16 | 57 | 55 | 37 | 83 | 61 |
+| world-model-as-policy | 26 | 29 | 7 | 26 | 19 | 12 | 31 | 20 |
+| **total** | **163** | **174** | **47** | **186** | **221** | **146** | **263** | **163** |
 
 ## Time axis — batch → streaming frontier
 
 ```
 axis value                 count
-filter-streaming           ████████████············ 281
-fixed-lag                  ························ 10
-incremental                ██████████·············· 237
-per-scene                  ████████████████████████ 585
-feed-forward               ██████████████·········· 336
-temporal-transformer-rolling ██████████·············· 241
+filter-streaming           ████████████············ 291
+fixed-lag                  ························ 11
+incremental                ██████████·············· 242
+per-scene                  ████████████████████████ 588
+feed-forward               ██████████████·········· 354
+temporal-transformer-rolling ██████████·············· 249
 ```
 
 ## Problem axis — what is being solved
 
 ```
 axis value                 count
-VLA                        ████████████████████████ 572
-navigation                 ██████████████·········· 328
-spatial-reasoning          ████████················ 192
-reconstruction             ███████················· 171
-pose                       ████···················· 89
-tracking                   ██······················ 56
-depth                      ██······················ 37
-VSLAM                      █······················· 35
-mapping                    █······················· 33
-VIO                        █······················· 30
+VLA                        ████████████████████████ 597
+navigation                 ██████████████·········· 340
+spatial-reasoning          ████████················ 193
+reconstruction             ███████················· 173
+pose                       ████···················· 93
+tracking                   ██······················ 58
+depth                      ██······················ 38
+VSLAM                      █······················· 37
+mapping                    █······················· 34
+VIO                        █······················· 31
 occupancy                  ························ 11
 SfM                        ························ 10
 VO                         ························ 7
@@ -76,16 +76,16 @@ VO                         ························ 7
 
 ```
 axis value                 count
-feature-grid               ████████████████████████ 465
+feature-grid               ████████████████████████ 477
 scene-graph                ███████████············· 210
-pointmap                   ███████················· 142
-3DGS                       ███████················· 135
-sparse                     ██████·················· 119
-BEV                        ███····················· 53
-mesh                       ██······················ 45
+pointmap                   ███████················· 146
+3DGS                       ███████················· 137
+sparse                     ██████·················· 120
+BEV                        ███····················· 55
+mesh                       ██······················ 47
 voxel                      ██······················ 39
 NeRF                       █······················· 27
-implicit-sdf               █······················· 24
+implicit-sdf               █······················· 25
 HD-map                     ························ 7
 ```
 
@@ -93,12 +93,12 @@ HD-map                     ························ 7
 
 ```
 axis value                 count
-mono                       ████████████████████████ 716
-multi-modal                ██████████████·········· 426
-RGBD                       ████████················ 235
-LiDAR                      ██······················ 53
+mono                       ████████████████████████ 731
+multi-modal                ███████████████········· 446
+RGBD                       ████████················ 239
+LiDAR                      ██······················ 57
 event                      █······················· 32
-stereo                     █······················· 20
+stereo                     █······················· 21
 IMU                        █······················· 18
 4D-radar                   █······················· 16
 sonar                      ························ 6
@@ -120,10 +120,10 @@ sonar                      ························ 6
   - _在 VLA 上開啟「對稱/等變性」這條新方法軸：將 action head 的 state/action/conditioning 分解為 invariant/equivariant 通道並在 flow-matching 各層保持型別，配 learned canonicalizer 正規化斜視影像，把 VLA 原本只能靠 demo 覆蓋姿態、旋轉下 41.5% 的泛化硬傷提升到 90.4%，是既有 VLA 做不到的幾何泛化能力。_
 - **[Bridging Learned Visual Perception and Symbolic Belief-Space Planning](https://arxiv.org/abs/2609.16884)** — `VLA` · 2026-09-16
   - _提出 VLM-as-probabilistic-grounder 第三範式，把 VLM 謂詞 grounding 的不確定性表為符號狀態上的機率分布，讓規劃能在 belief space 進行，在既有 VLM-as-planner / VLM-as-grounder 兩條軸之外開出新軸並解了其忽略不確定性的問題。_
-- **[PhysStream: Streaming Physics-Grounded Video Generation with Structured Scene Memory and Fine-Grained Motion Control](https://arxiv.org/abs/2609.17521)** — `generative` · 2026-09-16
-  - _在可控視頻生成這條軸上引入此前不存在的能力：以稀疏速度增量（物理量）而非像素位置作為條件信號，配合由已生成幀在線導出的結構化場景記憶（位置圖+物體追蹤圖），實現生成中途的交互式物理動力學控制，而非既有方法必須在生成前給定完整控制序列。_
 - **[Modality-Autoregressive World-Action Models](https://arxiv.org/abs/2609.17524)** — `world-model-as-policy` · 2026-09-16
   - _首個在動作解碼前對多種未來模態（point track / DINO 特徵 / depth）逐一自回歸去噪的 world-action model，開出『WAM 該預測哪些模態、以何種次序生成』這條新方法軸，並以系統量化實驗回答該領域既有開放問題（預測 RGB 並無一致增益，幾何/語義/運動模態才有效）。_
+- **[Ego-Dynamics-Augmented World Model for Autonomous Driving with Zero-Shot Cross-Embodiment Adaptation](https://arxiv.org/abs/2607.13410)** — `world-model-as-policy` · 2026-09-14
+  - _點名一條新軸：以物理先驗 ego-dynamics context（橫向動力學+神經輪胎力）條件化 BEV world model 的隱分佈，於資訊論上移除 transition entropy/先驗中的 ego-motion 項，從而實現 zero-shot 跨底盤/跨具身泛化——這是既有 BEV-WM 做不到的能力。_
 
 ---
 
