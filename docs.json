@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 105 dissection / 135 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 108 dissection / 136 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -91,7 +91,8 @@
               "foundations/depth-foundation/github_failure_atlas.md",
               "foundations/depth-foundation/justdepth_real_time_radar_camera_depth_estimation__dissection.md",
               "foundations/depth-foundation/metric3d_dissection.md",
-              "foundations/depth-foundation/moge_dissection.md"
+              "foundations/depth-foundation/moge_dissection.md",
+              "foundations/depth-foundation/streamtto_efficient_online_test_time_optimization__dissection.md"
             ]
           },
           {
@@ -339,6 +340,7 @@
             "pages": [
               "embodiments/driving/overview.md",
               "embodiments/driving/bev_and_occupancy.md",
+              "embodiments/driving/stembot_a_compliant_robot_for_under_canopy_plant_n_dissection.md",
               "embodiments/driving/waymo_vs_tesla_doctrinal_split.md"
             ]
           },
@@ -370,6 +372,7 @@
               "embodiments/manipulation/fast_generative_grasping_via_lie_group_constrained_dissection.md",
               "embodiments/manipulation/genvid2robot_from_video_generation_to_robot_manipu_dissection.md",
               "embodiments/manipulation/lamp_long_horizon_adaptive_manipulation_planning_f_dissection.md",
+              "embodiments/manipulation/play2perfect_what_matters_in_dexterous_play_pretra_dissection.md",
               "embodiments/manipulation/the_curse_of_precision_a_data_scaling_law_for_high_dissection.md"
             ]
           },
