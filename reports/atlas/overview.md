@@ -4,7 +4,7 @@
 > The point is not the list — it is the **drift**: watch where mass accumulates on the
 > paradigm axis (geometric → … → world-model-as-policy) as the field moves.
 
-**Coverage:** 2665 papers · 2026-07-08 → 2026-09-28 · ⚡ 242 · 🔧 1474 · 📖 949
+**Coverage:** 2666 papers · 2026-07-08 → 2026-09-29 · ⚡ 242 · 🔧 1475 · 📖 949
 
 > Seed corpus — grows every weekday as the daily pipeline runs. Machine-readable source: [`atlas.jsonl`](./atlas.jsonl).
 
@@ -22,7 +22,7 @@ hybrid                     ███████████████····
 generative                 ██████·················· 147
 3R-SLAM-hybrid             ························ 10
 VLA                        ████████████████████████ 595
-world-model-as-policy      ██████████·············· 236
+world-model-as-policy      ██████████·············· 237
 ```
 
 ### Paradigm drift by week
@@ -38,8 +38,8 @@ the lower rows getting heavier week over week. (`·` = 0; **total** = weekly sam
 | generative | 12 | 3 | 12 | 24 | 18 | 20 | 18 | 3 |
 | 3R-SLAM-hybrid | 1 | 1 | 1 | 1 | · | · | · | · |
 | VLA | 56 | 16 | 57 | 55 | 37 | 83 | 95 | 21 |
-| world-model-as-policy | 29 | 7 | 26 | 19 | 12 | 31 | 38 | 4 |
-| **total** | **174** | **47** | **186** | **221** | **146** | **263** | **273** | **61** |
+| world-model-as-policy | 29 | 7 | 26 | 19 | 12 | 31 | 38 | 5 |
+| **total** | **174** | **47** | **186** | **221** | **146** | **263** | **273** | **62** |
 
 ## Time axis — batch → streaming frontier
 
@@ -49,7 +49,7 @@ filter-streaming           █████████████·······
 fixed-lag                  █······················· 14
 incremental                ███████████············· 264
 per-scene                  ████████████████████████ 602
-feed-forward               ████████████████········ 412
+feed-forward               ████████████████········ 413
 temporal-transformer-rolling ███████████············· 279
 ```
 
@@ -57,7 +57,7 @@ temporal-transformer-rolling ███████████·········
 
 ```
 axis value                 count
-VLA                        ████████████████████████ 682
+VLA                        ████████████████████████ 683
 navigation                 █████████████··········· 372
 spatial-reasoning          ███████················· 203
 reconstruction             ██████·················· 182
