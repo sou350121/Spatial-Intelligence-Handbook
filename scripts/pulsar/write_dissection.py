@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""An LLM writes a handbook dissection from a paper's FULL TEXT; Opus/human verifies.
+"""Generate full-text-grounded handbook drafts with structural and factual gates.
 
 Division of labour (per Pulsar principle + operator directive): a cheap model
 RUNS the generation (at scale, in CI) — DeepSeek deepseek-flash since
 2026-09-10, qwen before that and still the fallback; Opus/a human VERIFIES
-quality before it lands. This is the generator half. It is full-text grounded (abstract-only
+quality in periodic reviews. The daily workflow uses a second LLM fact-check and
+the repository audit before publishing. It is full-text grounded (abstract-only
 dissections are shallow slop) and template-driven (the 14-item AGENTS.md spec is
 the prompt), with mechanical guards so structurally-incomplete drafts never ship.
 
@@ -36,8 +37,10 @@ GEN_MAX_TOKENS = 8000
 # 「论文未报告（截断）」 across §4 and §5 — not a fabrication, but an article missing
 # exactly the ablations and latency numbers a dissection exists to carry, and a
 # fact-checker holding the whole paper correctly called those disclaimers wrong.
-# DeepSeek is the generator now and has room for the whole paper.
-FULLTEXT_CAP = 90000
+# DeepSeek has room for a larger view. October recovery aligns both views at
+# 200k characters: a 90k writer view still omitted the results of long theses
+# that the verifier could see, repeatedly producing false "not reported" claims.
+FULLTEXT_CAP = 200000
 # Chars fed to the VERIFICATION side (mechanical grounding gate + LLM fact-check).
 # INVARIANT: VERIFY_CAP >= FULLTEXT_CAP. A verifier that sees less of the paper
 # than the writer did cannot distinguish "the writer invented this" from "I was
@@ -304,16 +307,20 @@ def factcheck(draft: str, fulltext: str, api_key: str) -> tuple[bool, list[str]]
     fabrication; it was being shown a paper with its results section cut off.
     """
     user = (f"论文全文（可能被截断）:\n{fulltext[:VERIFY_CAP]}\n\n"
-            f"=== dissection 草稿 ===\n{draft[:12000]}")
+            f"=== dissection 草稿 ===\n{draft}")
     try:
         raw = call_qwen(FACTCHECK_SYS, user, api_key, max_tokens=800,
                         require_json="object")
-        m = re.search(r"\{.*\}", raw, re.S)
-        obj = json.loads(m.group(0)) if m else {"verdict": "pass", "issues": []}
+        obj = _llm.salvage_json(raw, expect='object')
+        if not isinstance(obj, dict) or obj.get('verdict') not in {'pass', 'revise'}:
+            raise ValueError('Invalid fact-check verdict')
+        if not isinstance(obj.get('issues'), list) or any(not isinstance(i, str) for i in obj['issues']):
+            raise ValueError('Invalid fact-check issues')
+        if obj['verdict'] == 'pass' and obj['issues']:
+            raise ValueError('Contradictory fact-check verdict')
         return obj.get("verdict") == "pass", obj.get("issues", [])
-    except Exception as e:  # noqa — never let a factcheck hiccup block the pipeline; treat as pass
-        print(f"  WARN factcheck failed ({e}); treating as pass", file=sys.stderr)
-        return True, []
+    except Exception as e:
+        raise _llm.LLMError('Fact-check unavailable or invalid; refusing publication') from e
 
 
 def pick_candidate(atlas_path: Path, covered_ids: set[str],

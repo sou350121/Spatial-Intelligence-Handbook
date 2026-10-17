@@ -16,6 +16,7 @@ Pure stdlib + urllib.
 """
 from __future__ import annotations
 import datetime
+from _mdx_safe import safe_markdown
 import json
 import re
 import sys
@@ -153,6 +154,11 @@ def prune_old(today: datetime.date) -> int:
 
 def main() -> int:
     today = datetime.date.fromisoformat(today_str())
+    label = iso_week_label(today)
+    out = WEEKLY_DIR / f"{label}.md"
+    if out.exists() and not is_dry_run():
+        print(f'  Preserving existing weekly report: {out}', file=sys.stderr)
+        return 0
     blocks, used = collect_week(today)
     if not blocks:
         print(f"  No daily reports in the last {WEEKLY_LOOKBACK_DAYS}d — skipping weekly.", file=sys.stderr)
@@ -172,20 +178,19 @@ def main() -> int:
     # (or keep the cleanest of N tries). Fabrication is the one thing we refuse to ship.
     source = anchor + "\n" + corpus
     best_body, best_issues = "", None
+    feedback = ''
     for attempt in range(3):
-        body = call_qwen(WEEKLY_SKILL, user, api_key)
+        body = call_qwen(WEEKLY_SKILL, user + feedback, api_key)
         issues = grounding_issues(body, source)
         if best_issues is None or len(issues) < len(best_issues):
             best_body, best_issues = body, issues
         if not issues:
             break
         print(f"  ⚠️ grounding guard: {len(issues)} fabrication(s) {issues[:3]} — regen ({attempt+1}/3)", file=sys.stderr)
+        feedback = '\n\n上次草稿未通过来源核对，请依据输入资料修正以下问题，不得重复或编造：' + json.dumps(issues[:10], ensure_ascii=False)
     body = best_body
     if best_issues:
-        # residual after 3 tries: neutralise the invented tokens rather than ship them
-        for name, rex in _ARTIFACT_RES:
-            body = rex.sub(lambda m: "" if m.group(0) not in source else m.group(0), body)
-        print(f"  ⚠️ {len(best_issues)} residual fabrication(s) stripped after 3 regens: {best_issues[:3]}", file=sys.stderr)
+        raise ValueError('Weekly grounding failed after three drafts; refusing publication')
 
     label = iso_week_label(today)
     header = (
@@ -197,7 +202,7 @@ def main() -> int:
         f"\n\n---\n\n*Generated {datetime.datetime.now().isoformat(timespec='seconds')} · "
         f"`scripts/pulsar/run_weekly.py` · 前瞻偵察（非回顧索引）*\n"
     )
-    md = header + body.strip() + footer
+    md = safe_markdown(header + body.strip() + footer)
 
     if is_dry_run():
         print("\n" + md)
@@ -206,11 +211,13 @@ def main() -> int:
 
     WEEKLY_DIR.mkdir(parents=True, exist_ok=True)
     out = WEEKLY_DIR / f"{label}.md"
-    out.write_text(md, encoding="utf-8")
+    try:
+        with out.open('x', encoding='utf-8') as output:output.write(md)
+    except FileExistsError:
+        print(f'  Preserving concurrently created weekly report: {out}', file=sys.stderr)
+        return 0
     print(f"  Wrote {out}", file=sys.stderr)
-    pruned = prune_old(today)
-    if pruned:
-        print(f"  Pruned {pruned} weekly report(s) older than {WEEKLY_RETENTION_WEEKS}w", file=sys.stderr)
+    # Handbook archives are durable data; the scheduled writer never deletes them.
     return 0
 
 

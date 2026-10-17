@@ -86,13 +86,13 @@ TG_MAX_LEN = 4096  # Telegram message limit
 # ---- RSS sources ----------------------------------------------------
 # arxiv categories most relevant to Spatial AI (per ontology v3 §5.2 / §5.6)
 ARXIV_FEEDS = {
-    "cs.RO": "http://export.arxiv.org/rss/cs.RO",     # Robotics
-    "cs.CV": "http://export.arxiv.org/rss/cs.CV",     # Computer Vision (3DGS/NeRF/VGGT live here)
-    "cs.GR": "http://export.arxiv.org/rss/cs.GR",     # Graphics — 3DGS/NeRF/neural+inverse rendering/SDF (57% spatial; was the biggest gap)
-    "cs.AI": "http://export.arxiv.org/rss/cs.AI",     # AI foundation models
-    "cs.LG": "http://export.arxiv.org/rss/cs.LG",     # Learning (for VLA / world models)
-    "eess.IV": "http://export.arxiv.org/rss/eess.IV", # Image/Video Processing — depth/reconstruction (keyword-A gated; medical rejected by KEYWORDS_C)
-    "cs.MM": "http://export.arxiv.org/rss/cs.MM",     # Multimedia — spatial-AR/3DGS work that skips cs.CV (dedup handles cross-listing)
+    "cs.RO": "https://rss.arxiv.org/rss/cs.RO",     # Robotics
+    "cs.CV": "https://rss.arxiv.org/rss/cs.CV",     # Computer Vision
+    "cs.GR": "https://rss.arxiv.org/rss/cs.GR",     # Graphics
+    "cs.AI": "https://rss.arxiv.org/rss/cs.AI",     # AI foundation models
+    "cs.LG": "https://rss.arxiv.org/rss/cs.LG",     # Learning
+    "eess.IV": "https://rss.arxiv.org/rss/eess.IV", # Image/Video Processing
+    "cs.MM": "https://rss.arxiv.org/rss/cs.MM",     # Multimedia
 }
 
 # Skip arxiv on weekends (no new papers; same as VLA-Handbook)

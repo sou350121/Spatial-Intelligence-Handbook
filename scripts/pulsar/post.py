@@ -37,6 +37,7 @@ from _config import (
     today_str, is_dry_run, get_env,
 )
 import atlas
+from _mdx_safe import safe_markdown
 
 RATING_ORDER = {"⚡": 0, "🔧": 1, "📖": 2, "❌": 3}
 
@@ -106,7 +107,7 @@ def build_markdown(papers: list[dict], date: str) -> str:
 def write_report(md: str, date: str) -> Path:
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     out = REPORTS_DIR / f"{date}.md"
-    out.write_text(md, encoding="utf-8")
+    with out.open('x', encoding='utf-8') as output:output.write(md)
     return out
 
 
@@ -217,7 +218,11 @@ def main() -> int:
         print(f"  No papers to post for {date}", file=sys.stderr)
         return 0
 
-    md = build_markdown(papers, date)
+    md = safe_markdown(build_markdown(papers, date))
+    if is_dry_run():
+        print(md)
+        print('  (dry run — no report, atlas, pruning or notifications)', file=sys.stderr)
+        return 0
     out_path = write_report(md, date)
     print(f"  Wrote {out_path}", file=sys.stderr)
 
@@ -229,9 +234,7 @@ def main() -> int:
     atlas.write_overview()
     print(f"  Atlas: +{added} new / {updated} updated coordinates", file=sys.stderr)
 
-    pruned = prune_old_reports()
-    if pruned:
-        print(f"  Pruned {pruned} old report(s) older than {REPORT_RETENTION_DAYS}d", file=sys.stderr)
+    # Handbook archives are durable data; cache retention must not delete them.
 
     if is_dry_run():
         print(f"  (dry run — skipping TG push)", file=sys.stderr)

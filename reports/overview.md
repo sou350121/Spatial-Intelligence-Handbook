@@ -13,3 +13,48 @@ These mirror VLA-Handbook's `reports/` layout. 管線程式 [`scripts/pulsar/`](
 **🌌 星圖（Atlas）**：日報是逐日歸檔，星圖是**分析層**——把每篇論文放進 ontology 五軸座標，累積成可測量的座標雲。重點不是清單，是**漂移**：看質量沿 paradigm 軸（geometric → … → world-model-as-policy）隨時間往前遷移。見 [`atlas/overview`](./atlas/overview.md)，機器可讀源 `reports/atlas/atlas.jsonl`。
 
 > 日檔 / 週檔是逐日歸檔內容，不進 Mintlify 側欄逐頁列表，由本 landing page 串接。
+
+<!-- BEGIN PULSAR REPORT INDEX -->
+
+## 自动报告目录 (Report Archive)
+
+| 类型 | 日期 | 报告 |
+|---|---|---|
+| 日报 | 2026-10-16 | [阅读](./spatial-daily/2026-10-16.md) |
+| 日报 | 2026-10-15 | [阅读](./spatial-daily/2026-10-15.md) |
+| 日报 | 2026-10-12 | [阅读](./spatial-daily/2026-10-12.md) |
+| 日报 | 2026-10-09 | [阅读](./spatial-daily/2026-10-09.md) |
+| 日报 | 2026-10-08 | [阅读](./spatial-daily/2026-10-08.md) |
+| 日报 | 2026-10-07 | [阅读](./spatial-daily/2026-10-07.md) |
+| 日报 | 2026-10-05 | [阅读](./spatial-daily/2026-10-05.md) |
+| 日报 | 2026-10-02 | [阅读](./spatial-daily/2026-10-02.md) |
+| 日报 | 2026-10-01 | [阅读](./spatial-daily/2026-10-01.md) |
+| 日报 | 2026-09-30 | [阅读](./spatial-daily/2026-09-30.md) |
+| 日报 | 2026-09-29 | [阅读](./spatial-daily/2026-09-29.md) |
+| 日报 | 2026-09-28 | [阅读](./spatial-daily/2026-09-28.md) |
+| 日报 | 2026-09-25 | [阅读](./spatial-daily/2026-09-25.md) |
+| 日报 | 2026-09-24 | [阅读](./spatial-daily/2026-09-24.md) |
+| 周报 | 2026-W42 | [阅读](./weekly/2026-W42.md) |
+| 周报 | 2026-W41 | [阅读](./weekly/2026-W41.md) |
+| 周报 | 2026-W40 | [阅读](./weekly/2026-W40.md) |
+| 周报 | 2026-W39 | [阅读](./weekly/2026-W39.md) |
+| 周报 | 2026-W38 | [阅读](./weekly/2026-W38.md) |
+| 周报 | 2026-W37 | [阅读](./weekly/2026-W37.md) |
+| 周报 | 2026-W35 | [阅读](./weekly/2026-W35.md) |
+| 周报 | 2026-W33 | [阅读](./weekly/2026-W33.md) |
+| 周报 | 2026-W32 | [阅读](./weekly/2026-W32.md) |
+| 周报 | 2026-W31 | [阅读](./weekly/2026-W31.md) |
+| 周报 | 2026-W30 | [阅读](./weekly/2026-W30.md) |
+| 周报 | 2026-W29 | [阅读](./weekly/2026-W29.md) |
+| 周报 | 2026-W28 | [阅读](./weekly/2026-W28.md) |
+| 产业信号 | 2026-10-16 | [阅读](./curated-signal/2026-10-16.md) |
+| 产业信号 | 2026-10-15 | [阅读](./curated-signal/2026-10-15.md) |
+| 产业信号 | 2026-10-13 | [阅读](./curated-signal/2026-10-13.md) |
+| 产业信号 | 2026-10-12 | [阅读](./curated-signal/2026-10-12.md) |
+| 产业信号 | 2026-10-09 | [阅读](./curated-signal/2026-10-09.md) |
+| 产业信号 | 2026-10-08 | [阅读](./curated-signal/2026-10-08.md) |
+| 产业信号 | 2026-10-07 | [阅读](./curated-signal/2026-10-07.md) |
+
+完整归档：[GitHub reports](https://github.com/sou350121/Spatial-Intelligence-Handbook/tree/main/reports)。
+
+<!-- END PULSAR REPORT INDEX -->

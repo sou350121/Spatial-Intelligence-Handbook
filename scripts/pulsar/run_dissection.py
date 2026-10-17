@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-"""Orchestrate one dissection: qwen writes, a workflow opens a PR, Opus/human verifies.
+"""Generate create-only dissections for the existing audited publication workflow.
 
-pick perception ⚡ from the atlas → qwen classify a zone → qwen write the full
-dissection from arXiv full text → structural guard → place the file. The caller
-(a GitHub Actions workflow) then opens a PR so an Opus/human reviewer verifies the
-facts, confirms the zone, and merges (merge triggers the mechanical count-sync).
-
-Nothing auto-lands on main: the "Opus 验" gate is the PR review.
+Pick a perception paper from the atlas, fetch its full text, classify its zone,
+then generate and verify it with DeepSeek (qwen remains the configured fallback).
+The existing GitHub workflow synchronizes generated metadata and runs the full
+handbook audit before publishing. This script performs no git or network writes.
 
 Usage:
-    DEEPSEEK_API_KEY=... python3 scripts/pulsar/run_dissection.py            # place + emit PR metadata
+    DEEPSEEK_API_KEY=... python3 scripts/pulsar/run_dissection.py            # place + emit paths
     DEEPSEEK_API_KEY=... python3 scripts/pulsar/run_dissection.py --dry      # /tmp preview, no placement
 """
 from __future__ import annotations
@@ -23,6 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from _config import get_env
 import write_dissection as wd
+from _mdx_safe import safe_markdown
 
 REPO = Path(__file__).resolve().parent.parent.parent
 ATLAS = REPO / "reports" / "atlas" / "atlas.jsonl"
@@ -32,8 +31,11 @@ ZONES = [
     "foundations/feed-forward-3d", "foundations/3dgs-family", "foundations/nerf-family",
     "foundations/depth-foundation", "foundations/classical-slam", "foundations/pose-tracking",
     "foundations/semantic-3d", "foundations/world-model", "foundations/vlm-spatial-reasoning",
-    "foundations/sensor-physics", "foundations/spatial-math",
-    "embodiments/aerial", "embodiments/driving", "embodiments/manipulation", "embodiments/marine",
+    "foundations/spatial-math",
+    "embodiments/aerial/active-tracking", "embodiments/aerial/obstacle-avoidance",
+    "embodiments/aerial/long-range-slam", "embodiments/aerial/on-board-mapping",
+    "embodiments/aerial/event-camera", "embodiments/aerial/planning",
+    "embodiments/aerial/swarm", "embodiments/aerial/vio",
 ]
 
 
@@ -104,7 +106,6 @@ def write_one(cand: dict, api_key: str, dry: bool) -> str | None:
     """Generate one guarded + fact-checked dissection; place it. Return rel path or None."""
     aid, axes, title0 = cand["id"], cand["axes"], cand["title"]
     print(f"  candidate: {cand['rating']} {title0[:58]} ({aid})", file=sys.stderr)
-    zone = classify_zone(title0, axes, api_key)
     try:
         # One fetch, two views. `fetch_fulltext` cuts the bibliography BEFORE
         # applying the cap, so verify_text[:FULLTEXT_CAP] is byte-identical to what
@@ -120,27 +121,35 @@ def write_one(cand: dict, api_key: str, dry: bool) -> str | None:
     except Exception as e:
         print(f"  skip {aid}: full text fetch failed ({e})", file=sys.stderr)
         return None
+    zone = classify_zone(title0, axes, api_key)
+    if zone not in ZONES or not (REPO / zone).is_dir() or not (REPO / zone / 'README.md').is_file():
+        raise ValueError('Invalid or unindexed destination: ' + zone)
     today = datetime.date.today().isoformat()
     user = (f"arXiv id: {aid}\nTitle: {title}\nontology 5-axis: {json.dumps(axes, ensure_ascii=False)}\n"
             f"今天日期: {today}\n\n论文全文（已截断）:\n{text}")
 
-    # generate → structural guard → qwen fact-check; regenerate on either failure.
+    feedback = ''
+    # generate → structural guard → fact-check; rejected facts inform the retry.
     for attempt in range(3):
-        md = wd.call_qwen(wd.TEMPLATE, user, api_key)
+        md = wd.call_qwen(wd.TEMPLATE, user + feedback, api_key)
         md = re.sub(r"^```markdown\s*|\s*```$", "", md.strip()).replace("<module>", zone.split("/")[-1])
+        md = safe_markdown(md)
         full = wd.ontology_header(axes) + md + f"\n\n<!-- source: https://arxiv.org/abs/{aid} -->\n"
         missing = wd.structural_guard(full)
         if missing:
             print(f"  attempt {attempt+1}: guard missing {missing}; regen", file=sys.stderr)
+            feedback = '\n\n上次草稿缺少这些结构，重写时必须补齐：' + json.dumps(missing, ensure_ascii=False)
             continue
         # Mechanical anti-fabrication gate (string-match; can't be fooled like qwen-judging-qwen).
         ng = wd.numeric_grounding_issues(full, verify_text)
-        if len(ng) > 1 or any("GitHub" in i for i in ng):
+        if ng:
             print(f"  attempt {attempt+1}: {len(ng)} ungrounded numbers/URLs (e.g. {ng[:2]}); regen", file=sys.stderr)
+            feedback = '\n\n上次草稿未通过来源核对。请根据原文修正，不要重复这些错误：' + json.dumps(ng[:10], ensure_ascii=False)
             continue
         ok, issues = wd.factcheck(full, verify_text, api_key)
         if not ok:
             print(f"  attempt {attempt+1}: factcheck flagged {issues[:2]}; regen", file=sys.stderr)
+            feedback = '\n\n上次草稿有以下具体事实错误。请回到原文修正，保持所有质量门槛：' + json.dumps(issues[:10], ensure_ascii=False)
             continue
         # passed all gates
         if dry:
@@ -149,7 +158,12 @@ def write_one(cand: dict, api_key: str, dry: bool) -> str | None:
             return f"{zone}/(dry)"
         slug = re.sub(r"[^a-z0-9]+", "_", title0.lower()).strip("_")[:50]
         rel = f"{zone}/{slug}_dissection.md"
-        (REPO / rel).write_text(full, encoding="utf-8")
+        try:
+            with (REPO / rel).open('x', encoding='utf-8') as output:
+                output.write(full)
+        except FileExistsError:
+            print(f'  skip {aid}: destination exists; preserving {rel}', file=sys.stderr)
+            return None
         print(f"  placed {rel}", file=sys.stderr)
         return rel
     print(f"  skip {aid}: failed guard/factcheck after retries", file=sys.stderr)

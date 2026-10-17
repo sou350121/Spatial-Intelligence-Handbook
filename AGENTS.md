@@ -413,3 +413,14 @@ ScanNet++ / TUM-RGBD / EuRoC 等仿真 / 受控 benchmark 数字已被反复刷�
 **Fail = CI 紅燈，PR 不能 merge**（check 1-5 是 FAIL gate；check 6 = WARN；check 7 = INFO）。
 
 本地預跑：`python3.11 scripts/handbook_audit.py`（純 stdlib，無 pip 依賴）。
+
+## 固定维护程序的授权例外（维护者于 2026-10-18 批准）
+
+此例外不允许语言模型改写既有人工正文，不扩展 sensor-physics、硬件资料或 crossing 的写入权限。
+
+1. 本次恢复允许发布已经测试的 `scripts/pulsar/` 修补和现有三个 Pulsar 工作流修补；不改变现有时间及每日文章配额。
+2. `scripts/sync_counts.py` 可按文件树更新既有计数字段；`scripts/gen_mintlify_nav.py` 可生成 `docs.json`。根 README 只允许固定计数字段同步，禁止改写人工导读。
+3. `scripts/pulsar/sync_report_index.py` 只管理 `reports/overview.md` 的 `BEGIN/END PULSAR REPORT INDEX` 区域。区域外文字必须保留。
+4. `scripts/sync_readme_from_overview.py` 可维持现有 README 镜像，内容以同目录 canonical `overview.md` 为准；自动程序不得改写 canonical 人工正文。
+5. 本次仅对八份已有自动周报（2026-W30、W31、W32、W35、W38、W40、W41、W42）做 MDX 字元转义；解码后文字必须完全一致。此项不是未来改写历史报告的通用授权。
+6. 新深度文章及报告采用 create-only；禁止覆盖已存在的文章或自动删除 Handbook 历史报告。无法完成事实核查或来源核对时，不得放行发布。

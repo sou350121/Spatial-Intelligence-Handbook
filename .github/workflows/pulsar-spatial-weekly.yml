@@ -51,6 +51,8 @@ jobs:
         run: |
           git config user.name "Pulsar Bot"
           git config user.email "noreply@anthropic.com"
+          python3 scripts/pulsar/sync_report_index.py
+          python3 scripts/sync_readme_from_overview.py
           git add reports/weekly/
           if git diff --staged --quiet; then
             echo "No new weekly report (no dailies in window?) — skipping commit."

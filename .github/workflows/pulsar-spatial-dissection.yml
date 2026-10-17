@@ -50,29 +50,13 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
         run: |
-          # `|| true` used to be the whole line. It was there for a real reason —
-          # run_dissection.py exits non-zero when the quality gate rejects a
-          # draft, which is a designed no-op, not a failure. But it also
-          # swallowed genuine upstream deaths: from 2026-08-15 to 08-24 every run
-          # logged `RuntimeError: qwen failed: HTTP Error 400` (the DashScope key
-          # was in Arrearage) and this job still reported success — ten
-          # consecutive days, zero dissections, zero alerts, and the failure()
-          # sentinel below could never fire because the step never failed.
-          # Same shape as vla-industry-radar/cron-radar.sh: stay green on the
-          # no-op, go red on an upstream error.
-          set +e
+          # run_dissection returns zero for unavailable full text or rejected drafts.
+          # An exception/LLM failure returns nonzero; retain that exit through tee.
+          # A paper's HTTP 404 is not a provider authentication failure.
+          set -o pipefail
+          python3 scripts/pulsar/test_gates.py
+          python3 scripts/pulsar/test_recovery.py
           python3 scripts/pulsar/run_dissection.py --count "${DISSECTIONS_PER_DAY}" 2>&1 | tee /tmp/dissect.log
-          set -e
-          # Keep this in step with scripts/pulsar/_llm.py's error strings: it
-          # raises LLMError("… all providers failed — deepseek(…): HTTP 401 …")
-          # and ("… no usable LLM provider — …"), neither of which matches the
-          # old "HTTP Error 4xx"/"qwen failed" wording that urllib used to
-          # produce. A stale pattern here means a dead key stays green again.
-          if grep -qiE 'Arrearage|invalid_api_key|insufficient_quota|HTTP Error 4[0-9][0-9]|HTTP 4[0-9][0-9]|qwen failed|all providers failed|no usable LLM provider' /tmp/dissect.log; then
-            echo "::error::upstream LLM/API failure (see log above) — not a quality-gate no-op"
-            exit 1
-          fi
-          exit 0
 
       - name: Sync counts, audit-gate, commit to main
         env:
@@ -87,6 +71,7 @@ jobs:
 
           # Mechanical landing: recompute every audit-enforced count from the tree.
           python3 scripts/sync_counts.py
+          python3 scripts/pulsar/sync_report_index.py
           python3 scripts/gen_mintlify_nav.py > docs.json
           python3 scripts/sync_readme_from_overview.py || true
 
