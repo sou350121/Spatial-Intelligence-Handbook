@@ -119,6 +119,11 @@ def _week_key(date_str: str) -> str:
     return f"{y}-W{w:02d}"
 
 
+def _is_historical_recovery(record: dict) -> bool:
+    """Late date-cohort imports are coverage, not current-week discoveries."""
+    return bool(record.get("source") == "backfill" and record.get("published_at") and record.get("recovered_at"))
+
+
 def _paradigm_drift_table(records: list[dict], max_weeks: int = 8) -> list[str]:
     """Paradigm × ISO-week cross-table — the drift instrument itself.
 
@@ -128,6 +133,8 @@ def _paradigm_drift_table(records: list[dict], max_weeks: int = 8) -> list[str]:
     """
     buckets: dict[str, Counter] = {}
     for r in records:
+        if _is_historical_recovery(r):
+            continue
         try:
             wk = _week_key(r.get("date", ""))
         except ValueError:
@@ -186,6 +193,9 @@ def render_overview(records: list[dict]) -> str:
         "the lower rows getting heavier week over week. (`·` = 0; **total** = weekly sample.)_",
         "",
     ]
+    recovered = sum(_is_historical_recovery(r) for r in records)
+    if recovered:
+        lines += [f"> Historical recovery: {recovered} late-imported records count toward total coverage and axis distributions, but are excluded from weekly drift and recent frontier picks. `date` is the handbook ingestion date; original submission dates are in `published_at`.", ""]
     lines += _paradigm_drift_table(records)
     lines += ["## Time axis — batch → streaming frontier", ""]
     lines += _axis_table(records, "time")
@@ -200,7 +210,7 @@ def render_overview(records: list[dict]) -> str:
     frontier = {"generative", "3R-SLAM-hybrid", "VLA", "world-model-as-policy"}
     edge = [
         r for r in sorted(records, key=lambda r: r.get("date", ""), reverse=True)
-        if r.get("rating") == "⚡" and r.get("axes", {}).get("paradigm") in frontier
+        if r.get("rating") == "⚡" and r.get("axes", {}).get("paradigm") in frontier and not _is_historical_recovery(r)
     ][:8]
     if edge:
         lines += ["---", "", "## ⚡ Leading edge (recent frontier-paradigm breakthroughs)", ""]

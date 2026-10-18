@@ -20,6 +20,7 @@ These mirror VLA-Handbook's `reports/` layout. 管線程式 [`scripts/pulsar/`](
 
 | 类型 | 日期 | 报告 |
 |---|---|---|
+| 日报 | 2026-10-18 | [阅读](./spatial-daily/2026-10-18.md) |
 | 日报 | 2026-10-16 | [阅读](./spatial-daily/2026-10-16.md) |
 | 日报 | 2026-10-15 | [阅读](./spatial-daily/2026-10-15.md) |
 | 日报 | 2026-10-12 | [阅读](./spatial-daily/2026-10-12.md) |
@@ -33,7 +34,6 @@ These mirror VLA-Handbook's `reports/` layout. 管線程式 [`scripts/pulsar/`](
 | 日报 | 2026-09-29 | [阅读](./spatial-daily/2026-09-29.md) |
 | 日报 | 2026-09-28 | [阅读](./spatial-daily/2026-09-28.md) |
 | 日报 | 2026-09-25 | [阅读](./spatial-daily/2026-09-25.md) |
-| 日报 | 2026-09-24 | [阅读](./spatial-daily/2026-09-24.md) |
 | 周报 | 2026-W42 | [阅读](./weekly/2026-W42.md) |
 | 周报 | 2026-W41 | [阅读](./weekly/2026-W41.md) |
 | 周报 | 2026-W40 | [阅读](./weekly/2026-W40.md) |

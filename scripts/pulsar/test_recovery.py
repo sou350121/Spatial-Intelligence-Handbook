@@ -281,4 +281,23 @@ class Routing(unittest.TestCase):
 
 
 
+import atlas
+
+class HistoricalScope(unittest.TestCase):
+    def rows(self):
+        current={'id':'2610.19999','title':'Current signal','date':'2026-10-18','rating':'⚡','link':'https://arxiv.org/abs/2610.19999','axes':{'paradigm':'generative'},'source':'pipeline'}
+        late={**current,'id':'2610.12345','title':'Historical signal','source':'backfill','published_at':'2026-10-06T00:00:00Z','recovered_at':'2026-10-18T00:00:00Z'}
+        return current,late
+    def test_late_import_does_not_change_weekly_signal_count(self):
+        current,late=self.rows()
+        self.assertEqual(atlas._paradigm_drift_table([current]),atlas._paradigm_drift_table([current,late]))
+    def test_coverage_keeps_history_but_frontier_does_not(self):
+        current,late=self.rows();page=atlas.render_overview([current,late])
+        self.assertIn('Coverage:** 2 papers',page);self.assertIn('Historical recovery: 1',page)
+        self.assertIn('Current signal',page);self.assertNotIn('Historical signal',page)
+    def test_existing_ordinary_sources_keep_their_behavior(self):
+        current,late=self.rows();late.pop('published_at');late.pop('recovered_at')
+        self.assertFalse(atlas._is_historical_recovery(current));self.assertFalse(atlas._is_historical_recovery(late))
+        self.assertIn('**2**','\n'.join(atlas._paradigm_drift_table([current,late])))
+
 if __name__ == '__main__': unittest.main(verbosity=2)

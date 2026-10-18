@@ -4,7 +4,7 @@
 > The point is not the list — it is the **drift**: watch where mass accumulates on the
 > paradigm axis (geometric → … → world-model-as-policy) as the field moves.
 
-**Coverage:** 3226 papers · 2026-07-08 → 2026-10-16 · ⚡ 265 · 🔧 1908 · 📖 1053
+**Coverage:** 3543 papers · 2026-07-08 → 2026-10-18 · ⚡ 285 · 🔧 2159 · 📖 1099
 
 > Seed corpus — grows every weekday as the daily pipeline runs. Machine-readable source: [`atlas.jsonl`](./atlas.jsonl).
 
@@ -16,19 +16,21 @@ _The money axis. Ordered classical → frontier; read the mass migrating rightwa
 
 ```
 axis value                 count
-geometric                  ██████·················· 197
-learned                    █████████████████······· 589
-hybrid                     █████████████··········· 435
-generative                 █████··················· 181
-3R-SLAM-hybrid             ························ 12
-VLA                        ████████████████████████ 822
-world-model-as-policy      █████████··············· 311
+geometric                  ██████·················· 215
+learned                    ███████████████████····· 700
+hybrid                     █████████████··········· 474
+generative                 ██████·················· 218
+3R-SLAM-hybrid             ························ 15
+VLA                        ████████████████████████ 895
+world-model-as-policy      █████████··············· 345
 ```
 
 ### Paradigm drift by week
 
 _Rows ordered classical → frontier. The field moving toward world models reads as
 the lower rows getting heavier week over week. (`·` = 0; **total** = weekly sample.)_
+
+> Historical recovery: 317 late-imported records count toward total coverage and axis distributions, but are excluded from weekly drift and recent frontier picks. `date` is the handbook ingestion date; original submission dates are in `published_at`.
 
 | paradigm \ week | W35 | W36 | W37 | W38 | W39 | W40 | W41 | W42 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -45,30 +47,30 @@ the lower rows getting heavier week over week. (`·` = 0; **total** = weekly sam
 
 ```
 axis value                 count
-filter-streaming           ███████████████········· 396
-fixed-lag                  █······················· 16
-incremental                ████████████············ 320
-per-scene                  ████████████████████████ 651
-feed-forward               ███████████████████████· 615
-temporal-transformer-rolling ██████████████·········· 377
+filter-streaming           ██████████████·········· 422
+fixed-lag                  █······················· 21
+incremental                ████████████············ 361
+per-scene                  ██████████████████████·· 689
+feed-forward               ████████████████████████ 748
+temporal-transformer-rolling ██████████████·········· 422
 ```
 
 ## Problem axis — what is being solved
 
 ```
 axis value                 count
-VLA                        ████████████████████████ 968
-navigation                 ████████████············ 474
-spatial-reasoning          ██████·················· 251
-reconstruction             █████··················· 204
-pose                       ███····················· 131
-tracking                   ██······················ 74
-mapping                    █······················· 55
-VSLAM                      █······················· 50
-depth                      █······················· 39
-VIO                        █······················· 39
-occupancy                  ························ 14
-SfM                        ························ 12
+VLA                        ████████████████████████ 1074
+navigation                 ████████████············ 532
+spatial-reasoning          ██████·················· 276
+reconstruction             █████··················· 239
+pose                       ███····················· 153
+tracking                   ██······················ 90
+mapping                    █······················· 60
+VSLAM                      █······················· 55
+depth                      █······················· 46
+VIO                        █······················· 44
+occupancy                  ························ 15
+SfM                        ························ 14
 VO                         ························ 9
 ```
 
@@ -76,32 +78,32 @@ VO                         ························ 9
 
 ```
 axis value                 count
-feature-grid               ████████████████████████ 669
-scene-graph                ██████████·············· 274
-pointmap                   ███████················· 186
-3DGS                       ██████·················· 155
-sparse                     ██████·················· 155
-mesh                       ███····················· 74
-BEV                        ███····················· 71
-voxel                      ██······················ 47
-implicit-sdf               █······················· 33
+feature-grid               ████████████████████████ 743
+scene-graph                █████████··············· 288
+pointmap                   ███████················· 211
+3DGS                       ██████·················· 173
+sparse                     █████··················· 165
+mesh                       ███····················· 93
+BEV                        ███····················· 81
+voxel                      ██······················ 55
+implicit-sdf               █······················· 36
 NeRF                       █······················· 30
-HD-map                     ························ 10
+HD-map                     ························ 12
 ```
 
 ## Sensor axis
 
 ```
 axis value                 count
-mono                       ████████████████████████ 989
-multi-modal                █████████████████······· 685
-RGBD                       ███████················· 303
-LiDAR                      ██······················ 68
+mono                       ████████████████████████ 1122
+multi-modal                ████████████████········ 769
+RGBD                       ███████················· 331
+LiDAR                      ██······················ 72
 event                      █······················· 36
-stereo                     █······················· 27
-IMU                        █······················· 25
-4D-radar                   ························ 18
-sonar                      ························ 7
+stereo                     █······················· 29
+IMU                        █······················· 27
+4D-radar                   ························ 20
+sonar                      ························ 8
 ```
 
 ---
