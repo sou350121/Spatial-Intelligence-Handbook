@@ -26,7 +26,7 @@ from _mdx_safe import safe_markdown
 REPO = Path(__file__).resolve().parent.parent.parent
 ATLAS = REPO / "reports" / "atlas" / "atlas.jsonl"
 
-# Zones a Spatial dissection can land in (perception territory). qwen picks one.
+# Permitted zones; only existing indexed directories are offered to the model.
 ZONES = [
     "foundations/feed-forward-3d", "foundations/3dgs-family", "foundations/nerf-family",
     "foundations/depth-foundation", "foundations/classical-slam", "foundations/pose-tracking",
@@ -86,20 +86,31 @@ def covered_repr(ids: set[str]) -> dict:
     return counts
 
 
+def available_zones() -> list[str]:
+    root = REPO.resolve()
+    return [zone for zone in ZONES
+            if (root / zone).is_dir()
+            and (root / zone / 'README.md').is_file()
+            and (root / zone).resolve().is_relative_to(root)
+            and (root / zone / 'README.md').resolve().is_relative_to(root)]
+
+
 def classify_zone(title: str, axes: dict, api_key: str) -> str:
+    zones = available_zones()
+    if not zones:
+        raise ValueError('No permitted indexed destination is available')
     prompt = (
         "从下面固定列表里选**一个**最贴切的目录给这篇 spatial-AI 论文归档，只输出目录字符串本身:\n"
-        + "\n".join(ZONES)
+        + "\n".join(zones)
         + f"\n\n论文标题: {title}\nontology: {json.dumps(axes, ensure_ascii=False)}\n只输出一个目录路径。"
     )
     # max_tokens=40 caps the qwen fallback; DeepSeek gets the full reasoning
     # budget instead (a 40-token DeepSeek call returns only truncation).
     ans = wd.call_qwen("你是 Spatial-Handbook 的归档分类器，只输出一个目录路径。", prompt,
                        api_key, max_tokens=40).strip().strip("`").strip()
-    for z in ZONES:
-        if z in ans:
-            return z
-    return "foundations/feed-forward-3d"  # safe default
+    if ans in zones:
+        return ans
+    raise ValueError('Classifier did not select a permitted indexed destination')
 
 
 def write_one(cand: dict, api_key: str, dry: bool) -> str | None:
@@ -122,7 +133,7 @@ def write_one(cand: dict, api_key: str, dry: bool) -> str | None:
         print(f"  skip {aid}: full text fetch failed ({e})", file=sys.stderr)
         return None
     zone = classify_zone(title0, axes, api_key)
-    if zone not in ZONES or not (REPO / zone).is_dir() or not (REPO / zone / 'README.md').is_file():
+    if zone not in available_zones():
         raise ValueError('Invalid or unindexed destination: ' + zone)
     today = datetime.date.today().isoformat()
     user = (f"arXiv id: {aid}\nTitle: {title}\nontology 5-axis: {json.dumps(axes, ensure_ascii=False)}\n"

@@ -232,4 +232,53 @@ class MdxAndArchive(unittest.TestCase):
             self.assertEqual(list(Path(d).glob('*.md')),[])
 
 
+class Routing(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.patch = patch.object(rd, 'REPO', self.root)
+        self.patch.start()
+        self.addCleanup(self.patch.stop)
+
+    def indexed(self, zone):
+        p = self.root / zone
+        p.mkdir(parents=True, exist_ok=True)
+        (p / 'README.md').write_text('# Index\n')
+
+    def test_unindexed_planning_is_not_offered(self):
+        self.indexed('foundations/feed-forward-3d')
+        self.indexed('foundations/spatial-math')
+        (self.root / 'embodiments/aerial/planning').mkdir(parents=True)
+        def choose(system, prompt, *args, **kwargs):
+            self.assertNotIn('\nembodiments/aerial/planning\n', prompt)
+            self.assertNotIn('\nembodiments/aerial\n', prompt)
+            self.assertIn('\nfoundations/spatial-math\n', prompt)
+            return 'foundations/spatial-math'
+        with patch.object(rd.wd, 'call_qwen', side_effect=choose):
+            self.assertEqual(rd.classify_zone('Tailsitter trajectory tracking', {}, ''),
+                             'foundations/spatial-math')
+
+    def test_indexed_specific_zone_is_selected_exactly(self):
+        self.indexed('embodiments/aerial')
+        self.indexed('embodiments/aerial/vio')
+        with patch.object(rd.wd, 'call_qwen', return_value='embodiments/aerial/vio'):
+            self.assertEqual(rd.classify_zone('VIO', {}, ''), 'embodiments/aerial/vio')
+
+    def test_no_eligible_destination_spends_no_model_call(self):
+        with patch.object(rd.wd, 'call_qwen') as call:
+            with self.assertRaises(ValueError):
+                rd.classify_zone('Test', {}, '')
+            call.assert_not_called()
+
+    def test_protected_or_traversal_output_is_not_a_fallback(self):
+        self.indexed('foundations/feed-forward-3d')
+        for answer in ['foundations/sensor-physics',
+                       'foundations/feed-forward-3d/../../sensor-physics']:
+            with self.subTest(answer=answer), patch.object(rd.wd, 'call_qwen', return_value=answer):
+                with self.assertRaises(ValueError):
+                    rd.classify_zone('Test', {}, '')
+
+
+
 if __name__ == '__main__': unittest.main(verbosity=2)
