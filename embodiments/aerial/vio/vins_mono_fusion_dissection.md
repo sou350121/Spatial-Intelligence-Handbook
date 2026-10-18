@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VIO (VINS-Mono, optional loop closure) → VI-SLAM (VINS-Fusion, with loop closure) + GPS fusion
 representation: Sparse landmarks + IMU bias + Marginalization prior
 sensor: Mono + IMU + GNSS optional
 paradigm: Geometric-FactorGraph + Ceres
 time: FixedLag-Smoother
 ref: ../../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # VINS-Mono / VINS-Fusion 解构 (VINS-Mono / VINS-Fusion Dissection)
 

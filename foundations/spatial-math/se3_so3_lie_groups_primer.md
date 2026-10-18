@@ -164,7 +164,7 @@ Ceres / GTSAM / g2o 都围绕这些操作构建 manifold-aware solver。`J_r(φ)
 |---|---|---|---|
 | Euler | 3 个数、直觉 | gimbal lock | 业余 IMU、动画 |
 | Rotation matrix | 直接复合 | 9 个数、会漂 | 教科书数学 |
-| 轴角 | 3 个数、θ<π 无 gimbal | π 处奇异 | so(3) 切空间 |
+| 轴角 | 3 个数、θ&lt;π 无 gimbal | π 处奇异 | so(3) 切空间 |
 | Unit quaternion | 平滑、4 个数 | 符号 / Hamilton vs JPL | SLAM / VIO / 航空 |
 | Lie group | manifold 正确的优化 | 学习曲线 | 每个现代 SLAM solver |
 

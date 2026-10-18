@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: occupancy
 representation: voxel
 sensor: LiDAR
 paradigm: generative
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 生成式语义场景补全 (Generative Semantic Scene Completion)  
 > **发布时间**：2026/08/27  
@@ -199,4 +199,4 @@ ref: ../../cheat-sheet/ontology.md §5
 [← Back to spatial-scene-completion README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2608.26737 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2608.26737 -->"

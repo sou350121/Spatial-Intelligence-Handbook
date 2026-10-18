@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: FeedForward3D (3D-grounded image matching + dense pointmap)
 representation: Pointmap pair + dense local features + reciprocal matches
 sensor: 2-view RGB (uncalibrated)
 paradigm: Learned-EndToEnd-Pairwise-WithMatchingHead
 time: FeedForward-OneShot (per pair)
 ref: ../../cheat-sheet/ontology.md §5.2
--->
+-->"
 
 # MASt3R 解构 (MASt3R Dissection — ECCV 2024)
 

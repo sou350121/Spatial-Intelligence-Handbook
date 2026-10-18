@@ -161,8 +161,8 @@ spatial AI problems
 | 關係 | 說明 |
 |---|---|
 | VO ⊊ VIO | VIO 嚴格擴展 VO 的 state，加入 IMU 因子 |
-| VSLAM = SLAM ∩ {camera as primary sensor} | 不是 ⊂，是「camera-主導 SLAM 方法的子類」 |
-| VINS = {VIO} ∪ {VI-SLAM} | umbrella term，不是公式 |
+| VSLAM = SLAM ∩ &#123;camera as primary sensor&#125; | 不是 ⊂，是「camera-主導 SLAM 方法的子類」 |
+| VINS = &#123;VIO&#125; ∪ &#123;VI-SLAM&#125; | umbrella term，不是公式 |
 | SfM ≠ offline VSLAM | 不同學術譜系（photogrammetry 1980s+ vs robotics 1990s+） |
 | Place recognition ⊂ reloc 的第一階段 | 不是 reloc 的「弱版本」 |
 | **3R-SLAM Hybrid ≠ Feed-forward** | learned 3D backbone（DUSt3R/VGGT） + 傳統 SLAM keyframe/loop closure；2025-2026 新類 |

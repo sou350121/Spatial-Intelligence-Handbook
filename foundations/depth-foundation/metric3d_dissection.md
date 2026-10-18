@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Metric depth estimation
 representation: Per-pixel depth map (metric)
 sensor: Single RGB (+ intrinsic)
 paradigm: Learned-Foundation (metric)
 time: FeedForward-OneShot
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # Metric3D v1 + v2 (Metric3D 度量单目深度解构 — ICCV 2023 + 2024)
 
@@ -175,7 +175,7 @@ Metric-monocular 轨是部署到机器人上的那个. 预计 intrinsics-free �
 | Range | 场景 | Verified accuracy | 状态 | 失效 |
 |---|---|---|---|---|
 | **近 0-1 m** | Manipulation | NYUv2 ViT-g: **AbsRel=0.067, RMS=0.260 m** | ✅ 甜区 | 镜面/透明; rolling shutter |
-| **中 1-30 m** | 室内/慢户外 | KITTI ViT-g: **AbsRel=0.051, RMS=2.403 m**；**Issue #161 户外实测 2 m 实距 ViT-S 1.3 m (35% off)，ViT-L 1.5 m (25% off)** | ✅ 主战场 | In-the-wild << KITTI benchmark |
+| **中 1-30 m** | 室内/慢户外 | KITTI ViT-g: **AbsRel=0.051, RMS=2.403 m**；**Issue #161 户外实测 2 m 实距 ViT-S 1.3 m (35% off)，ViT-L 1.5 m (25% off)** | ✅ 主战场 | In-the-wild &lt;&lt; KITTI benchmark |
 | **远 30-200 m** | AD/drone | KITTI 上界 ~80 m；**Issue #161 实测 4 m 实距 ViT-S 11.45 m (186% off)，ViT-L 20.764 m (419% off)** UNVERIFIED if representative | ⚠️ 退化 | 系统性偏差；**ViT-L 远端比 ViT-S 更差**（反直觉） |
 | **超远 >200 m / sky** | 天际 | 无 verified；用户报告 sky **clipped 到固定上限** (Issue #161 paraphrase) | ❌ 失效 | Sky 是 clip hack；>100 m 必须 LiDAR/stereo |
 
@@ -273,9 +273,9 @@ De-canonical: D  = (1/ω_d) · D_c
 | # | Pitfall | Issue 證據（原文驗證） | 危害 / 部署含義 |
 |---|---|---|---|
 | **P1** | **大 focal 靜默退化**（>>1000 px） | **[#19](https://github.com/YvanYin/Metric3D/issues/19)**：使用者 `K=[1966.9, 1969.5, 948.7, 498.4]` 拿到 **RMSE ~10 m**；同模型在 SHIFT 數據（`K=[640,640,640,400]`）只有 **RMSE ~7 m**. 作者**親口回覆**："在训练中，大部分数据也并不1000。比如taskonomy，大部分在500-700左右"（訓練 focal 主要落在 **500–700 px**） | **訓練分布是 500–700 px，不是論文寫的 ~1000 px canonical**. 部署 focal >1000 px 的相機（手機長焦、工業）→ 靜默深度錯 |
-| **P2** | **outdoor 中遠距系統性偏差** | **[#161](https://github.com/YvanYin/Metric3D/issues/161)**：實測 outdoor，輸入 3024×4032 縮 616×1064，canonical 1000，real 3000：<br>• 真距 2 m → ViT-S **1.3 m (-35%)**, ViT-L **1.5 m (-25%)**<br>• 真距 4 m → ViT-S **11.45 m (+186%)**, ViT-L **20.76 m (+419%)**<br>• 使用者問 "is the model clipped... to account for the sky?"（未答） | **ViT-L 在遠距比 ViT-S 更差**（反直觉，可能 ViT-L overfit indoor）. KITTI AbsRel 0.051 是 benchmark cherry-pick，**in-the-wild ≥4 m 直接崩**. **AD/drone 戶外用此模型 = 高危** |
+| **P2** | **outdoor 中遠距系統性偏差** | **[#161](https://github.com/YvanYin/Metric3D/issues/161)**：實測 outdoor，輸入 3024×4032 縮 616×1064，canonical 1000，real 3000：<br />• 真距 2 m → ViT-S **1.3 m (-35%)**, ViT-L **1.5 m (-25%)**<br />• 真距 4 m → ViT-S **11.45 m (+186%)**, ViT-L **20.76 m (+419%)**<br />• 使用者問 "is the model clipped... to account for the sky?"（未答） | **ViT-L 在遠距比 ViT-S 更差**（反直觉，可能 ViT-L overfit indoor）. KITTI AbsRel 0.051 是 benchmark cherry-pick，**in-the-wild ≥4 m 直接崩**. **AD/drone 戶外用此模型 = 高危** |
 | **P3** | **canonical focal 違反無 fallback** | [#19](https://github.com/YvanYin/Metric3D/issues/19) + [#95](https://github.com/YvanYin/Metric3D/issues/95) + [#161](https://github.com/YvanYin/Metric3D/issues/161) 系列；代碼層面無顯式 warning，僅在 README 留 canonical 數字 | 部署無 in-distribution 檢查 → P1+P2 持續複現. **必須在輸入層加 `f_real / f_canon` 邊界檢查 + warning** |
-| **P4** | **bfloat16 硬編碼，老 GPU 跑不通** | **[#81](https://github.com/YvanYin/Metric3D/issues/81)**：使用者引用代碼："Your model uses `torch.bfloat16` which is only supported by the newer GPUs"，建議 `dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float32`. **未合併** | **sm<80 (Ampere 之前) 跑不通**. 部署到 T4/V100/老 Jetson 需自己 monkey-patch decoder |
+| **P4** | **bfloat16 硬編碼，老 GPU 跑不通** | **[#81](https://github.com/YvanYin/Metric3D/issues/81)**：使用者引用代碼："Your model uses `torch.bfloat16` which is only supported by the newer GPUs"，建議 `dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float32`. **未合併** | **sm&lt;80 (Ampere 之前) 跑不通**. 部署到 T4/V100/老 Jetson 需自己 monkey-patch decoder |
 | **P5** | **ONNX 動態 shape 邊角 case** | [#117](https://github.com/YvanYin/Metric3D/issues/117) / [#126](https://github.com/YvanYin/Metric3D/issues/126)；README 標 "ONNX support with dynamic shapes" 但實測動態尺寸有失敗模式 | TensorRT/Jetson 部署可能要固定 shape，犧牲彈性 |
 | **P6** | **fine-tune KITTI-like shape mismatch** | [#156](https://github.com/YvanYin/Metric3D/issues/156) / [#91](https://github.com/YvanYin/Metric3D/issues/91)；自定義數據集 fine-tune 直接報 shape 錯 | domain fine-tune 路徑不穩；對 contrarian domain（水下 / 醫學）必須自己改數據 pipeline |
 | **P7** | **v2 沒有 per-pixel confidence**（未來無 roadmap） | [#212](https://github.com/YvanYin/Metric3D/issues/212)（"Depth confidence and normals uncertainty values"，open，未答）；[#215](https://github.com/YvanYin/Metric3D/issues/215) 請求 DINOv3 backbone，未答 | 下游融合無 per-pixel 加權；只能整圖 trust/不 trust（同 §10.3 結論） |

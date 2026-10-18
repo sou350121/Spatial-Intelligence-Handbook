@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: pose
 representation: n/a
 sensor: event
 paradigm: hybrid
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 概率事件：面向 Quanta（光子计数）传感的实时感知原语 (Quanta Perception as Probabilistic Events)
 
@@ -13,7 +13,7 @@ ref: ../../cheat-sheet/ontology.md §5
 > **论文 / 模型名**：Probabilistic Events（probabilistic event camera）
 > **核心定位**：把"光子计数传感器 → 离线重建 → 感知"这条链路，换成"直接在每个像素上对光子流做递归贝叶斯推断（run-length 后验）"的实时中间表征——不需要显式运动补偿、不需要重建、不需要重训下游模型，吞吐比 SOTA quanta 重建基线快最多四个数量级。
 
-导语：Quanta（SPAD/QIS）传感器能捕获单个光子，但 1 MPixel 阵列的原始二进制流超过 100 Gbits/s，现有重建法处理数秒采集要花几分钟，实时机器人根本用不了。本文的结论是：不必重建图像——把"上次强度变化以来经过多久"（run-length）当作每像素的后验信念状态在线推断，就能同时拿到运动自适应 flux、时间稳定性图与熵不确定性，并在 4090 上保持 51 kqFPS 输入、1650 FPS 输出（256×512），在 <0.05 lux 下跑通跑步人体姿态估计。
+导语：Quanta（SPAD/QIS）传感器能捕获单个光子，但 1 MPixel 阵列的原始二进制流超过 100 Gbits/s，现有重建法处理数秒采集要花几分钟，实时机器人根本用不了。本文的结论是：不必重建图像——把"上次强度变化以来经过多久"（run-length）当作每像素的后验信念状态在线推断，就能同时拿到运动自适应 flux、时间稳定性图与熵不确定性，并在 4090 上保持 51 kqFPS 输入、1650 FPS 输出（256×512），在 &lt;0.05 lux 下跑通跑步人体姿态估计。
 
 ---
 
@@ -165,7 +165,7 @@ $$\omega_t(\mathbf p)=\sum_{r=0}^{t}\frac{2}{r+2}\,P\!\left(r_t=r\mid B_{1:t}(\m
 
 **Trade-off 一览**
 - **时间分辨率 vs 算力余量**：$N_{\text{sum}}$ binning（4-bit/15 帧、5-bit/31 帧）把 100 kHz 二进制传感器当 ≈3 kHz 多比特相机，吞吐上去了，但最小曝光升到约 **0.1–0.3 ms**，会引入轻微运动模糊。
-- **空间结构保真 vs 速度**：梯度（最省）< DoG < Log-Gabor（最贵，且边缘附近易 ringing/blooming）；作者选择"偏 responsivity"——宁可动态物附近留噪声，也不要运动模糊（残噪可由下游去噪器兜底）。
+- **空间结构保真 vs 速度**：梯度（最省）&lt; DoG &lt; Log-Gabor（最贵，且边缘附近易 ringing/blooming）；作者选择"偏 responsivity"——宁可动态物附近留噪声，也不要运动模糊（残噪可由下游去噪器兜底）。
 - **内存**：设计上常数内存（每像素 top-K=5–8、常数时间递归）；**显存占用/内存带宽实测数字论文未报告**。
 - **分辨率行为**：256×256 与 512×512 之间出现吞吐平台（overhead-bound），到 1024×1024 才转为亚线性增长（开始受内存带宽限制，megapixel 处饱和）。
 - **压缩拓扑**：视频编解码比事件 delta 编码压缩率高 1–2 个数量级（同质量下），但事件编码在"严格 on-sensor 压缩"场景更省算力——论文明说这不是绝对排序，而是设计空间。
@@ -175,7 +175,7 @@ $$\omega_t(\mathbf p)=\sum_{r=0}^{t}\frac{2}{r+2}\,P\!\left(r_t=r\mid B_{1:t}(\m
 
 **数据 / 采集条件（逐字取自全文）**
 - **真实采集**：1-megapixel color quanta sensor（图 1 / 图 9 的彩色结果）。
-- **极低光真实采集**：**SwissSPAD2 sensor**，平均 **<0.05 photons per pixel (PPP)**（对应 **<0.05 lux** 照明）。
+- **极低光真实采集**：**SwissSPAD2 sensor**，平均 **&lt;0.05 photons per pixel (PPP)**（对应 **&lt;0.05 lux** 照明）。
 - **受控真值评测**：**VisionSim dataset**（原文亦写作 VisionSIM [25]），提供精确 depth 与 flow 参考（定量表在 Extended Data Tab. 2，**主文未给数字**）。
 - **图像质量量化**：**i2k high-speed dataset** [11]（对 QUIVER / gQIR / NAFNet / FastDVDNet / streaming EMA 做对比，见 Extended Data Figs. 1–2）。
 - **时间稳定性真值**：从 i2k 取 40 ms 序列，用 **RIFE** 插值到 **96 kHz**；把本文模型作用于"干净高速序列"（强度视为方差可忽略的高斯 r.v.）得到目标窗口。
@@ -249,7 +249,7 @@ $$\omega_t(\mathbf p)=\sum_{r=0}^{t}\frac{2}{r+2}\,P\!\left(r_t=r\mid B_{1:t}(\m
 
 **Repo 状态核查**：全文（含参考文献）**没有给出本文的官方代码库**。正文/参考文献中出现的 `github.com` 链接均为第三方依赖（`ultralytics/ultralytics`、`WISION-Lab/visionsim`），不属于本文实现的官方仓库；因此**无 issue 流可供引用**。以下 pitfall **由 §6 失败模式 + §1/§2 的方法约束推导**，未经 issue 验证，标注为 `DERIVED (unverified)`。
 
-1. **`DERIVED`｜危险率 $\gamma=10^{-5}$ 是硬编码常量，低光场景会"反应迟钝"**。§6 失败模式 1（后验对陈旧假设过度自信、漏检变点）直接来自 §2 的 hazard 机制：$\gamma$ 越小，变化点先验越低（§3 玩具演算显示 ~10 帧强证据才推动 ~8% 概率质量）。论文报告的工作区间是"光子检出概率中间 97%"，**没有给出任何按光照/运动自适应调 $\gamma$ 的规则**。工程后果：把 <0.05 lux 场景直接套用默认 $\gamma$ 会看到明显运动模糊，而重调 $\gamma$ 又缺乏论文提供的标定流程。`UNVERIFIED`
+1. **`DERIVED`｜危险率 $\gamma=10^{-5}$ 是硬编码常量，低光场景会"反应迟钝"**。§6 失败模式 1（后验对陈旧假设过度自信、漏检变点）直接来自 §2 的 hazard 机制：$\gamma$ 越小，变化点先验越低（§3 玩具演算显示 ~10 帧强证据才推动 ~8% 概率质量）。论文报告的工作区间是"光子检出概率中间 97%"，**没有给出任何按光照/运动自适应调 $\gamma$ 的规则**。工程后果：把 &lt;0.05 lux 场景直接套用默认 $\gamma$ 会看到明显运动模糊，而重调 $\gamma$ 又缺乏论文提供的标定流程。`UNVERIFIED`
 
 2. **`DERIVED`｜top-K 分层剪枝 + 每像素变长状态，与静态图导出/边缘部署结构性冲突**。方法约束：每帧需要对 run-length 概率**排序并保留 top-K（K≈5–8）再重归一化**，且每像素携带 $\alpha_s,\beta_s,\mu_s$ 等**随 run 数增长的历史量**。这是"每帧一次 per-pixel sort + 变长/有状态控制流"，与 ONNX/TensorRT 的静态 shape、无数据依赖分支的假设相冲突；同时论文承认当前实现是 `torch.compile`，**自定义 CUDA kernel（状态驻留寄存器、融合算子）尚未做**。工程后果：直接照搬论文吞吐预期做边缘部署会大幅落空——Jetson Orin Nano 上 1 MPixel 只有 ≈3,200 qFPS，而 4090 上是 ≈41,000 qFPS（fast 变体），差约一个数量级。`UNVERIFIED`
 
@@ -263,4 +263,4 @@ $$\omega_t(\mathbf p)=\sum_{r=0}^{t}\frac{2}{r+2}\,P\!\left(r_t=r\mid B_{1:t}(\m
 
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2608.27584 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2608.27584 -->"

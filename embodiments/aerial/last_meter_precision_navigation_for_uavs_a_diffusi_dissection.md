@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: n/a
 sensor: mono
 paradigm: hybrid
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 无人机"最后一米"精密导航:DreamNav 的扩散精修空中视觉伺服 (Last-Meter Precision Navigation for UAVs: A Diffusion-Refined Aerial Visual Servoing Approach)
 
@@ -394,4 +394,4 @@ $\mathbf{h}=H_\phi(S)$ 是 ControlNet 的空间 hint（源图），$\mathbf{c}_p
 > **Status**：v0.1 · 基于 arXiv 全文（HTML 抽取版，Appendix I 缺失、图表数值逐字取自正文表格）· 未在真机复现的数字标 `UNVERIFIED`
 > **UNVERIFIED 清单**：§3 玩具例子的全部数值（显式声明为教学假设）；§2(c) 中对 $\mathcal{L}_{\text{dist}}$ 的解读（原文该式渲染错位）；$\Omega_d=\{-1.5,0,+1.5\}$ 的单位（原文未标注）；§8 全部 pitfall（由 §6 失败模式 + 方法约束推导，未经任何 GitHub issue 验证）。
 
-<!-- source: https://arxiv.org/abs/2607.04352 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.04352 -->"

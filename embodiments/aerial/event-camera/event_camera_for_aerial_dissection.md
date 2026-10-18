@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VO + ObstacleAvoidance + PointTracking (high-speed / low-light)
 representation: Sparse event stream
 sensor: Event camera (DVS) + IMU
 paradigm: Event-driven classical + Learned
 time: Streaming async
 ref: ../../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # 无人机事件相机解构 — UZH RPG 谱系 (Event Cameras for Aerial — UZH RPG Line Dissection)
 
@@ -43,7 +43,7 @@ DVS 2008 (Lichtsteiner) ─► DAVIS 2014 (frame + event 混合) ─► EVO RA-L
 A standard CMOS frame camera integrates photons over an exposure window and emits a 2D array of intensities at frame boundaries (30 / 60 / 120 Hz). A Dynamic Vision Sensor (DVS) pixel works differently:
 
 - Each pixel has its own async comparator that fires an **event** when log-intensity changes by threshold C ≈ 0.15–0.2 log-units `UNVERIFIED`.
-- An event is `(x, y, t, polarity)` with polarity ∈ {+1, −1} (brighten / darken).
+- An event is `(x, y, t, polarity)` with polarity ∈ &#123;+1, −1&#125; (brighten / darken).
 - Timestamp resolution ~1 μs on Prophesee Gen4 `UNVERIFIED`.
 
 The consequences:

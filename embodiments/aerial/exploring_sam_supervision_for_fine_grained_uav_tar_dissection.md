@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: mono
 paradigm: learned
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 用 SAM3 监督训练轻量 UAV 目标分割：数据稀缺下的细粒度分割探索 (Exploring SAM Supervision for Fine-Grained UAV Target Segmentation under Data Scarcity)
 
@@ -290,4 +290,4 @@ $$\mathcal{L} = \mathrm{BCE}\big(f_\theta(x),\; \Phi_{\mathrm{SAM3}}(x)\big)$$
 [← Back to UAV-Segmentation README](./README.md)
 > **Status**：v0.1 · 基于 arXiv 全文（2607.03754v1）· 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.03754 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.03754 -->"

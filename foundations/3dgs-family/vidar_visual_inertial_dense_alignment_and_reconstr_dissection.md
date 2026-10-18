@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: reconstruction
 representation: n/a
 sensor: mono
 paradigm: hybrid
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # VIDAR: Visual-Inertial Dense Alignment and Reconstruction via a Geometric Foundation Model  
 > **发布时间**：2026/07/19  
@@ -212,4 +212,4 @@ VIO 实际轨迹：
 [← Back to reconstruction README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.17171 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.17171 -->"

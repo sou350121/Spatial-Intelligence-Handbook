@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VO
 representation: sparse
 sensor: mono
 paradigm: 3R-SLAM-hybrid
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # DROID-ANCHOR: Odometry-Anchored Recurrent Metric Depth Estimation  
 > **发布时间**：2026/07/19  
@@ -45,7 +45,7 @@ DROID-ANCHOR 解决的是：**单目 SLAM 如何在不牺牲实时性、不引�
 
 | 模块 | 输入 | 输出 | 训练 vs 推理差异 |
 |------|------|------|------------------|
-| **Odom-Sequence Encoder (LSTM)** | {ΔT<sub>i→i+1</sub>} ∈ SE(3), length L | latent z<sub>ij</sub> ∈ ℝ<sup>64</sup> | 训练时用 synthetic noise perturbation (Eq.6–7)；推理时用 raw odometry |
+| **Odom-Sequence Encoder (LSTM)** | &#123;ΔT<sub>i→i+1</sub>&#125; ∈ SE(3), length L | latent z<sub>ij</sub> ∈ ℝ<sup>64</sup> | 训练时用 synthetic noise perturbation (Eq.6–7)；推理时用 raw odometry |
 | **Odometry MLP (Spatial Broadcast)** | z<sub>ij</sub> | 2D feature map (H×W×64) | 无差异；固定结构，无 dropout |
 | **ConvGRU Update Operator** | visual cost volume + optical flow + odom feature map | updated hidden state h<sup>(k)</sup> | 新增 64-channel input dim；仅该通道参与梯度更新（§3.5） |
 | **Uncertainty-Aware Metric Backend (BA<sub>odom</sub>)** | G<sub>ij</sub>, ΔO<sub>ij</sub>, σ<sup>(k)</sup> (from Covariance Head) | refined poses G<sub>i</sub>, metric depth d<sup>(k)</sup> | Jacobians (J<sub>i</sub><sup>o</sup>, J<sub>j</sub><sup>o</sup>) computed analytically at each step；Σ<sub>odom,ij</sub> regressed per edge |
@@ -123,9 +123,9 @@ Covariance Head 输出：
 |------|----|------|
 | **延迟（per frame）** | `论文未报告` | 未给出 FPS / ms/frame；仅提“real-time closed-loop control”要求 |
 | **优化步数** | `n = 8`（隐含于 Eq.9 α<sub>k</sub> 定义） | “n−k−1” 表明共 n 步迭代；ablation 中未改变此值 |
-| **显存占用** | `论文未报告` | 未提及 VRAM / model size；但基于 DROID-SLAM 主干（≈448-dim features），新增 64-dim + Covariance Head，预计 <10% 增量 |
+| **显存占用** | `论文未报告` | 未提及 VRAM / model size；但基于 DROID-SLAM 主干（≈448-dim features），新增 64-dim + Covariance Head，预计 &lt;10% 增量 |
 | **吞吐** | `论文未报告` | 未报告 batch size / throughput；实验平台为 RTX 4080 笔记本 GPU，暗示边缘部署可行 |
-| **部署约束** | ✅ 支持 ONNX（推断）<br>❌ 不支持 TensorRT（因 LSTM + custom BA layer） | 论文未提导出格式；但 BA layer 含 analytical Jacobians（Appendix A.3）和 Schur complement，需自定义算子 |
+| **部署约束** | ✅ 支持 ONNX（推断）<br />❌ 不支持 TensorRT（因 LSTM + custom BA layer） | 论文未提导出格式；但 BA layer 含 analytical Jacobians（Appendix A.3）和 Schur complement，需自定义算子 |
 
 > ⚠️ **Trade-off 总结**：用 **1× LSTM + 1× MLP + 1× Covariance Head** 换取 metric grounding，**不增加帧间 pipeline latency**（odometry 特征在 ConvGRU 内部融合，非串行后处理）；代价是 BA 层需 CPU/GPU hybrid 或 custom kernel（未实现）。
 
@@ -137,9 +137,9 @@ Covariance Head 输出：
 |------|----|-----------|
 | **训练/评测数据集** | TUM RGB-D benchmark | §4.1 明确：“We evaluate our method on the TUM RGB-D benchmark [8]” |
 | **数据组成** | monocular RGB images + depth maps + ground-truth camera trajectories (metric scale) | §4.1 原文：“which provides monocular RGB images, depth maps, and ground-truth camera trajectories with metric scale” |
-| **评测指标** | AbsRel ↓, RMSE ↓, δ₁ ↑ （δ₁ = % pixels with max(d*/d, d/d*) < 1.25） | §4.1 原文逐字复制：“Absolute Relative Error (AbsRel), Root Mean Squared Error (RMSE), and threshold accuracy δ₁” + definition |
+| **评测指标** | AbsRel ↓, RMSE ↓, δ₁ ↑ （δ₁ = % pixels with max(d*/d, d/d*) &lt; 1.25） | §4.1 原文逐字复制：“Absolute Relative Error (AbsRel), Root Mean Squared Error (RMSE), and threshold accuracy δ₁” + definition |
 | **基线模型** | DROID-SLAM, Depth Anything V3, MOGS（attempted but incomplete） | §4.2 原文：“We compare our method against DROID-SLAM... We attempted to include MOGS [12]; however, the open-source package is currently not complete.” |
-| **关键数字（TUM）** | Droid-Anchor: AbsRel=0.528, RMSE=1.663, δ₁=0.392<br>DROID-SLAM: AbsRel=0.617, RMSE=6.800, δ₁=0.373 | Table in §4.2 — copy-paste exact values |
+| **关键数字（TUM）** | Droid-Anchor: AbsRel=0.528, RMSE=1.663, δ₁=0.392<br />DROID-SLAM: AbsRel=0.617, RMSE=6.800, δ₁=0.373 | Table in §4.2 — copy-paste exact values |
 
 ---
 
@@ -200,4 +200,4 @@ Covariance Head 输出：
 [← Back to slam-vio-migration README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.17058 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.17058 -->"

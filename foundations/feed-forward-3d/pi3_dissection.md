@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Reference-Free Feed-Forward 3D (permutation-equivariant variant)
 representation: Affine-invariant camera pose + scale-invariant local pointmap (no privileged anchor frame)
 sensor: Multi-view RGB (unordered set)
 paradigm: Learned-EndToEnd + Permutation-Equivariant attention (no reference token, no positional bias on view index)
 time: Feed-forward batch (one-shot, order-independent)
 ref: ../../cheat-sheet/ontology.md §5.2 / §13
--->
+-->"
 
 # π³ 解构 (Pi3 — Permutation-Equivariant Visual Geometry Learning)
 

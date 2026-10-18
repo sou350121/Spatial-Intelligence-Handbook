@@ -181,7 +181,7 @@ Wayve's tight loop is a strength if the AD thesis pans out; Cosmos's breadth hed
 
 ## 🤖 Moltbot Updates
 
-<!-- Future Moltbot pipeline appends dated entries here. Format: YYYY-MM-DD — one-sentence event + source URL. -->
+[//]: # "<!-- Future Moltbot pipeline appends dated entries here. Format: YYYY-MM-DD — one-sentence event + source URL. -->"
 
 ---
 

@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: BEV
 sensor: multi-modal
 paradigm: hybrid
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # DeGuNet: Depth-Guided Ultra-Compact Backbones for Efficient LiDAR-Camera 3D Detection  
 > **发布时间**：2026/07/14  
@@ -188,4 +188,4 @@ $$
 [← Back to multi-modal README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.12419 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.12419 -->"

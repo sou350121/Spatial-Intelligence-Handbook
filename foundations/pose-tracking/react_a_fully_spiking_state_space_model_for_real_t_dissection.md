@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: tracking
 representation: n/a
 sensor: event
 paradigm: learned
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # REACT：面向实时事件驱动时间感知的全脉冲状态空间模型 (REACT: A Fully Spiking State-Space Model for Real-Time Event-Driven Temporal Perception)
 
@@ -66,9 +66,9 @@ ref: ../../cheat-sheet/ontology.md §5
 
 | 模块 | 输入 | 输出 | 训练时 | 推理时 |
 |---|---|---|---|---|
-| 事件编码 | 原始事件 (t_k, x_k, y_k, p_k) | 通道索引 j_k = p_k·HW + y_k·W + x_k ∈ {0,…,2HW−1}；间隔 ∆t_k = t_k − t_{k−1}（ms，∆t_1 = 0） | 变长流右填充 + mask | 严格逐事件 |
-| Embedding | j_k | z_k = Embed(j_k) ∈ ℝ^D + LayerNorm，查表 E ∈ ℝ^{2HW×D}（可读作逐像素逐极性的突触扇入） | 同一张表 | 同一张表（**参数主来源**） |
-| C-SiLIF 层（N=2 个残差块，D=128） | z_k, ∆t_k | 二值脉冲序列 s_k ∈ {0,1} | **并行**：Hillis–Steele 前缀扫描 O(log L) 深度 / O(L) 工作量；arctangent surrogate（宽度 2）反传 | **串行**：每个事件一次状态更新 |
+| 事件编码 | 原始事件 (t_k, x_k, y_k, p_k) | 通道索引 j_k = p_k·HW + y_k·W + x_k ∈ &#123;0,…,2HW−1&#125;；间隔 ∆t_k = t_k − t_&#123;k−1&#125;（ms，∆t_1 = 0） | 变长流右填充 + mask | 严格逐事件 |
+| Embedding | j_k | z_k = Embed(j_k) ∈ ℝ^D + LayerNorm，查表 E ∈ ℝ^&#123;2HW×D&#125;（可读作逐像素逐极性的突触扇入） | 同一张表 | 同一张表（**参数主来源**） |
+| C-SiLIF 层（N=2 个残差块，D=128） | z_k, ∆t_k | 二值脉冲序列 s_k ∈ &#123;0,1&#125; | **并行**：Hillis–Steele 前缀扫描 O(log L) 深度 / O(L) 工作量；arctangent surrogate（宽度 2）反传 | **串行**：每个事件一次状态更新 |
 | 状态压缩 | 相邻 token | 合并 token、∆t 相加 | masked-mean pooling（DVS128-Gesture ×32；EvTTC **不池化**） | 同 |
 | Channel-mixing | 脉冲 train | 跨通道混合 | 线性层 | 线性层（**约 90% 估算能耗在此**） |
 | 读出 | 末层 pooled token | 手势：11 类分布 / TTC：log η 空间的 (μ_i, s_i) | CE + label smoothing / Gaussian NLL | 线性层；神经形态上等价于"不发放的积分器"，直接读膜电位 |
@@ -80,9 +80,9 @@ ref: ../../cheat-sheet/ontology.md §5
 **⚡ Eureka Moment：脉冲的 reset 是敌人——把状态保下来、让 ∆t 进到转移系数里，就能用 SSM 的线性递推换来"事件原生时间尺度"的连续感知。**
 
 三个动作构成这个洞见：
-1. **∆t 驱动离散化**：δ_k = e^ρ·∆t_k，α_k = exp((−e^{λ_re} + i λ_im)·δ_k)。事件间隔不是被 bin 掉，而是直接指数进 α_k。每个神经元用自己的时间单位（异质 e^ρ）度量时间。
-2. **No reset after spike**：s_k = Θ(2Re(u_k) − ϑ) 只是读出；u_k = α_k u_{k−1} + b z_k 保持线性 → 递推可结合 (Eq. 6)，训练可并行，且长程时间依赖不被反复丢弃。
-3. **稳定性由构造保证**：e^{λ_re} > 0 ⇒ |α_k| < 1 对任意正间隔成立；每个神经元等价于阻尼谐振子，冲激响应 |b|e^{−e^{λ_re}t}cos(λ_im t + φ)，相位 φ 提供时间模式选择性而无需显式 delay 参数。
+1. **∆t 驱动离散化**：δ_k = e^ρ·∆t_k，α_k = exp((−e^&#123;λ_re&#125; + i λ_im)·δ_k)。事件间隔不是被 bin 掉，而是直接指数进 α_k。每个神经元用自己的时间单位（异质 e^ρ）度量时间。
+2. **No reset after spike**：s_k = Θ(2Re(u_k) − ϑ) 只是读出；u_k = α_k u_&#123;k−1&#125; + b z_k 保持线性 → 递推可结合 (Eq. 6)，训练可并行，且长程时间依赖不被反复丢弃。
+3. **稳定性由构造保证**：e^&#123;λ_re&#125; > 0 ⇒ |α_k| &lt; 1 对任意正间隔成立；每个神经元等价于阻尼谐振子，冲激响应 |b|e^&#123;−e^&#123;λ_re&#125;t&#125;cos(λ_im t + φ)，相位 φ 提供时间模式选择性而无需显式 delay 参数。
 
 消融证据（Table IV，EvTTC）：LIF（实值 / 固定衰减 / 带 reset）e_TTC = 116.9%；**仅去掉 reset** → 84.1%；换成 SiLIF（实值、可学习衰减）→ 11.42%；C-SiLIF → **9.3%**。即"无 reset"贡献巨大，"复数振荡模式"再贡献最后一截。
 
@@ -130,7 +130,7 @@ $$u_k = \underbrace{\exp\!\big((-e^{\lambda_{\mathrm{re}}}+i\lambda_{\mathrm{im}
 $$j_k = p_k HW + y_k W + x_k \in \{0,\dots,2HW-1\},\qquad \Delta t_k = t_k - t_{k-1},\ \Delta t_1=0$$
 
 - j_k 携带 **where**，∆t_k 携带 **when**；后者以连续量而非 bin 索引进入网络。
-- z_k = Embed(j_k) ∈ ℝ^D，查表 E ∈ ℝ^{2HW×D}，后接 LayerNorm。
+- z_k = Embed(j_k) ∈ ℝ^D，查表 E ∈ ℝ^&#123;2HW×D&#125;，后接 LayerNorm。
 
 **② C-SiLIF 连续动力学（目标：给神经元一个连续时间、可学习的冲激响应）**
 
@@ -138,7 +138,7 @@ $$\frac{du}{dt} = \Lambda u + b\,x(t),\qquad \Lambda = -e^{\lambda_{\mathrm{re}}
 
 | 变量 | 含义 |
 |---|---|
-| λ_re | log 参数化的衰减率（e^{λ_re} > 0 保证稳定） |
+| λ_re | log 参数化的衰减率（e^&#123;λ_re&#125; > 0 保证稳定） |
 | λ_im | 角频率（振荡模式） |
 | b | 复数输入增益，逐神经元学习 |
 | ρ | 逐神经元可学习的时间尺度缩放（δ_k = e^ρ·∆t_k） |
@@ -150,8 +150,8 @@ $$\alpha_k = \exp\!\big((-e^{\lambda_{\mathrm{re}}}+i\lambda_{\mathrm{im}})\,\de
 
 - 事件作为 **Dirac 冲激**在自身时间戳注入，所以物理间隔只通过 α_k 进入递推。
 - 因子 2 来自共轭对称状态对的实值观测：u + ū = 2Re(u)。
-- **|α_k| < 1** 对任意正间隔成立（因为 e^{λ_re} > 0）。
-- 冲激响应：|b| e^{−e^{λ_re}t} cos(λ_im t + φ)。
+- **|α_k| &lt; 1** 对任意正间隔成立（因为 e^&#123;λ_re&#125; > 0）。
+- 冲激响应：|b| e^&#123;−e^&#123;λ_re&#125;t&#125; cos(λ_im t + φ)。
 
 **④ 关联扫描（目标：训练时把串行换成并行）**
 
@@ -169,13 +169,13 @@ $$e_{\mathrm{TTC}}=\frac{|\widehat{\mathrm{TTC}}-\mathrm{TTC}|}{\mathrm{TTC}}\ti
 
 以及 **MiD_w**：在 ground-truth TTC 分带上平均 |log η̂ − log η|，权重 0.5 / 0.3 / 0.1 施加于 [0,3) / [3,6) / [6,10) s（沿用 [25]），**排除负样本项**（本评测序列无未碰撞情形）。MiD_w 是模型选择依据——因为 e_TTC 被序列远端主导，而不碰撞的临界部分才是操作上有意义的。
 
-**初始化（S4D-Lin）**：e^{λ_re} = 0.5，λ_im = π/s 作为共享初值；e^ρ 在 10⁻³–10⁻¹ 上 log-uniform 采样；b_re ~ 𝒰(0,1)，b_im = 0。异质 ρ 给每个神经元不同的有效衰减与振荡频率，避免同质初始时间配置。
+**初始化（S4D-Lin）**：e^&#123;λ_re&#125; = 0.5，λ_im = π/s 作为共享初值；e^ρ 在 10⁻³–10⁻¹ 上 log-uniform 采样；b_re ~ 𝒰(0,1)，b_im = 0。异质 ρ 给每个神经元不同的有效衰减与振荡频率，避免同质初始时间配置。
 
 ---
 
 ## 3 · 带数字走一遍（玩具设定）
 
-**设定**：单通道 D = 1，e^{λ_re} = 0.5，λ_im = π ≈ 3.1416，e^ρ = 0.01 (ms⁻¹)，b = 1，ϑ = 1。事件序列 z_k ≡ 1，时间戳 t = {0, 1, 2} ms，随后停止。（**以下为示范用玩具配置，非论文实验数值。**）
+**设定**：单通道 D = 1，e^&#123;λ_re&#125; = 0.5，λ_im = π ≈ 3.1416，e^ρ = 0.01 (ms⁻¹)，b = 1，ϑ = 1。事件序列 z_k ≡ 1，时间戳 t = &#123;0, 1, 2&#125; ms，随后停止。（**以下为示范用玩具配置，非论文实验数值。**）
 
 有效时间常数：|α(Δt)| = exp(−0.5·0.01·Δt) = exp(−Δt/200 ms)，衰减时间常数 **200 ms**；振荡周期 = 2π/(π·0.01) = **200 ms**。
 
@@ -189,7 +189,7 @@ $$e_{\mathrm{TTC}}=\frac{|\widehat{\mathrm{TTC}}-\mathrm{TTC}|}{\mathrm{TTC}}\ti
 
 **演示 A — 时间一致性（关联性）**：α(1 ms)^10 = exp((−0.5+iπ)·0.01·10) = exp((−0.5+iπ)·0.1) = α(10 ms)，**精确相等**。所以状态对"10 个 1 ms 间隔"与"1 个 10 ms 间隔"的衰减旋转完全相同——时序编码没有因为 token 计数而被扭曲。差别只在输入注入次数（10 次 b·z vs 1 次）。
 
-**演示 B — 事件沉默即计算沉默**：最后一个事件之后不再有事件，模型**不更新**。但等效读出值随时间演化：Δt = 400 ms 时 α = exp(−2 + i4π) = 0.13534，α·u_3 = 0.40371 + i0.01265，2Re = **0.807 < ϑ = 1** → 不再发放。即该神经元的"记忆视野"约 200 ms 量级，400 ms 后已落到阈值下；而这段时间里网络**一个 FLOP 都没做**。
+**演示 B — 事件沉默即计算沉默**：最后一个事件之后不再有事件，模型**不更新**。但等效读出值随时间演化：Δt = 400 ms 时 α = exp(−2 + i4π) = 0.13534，α·u_3 = 0.40371 + i0.01265，2Re = **0.807 &lt; ϑ = 1** → 不再发放。即该神经元的"记忆视野"约 200 ms 量级，400 ms 后已落到阈值下；而这段时间里网络**一个 FLOP 都没做**。
 
 **演示 C — 灵敏度的旋钮在 ∆t 与 e^ρ 的乘积上**：若部署端事件率与训练端差 16×（见 §5 的 decimation），则 δ_k 差 16×，α_k 的衰减与相位整体错位——这是 §8 中一条 pitfall 的数学根源。
 
@@ -362,7 +362,7 @@ $$e_{\mathrm{TTC}}=\frac{|\widehat{\mathrm{TTC}}-\mathrm{TTC}|}{\mathrm{TTC}}\ti
 
 **P1 — 分辨率与 embedding 表：参数与访存随 2HW 线性膨胀**
 
-- **推导链**：§6 失败模式「无目标框全景 + 8× 下采样 160×90」 ← 方法约束「事件被归约为通道索引 j_k = p_k·HW + y_k·W + x_k（Eq. 1），查表 E ∈ ℝ^{2HW×D}」。
+- **推导链**：§6 失败模式「无目标框全景 + 8× 下采样 160×90」 ← 方法约束「事件被归约为通道索引 j_k = p_k·HW + y_k·W + x_k（Eq. 1），查表 E ∈ ℝ^&#123;2HW×D&#125;」。
 - **机制**：EvTTC 下采样到 160×90 时，表为 2×90×160 × 128 = **3.7M 参数**，而 SSM 块只有 0.04M。若直接在 Prophesee 原生 1280×720 上做，行数变为 2×720×1280 = 1.84M 行，×D=128 → **约 236M 参数**，是当前 3.7M 的 ~64 倍。论文 Discussion 亦自认 "the embedding remains a major source of parameters and scales with sensor resolution"。
 - **工程后果**：串行部署下每事件需 D 次字读取（Sec. IV-F 明确计入）。表若无法常驻片上 SRAM，能耗估算的 45 nm 代理模型会系统性低估。论文建议的缓解方向是 **factorized / coordinate-based embedding**。
 
@@ -385,4 +385,4 @@ $$e_{\mathrm{TTC}}=\frac{|\widehat{\mathrm{TTC}}-\mathrm{TTC}|}{\mathrm{TTC}}\ti
 > **Status**：v0.1 · 基于 arXiv 全文（2609.19204v1, 2026-09-16）· 未在真机复现的数字标 `UNVERIFIED`
 > **本笔记的 UNVERIFIED 标注**：§3 全部数值为玩具设定示范，非论文数据；§6/§8 中"236M 参数"等推算为基于 §2 公式与 §5 下采样因子的算术外推，属本笔记推导，非论文报告值。
 
-<!-- source: https://arxiv.org/abs/2609.19204 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2609.19204 -->"

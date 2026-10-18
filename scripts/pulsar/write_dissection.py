@@ -23,6 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 import _llm
+from _mdx_safe import safe_markdown
 from _config import LLM_MODEL, get_env
 
 # Generation now runs on DeepSeek (see _llm.py); GEN_MODEL/GEN_MAX_TOKENS are
@@ -394,6 +395,7 @@ def main() -> int:
     md = re.sub(r"^```markdown\s*|\s*```$", "", md.strip())
 
     out = ontology_header(axes) + md + f"\n\n<!-- source: https://arxiv.org/abs/{args.id} -->\n"
+    out = safe_markdown(out)
     Path(args.out).write_text(out, encoding="utf-8")
     print(f"  wrote {args.out} ({len(out)} chars)", file=sys.stderr)
     return 0

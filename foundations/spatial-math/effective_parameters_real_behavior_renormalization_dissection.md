@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: n/a
 paradigm: geometric
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # Effective Parameters, Real Behavior: Renormalization for Robotics From Infinite Electron Mass to Sim-to-Real Gap  
 > **发布时间**：2026/07/27  
@@ -134,8 +134,8 @@ J^eff    = J    − δt·K_D      (Eq.10)
 
 | 项目 | 内容 | 来源验证 |
 |------|------|----------|
-| **数据组成** | 无原始数据集；全部依赖**引用的第三方工作**：<br>- Sec.2：理论推导，无数据<br>- Sec.3：引用 Suresh & Atkeson (2026) 的 flying knot 实验（7 种物理绳）<br>- Sec.4：引用 Michelis et al. (2026) 的水下鱼实验（2 条轨迹拟合，多频验证） | 全文仅出现 `Suresh and Atkeson, 2026`、`Michelis et al., 2026`、`Lim et al., 2022` —— **无自建 dataset 名称** |
-| **评测设置** | **不评测 accuracy，评测 generalization**：<br>- Sec.3：coarse rope model 在 7 种未见过的物理绳上 success rate=100%<br>- Sec.4：5-parameter model 预测 *未参与拟合的 actuation frequencies* 下的 swim behavior | 引用文献中描述：“succeeds on all seven physically different ropes”；“predict the robot’s forward-swimming behavior at additional actuation frequencies” —— **原文未给出具体 metric数字（如 % error, RMSE）** |
+| **数据组成** | 无原始数据集；全部依赖**引用的第三方工作**：<br />- Sec.2：理论推导，无数据<br />- Sec.3：引用 Suresh & Atkeson (2026) 的 flying knot 实验（7 种物理绳）<br />- Sec.4：引用 Michelis et al. (2026) 的水下鱼实验（2 条轨迹拟合，多频验证） | 全文仅出现 `Suresh and Atkeson, 2026`、`Michelis et al., 2026`、`Lim et al., 2022` —— **无自建 dataset 名称** |
+| **评测设置** | **不评测 accuracy，评测 generalization**：<br />- Sec.3：coarse rope model 在 7 种未见过的物理绳上 success rate=100%<br />- Sec.4：5-parameter model 预测 *未参与拟合的 actuation frequencies* 下的 swim behavior | 引用文献中描述：“succeeds on all seven physically different ropes”；“predict the robot’s forward-swimming behavior at additional actuation frequencies” —— **原文未给出具体 metric数字（如 % error, RMSE）** |
 
 > **论文未报告**：任何 quantitative metric值（如 APE, RMSE, success rate %）、benchmark 名称（如 "NVIDIA Isaac Gym Benchmark"）、数据规模（如 "10k trajectories"）。
 
@@ -197,4 +197,4 @@ J^eff    = J    − δt·K_D      (Eq.10)
 [← Back to geometric README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.24079 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.24079 -->"

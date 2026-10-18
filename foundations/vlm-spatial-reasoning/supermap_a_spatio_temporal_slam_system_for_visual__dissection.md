@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: scene-graph
 sensor: mono
 paradigm: 3R-SLAM-hybrid
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # SuperMap：面向视觉-语言导航的时空 SLAM 系统 (SuperMap: A Spatio-Temporal SLAM System for Visual-Language Navigation)
 
@@ -231,7 +231,7 @@ $$\text{On}(A,B)\iff(z_{min}^{A}\approx z_{max}^{B})\land(\text{IoU}_{xy}(\mathc
 - **实机实验**：10 分钟、30m × 20m 室内区域；人为引入 3 个消失物体（plant、trash can、chair）与 3 个新增物体（bucket、cart、safety sign）。
 - **消融场景**：41 个标注物体。
 - **对比方法**：class-level 对 ConceptFusion [7]、NACLIP-3D [6]、Trident-3D [26]、RayFronts [1]、ConceptGraphs [5]、HOV-SG [30]；instance-level 对 HOV-SG、ConceptGraphs；变化检测对 Khronos [25]、DualMap [8]。
-- **指标**：mIoU / f-mIoU / Acc（class-level）；mAP50 / mAP25（instance-level）；Object Detection Recall 与 Change Detection Recall（实机）；Precision/Recall/F1（消融）。其中 Detection Recall 的 TP 判定要求 **3D IoU > 0.1、质心距离 < 0.3 m、且语义标签正确**。
+- **指标**：mIoU / f-mIoU / Acc（class-level）；mAP50 / mAP25（instance-level）；Object Detection Recall 与 Change Detection Recall（实机）；Precision/Recall/F1（消融）。其中 Detection Recall 的 TP 判定要求 **3D IoU > 0.1、质心距离 &lt; 0.3 m、且语义标签正确**。
 
 ### 5.2 关键数字（逐字照抄）
 
@@ -267,7 +267,7 @@ $$\text{On}(A,B)\iff(z_{min}^{A}\approx z_{max}^{B})\land(\text{IoU}_{xy}(\mathc
 | W/o Geometric Consistency Update | 0.8189 | 0.4448 | 0.5764 |
 | **All (proposed)** | **0.8677** | **0.4955** | **0.6308** |
 
-**注意 recall 的绝对量级**：全系统 Recall 也只有 **0.4955**。这不是笔误，而是他们自己设定的严格 TP 判据（3D IoU>0.1 ∧ 质心距<0.3 m ∧ 标签正确）下的结果——引用时务必带上判据，否则会被误读为"效果差"。
+**注意 recall 的绝对量级**：全系统 Recall 也只有 **0.4955**。这不是笔误，而是他们自己设定的严格 TP 判据（3D IoU>0.1 ∧ 质心距&lt;0.3 m ∧ 标签正确）下的结果——引用时务必带上判据，否则会被误读为"效果差"。
 
 ---
 
@@ -353,4 +353,4 @@ $$\text{On}(A,B)\iff(z_{min}^{A}\approx z_{max}^{B})\land(\text{IoU}_{xy}(\mathc
 [← Back to Spatio-Temporal SLAM / VLN README](./README.md)
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2608.22896 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2608.22896 -->"

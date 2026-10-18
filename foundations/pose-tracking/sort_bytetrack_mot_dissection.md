@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Multi-object 2D tracking (MOT)
 representation: BBox + ID + Kalman state
 sensor: Detection input (RGB)
 paradigm: Data association (Hungarian / IoU) + Kalman
 time: Streaming
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # SORT & ByteTrack — 2D 多目标追踪两座里程碑 (SORT & ByteTrack Dissection)
 
@@ -136,7 +136,7 @@ ByteTrack 反直觉之处：之前所有 tracker 扔掉 score &lt; 0.5 的检测
 | Symbol | Meaning |
 |---|---|
 | `D_high` | score > τ_high (ByteTrack 默认 0.6) |
-| `D_low` | τ_low < score ≤ τ_high (默认 0.1 ~ 0.6) |
+| `D_low` | τ_low &lt; score ≤ τ_high (默认 0.1 ~ 0.6) |
 | `T` | active + lost tracks |
 | `IoU` | bbox 交并比 |
 
@@ -331,11 +331,11 @@ ByteTrack 反直觉之处：之前所有 tracker 扔掉 score &lt; 0.5 的检测
 3. **Jetson + Deepstream = 自己做内存监控**：[#276](https://github.com/ifzhang/ByteTrack/issues/276) 35 min OOM；上线前必做 1 小时×8 路压测，比对 NVIDIA NvDsTracker 基线（或直接用 NvDs 的 ByteTrack 插件 + 自己加 metric）。
 4. **换 detector 一定要重新扫阈值**：[#99](https://github.com/ifzhang/ByteTrack/issues/99) 41c / [#5](https://github.com/ifzhang/ByteTrack/issues/5) 21c 都印证 — track_thresh (0.6) 和 det_thresh (0.1) 是按 YOLOX score 分布调的；切 YOLOv8/YOLOv11/RT-DETR 各跑一遍 grid search（5×5 IoU×conf）。
 5. **小目标 / 同制服场景升级到 BoT-SORT**：ByteTrack [#460](https://github.com/ifzhang/ByteTrack/issues/460) / [#45](https://github.com/ifzhang/ByteTrack/issues/45) 10c / SORT [#157](https://github.com/abewley/sort/issues/157) 都打到同一痛点；ReID 不是可选 — 当外观可区分时直接加 ReID 收益最高。
-6. **低帧率场景（<10 Hz）双轮 IoU 失效**：ByteTrack [#424](https://github.com/ifzhang/ByteTrack/issues/424) 已实测 1-2 s 间隔不行；security cam / 远程监控直接选 OC-SORT（observation-centric 对 motion drift 友好）或外加 reid 重链接。
+6. **低帧率场景（&lt;10 Hz）双轮 IoU 失效**：ByteTrack [#424](https://github.com/ifzhang/ByteTrack/issues/424) 已实测 1-2 s 间隔不行；security cam / 远程监控直接选 OC-SORT（observation-centric 对 motion drift 友好）或外加 reid 重链接。
 7. **3D MOT 不要在这两仓找答案**：issue 区几乎没人问 — 社区已默认 SORT/ByteTrack = 2D 边界；3D 走 CenterPoint-track / SimpleTrack / Poly-MOT 另开 dissection。
 8. **API 缺陷预案**：SORT [#73](https://github.com/abewley/sort/issues/73) 输出顺序不保证 = 自己用空间索引做 detection→track 反查；不要靠"行号对齐"。
 9. **遮挡 ID 互换是设计极限**：[#226](https://github.com/ifzhang/ByteTrack/issues/226) — 静态 + 动态物体重叠分离后 ID 交换是 IoU+Kalman 范式硬伤；要 BoT-SORT/DeepSORT 的 appearance embedding 才能区分（这正是 OC-SORT 主修方向之一）。
-10. **依赖锁版本**：numpy < 1.20 / lap → lapx / Python 3.10+ — 两仓 issue 区一致提醒，建议在 Docker 里钉死。
+10. **依赖锁版本**：numpy &lt; 1.20 / lap → lapx / Python 3.10+ — 两仓 issue 区一致提醒，建议在 Docker 里钉死。
 
 ---
 

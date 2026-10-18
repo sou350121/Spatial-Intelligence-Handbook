@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Online Streaming Feed-Forward 3D (VGGT streaming variant)
 representation: Dense pointmap + depth + pose (per-frame incremental) + memory KV cache
 sensor: Mono RGB video stream
 paradigm: Learned-EndToEnd + Temporal Causal Attention + KV-cache memory
 time: Online feed-forward streaming (LLM-style incremental, not batch)
 ref: ../../cheat-sheet/ontology.md §5.2 / §5.4
--->
+-->"
 
 # StreamVGGT Dissection (StreamVGGT 解构 — ICLR 2026)
 

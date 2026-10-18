@@ -315,7 +315,8 @@ def build_header(file_path: Path, axes: dict[str, str]) -> str:
         lines.append(f"{key}: {axes[key]}")
     lines.append(f"ref: {ref} §7")
     lines.append(HEADER_END)
-    return "\n".join(lines) + "\n\n"
+    from _ontology_header import format_header
+    return format_header("\n".join(lines)) + "\n\n"
 
 
 def inject_into_file(file_path: Path, axes: dict[str, str]) -> str:
@@ -323,12 +324,8 @@ def inject_into_file(file_path: Path, axes: dict[str, str]) -> str:
     text = file_path.read_text(encoding="utf-8")
     header = build_header(file_path.relative_to(REPO_ROOT), axes)
 
-    # Remove existing header if present (idempotent)
-    if text.startswith(HEADER_MARKER):
-        end_idx = text.find(HEADER_END, len(HEADER_MARKER))
-        if end_idx > 0:
-            after = text[end_idx + len(HEADER_END) :].lstrip("\n")
-            text = after
+    from _ontology_header import without_header
+    text = without_header(text).lstrip("\n")
 
     new_text = header + text
     file_path.write_text(new_text, encoding="utf-8")

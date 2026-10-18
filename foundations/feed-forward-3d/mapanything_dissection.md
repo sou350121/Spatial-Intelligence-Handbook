@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: FeedForward3D (universal metric, varied camera setups)
 representation: Pointmap + DepthMap + Pose
 sensor: Multi-view RGB (varied)
 paradigm: Learned-Foundation-MultiTask
 time: FeedForward-OneShot
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # MapAnything 解构 (MapAnything Dissection)
 

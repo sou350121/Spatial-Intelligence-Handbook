@@ -164,7 +164,7 @@ RS 可接受当且仅当：
 - **曝光时间 ≪ 帧周期。** t_exposure &lt; 1 ms 时 RS 内部曝光重叠最小。
 - **场景速度 &lt; 1 px/ms in image space。** 取决于 f, V, Z 组合。
 - **后处理可补偿。** 已知 IMU 数据可做 RS-aware bundle adjustment（学术工作很多）。
-- **机械振动频率 << 行频。** 不与 readout 共振。
+- **机械振动频率 &lt;&lt; 行频。** 不与 readout 共振。
 - **没有 sub-pixel feature 需求。** SLAM / VIO / photogrammetry 都不允许。
 - **LED 光源不主导。** 车载 RS 必须额外处理 flicker。
 

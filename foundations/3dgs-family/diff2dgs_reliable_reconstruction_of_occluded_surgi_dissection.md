@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: reconstruction
 representation: n/a
 sensor: mono
 paradigm: hybrid
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # Diff2DGS: Reliable Reconstruction of Occluded Surgical Scenes via 2D Gaussian Splatting  
 > **发布时间**：2026/07/28（arXiv v2）  
@@ -116,7 +116,7 @@ Optimized 2DGS Scene
 | **单帧渲染步数** | `UNVERIFIED` | 未说明每帧渲染需多少次光栅化pass |
 | **显存占用** | `UNVERIFIED` | 未报告V100显存峰值（仅提“single V100”） |
 | **吞吐（FPS）** | **232.29 FPS**（Diff2DGS） vs **228.58**（Deform3DGS） | Table I & II 中明确给出（EndoNeRF-Cutting列） |
-| **部署约束** | ✅ 支持DDIM 2-step采样（PCM加速）<br>⚠️ 依赖Stable Diffusion v1.5大模型（2.47B params）→ 需≥16GB VRAM<br>⚠️ LDM含B=？个基函数（原文未给B值）→ 影响实时性 | “Phased Consistency Model (PCM)” and “2.47B parameters” cited |
+| **部署约束** | ✅ 支持DDIM 2-step采样（PCM加速）<br />⚠️ 依赖Stable Diffusion v1.5大模型（2.47B params）→ 需≥16GB VRAM<br />⚠️ LDM含B=？个基函数（原文未给B值）→ 影响实时性 | “Phased Consistency Model (PCM)” and “2.47B parameters” cited |
 
 ---
 
@@ -182,11 +182,11 @@ Optimized 2DGS Scene
    - *Derivation*：来自 §4 “PCM only requires two denoising steps” + §II-C 公式(10)中 `M_t` 为causal mask → 2步采样削弱长程时序建模能力，在>100帧序列中累积相位误差，使LDM接收到的 `t`-aligned修复帧出现微小错位。
 
 3. **Pitfall #3：V100显存不足运行Inpainting模块 → OOM中断 → 整个pipeline失败**  
-   - *Derivation*：来自 §4 “2.47B parameters” + §III-A “single NVIDIA Tesla V100” → V100仅16GB VRAM，而Stable Diffusion v1.5 FP16推理需≈12GB，留余量<4GB给2DGS优化 → 实际部署需降分辨率或启用梯度检查点。
+   - *Derivation*：来自 §4 “2.47B parameters” + §III-A “single NVIDIA Tesla V100” → V100仅16GB VRAM，而Stable Diffusion v1.5 FP16推理需≈12GB，留余量&lt;4GB给2DGS优化 → 实际部署需降分辨率或启用梯度检查点。
 
 ---
 
 [← Back to surgical-reconstruction README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2602.18314 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2602.18314 -->"

@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: n/a
 paradigm: generative
 time: feed-forward
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 快速生成式抓取：基于李群约束的 MeanFlow (Fast Generative Grasping via Lie Group-Constrained MeanFlow)  
 > **发布时间**：2026/08/26  
@@ -150,7 +150,7 @@ CFM Anchor (at s=t): H_t ← geodesic interp. of (H₀,H₁); force X_θ(H_t,t,t
 | **主数据集** | **ACRONYM** | 论文全文 5 次出现：“on the ACRONYM dataset”、“ACRONYM dataset”、“ACRONYM”；未提及其他数据集用于主评测 |
 | **Baseline 方法** | SE(3)-DiffusionFields, EquiGraspFlow, BRIDGER, GraspLDM, Carvalho et al. [7] | V-A2 明确列出：“V-A 2 Baseline Methods” → “SE(3)-DiffusionFields [40], EquiGraspFlow [22], BRIDGER [8], GraspLDM [2], and Carvalho et al. [7]” |
 | **评测指标** | **Grasp Success Rate**, **Distribution Coverage**, **APE (Average Pose Error)** | V-A3：“V-A 3 Performance Metrics” → “grasp success rate, distribution coverage, and average pose error (APE)”；未报告具体数值 → `「论文未报告」` |
-| **评测设置关键条件** | • Point cloud input (partial observations)<br>• Real-world robot test *without additional training*<br>• Robustness to observation noise (V-E) | V-E 标题：“Robustness to Partial Observations”；VI 结论句：“demonstrate that the approach directly translates to real-world robotic grasping without additional training or domain adaptation” |
+| **评测设置关键条件** | • Point cloud input (partial observations)<br />• Real-world robot test *without additional training*<br />• Robustness to observation noise (V-E) | V-E 标题：“Robustness to Partial Observations”；VI 结论句：“demonstrate that the approach directly translates to real-world robotic grasping without additional training or domain adaptation” |
 
 ---
 
@@ -208,4 +208,4 @@ CFM Anchor (at s=t): H_t ← geodesic interp. of (H₀,H₁); force X_θ(H_t,t,t
 [← Back to grasping README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2608.26076 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2608.26076 -->"

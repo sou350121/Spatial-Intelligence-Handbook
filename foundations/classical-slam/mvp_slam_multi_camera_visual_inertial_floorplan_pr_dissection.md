@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VSLAM
 representation: HD-map
 sensor: multi-modal
 paradigm: geometric
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # MVP-SLAM：多相机视觉惯性楼层平面先验 SLAM (MVP-SLAM: Multi-Camera Visual-Inertial Floorplan-Prior SLAM)
 
@@ -267,4 +267,4 @@ ref: ../../cheat-sheet/ontology.md §5
 
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`（本笔记未自行标注任何未报告数字；§4 延迟/FPS/吞吐均按论文如实记为「论文未报告」）
 
-<!-- source: https://arxiv.org/abs/2609.39596 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2609.39596 -->"

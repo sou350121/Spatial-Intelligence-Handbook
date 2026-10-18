@@ -129,7 +129,7 @@ long-term (>10 s):    GNSS vertical (低频, 受 PDOP 影响)
 
 - **大气压在 1–10 s 时间尺度内仅随高度变.** HVAC / 电梯 / 阵风破之。
 - **Sensor temperature 与机身热平衡.** 太阳暴晒 / 引擎热源破之。
-- **Drone vertical velocity << airspeed sensitivity.** 高速前飞时 Bernoulli 引入 bias，需 airdata 校正。
+- **Drone vertical velocity &lt;&lt; airspeed sensitivity.** 高速前飞时 Bernoulli 引入 bias，需 airdata 校正。
 - **Sensor 入口与外部静压平衡.** 密闭机身内部需要静压通气孔 — 工业 drone 标配，DIY 经常忘。
 - **QFE 校零基准在起降点是稳定的.** 长任务（>1 hr）期间天气变化破之。
 - **EKF 信任 baro 在 1 Hz–1 Hz cutoff 内.** Cutoff 设太高 → prop wash 进入；太低 → 实际 climb rate 跟不上。

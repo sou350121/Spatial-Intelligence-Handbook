@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VO / VSLAM
 representation: Dense flow + pose graph
 sensor: Mono + IMU optional
 paradigm: Hybrid-LearnedFE + Diff-BA layer
 time: Online (GPU 需)
 ref: ../../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # DROID-SLAM 解构 (DROID-SLAM Dissection)
 

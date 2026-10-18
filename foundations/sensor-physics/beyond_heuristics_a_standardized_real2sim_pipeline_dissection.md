@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: n/a
 paradigm: hybrid
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 超越启发式：面向人机在环仿真中物理人机交互的标准化 Real2Sim 管线 (Beyond Heuristics: A Standardized Real2Sim Pipeline for Physical Human Robot Interaction in Human-in-the-Loop Simulation)
 
@@ -313,4 +313,4 @@ MS_W = 0.005
 
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`（本文 §4/§5 未报告的 runtime/算力指标一律标 `「论文未报告」`，无估算）
 
-<!-- source: https://arxiv.org/abs/2607.03017 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.03017 -->"

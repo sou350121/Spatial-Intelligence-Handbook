@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: mono
 paradigm: learned
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 开放交通条件下交通感知型无人机路面巡检的数字孪生框架 (A Digital Twin Framework for Traffic-Aware UAV Pavement Monitoring in Open-Traffic Conditions)
 
@@ -302,4 +302,4 @@ $$L_{\mathrm{total}}=L_{\mathrm{det}}+\alpha L_{\mathrm{subtype}}$$
 [← Back to Spatial Intelligence Handbook](./README.md)
 > **Status**：v0.1 · 基于 arXiv 全文（v2，含 Table I–IV）· 未在真机复现的数字标 `UNVERIFIED`（如由 FPS 换算的单帧延迟）；所有数据集名、指标数字均逐字取自全文。
 
-<!-- source: https://arxiv.org/abs/2606.20742 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2606.20742 -->"

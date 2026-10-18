@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Differentiable physics simulation (rigid body)
 representation: Rigid body state + contact constraints
 sensor: NoSensor (simulator)
 paradigm: Hybrid-DiffSim (XLA-JIT)
 time: Offline-Batch / Diff-Optim
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # MuJoCo MJX Dissection (MuJoCo MJX 解构 — JAX/XLA 上的 GPU 化 MuJoCo)
 

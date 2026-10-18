@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: implicit-sdf
 sensor: n/a
 paradigm: generative
 time: feed-forward
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # Function-Space Diffusion for Motion Planning (FSD-MP)  
 > **发布时间**：2026/07/03  
@@ -198,4 +198,4 @@ $$
 [← Back to navigation README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.02977 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.02977 -->"

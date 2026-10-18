@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: BEV
 sensor: mono
 paradigm: generative
 time: feed-forward
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # Action Map Policy: Learning 3D Closed-loop Manipulation via Pixel Classification  
 > **发布时间**：2026/07/12  
@@ -87,7 +87,7 @@ argmax → {(u,v)_ijk} → Triangulation 𝒯 → {p^j_i ∈ ℝ³}
 
 **公式**：  
 \[
-\mathcal{L}_{\mathrm{CE}} = -\sum_{i=1}^{l}\sum_{j=1}^{m}\sum_{k=1}^{n}\sum_{u,v} \underbrace{\mathbf{h}_{ijk}(u,v)}_{\text{Gaussian soft label}} \cdot \log \underbrace{\hat{\mathbf{h}}_{ijk}(u,v)}_{\text{network output}}
+\mathcal&#123;L&#125;_&#123;\mathrm&#123;CE&#125;&#125; = -\sum_&#123;i=1&#125;^&#123;l&#125;\sum_&#123;j=1&#125;^&#123;m&#125;\sum_&#123;k=1&#125;^&#123;n&#125;\sum_&#123;u,v&#125; \underbrace&#123;\mathbf&#123;h&#125;_&#123;ijk&#125;(u,v)&#125;_&#123;\text&#123;Gaussian soft label&#125;&#125; \cdot \log \underbrace&#123;\hat&#123;\mathbf&#123;h&#125;&#125;_&#123;ijk&#125;(u,v)&#125;_&#123;\text&#123;network output&#125;&#125;
 \]
 
 **变量说明**：  
@@ -111,7 +111,7 @@ argmax → {(u,v)_ijk} → Triangulation 𝒯 → {p^j_i ∈ ℝ³}
 - 网络输出 `ĥ` 在 `(202,142)` 处概率为 `0.08`，邻域 `(201,142)` 为 `0.06`，其余≈0  
 - 则 CE loss ≈ `-0.08·log(0.08) ≈ 0.19`（主导项）；若预测偏移至 `(205,142)`，高斯衰减使 `h(205,142)≈0.02` → loss ≈ `-0.02·log(0.08)≈0.03`，但因 `h` 在该点本就小，实际梯度仍驱动回归中心  
 
-→ **单步误差<1px ⇒ 3D重建误差≈1mm（见Table 1）**，验证像素精度到3D精度的线性映射关系。
+→ **单步误差&lt;1px ⇒ 3D重建误差≈1mm（见Table 1）**，验证像素精度到3D精度的线性映射关系。
 
 ---
 
@@ -204,4 +204,4 @@ argmax → {(u,v)_ijk} → Triangulation 𝒯 → {p^j_i ∈ ℝ³}
 [← Back to manipulation README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.10706 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.10706 -->"

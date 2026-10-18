@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VIO
 representation: sparse
 sensor: multi-modal
 paradigm: hybrid
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 异步事件相机实时机载视觉惯性 SLAM (AERO-VIS: Asynchronous Event-based Real-time Onboard Visual-Inertial SLAM)
 
@@ -296,4 +296,4 @@ $$\text{TS}_{p,\Delta t_k}(x_i,y_i)=\max_{\mathbf{e}_i\in\mathcal{E}_{p,\Delta t
 [← Back to VIO README](./README.md)
 > **Status**：v0.1 · 基于 arXiv 全文（截断版）· 未在真机复现的数字标 `UNVERIFIED`。§4 中 AERO-VIS 的机载处理频率/VRAM/功耗、§5 中 UAV 闭环实验与组件耗时表的**具体数值未包含在本次截断全文中**，均标注为未报告 / `UNVERIFIED`，未做任何推算填充。
 
-<!-- source: https://arxiv.org/abs/2605.07885 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2605.07885 -->"

@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Semi-direct VO / VIO / VI-SLAM (SVO-Pro adds loop closure via iSAM2)
 representation: Sparse features (tracking) + depth filter dense map + sliding-window keyframes
 sensor: Mono / Stereo / Fisheye / catadioptric + IMU (Pro 起)
 paradigm: Hybrid: sparse-feature alignment (Direct-style) + reprojection BA (Indirect-style) + depth filter
 time: Filter-streaming (depth filter) + Fixed-lag smoother (Pro) + Incremental smoother (Pro VI-SLAM via iSAM2)
 ref: ../../cheat-sheet/ontology.md §2 (Semi-direct VO) · §7 (UZH RPG lineage)
--->
+-->"
 
 # SVO Dissection (Semi-Direct Visual Odometry 解构)
 
@@ -301,7 +301,7 @@ EuRoC MAV `MH_01_easy`（752×480 mono、20 Hz）。**Intel NUC i7 测**（论�
 
 **读者实务含义**：
 1. SVO-Pro 是 *aerial drone 研究 codebase*，**不是 turnkey 产品**。Production drone（如 Skydio）走自研 + 闭源；学界用 SVO-Pro 做 baseline + 论文 prototype。
-2. 工作包络：**aerial drone (100-500 g)** + **stereo+IMU 优先 / mono 谨慎** + **ROS 1 / Ubuntu 20.04** + **场景有纹理** + **<10 min session（长 session 走 loop closure）**。
+2. 工作包络：**aerial drone (100-500 g)** + **stereo+IMU 优先 / mono 谨慎** + **ROS 1 / Ubuntu 20.04** + **场景有纹理** + **&lt;10 min session（长 session 走 loop closure）**。
 3. 选 SVO-Pro 的判断标准 = **是否真的需要 200 fps + onboard CPU**。如果不是 aerial，ORB-SLAM3 / VINS-Fusion / OpenVINS 任一项都更稳。
 
 ---

@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VSLAM
 representation: pointmap
 sensor: mono
 paradigm: hybrid
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # ScaRF-SLAM：Scale-Consistent Reconstruction with Feed-Forward Models and Classical Visual SLAM  
 > **发布时间**：2026/08/26  
@@ -48,9 +48,9 @@ ScaRF-SLAM 提出一种**解耦式 hybrid SLAM 范式**：SLAM（ORB-SLAM3 / Ope
 |------|------|------|------------------|
 | **Classical SLAM** (e.g., ORB-SLAM3) | Raw fisheye images + IMU (optional) | Per-frame poses **𝐓ᵢ**, keyframes ℐᵢ, sparse landmarks | ✅ 已预训练/部署；**推理即训练模式**；支持 VI/fisheye/multi-cam |
 | **GFM Mapper** (DA3) | Rectified pinhole images + **𝐊ᵢ**, **𝐓ᵢ** (from SLAM) | Per-frame depth **𝐃ᵢ**, confidence **𝐂ᵢ** | ✅ 使用公开 DA3 checkpoint；**推理时显式注入 𝐓ᵢ/𝐊ᵢ**（非自回归 pose est） |
-| **Frame-Level Scale Opt** | {𝐃ᵢ, 𝐂ᵢ, 𝐊ᵢ, 𝐓ᵢ} for batch ℐ | Per-frame scale factors {sᵢ} | ❌ 无训练；**GTSAM 求解 L2 minimization over LightGlue matches** |
-| **Submap-Level Scale Opt** | Fused point clouds from consecutive submaps + overlap frame | Per-submap scale factors {sʲ} | ❌ 无训练；**sliding-window GTSAM**（latest N submaps），全局重优化仅在 loop closure 后触发 |
-| **Point Cloud Fusion** | {𝐏ᵢ}, {𝐂ᵢ}, 𝐓ᵢ, 𝐓ⱼ | Reduced & fused point cloud 𝐏ˢᵘᵇᵐᵃᵖ | ❌ 无训练；**geometry-driven correspondence + confidence-weighted avg**（非特征匹配） |
+| **Frame-Level Scale Opt** | &#123;𝐃ᵢ, 𝐂ᵢ, 𝐊ᵢ, 𝐓ᵢ&#125; for batch ℐ | Per-frame scale factors &#123;sᵢ&#125; | ❌ 无训练；**GTSAM 求解 L2 minimization over LightGlue matches** |
+| **Submap-Level Scale Opt** | Fused point clouds from consecutive submaps + overlap frame | Per-submap scale factors &#123;sʲ&#125; | ❌ 无训练；**sliding-window GTSAM**（latest N submaps），全局重优化仅在 loop closure 后触发 |
+| **Point Cloud Fusion** | &#123;𝐏ᵢ&#125;, &#123;𝐂ᵢ&#125;, 𝐓ᵢ, 𝐓ⱼ | Reduced & fused point cloud 𝐏ˢᵘᵇᵐᵃᵖ | ❌ 无训练；**geometry-driven correspondence + confidence-weighted avg**（非特征匹配） |
 
 ### 1.2 关键机制  
 **⚡ Eureka Moment：GFM predictions are geometric priors—not measurements—so optimize only their scale against fixed SLAM poses, never re-estimate pose from them.**  
@@ -114,11 +114,11 @@ Raw Fisheye Stream
 
 ### 公式（Frame-Level）  
 \[
-\min_{\{s_i\}} \sum_{(i,j)} \sum_{(\mathbf{u}_i,\mathbf{u}_j)\in\mathcal{M}_{ij}} 
+\min_&#123;\{s_i\}&#125; \sum_&#123;(i,j)&#125; \sum_&#123;(\mathbf&#123;u&#125;_i,\mathbf&#123;u&#125;_j)\in\mathcal&#123;M&#125;_&#123;ij&#125;&#125; 
 \left\| 
-\mathbf{T}_i\big(s_i\,\pi^{-1}(\mathbf{u}_i,\mathbf{D}_i(\mathbf{u}_i);\mathbf{K}_i)\big) 
+\mathbf&#123;T&#125;_i\big(s_i\,\pi^&#123;-1&#125;(\mathbf&#123;u&#125;_i,\mathbf&#123;D&#125;_i(\mathbf&#123;u&#125;_i);\mathbf&#123;K&#125;_i)\big) 
 - 
-\mathbf{T}_j\big(s_j\,\pi^{-1}(\mathbf{u}_j,\mathbf{D}_j(\mathbf{u}_j);\mathbf{K}_j)\big) 
+\mathbf&#123;T&#125;_j\big(s_j\,\pi^&#123;-1&#125;(\mathbf&#123;u&#125;_j,\mathbf&#123;D&#125;_j(\mathbf&#123;u&#125;_j);\mathbf&#123;K&#125;_j)\big) 
 \right\|_2^2
 \]
 
@@ -201,7 +201,7 @@ Raw Fisheye Stream
 - **强尺度一致性**：在 loop-rich building-scale indoor 场景（ScaRF）上，重建误差比 VGGT-SLAM2 低 10%–20%（Abstract）；  
 - **SLAM agnostic**：可即插即用 ORB-SLAM3 / OpenVINS / Maplab（Sec II-A, III）；  
 - **多模态兼容**：明确支持 VI（Table II † columns）、fisheye（Sec IV, III-F）、multi-cam（Sec I）；  
-- **小 batch 鲁棒**：Table IV 显示 batch size=2 时性能下降 <5%，而 MASt3R-SLAM 在 batch=2 时崩溃（Sec I）。
+- **小 batch 鲁棒**：Table IV 显示 batch size=2 时性能下降 &lt;5%，而 MASt3R-SLAM 在 batch=2 时崩溃（Sec I）。
 
 ### ❌ 失败模式  
 - **Fails under severe motion blur**：因 LightGlue 匹配失效 → frame-level scale opt 无足够 ℳᵢⱼ → scale drift accumulates；  
@@ -209,7 +209,7 @@ Raw Fisheye Stream
 - **Fails when SLAM loses track**：pose `𝐓ᵢ` 错误 → GFM 输入错误 → scale opt 在错误几何上对齐 → 全局 map 偏移（Sec III-B: “poses obtained by Sim(3) optimization over these predictions are highly sensitive to GFM performance”）。
 
 ### ### 隐含假设 (Hidden Assumptions)  
-- **Assumption 1**: SLAM poses `𝐓ᵢ` are accurate enough that `𝐓ᵢ(sᵢ·π⁻¹(𝐮ᵢ,𝐃ᵢ,𝐊ᵢ))` lies within metric tolerance of true 3D point — i.e., **SLAM’s rotational error < 2°, translational error < 1cm per frame**, otherwise scale opt solves wrong problem.  
+- **Assumption 1**: SLAM poses `𝐓ᵢ` are accurate enough that `𝐓ᵢ(sᵢ·π⁻¹(𝐮ᵢ,𝐃ᵢ,𝐊ᵢ))` lies within metric tolerance of true 3D point — i.e., **SLAM’s rotational error &lt; 2°, translational error &lt; 1cm per frame**, otherwise scale opt solves wrong problem.  
 - **Assumption 2**: DA3’s depth prediction `𝒟ᵢ` has *monotonic bias* (e.g., uniformly scaled) — not per-pixel noise — so scalar `sᵢ` suffices. Violated under heavy occlusion or reflection.  
 - **Assumption 3**: Overlap frames between submaps provide ≥50 reliable 3D point matches — fails in long corridors with identical appearance (Sec IV: “low-texture corridors”).
 
@@ -261,4 +261,4 @@ Raw Fisheye Stream
 [← Back to slam-vio-migration README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2606.00307 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2606.00307 -->"

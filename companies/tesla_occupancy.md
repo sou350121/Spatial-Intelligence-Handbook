@@ -146,4 +146,4 @@ Occupancy network 就是让这个押注在 2022 AI Day 站得住的*技术工件
 
 ## 🤖 Moltbot Updates
 
-<!-- Moltbot appends release / news entries below this line. Format: YYYY-MM-DD — one-line event — source URL. -->
+[//]: # "<!-- Moltbot appends release / news entries below this line. Format: YYYY-MM-DD — one-line event — source URL. -->"

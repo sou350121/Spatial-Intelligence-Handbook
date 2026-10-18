@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: n/a
 paradigm: learned
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 通过"玩耍"预训练实现灵巧精密装配 (Play2Perfect: What Matters in Dexterous Play Pretraining for Precise Assembly?)
 
@@ -288,4 +288,4 @@ retract bonus 逼机器人**松手退开**，而不是靠持续接触把零件�
 [← Back to dexterous-manipulation README](./README.md)
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2606.26428 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2606.26428 -->"

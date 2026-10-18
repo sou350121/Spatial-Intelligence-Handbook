@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: mono
 paradigm: hybrid
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # NGPS: GPS-Denied Aerial Geo-Localization and 2.5D Reconstruction via Deep Satellite Image Matching and Multi-Rate Sensor Fusion  
 > **发布时间**：2026/07/21  
@@ -132,7 +132,7 @@ NGPS 提出一种**卫星图像为全球参考系、VIO为高频运动引擎、U
 | **步数** | `NGPS: 1–2 Hz`, `VIO: 10–20 Hz`, `IMU: 100–200 Hz` | 明确给出（§III-A, §III-E4） |  
 | **内存** | `UNVERIFIED` | 未报告GPU VRAM占用、CPU RAM峰值；仅提“runs on Jetson Orin NX”（8GB LPDDR4x） |  
 | **吞吐** | `UNVERIFIED` | 未报告FPS、batch size、pipeline吞吐瓶颈（如卫星图加载/裁剪是否I/O受限） |  
-| **部署约束** | ✅ ROS2 + ArduPilot uXRCE-DDS接口<br>✅ Jetson Orin NX（无CUDA加速要求，LightGlue CPU-friendly）<br>⚠️ 卫星图需提前下载并georeference（WGS84 UTM）<br>⚠️ 需双IMU：offboard供VIO/UKF，onboard供ArduPilot EKF3 | 全文明确（§III-A, §III-E1, §III-G） |  
+| **部署约束** | ✅ ROS2 + ArduPilot uXRCE-DDS接口<br />✅ Jetson Orin NX（无CUDA加速要求，LightGlue CPU-friendly）<br />⚠️ 卫星图需提前下载并georeference（WGS84 UTM）<br />⚠️ 需双IMU：offboard供VIO/UKF，onboard供ArduPilot EKF3 | 全文明确（§III-A, §III-E1, §III-G） |  
 
 ---
 
@@ -157,7 +157,7 @@ NGPS 提出一种**卫星图像为全球参考系、VIO为高频运动引擎、U
 
 | 失败模式 | 触发条件 |  
 |----------|----------|  
-| ❌ **低空失效（<60 m）** | 视角畸变剧烈，卫星图与下视图几何相似性崩塌，RANSAC内点率骤降 → `γ`过低 → UKF忽略NGPS修正 → 退化为纯VIO漂移 |  
+| ❌ **低空失效（&lt;60 m）** | 视角畸变剧烈，卫星图与下视图几何相似性崩塌，RANSAC内点率骤降 → `γ`过低 → UKF忽略NGPS修正 → 退化为纯VIO漂移 |  
 | ❌ **卫星图过时失效** | 若参考卫星图拍摄于旱季，而飞行在雨季（植被覆盖剧变），LightGlue匹配置信度`c̄_match`暴跌 → `γ`下降 → `R_NGPS`膨胀 → 修正失效 |  
 | ❌ **高速旋转失效** | `|θ − θ_prev| > 30°` 或 `rot_std > 15°` 时，rotation validation直接丢弃估计（§III-D）→ NGPS输出中断 → UKF仅靠VIO+IMU，漂移累积 |  
 
@@ -203,4 +203,4 @@ NGPS 提出一种**卫星图像为全球参考系、VIO为高频运动引擎、U
 [← Back to slam-vio-migration README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.18936 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.18936 -->"

@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: sparse
 sensor: RGBD
 paradigm: hybrid
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 从视频生成到机器人操作：基于刚体几何一致性 (GenVid2Robot: From Video Generation to Robot Manipulation via Rigid-Geometric Consistency)
 
@@ -213,7 +213,7 @@ $$u'=\frac{600\times(-0.100)}{0.450}+320=186.7,\qquad v'=\frac{600\times(-0.075)
 
 **情形 3：非刚体（假设被拒）**。若 B 的追踪结果是 (465, 340)（位移 25.3 px 且方向偏离），单个 SE(3) 无法同时解释 A 的 10.9 px 和 B 的 25.3 px：
 - RANSAC 会保留残差小的内点（比如 A 加其他点），B 被踢出内点；
-- 若有效锚点降到 <4 个，该帧直接标记 invalid；
+- 若有效锚点降到 &lt;4 个，该帧直接标记 invalid；
 - 若 $L_n^{invalid}$ 超限，整条候选视频被拒。
 
 论文实测的拒绝率与此量级相符：Table I 中 Sweeping 仅 **55%** 通过、Pouring **61%**。
@@ -442,4 +442,4 @@ $$u'=\frac{600\times(-0.100)}{0.450}+320=186.7,\qquad v'=\frac{600\times(-0.075)
 
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.09191 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.09191 -->"

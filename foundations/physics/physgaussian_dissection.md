@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Physics simulation + NVS (3DGS + MPM)
 representation: 3DGS + Material Point Method
 sensor: RGB (Gaussian fitted) + physics priors
 paradigm: Hybrid-DiffSim + DiffRender
 time: PerScene + Offline
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # PhysGaussian 解构 (PhysGaussian: MPM Physics on 3DGS — Dissection)
 

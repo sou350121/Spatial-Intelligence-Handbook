@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VIO
 representation: voxel
 sensor: LiDAR
 paradigm: geometric
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # A Numerically-Robust ROS 2 Port of iG-LIO (arXiv:2607.09947)  
 > **发布时间**：2026/07/10  
@@ -107,7 +107,7 @@ iG-LIO 是一个基于增量 GICP 和点面约束的紧耦合 LiDAR-IMU 里程�
 | **端到端延迟 per scan** | `UNVERIFIED` | 论文未报告具体 latency / FPS / hardware model |
 | **内存占用** | `UNVERIFIED` | 未报告 VRAM / RAM 使用量 |
 | **吞吐瓶颈** | Constraint assembly (`ConstructGICPConstraints`) | 明确指出 interim fix 引入 “cadence gaps at 4× bag playback”，final fix restores full parallelism |
-| **部署约束** | • ROS 2 Jazzy<br>• oneTBB ≥ 2021.10.0 (shipped with Jazzy)<br>• Eigen ≥ 3.4.0<br>• YAML config mandatory for QoS tuning | Section 4: “expose the runtime via YAML”; Section 2.2: “oneTBB shipped with Jazzy” |
+| **部署约束** | • ROS 2 Jazzy<br />• oneTBB ≥ 2021.10.0 (shipped with Jazzy)<br />• Eigen ≥ 3.4.0<br />• YAML config mandatory for QoS tuning | Section 4: “expose the runtime via YAML”; Section 2.2: “oneTBB shipped with Jazzy” |
 | **关键 trade-off** | **Reliability vs. Latency**: `RELIABLE` QoS prevents IMU drop but requires deeper queue (`KeepLast(2000)`) → higher memory, risk of stale IMU if spin loop stalls | Section 2.1: “backed-up IMU samples were dropped and reordered” → fix trades memory for correctness |
 
 ---
@@ -117,7 +117,7 @@ iG-LIO 是一个基于增量 GICP 和点面约束的紧耦合 LiDAR-IMU 里程�
 | 项目 | 值 | 来源说明 |
 |------|----|----------|
 | **验证传感器** | Ouster OS0 Rev7, Ouster OS1 Rev7, Livox MID-360 | Abstract: “validated in an Ouster OS0 Rev7, an Ouster OS1 Rev 7, and a Livox MID-360” |
-| **验证方式** | • Qualitative trajectory overlay (Fig.1)<br>• TUM format export → loadable by `evo` for APE/RPE | Section 4: “writes the trajectory in TUM format... directly loadable by evo [2] for APE/RPE evaluation”; Fig.1 caption |
+| **验证方式** | • Qualitative trajectory overlay (Fig.1)<br />• TUM format export → loadable by `evo` for APE/RPE | Section 4: “writes the trajectory in TUM format... directly loadable by evo [2] for APE/RPE evaluation”; Fig.1 caption |
 | **评测指标** | `「论文未报告」` | 全文未出现任何量化指标（如 APE=0.12m, RPE=0.05°）或 benchmark 名称（如 KITTI, MulRan） |
 | **数据集名称** | `「论文未报告」` | 未提及具体公开数据集名；仅说 “same sequence run on this ROS 2 port and on the original ROS 1 codebase” |
 
@@ -173,4 +173,4 @@ iG-LIO 是一个基于增量 GICP 和点面约束的紧耦合 LiDAR-IMU 里程�
 [← Back to VIO README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.09947 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.09947 -->"

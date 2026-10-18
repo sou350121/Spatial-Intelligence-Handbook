@@ -118,7 +118,7 @@ Pulsed 系统受影响较少，因为 first-return gate 在时间上隔离了直
 - **调制频率 >> 环境光闪烁频率。** 太阳是 DC；100 MHz 调制把它当作 common-mode 排除。但 **fluorescent / PWM-LED 环境光**在 100–1000 Hz 会和 `f_mod` 拍频，注入 ghost depth `UNVERIFIED`。
 - **场景以单次反射为主。** 多径分量 &lt;10% — 墙角、亮地板、retroreflective tape 会打破。
 - **没有竞争的 ToF 源。** 同一房间里两台手机做 dToF 几乎不可能 sync；SPAD dark count 升高，histogram 变糊。假设多 sensor 间没有协调协议。
-- **SPAD pile-up < detector rate.** 高 flux 场景（铬上的太阳）让 SPAD dead-time 饱和，把 histogram 朝早偏移。Pulsed 假定光子率 <&lt; 1/dead-time。
+- **SPAD pile-up &lt; detector rate.** 高 flux 场景（铬上的太阳）让 SPAD dead-time 饱和，把 histogram 朝早偏移。Pulsed 假定光子率 &lt;&lt; 1/dead-time。
 - **照明功率在使用距离上满足 IEC 60825-1 Class 1。** Pulsed kW peak 之所以可行，是因为 pulse &lt;5 ns 且 duty &lt;0.1% — 参见姊妹文 `active_nir_850nm_for_embodied_ai.md` §3。
 - **像素电荷阱不被 ambient 灌满。** 户外 ambient 可在 `f_mod` 解出之前就把积分阱填满；需要更短积分时间或更窄 BPF。
 

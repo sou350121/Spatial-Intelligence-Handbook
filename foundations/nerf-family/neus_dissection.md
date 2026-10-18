@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Surface reconstruction (neural implicit SDF)
 representation: Implicit SDF (zero-level-set) + view-dependent radiance
 sensor: RGB + poses (COLMAP)
 paradigm: Hybrid-DiffRender (SDF + unbiased volume rendering + GD)
 time: Per-scene optimization (~hours)
 ref: ../../cheat-sheet/ontology.md §8.3
--->
+-->"
 
 # NeuS 解构 (NeuS: Learning Neural Implicit Surfaces by Volume Rendering for Multi-view Reconstruction)
 
@@ -127,7 +127,7 @@ L_eik = E_x [ (‖∇f(x)‖ − 1)² ]
 
 ## 3 · Worked example: 一条射线，三个采样
 
-穿过 t=2 处 SDF 球面（半径 1）的射线，球心在 t=2. 采样在 t = {1.0, 2.0, 3.0}.
+穿过 t=2 处 SDF 球面（半径 1）的射线，球心在 t=2. 采样在 t = &#123;1.0, 2.0, 3.0&#125;.
 
 | t | f(p) | Φ_s(f(p)) (s=20) | α_i (unbiased) | T_i | weight |
 |---|---|---|---|---|---|
@@ -204,7 +204,7 @@ NeuS 只在以下条件成立时 work；每条在实践中悄悄破坏：
 | Mesh? | ✗ (isosurface 假) | ✓ marching cubes | ✓ 高保真 | ✓ 直接 |
 | Mask 需要 | n/a | ✗ | ✗ | ✗ |
 | Training | 1–2 day | ~14h `UNVERIFIED` | ~数小时 | 30 min–几小时 |
-| Render | <1 FPS | <1 FPS | <1 FPS | 100+ FPS |
+| Render | &lt;1 FPS | &lt;1 FPS | &lt;1 FPS | 100+ FPS |
 | Best for | NVS only | 小物体高精度 mesh | 高保真 mesh | 实时 + mesh |
 
 > **🎤 Interview tip.** "为什么不直接 NeRF 跑完抽 isosurface？" — 正确答案：*"NeRF 的 density 不是 SDF — density 在表面前后都有非零值，isosurface 阈值无明确物理意义，每个场景要手调；而且 multi-view 一致性差，抽出来的 mesh 有 floating artifact 和 surface 厚度. NeuS 把表示直接换成 SDF (zero-level-set 严格定义 surface)，并证明了 unbiased 体渲染权重公式 — 让纯 RGB 监督就能学出 mesh-ready 的几何，无需 mask. 这是 representation choice 决定 downstream 可用性的教科书案例."* 错答："NeuS 比 NeRF 准". 准是结果，*为何准* 是 SDF + bias-free 整合.

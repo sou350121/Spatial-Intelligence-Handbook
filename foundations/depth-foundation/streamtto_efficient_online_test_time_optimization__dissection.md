@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: depth
 representation: n/a
 sensor: multi-modal
 paradigm: hybrid
 time: fixed-lag
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # StreamTTO：面向视频深度补全的高效在线测试时优化 (StreamTTO: Efficient Online Test-Time Optimization for Video Depth Completion)
 
@@ -407,4 +407,4 @@ $$\frac{\partial\mathcal{L}}{\partial\theta}=\frac{1}{3}\sum_i \underbrace{\left
 
 > **Status**：v0.1 · 基于 arXiv 全文（2603.01765v5）· §4 中"单帧延迟 / VRAM / 嵌入式平台表现"论文未报告，未做任何估算 · §8 无官方 repo，pitfall 均由 §6 失败模式 + 方法约束推导，**未经 issue 验证** · 论文正文与附录的吞吐倍数口径不一致已在 §8 标注
 
-<!-- source: https://arxiv.org/abs/2603.01765 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2603.01765 -->"

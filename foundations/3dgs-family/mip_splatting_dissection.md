@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Novel-view synthesis (alias-free across scales)
 representation: 3DGS + 3D smoothing filter + 2D Mip filter
 sensor: RGB + poses (from COLMAP)
 paradigm: Hybrid-DiffRender (Gaussian rasterize + anti-alias)
 time: Per-scene optimization
 ref: ../../cheat-sheet/ontology.md §8.2
--->
+-->"
 
 # Mip-Splatting (Mip-Splatting 抗锯齿正典 — CVPR 2024 Best Student Paper)
 

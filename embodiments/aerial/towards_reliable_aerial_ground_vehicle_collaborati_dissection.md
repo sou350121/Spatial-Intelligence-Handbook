@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: n/a
 sensor: multi-modal
 paradigm: learned
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 面向可靠空地协同的集成规划与自主框架 (Towards Reliable Aerial–Ground Vehicle Collaboration: An Integrated Planning and Autonomy Framework for Field Deployment)
 
@@ -337,4 +337,4 @@ $$T_{\text{rem}}=\alpha\,T^{\text{full}}-T^{\text{ela}}$$
 
 > **Status**：v0.1 · 基于 arXiv 全文（arXiv:2607.07350v1）· 未在真机复现的数字标 `UNVERIFIED`。§4 中「真机端到端延迟 / Jetson 上规划器运行时 / 内存吞吐」论文未报告，保持空白；§5 数字均逐字取自 Table I / II / IV。§8 因论文无 `github.com` 链接，全部 pitfall 由失败模式 × 方法约束推导，未经 issue 验证。
 
-<!-- source: https://arxiv.org/abs/2607.07350 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.07350 -->"

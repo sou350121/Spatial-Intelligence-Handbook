@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: reconstruction
 representation: NeRF
 sensor: mono
 paradigm: generative
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # GO-PRE：面向目标的预测渲染熵驱动下一最佳视角选择 (GO-PRE: Goal-Oriented Next-Best-View Selection via Predictive Rendering Entropy for Active 3D Reconstruction)  
 > **发布时间**：2026/07/31  
@@ -118,10 +118,10 @@ argmin_x → Next Best View
 | 项目 | 内容 | 来源验证 |
 |------|------|----------|
 | **数据集** | Blender (Mildenhall et al., 2021), Mip-NeRF360 (Barron et al., 2022), Tanks & Temples (Knapitsch et al., 2017) | ✅ 全文多次出现，拼写完全一致（含括号引用） |
-| **评测协议** | • Protocol I（Global）：Blender 全 test set（200 views）；Mip-NeRF360/T&T 用 LLFF hold-out（every 8th view）<br>• Protocol II（Goal-Oriented）：目标流形 = 以 pose centroid 为中心的 120° xy-plane sector | ✅ Sec. 4.1 “Evaluation Protocols” 原文描述 |
+| **评测协议** | • Protocol I（Global）：Blender 全 test set（200 views）；Mip-NeRF360/T&T 用 LLFF hold-out（every 8th view）<br />• Protocol II（Goal-Oriented）：目标流形 = 以 pose centroid 为中心的 120° xy-plane sector | ✅ Sec. 4.1 “Evaluation Protocols” 原文描述 |
 | **指标** | PSNR ↑, SSIM ↑, LPIPS ↓ | ✅ Table 1/2 标题及 footnote 明确写出 |
-| **关键数字（Protocol I）** | Blender: PSNR=25.5740, SSIM=0.9037, LPIPS=0.0800<br>Mip-NeRF360: PSNR=21.2283, SSIM=0.6318, LPIPS=0.3370<br>Tanks & Temples: PSNR=17.9570, SSIM=0.6685, LPIPS=0.3045 | ✅ Table 1 中 “Ours” 行逐字复制（含小数位） |
-| **关键数字（Protocol II）** | Blender: PSNR=27.5093, SSIM=0.9173, LPIPS=0.0699<br>Mip-NeRF360: PSNR=23.4250, SSIM=0.7035, LPIPS=0.2780<br>Tanks & Temples: PSNR=20.5030, SSIM=0.7730, LPIPS=0.2200 | ✅ Table 2 中 “Ours” 行逐字复制 |
+| **关键数字（Protocol I）** | Blender: PSNR=25.5740, SSIM=0.9037, LPIPS=0.0800<br />Mip-NeRF360: PSNR=21.2283, SSIM=0.6318, LPIPS=0.3370<br />Tanks & Temples: PSNR=17.9570, SSIM=0.6685, LPIPS=0.3045 | ✅ Table 1 中 “Ours” 行逐字复制（含小数位） |
+| **关键数字（Protocol II）** | Blender: PSNR=27.5093, SSIM=0.9173, LPIPS=0.0699<br />Mip-NeRF360: PSNR=23.4250, SSIM=0.7035, LPIPS=0.2780<br />Tanks & Temples: PSNR=20.5030, SSIM=0.7730, LPIPS=0.2200 | ✅ Table 2 中 “Ours” 行逐字复制 |
 
 ---
 
@@ -185,4 +185,4 @@ argmin_x → Next Best View
 [← Back to reconstruction README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.29037 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.29037 -->"

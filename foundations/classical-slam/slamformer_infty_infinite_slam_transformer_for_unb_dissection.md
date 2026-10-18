@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VSLAM
 representation: feature-grid
 sensor: mono
 paradigm: hybrid
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # SLAMFormer-∞: Infinite SLAM Transformer for Unbounded Frontend and Backend Processing  
 > **发布时间**：2026/08/04  
@@ -38,7 +38,7 @@ SLAMFormer-∞提出**记忆条件化Transformer架构**：将历史关键帧（
 |------|------|------|------------------|  
 | **Conditional Frontend** | 当前帧 ℐₙ + 近邻历史帧 ℐₙ₋ₖ:ₙ₋₁ + 条件锚点 (ℐ_C, 𝒳_C) | 局部map token ℳₙ（含𝑔ₙ, 𝐏ₙ初值） | 训练Mode 1：首两帧建局部坐标系，后续因果attention；推理时复用KV cache |  
 | **Local Backend** | 最近𝑤帧 ℐₙ₋w:n + 对应条件锚点𝒞ⱼ∈𝒩ₙ₋w | 局部窗口 refined ℳ̂ₙ₋w:n | 训练Mode 2/3：分段mask + pose-injected conditioning；推理每c_w帧触发一次 |  
-| **PGGO Global Backend** | 全图𝒢=(𝒱,ℰ)，𝒱={𝑔ₙ,𝐏ₙ}，ℰ=ℰ_𝒳∪ℰ_𝒫 | 迭代更新𝐱ₙᵏ⁺¹ = h_θ(𝐱ₙᵏ)（含damped pose + direct pointmap） | 训练Mode 4：前后condition chunk夹击target chunk；推理仅在loop或序列末触发 |  
+| **PGGO Global Backend** | 全图𝒢=(𝒱,ℰ)，𝒱=&#123;𝑔ₙ,𝐏ₙ&#125;，ℰ=ℰ_𝒳∪ℰ_𝒫 | 迭代更新𝐱ₙᵏ⁺¹ = h_θ(𝐱ₙᵏ)（含damped pose + direct pointmap） | 训练Mode 4：前后condition chunk夹击target chunk；推理仅在loop或序列末触发 |  
 
 ### 1.2 关键机制  
 ⚡ **Eureka Moment：用记忆条件（memory condition）替代全局坐标系——将“无限序列”映射为“有限局部窗口+动态锚点”的可计算问题，使Transformer无需扩大context window即可支持km级轨迹。**
@@ -65,11 +65,11 @@ Frontend:   [I₁,I₂] → M₁,M₂ → ... → Mₙ (local coord, conditioned
 📌 **Napkin Formula**：  
 > **p(𝒳,𝒫∣ℐ,ℐ_C,𝒳_C) = ∏ₙ ‖𝐱ₙ − f_ψ∘f_θ(ℐₙ, 𝒞ₙ∈𝒩ₙ₋w)‖²** —— 所有帧的联合状态（pose+geometry）被同一个条件Transformer最小化残差，而非分别预测再拼接。
 
-- **目标**：联合优化相机轨迹𝒳={gₙ}和场景几何𝒫={Pₙ}，满足全局一致性约束  
-- **公式 (1)**：𝐱∗ = argmin_{𝐱ₙ} Σₙ ‖𝐱ₙ − f_ψ∘f_θ(ℐₙ, 𝒞ₙ∈𝒩ₙ₋w)‖²  
+- **目标**：联合优化相机轨迹𝒳=&#123;gₙ&#125;和场景几何𝒫=&#123;Pₙ&#125;，满足全局一致性约束  
+- **公式 (1)**：𝐱∗ = argmin_&#123;𝐱ₙ&#125; Σₙ ‖𝐱ₙ − f_ψ∘f_θ(ℐₙ, 𝒞ₙ∈𝒩ₙ₋w)‖²  
 - **变量说明**：  
   - 𝐱ₙ = (𝐠ₙ, 𝐏ₙ) ∈ SE(3)×ℝ³ᴰ（joint state）  
-  - 𝒞ₙ∈𝒩ₙ₋w = {(ℐⱼ,𝐠ⱼ) ∣ j ∈ neighborhood window of n−w}（动态锚点集）  
+  - 𝒞ₙ∈𝒩ₙ₋w = &#123;(ℐⱼ,𝐠ⱼ) ∣ j ∈ neighborhood window of n−w&#125;（动态锚点集）  
   - f_θ：共享权重Transformer backbone（L层frame attention + inter-frame attention）  
   - f_ψ：head function decoding pose & pointmap  
 - **直觉**：不是让模型“记住整个序列”，而是让它学会“如何以任意锚点为原点，重新标定当前帧的几何关系”——锚点即坐标系原点，Transformer只做局部相对推理。
@@ -78,7 +78,7 @@ Frontend:   [I₁,I₂] → M₁,M₂ → ... → Mₙ (local coord, conditioned
 
 **玩具设定（Replica室内小场景）**：  
 - 输入序列：I₁,I₂,I₃,I₄,I₅（5帧，每帧64×64）  
-- 条件锚点窗口：𝒲(n)=2，即对I₃，𝒞∈𝒩₁ = {(I₁,g₁),(I₂,g₂)}  
+- 条件锚点窗口：𝒲(n)=2，即对I₃，𝒞∈𝒩₁ = &#123;(I₁,g₁),(I₂,g₂)&#125;  
 - Frontend：I₃输入时，f_θ(I₃, I₁:I₂, C₁:C₂) → M₃ = (g₃⁰, P₃⁰)  
 - Local Backend（c_w=3）：I₄到来后，触发refine M₂:M₄ → M̂₂,M̂₃,M̂₄  
 - PGGO（序列结束）：初始化x̃₁⁰=(g₁⁰,P₁⁰),...,x̃₅⁰=(g₅⁰,P₅⁰)，执行K=2次迭代：  
@@ -151,4 +151,4 @@ Frontend:   [I₁,I₂] → M₁,M₂ → ... → Mₙ (local coord, conditioned
 [← Back to slam-vio-migration README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2608.03429 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2608.03429 -->"

@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: depth
 representation: n/a
 sensor: mono
 paradigm: learned
 time: feed-forward
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 几何崩塌：当视觉模型无法验证物理因果性 (Geometric Collapse: When Vision Models Fail to Verify Physical Causality)
 
@@ -55,12 +55,12 @@ DepthAnything v1/v2 (2024)            规模化 SSL + DINOv2，benchmark SOTA
 
 | 模块 | 输入 | 输出 | 训练/推理差异 |
 |---|---|---|---|
-| **Scrambled Edges（主扰动）** | 图像 I，Canny 边缘段 E={e₁..e_K} | I_scram = clip(I − α·M_scram, 0, 1) | 纯推理期干预，无训练 |
+| **Scrambled Edges（主扰动）** | 图像 I，Canny 边缘段 E=&#123;e₁..e_K&#125; | I_scram = clip(I − α·M_scram, 0, 1) | 纯推理期干预，无训练 |
 | **High-pass Noise（频率控制）** | 图像 I，高斯白噪声 ε | I_noise = clip(I + (ε − G_σ(ε)), 0, 1) | 能量 RMS 逐图匹配到 Scrambled Edges |
 | **Edge-Shaped Noise（结构控制）** | 同一批边缘掩码 M_edge | I_edge = I + Noise(M_edge) | 原地加噪，不搬/不旋转 → 保留边缘形状但无几何违反 |
 | **False Edge Ratio / G-Score** | 边缘掩码 + GT 深度 D_gt | R_false / G-Score | 需 GT 深度（仅诊断期） |
 | **Oracle Repair（溢出测量）** | D_clean, D_scram, M_scram | D_patch = D_scram·(1−M_scram) + D_clean·M_scram | 用已知扰动掩码做上界修复 |
-| **多视图一致性（KITTI）** | 相邻帧 RGB + 位姿 + 预测深度 | 光度 ℓ₁ / depth–depth 相对误差 | 固定内参与位姿 T_{t→t+1} |
+| **多视图一致性（KITTI）** | 相邻帧 RGB + 位姿 + 预测深度 | 光度 ℓ₁ / depth–depth 相对误差 | 固定内参与位姿 T_&#123;t→t+1&#125; |
 
 ### 1.2 关键机制
 
@@ -303,4 +303,4 @@ D_patch = D_scram·(1 − M_scram) + D_clean·M_scram
 
 > **Status**：v0.1 · 基于 arXiv 全文（截断版）· 未在真机复现的数字标 `UNVERIFIED`（本笔记中 §4 全部工程数字均为「论文未报告」，未做任何估算填充；§3 玩具数字为示范设定）
 
-<!-- source: https://arxiv.org/abs/2607.06871 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.06871 -->"

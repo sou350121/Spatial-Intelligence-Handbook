@@ -79,6 +79,7 @@ jobs:
           # generated overview, written by post.py alongside the daily report.
           python3 scripts/pulsar/sync_report_index.py
           python3 scripts/sync_readme_from_overview.py
+          bash scripts/pulsar/check-site-mdx.sh
           git add reports/spatial-daily/ reports/atlas/ reports/curated-signal/
 
           # Exit cleanly if nothing changed (e.g. weekend or zero qualifying papers)

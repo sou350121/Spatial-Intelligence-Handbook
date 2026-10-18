@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VSLAM
 representation: 3DGS
 sensor: mono
 paradigm: 3R-SLAM-hybrid
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # GeoGS-SLAM：结合几何先验的高斯泼溅在线单目重建 (GeoGS-SLAM: Online Monocular Reconstruction Using Gaussian Splatting with Geometric Priors)
 
@@ -410,4 +410,4 @@ T_i' = ΔT_i T_i
 > **Status**：v0.1 · 基于 arXiv:2607.11184v1 全文 · 未在真机复现的数字标 `UNVERIFIED`
 > **数字来源约定**：§4 全部耗时、§5 全部指标与数据集名均逐字取自 Tab.I–IV 与 §IV-A；论文未报告的项（FPS / VRAM / 高斯数量 / 各阈值）一律标注「论文未报告」，未做任何换算或推算。§3 数值为明确标注的玩具设定。§8 三条 pitfall 由 §6 失败模式推导，论文无 GitHub 仓库链接，**未经 issue 验证**。
 
-<!-- source: https://arxiv.org/abs/2607.11184 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.11184 -->"

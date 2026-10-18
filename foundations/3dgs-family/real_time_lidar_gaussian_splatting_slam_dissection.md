@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VSLAM
 representation: 3DGS
 sensor: LiDAR
 paradigm: hybrid
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 实时 LiDAR 高斯泼溅 SLAM：几何感知协方差耦合 (Real-Time LiDAR Gaussian Splatting SLAM via Geometry-Aware Covariance Coupling)  
 > **发布时间**：2026/07/05  
@@ -42,8 +42,8 @@ ref: ../../cheat-sheet/ontology.md §5
 
 | 模块 | 输入 | 输出 | 训练-推理差异 |  
 |------|------|------|----------------|  
-| **G-ICP Tracking** | 当前帧降采样点云 ℙ′<sup>s</sup><sub>t</sub> + trackable 高斯子集 𝒢<sub>trk</sub> | SE(3) 位姿 T<sub>t</sub> + 每点协方差 {C<sup>s</sup><sub>i</sub>} | *纯推理*；协方差来自 k-NN 邻域，非学习 |  
-| **2DGS Map Representation** | 球面范围图像 + keyframe 点云 | 高斯集合 𝒢 = {(μ<sub>i</sub>, q<sub>i</sub>, s̃<sub>i</sub>, α<sub>i</sub>, u<sub>i</sub>, c<sub>i</sub>) } | *增量优化*；参数在 spherical rasterization 域中更新 |  
+| **G-ICP Tracking** | 当前帧降采样点云 ℙ′<sup>s</sup><sub>t</sub> + trackable 高斯子集 𝒢<sub>trk</sub> | SE(3) 位姿 T<sub>t</sub> + 每点协方差 &#123;C<sup>s</sup><sub>i</sub>&#125; | *纯推理*；协方差来自 k-NN 邻域，非学习 |  
+| **2DGS Map Representation** | 球面范围图像 + keyframe 点云 | 高斯集合 𝒢 = &#123;(μ<sub>i</sub>, q<sub>i</sub>, s̃<sub>i</sub>, α<sub>i</sub>, u<sub>i</sub>, c<sub>i</sub>) &#125; | *增量优化*；参数在 spherical rasterization 域中更新 |  
 | **Geometry-Aware Map Control** | 控制分 c<sub>i</sub>（来自协方差 eigenvals + residual） | prune/split 决策 + cover region | *无训练*；c<sub>i</sub> ∈ [0,1] 直接驱动资源重分配 |  
 | **Covariance Coupling Bridge** | tracking covariances C<sup>s</sup><sub>i</sub> → mapping 初始化；mapping-refined (q<sub>i</sub>, s<sub>i</sub>) → target covariance C<sup>t</sup><sub>i</sub> | 双向几何信号流 | *零参数、零计算开销*；是整个系统 glue logic |  
 
@@ -204,4 +204,4 @@ Optimize Θ = {μ, q, s̃, α} → refined Cᵗᵢ → tighter tracking next fra
 [← Back to lidar-slam README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.04127 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.04127 -->"

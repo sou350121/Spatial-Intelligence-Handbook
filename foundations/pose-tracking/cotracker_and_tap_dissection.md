@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: PointTracking (任意點長時跟蹤)
 representation: Per-point trajectory
 sensor: Video (RGB)
 paradigm: Learned-Transformer (iterative refinement)
 time: Online
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # CoTracker & TAP-Vid (任意点的时序追踪)
 

@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: reconstruction
 representation: 3DGS
 sensor: mono
 paradigm: generative
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # StreamSplat：Streaming Feed-Forward 3D Gaussian Splatting  
 > **发布时间**：2026/08/03  
@@ -124,7 +124,7 @@ VACC 中 voxel `b₁`（中心 `[1.2, 0.8, 3.1] ± 0.02`）已有 3 个 pivots�
 | **端到端延迟（per chunk）** | **143 ms**（6.98 FPS） | §Experiments: “on ScanNet with 64 input views… end-to-end latency … is about 143 ms” —— 明确报告，硬件：NVIDIA RTX PRO 6000 (96 GB) |
 | **峰值 GPU 内存** | **14.1 GB @ 64 views (ScanNet)** | Table 1: “ScanNet → Ours → Mem. ↓ → 14.1”；对比 DepthSplat 56.4 GB，ReSplat 24.6 GB |
 | **吞吐（streaming）** | 支持 **256 / 512 / 1024 views**（Table 1 & Fig.1） | Fig.1: “Peak GPU memory under increasing context lengths on ScanNet”；baseline 在 128 views 即 OOM |
-| **部署约束** | • Chunk size = 4 views（fixed）<br>• Requires calibrated cameras (`C_t`) — no pose-free mode<br>• VACC voxel size `Δ=0.04` world unit → scene scale must be known at inference | §Implementation Details: “processed causally in chunks of 4 views”；§VACC: “Δ = 0.04 in the world units of the input camera poses” |
+| **部署约束** | • Chunk size = 4 views（fixed）<br />• Requires calibrated cameras (`C_t`) — no pose-free mode<br />• VACC voxel size `Δ=0.04` world unit → scene scale must be known at inference | §Implementation Details: “processed causally in chunks of 4 views”；§VACC: “Δ = 0.04 in the world units of the input camera poses” |
 
 > ✅ 所有数字均 copy-paste 自原文，无推断/四舍五入。
 
@@ -134,10 +134,10 @@ VACC 中 voxel `b₁`（中心 `[1.2, 0.8, 3.1] ± 0.02`）已有 3 个 pivots�
 
 | 项目 | 内容 | 来源说明 |
 |------|------|----------|
-| **训练数据** | • DL3DV: >10,000 scenes<br>• RealEstate10K: >7,000 trajectories<br>• ScanNet: 100 scenes | §Experiments: “trained on over 10,000 scenes from DL3DV … over 7,000 trajectories from RealEstate10K … 100 scenes from ScanNet” |
-| **评测数据集** | • DL3DV-140 benchmark（official）<br>• RealEstate10K: 140 random test scenes<br>• ScanNet: 20 longest test scenes (~7,000 frames each) | §Experiments: “report results on the official DL3DV-140 benchmark, 140 randomly sampled scenes … 20 longest ScanNet test scenes” |
-| **评测协议** | • Context views: **24 / 64 / 128 / 256 / 512 / 1024** (sequential trajectory)<br>• Target views: **64 uniformly sampled** per scene<br>• Metrics: **PSNR / SSIM / LPIPS**, averaged across all test views & scenes | §Experiments: “reconstruct using varying numbers … 24, 64, 128, 256, 512, and 1024 views … evaluate … on 64 uniformly sampled test views … report PSNR, SSIM, and LPIPS, averaged over all test views and test scenes” |
-| **关键条件** | • All methods use **same resolution & context sampling** as Table 1 (Fig.1 caption)<br>• Baseline OOM reported explicitly when memory exceeded | Fig.1 caption: “using the same fixed-view baselines, resolution, and context sampling as Table 1”；Table 1: “OOM” entries |
+| **训练数据** | • DL3DV: >10,000 scenes<br />• RealEstate10K: >7,000 trajectories<br />• ScanNet: 100 scenes | §Experiments: “trained on over 10,000 scenes from DL3DV … over 7,000 trajectories from RealEstate10K … 100 scenes from ScanNet” |
+| **评测数据集** | • DL3DV-140 benchmark（official）<br />• RealEstate10K: 140 random test scenes<br />• ScanNet: 20 longest test scenes (~7,000 frames each) | §Experiments: “report results on the official DL3DV-140 benchmark, 140 randomly sampled scenes … 20 longest ScanNet test scenes” |
+| **评测协议** | • Context views: **24 / 64 / 128 / 256 / 512 / 1024** (sequential trajectory)<br />• Target views: **64 uniformly sampled** per scene<br />• Metrics: **PSNR / SSIM / LPIPS**, averaged across all test views & scenes | §Experiments: “reconstruct using varying numbers … 24, 64, 128, 256, 512, and 1024 views … evaluate … on 64 uniformly sampled test views … report PSNR, SSIM, and LPIPS, averaged over all test views and test scenes” |
+| **关键条件** | • All methods use **same resolution & context sampling** as Table 1 (Fig.1 caption)<br />• Baseline OOM reported explicitly when memory exceeded | Fig.1 caption: “using the same fixed-view baselines, resolution, and context sampling as Table 1”；Table 1: “OOM” entries |
 
 > ✅ 所有 dataset 名、metric 名、view counts、采样方式均逐字摘录自原文。
 
@@ -201,4 +201,4 @@ VACC 中 voxel `b₁`（中心 `[1.2, 0.8, 3.1] ± 0.02`）已有 3 个 pivots�
 [← Back to 3DGS README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2608.01659 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2608.01659 -->"

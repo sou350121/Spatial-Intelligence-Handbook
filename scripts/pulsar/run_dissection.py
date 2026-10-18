@@ -135,6 +135,7 @@ def write_one(cand: dict, api_key: str, dry: bool) -> str | None:
         md = re.sub(r"^```markdown\s*|\s*```$", "", md.strip()).replace("<module>", zone.split("/")[-1])
         md = safe_markdown(md)
         full = wd.ontology_header(axes) + md + f"\n\n<!-- source: https://arxiv.org/abs/{aid} -->\n"
+        full = safe_markdown(full)
         missing = wd.structural_guard(full)
         if missing:
             print(f"  attempt {attempt+1}: guard missing {missing}; regen", file=sys.stderr)

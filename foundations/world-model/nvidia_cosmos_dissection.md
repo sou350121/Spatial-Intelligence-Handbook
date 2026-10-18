@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: World model (robotics foundation video)
 representation: Video tokens + 3D generation
 sensor: Video (multi-modal)
 paradigm: Generative-VideoWorldModel (action-conditioned, post-trainable as VLA policy)
 time: FeedForward
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # NVIDIA Cosmos 解构 (NVIDIA Cosmos World Foundation Models — Dissection)
 

@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Spatial reasoning (metric inference from VLM)
 representation: Image + metric QA
 sensor: RGB
 paradigm: Learned-VLM
 time: FeedForward
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # SpatialVLM 解构 (SpatialVLM: Endowing VLMs with Spatial Reasoning — Dissection)
 

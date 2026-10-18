@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: pose
 representation: n/a
 sensor: n/a
 paradigm: hybrid
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # BayesContact: Uncertain Pose Estimation via Visuo-Tactile Proposals and Simulation-based Inference  
 > **发布时间**：2026/07/28  
@@ -116,7 +116,7 @@ BayesContact 解决的是接触密集操作中**纯视觉位姿估计不可靠**
 |------|------|------|
 | **延迟 per particle** | `UNVERIFIED` | 论文未报告单粒子渲染/仿真耗时；Bullet 仿真通常 10–100ms，OpenGL 渲染 ~1–5ms（取决于分辨率） |
 | **步数 to convergence** | `UNVERIFIED` | 论文未给出平均迭代步数；实验描述为 “vision phase: γ measurements; contact phase: several probes” |
-| **内存 footprint** | `UNVERIFIED` | 未报告；典型 SMC：N=1000 粒子 × (3 pose params + aux state) ≈ <1MB；但每个粒子需缓存渲染/仿真中间结果 → 显存压力大 |
+| **内存 footprint** | `UNVERIFIED` | 未报告；典型 SMC：N=1000 粒子 × (3 pose params + aux state) ≈ &lt;1MB；但每个粒子需缓存渲染/仿真中间结果 → 显存压力大 |
 | **吞吐（FPS）** | `UNVERIFIED` | 未报告；受限于最慢模块（physics sim）；若 N=500, sim=50ms → ~20Hz max |
 | **部署约束** | **必须** GPU（渲染）+ CPU（physics）协同；**必须**已知 peg mesh、camera intrinsics/extrinsics、F/T-to-peg transform；**不支持**动态对象或未知几何 |
 
@@ -195,4 +195,4 @@ BayesContact 解决的是接触密集操作中**纯视觉位姿估计不可靠**
 [← Back to spatial-estimation README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.16123 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.16123 -->"

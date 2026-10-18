@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: pointmap
 sensor: LiDAR
 paradigm: geometric
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # G-PROBE: Cross-FOV Place Recognition and Certainty-Coupled Localization for 3D Point Clouds  
 > **发布时间**：2026/07/07  
@@ -46,7 +46,7 @@ G-PROBE 解决的是“**LiDAR全局定位在非全景FOV下的结构性崩溃**
 
 | 模块 | 输入 | 输出 | 训练-推理差异 | 关键约束 |
 |------|------|------|----------------|-----------|
-| **Virtual Sensor Decomposition** | 原始点云 + Φ<sub>total</sub>（总方位角覆盖） | N个虚拟扇区 {V₁,…,V<sub>N</sub>}，每扇区中心角ϕᵢ，半FOV α | 无训练；纯几何划分；N = round(Φ<sub>total</sub>/90°) | Φ<sub>total</sub>必须连续（gap-free）；N≥1；N=1时退化为单扇区自匹配 |
+| **Virtual Sensor Decomposition** | 原始点云 + Φ<sub>total</sub>（总方位角覆盖） | N个虚拟扇区 &#123;V₁,…,V<sub>N</sub>&#125;，每扇区中心角ϕᵢ，半FOV α | 无训练；纯几何划分；N = round(Φ<sub>total</sub>/90°) | Φ<sub>total</sub>必须连续（gap-free）；N≥1；N=1时退化为单扇区自匹配 |
 | **Cross-FOV Branch Retrieval** | 查询/数据库扇区对 (P<sup>q</sup><sub>ij</sub>, P<sup>db</sup><sub>kl</sub>) | L2-normalized ring key 𝒌<sub>b</sub> ∈ ℝ<sup>2N<sub>r</sub></sup>，FOV权重 w<sub>FOV</sub> | 无训练；ring key复用PROBE公式；仅用μ̄<sub>r</sub>, z̄<sub>r</sub> | 每分支仅用共享FOV区域（式4–5）；w<sub>FOV</sub> ≥ w<sub>min</sub>才保留分支 |
 | **γ-SGRT Verification** | 所有分支得分 S<sub>b</sub> | 最终得分 S<sub>final</sub> = max<sub>b</sub> S<sub>b</sub> ⋅ P<sub>dom</sub><sup>(1−γ)</sup>，唯一性概率 P<sub>dom</sub> | 无训练；tuning-free；γ∈[0,1]固定为0.5（Table II） | P<sub>dom</sub>由Softmax Gap Ratio导出；γ=0时完全信任max得分，γ=1时强制均匀分布 |
 | **CG-GICP Registration** | 查询点云 ℘<sup>q</sup>，粗略位姿 Δψ，BEV certainty map c(r,s) | refined 6-DoF SE(3) pose | 无训练；GICP变体；仅对c(r,s)≥τ<sub>c</sub>区域采样点 | τ<sub>c</sub>=0.5（Table II）；fine pass仅用高确定性共观测点；coarse pass用全云 |
@@ -114,7 +114,7 @@ Output: 6-DoF SE(3) pose
 
 **设定**：  
 - Query：N=1（单70°固态LiDAR），Φ=70°，ϕ<sub>base</sub>=0° → V₁ centered at 0°, α=35°  
-- Database：N′=4（360°机械LiDAR），ϕᵢ ∈ {±45°, ±135°}  
+- Database：N′=4（360°机械LiDAR），ϕᵢ ∈ &#123;±45°, ±135°&#125;  
 - Branch：b = (P₁₁<sup>q</sup>, P₂₃<sup>db</sup>)，其中 P₂₃ = V₂∪V₃ = sectors at +45° & −135° → ϕ̄₂₃ = atan2(sin45+sin(−135), cos45+cos(−135)) = atan2(0.707−0.707, 0.707−0.707) → undefined → use V₂ (lower index) → ϕ̄₂₃ = +45°  
 - Δψ<sub>hint</sub> = (0° − 45°) mod 360° = 315°  
 - ℱ<sup>q</sup> = [−35°, +35°], ℱ<sup>db</sup> = [−45°, +45°] for V₂ → roll(ℱ<sup>db</sup>, 315°) = [−45°+315°, +45°+315°] mod 360 = [270°, 360°] ∪ [0°, 45°]  
@@ -129,7 +129,7 @@ Output: 6-DoF SE(3) pose
 → BKL ≈ −½[(0.8log(0.8/0.75)+0.2log(0.2/0.25)) + (0.1log(0.1/0.05)+0.9log(0.9/0.95)) + ...] ≈ −0.03 (small negative → good match)  
 → CC<sub>z</sub> = cos(5°) ≈ 0.996  
 → S<sub>b</sub> = 0.5 × 0.996 × (−0.03) ≈ −0.015  
-→ 若其他分支S<sub>b</sub>均 < −0.02，则此分支P<sub>dom</sub>≈0.6 → S<sub>final</sub> = −0.015 × 0.6<sup>0.5</sup> ≈ −0.0116  
+→ 若其他分支S<sub>b</sub>均 &lt; −0.02，则此分支P<sub>dom</sub>≈0.6 → S<sub>final</sub> = −0.015 × 0.6<sup>0.5</sup> ≈ −0.0116  
 
 ---
 
@@ -151,8 +151,8 @@ Output: 6-DoF SE(3) pose
 |------|------|-----------|
 | **数据集** | **5个LiDAR数据集**：KAIST Urban (HeLiPR), Oxford RobotCar, MulRan, KITTI, Ford Campus | §VI-A：“evaluated on five LiDAR datasets”；Table IV lists these 5 |
 | **传感器模态** | **3种LiDAR**：mechanical（Ouster）, solid-state（Livox Avia）, FMCW（Aeva） | §I-D：“three LiDAR modalities (mechanical, solid-state, FMCW)”；§VI-D标题 |
-| **评测协议** | • Experiment 1：标准LiDAR place recognition（Recall@1, F1）<br>• Experiment 2：Limited-FOV robustness（360°→60° cropping）<br>• Experiment 3：Cross-sensor generalization（HeLiPR）<br>• Experiment 4：FOV-controlled cross-sensor study（legged platform）<br>• Experiment 5：Cross-sensor geometric registration（APE, RPE）<br>• Experiment 6：End-to-end metric global localization（success rate @ 2m/5°） | §VI-B to VI-G标题及描述；Fig.1明确“Recall@1 as query FOV cropped from 360° to 60°” |
-| **关键指标数字** | • 360°→60° Recall@1: **∼54%** (G-PROBE) vs **≤6.8%** (best learning-free baseline) <br>• Multi-session F1: **highest learning-free average** <br>• Success rate end-to-end: **55.0%** (cross-sensor) vs **≤6.8%** (baselines) | §I Abstract: “retains ∼54% Recall@1, ∼18× the strongest learning-free baseline”; “up to 55.0% vs. ≤6.8% success” |
+| **评测协议** | • Experiment 1：标准LiDAR place recognition（Recall@1, F1）<br />• Experiment 2：Limited-FOV robustness（360°→60° cropping）<br />• Experiment 3：Cross-sensor generalization（HeLiPR）<br />• Experiment 4：FOV-controlled cross-sensor study（legged platform）<br />• Experiment 5：Cross-sensor geometric registration（APE, RPE）<br />• Experiment 6：End-to-end metric global localization（success rate @ 2m/5°） | §VI-B to VI-G标题及描述；Fig.1明确“Recall@1 as query FOV cropped from 360° to 60°” |
+| **关键指标数字** | • 360°→60° Recall@1: **∼54%** (G-PROBE) vs **≤6.8%** (best learning-free baseline) <br />• Multi-session F1: **highest learning-free average** <br />• Success rate end-to-end: **55.0%** (cross-sensor) vs **≤6.8%** (baselines) | §I Abstract: “retains ∼54% Recall@1, ∼18× the strongest learning-free baseline”; “up to 55.0% vs. ≤6.8% success” |
 
 ---
 
@@ -183,7 +183,7 @@ Output: 6-DoF SE(3) pose
 
 | Method | Cross-FOV | Cross-Sensor | Metric Pose (6-DoF) | Learning-free | Key Limitation |
 |--------|-----------|--------------|---------------------|---------------|----------------|
-| SC [2] | ✗ | ✗ | ✗ | ✓ | Requires 360°; fails at <180° (Fig.1) |
+| SC [2] | ✗ | ✗ | ✗ | ✓ | Requires 360°; fails at &lt;180° (Fig.1) |
 | SC++ [3] | ✗ | ✗ | ✗ | ✓ | Same as SC; virtual-view aug adds compute |
 | SOLiD [8] | Partial | ✗ | ✗ | ✓ | Narrow-FOV degrades under reverse-heading (§II-B) |
 | PROBE [11] | ✗ | ✗ | ✗ | ✓ | Symmetric-FOV only; flagged missing-sector as open problem |
@@ -213,4 +213,4 @@ Output: 6-DoF SE(3) pose
 [← Back to pointmap README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.06782 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.06782 -->"

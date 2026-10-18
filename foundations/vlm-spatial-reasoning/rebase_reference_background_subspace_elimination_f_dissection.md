@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: mono
 paradigm: hybrid
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # REBASE：参考-背景子空间消除的免训练上下文分割 (REBASE: Reference-Background Subspace Elimination for Training-Free In-Context Segmentation)
 
@@ -455,4 +455,4 @@ $$\widetilde f_{Q2} = (0.2,\ 1.6),\quad |\widetilde f_{Q2}| = 1.6125,\quad \cos 
 
 > **Status**：v0.1 · 基于 arXiv 全文（arXiv:2607.09082v1，给定截断正文）· §4 中所有 latency / 显存 / FPS / 硬件型号 / 参数量均标为「论文未报告」；§4.3 与 §8 中所有由方法约束推导的项均标 **UNVERIFIED**（未经真机复现、未经 issue 验证）；§5 全部数据集名与指标数字逐字取自论文 Table 1 / Table 2 / Table 3 / Fig.5 与 §4 Implementation Details。
 
-<!-- source: https://arxiv.org/abs/2607.09082 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.09082 -->"

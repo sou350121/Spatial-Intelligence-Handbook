@@ -1,17 +1,17 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: reconstruction
 representation: NeRF
 sensor: mono
 paradigm: hybrid
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 小型无人机神经 3D 物体重建 (Neural 3D Object Reconstruction with Small-Scale Unmanned Aerial Vehicles)
 
 > **发布时间**：2025-09 (v1) / 2026-08-30 (v3，arXiv:2509.12458v3 [cs.RO])
 > **论文 / 模型名**：N3DR (Neural 3D Reconstruction) 系统 · 组件 = SfM (Meshroom/AliceVision) + Nerfacto (Nerfstudio)
-> **核心定位**：把「<100g 微型无人机 + 闭环主动视角选择 + near-RT SfM 反馈 + non-RT Nerfacto」拼成一套**室内静态小物体自主 3D 扫描系统**，硬件比同类小一个量级、目标从 MA/LA 缩到 PA（personal-area）尺度。
+> **核心定位**：把「&lt;100g 微型无人机 + 闭环主动视角选择 + near-RT SfM 反馈 + non-RT Nerfacto」拼成一套**室内静态小物体自主 3D 扫描系统**，硬件比同类小一个量级、目标从 MA/LA 缩到 PA（personal-area）尺度。
 
 导语：现有 UAV 3D 重建要么用多公斤级平台打大场景，要么被动飞静态轨迹；微型无人机（Crazyflie）此前只被证明能做「粗糙」重建。本文的结论是——用**廉价的 near-RT SfM 点云当"覆盖率传感器"来实时改飞行轨迹**，即使这块点云人眼几乎认不出（PSNR 仅 3–6 dB），也足以做飞行控制信号，而高质量输出交给离线的 NeRF 背反向传播修位姿。
 
@@ -150,7 +150,7 @@ terminate:  min_k S_k ≥ τ_coverage
 |---|---|---|---|---|
 | `S_k = |C_k|` | 120 | 85 | **40** | 95 |
 
-- 判定：min `S_k` = 40 < 100 → 未覆盖完。
+- 判定：min `S_k` = 40 &lt; 100 → 未覆盖完。
 - `argmin_k S_k` = region 3 → 航点 = region 3 中心；yaw 锁定指向 `C_obj`。
 - UAV 飞往 region 3，期间不停机、慢速绕圈；出该扇区后把区域内约 45 张图并入点云（触发一次重建）。
 
@@ -160,7 +160,7 @@ terminate:  min_k S_k ≥ τ_coverage
 |---|---|---|---|---|
 | `S_k` | 121 | 98 | **103** | 96 |
 
-- min `S_k` = 96 < 100 → 仍未达标 → `argmin` = region 4 → 飞 region 4。
+- min `S_k` = 96 &lt; 100 → 仍未达标 → `argmin` = region 4 → 飞 region 4。
 
 第 2 轮后若 min `S_k ≥ 100` → **terminate，降落**。
 
@@ -172,7 +172,7 @@ terminate:  min_k S_k ≥ τ_coverage
 
 | 项目 | 数值（**均逐字来自论文**） |
 |---|---|
-| UAV 平台 | Crazyflie 2.1，< 100 g |
+| UAV 平台 | Crazyflie 2.1，&lt; 100 g |
 | 机载算力 | AI-Deck，GAP8 处理器（图像采集+Wi-Fi 推流，已满载） |
 | 相机 | 超低功耗，320×320 像素 |
 | 通信 | Crazyradio dongle，2.4 GHz ISM（控制）+ ESP32 Wi-Fi（图像） |
@@ -225,7 +225,7 @@ terminate:  min_k S_k ≥ τ_coverage
 ## 6 · 能力与失败模式
 
 **能做**：
-- <100g 微型无人机上完成**闭环主动视角选择**，动态轨迹**一致优于静态**（Tables I/II）。
+- &lt;100g 微型无人机上完成**闭环主动视角选择**，动态轨迹**一致优于静态**（Tables I/II）。
 - location-aware 融合提高**可用图像数**与几何/感知精度。
 - 跨物体尺度（小 → 大）、跨模态（BW/RGB）、跨定位（UWB/OptiTrack）自适配。
 
@@ -253,7 +253,7 @@ terminate:  min_k S_k ≥ τ_coverage
 
 | 维度 | 现有 UAV 重建 | Crazyflie (小物建图)[15] | **本文** |
 |---|---|---|---|
-| 平台重量 | 907 g–9.5 kg（Mavic Pro 2 / M600 Pro）[13][18]；medium 1.45–3.17 kg [15][5][3] | 微型 | **< 100 g** |
+| 平台重量 | 907 g–9.5 kg（Mavic Pro 2 / M600 Pro）[13][18]；medium 1.45–3.17 kg [15][5][3] | 微型 | **&lt; 100 g** |
 | 目标尺度 | MA（都市）/ LA（大区域） | LA 室内 | **PA（personal-area）静态小物** |
 | 载荷 | LiDAR / 双目 / 重载荷 | 极受限 | 单目 320×320 |
 | 重建质量 | 高 | 仅 rudimentary | near-RT 粗糙 / non-RT 高保真 |
@@ -262,7 +262,7 @@ terminate:  min_k S_k ≥ τ_coverage
 | N3DR 选型 | — | — | Nerfacto（前作[8]对比胜过 instant-ngp / Splatfacto） |
 
 **面试 Tip**（被问"这篇和一般 UAV+NeRF 有何不同"）：
-> 标准答法是三段——**① 平台**：<100g、单目 320×320，把可行域从 MA/LA 压到 PA；**② 控制**：不是被动飞静态轨迹，而是把 near-RT SfM 点云当覆盖率传感器、`argmin` 补最缺扇区，形成感知-控制闭环；**③ 定位**：不做机载 VO，改用 UWB/OptiTrack 外部定位并融合 SfM 位姿——额外好处是提高可用图像数。**加分点**：主动指出它的可复现评估用"预采集池离线子采样"，以及大/透明物体 HD 崩坏、依赖外部基础设施这两条硬约束。
+> 标准答法是三段——**① 平台**：&lt;100g、单目 320×320，把可行域从 MA/LA 压到 PA；**② 控制**：不是被动飞静态轨迹，而是把 near-RT SfM 点云当覆盖率传感器、`argmin` 补最缺扇区，形成感知-控制闭环；**③ 定位**：不做机载 VO，改用 UWB/OptiTrack 外部定位并融合 SfM 位姿——额外好处是提高可用图像数。**加分点**：主动指出它的可复现评估用"预采集池离线子采样"，以及大/透明物体 HD 崩坏、依赖外部基础设施这两条硬约束。
 
 ---
 
@@ -292,4 +292,4 @@ terminate:  min_k S_k ≥ τ_coverage
 
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`（§4/§5 中所有数值均逐字取自 Tables I–IV，未标注者即论文原文；VRAM / GPU 型号 / FPS 论文未报告）
 
-<!-- source: https://arxiv.org/abs/2509.12458 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2509.12458 -->"

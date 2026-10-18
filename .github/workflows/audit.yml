@@ -37,3 +37,8 @@ jobs:
       # step checks the formats we actually use.
       - name: Refuse credentials in tracked files
         run: python scripts/pulsar/check_secrets.py
+      - name: Recovery regressions
+        run: python scripts/pulsar/test_recovery.py
+
+      - name: Compile complete website sources
+        run: bash scripts/pulsar/check-site-mdx.sh

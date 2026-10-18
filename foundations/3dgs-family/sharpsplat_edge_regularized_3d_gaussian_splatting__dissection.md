@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: reconstruction
 representation: 3DGS
 sensor: mono
 paradigm: learned
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # SHARPSPLAT: EDGE-REGULARIZED 3D GAUSSIAN SPLATTING FOR HIGH FIDELITY URBAN BUILDING RECONSTRUCTION FROM UAV IMAGES  
 > **发布时间**：2026/07/04  
@@ -82,7 +82,7 @@ UAV Image ──[SAM3 + text prompt]──→ Building Mask M
 ## 4 · 工程视角  
 - **延迟**：Sobel Conv2d（3×3 kernel）≈ 0.8 ms / image（`UNVERIFIED` 估算，论文未报告 runtime）；`E_SAM` 预加载，无 runtime overhead。  
 - **步数**：7K–15K iterations（vs baseline 3DGS），收敛更快（边缘 loss 提供强局部信号）。  
-- **内存**：`E_SAM` 以 float16 存储，64×64 图 ≈ 8 KB / image；batch=4 → <32 KB 额外显存，UNVERIFIED for full-res。  
+- **内存**：`E_SAM` 以 float16 存储，64×64 图 ≈ 8 KB / image；batch=4 → &lt;32 KB 额外显存，UNVERIFIED for full-res。  
 - **吞吐**：≈ same as vanilla 3DGS（loss computation negligible vs rasterization）。  
 - **部署约束**：✅ 无需修改 3DGS core；⚠️ 依赖 SAM3 inference（CPU/GPU 推理，text prompt 需人工设计或模板化）；⚠️ λ_edge ∈ [0.001, 0.1] 需 scene-aware tuning（文中未给 auto-tune 方案）。
 
@@ -126,11 +126,11 @@ UAV Image ──[SAM3 + text prompt]──→ Building Mask M
 ⚠️ **Official repo not yet released** (arXiv v1 only, no GitHub link in paper; search on GitHub yields zero repos matching “SHARPSPLAT” or “sharp-splat” as of 2026-07-18).  
 → **Pitfalls inferred from §6 & method constraints**:  
 1. **SAM3 prompt brittleness**: `"white building facade"` may fail on weathered concrete → causes `E_SAM` holes → `ℒ_edge` under-supervises those regions → local blurring (e.g., Fig 4 left shows residual blur near stained wall).  
-2. **Sobel aliasing on thin structures**: Window mullions < 2px wide vanish in `E_SAM` after dilation → `ℒ_edge` cannot recover sub-pixel sharpness → observed as “ghost edges” in renders (UNVERIFIED quantification).  
+2. **Sobel aliasing on thin structures**: Window mullions &lt; 2px wide vanish in `E_SAM` after dilation → `ℒ_edge` cannot recover sub-pixel sharpness → observed as “ghost edges” in renders (UNVERIFIED quantification).  
 3. **λ_edge tuning deadlock**: Paper states “values cluster around 0.001–0.1” but gives no guidance — too small → no edge improvement; too large → `ℒ_RGB` collapse → color bleeding at boundaries (inferred from loss weighting trade-off in Eq.5).
 
 ---  
 [← Back to reconstruction/3dgs/README.md](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.03872 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.03872 -->"

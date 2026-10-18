@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: implicit-sdf
 sensor: mono
 paradigm: hybrid
 time: n/a
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # Map-Det3D: Metric Feed-Forward 3D Reconstruction Prior for Multi-view 3D Object Detection from Streaming Inputs  
 > **发布时间**：2026/08/12  
@@ -40,7 +40,7 @@ Map-Det3D 解决的是 monocular 3DOD 中“尺度漂移”这一根本性脆弱
 | 模块 | 输入 | 输出 | 训练 vs 推理差异 |
 |------|------|------|------------------|
 | **FF3R Backbone (MapAnything)** | `𝒲ₜ = {Iₜ₋ₜ₊₁,…,Iₜ}` + `𝒞ₜ` (Kₜ, Pₜ 可选) | `ℱₜ = {F_E, F₇, F₁₁, F₁₅}` (multi-scale 3D feature maps) + `ρₜ` (per-window metric scale factor) | 训练时 unfreeze multi-view transformer & scale head；推理时 frozen except scale head |
-| **Detection Transformer Encoder** | `ℱₜ` → per-view `Q^IMG ∈ ℝ^{|ℱ|P×256}` (projected & concatenated) | `Q₀ ∈ ℝ^{M×256}` (top-M 2D anchor features as initial queries) | 2D proposal scoring + top-M selection only at training; inference uses fixed M=100 |
+| **Detection Transformer Encoder** | `ℱₜ` → per-view `Q^IMG ∈ ℝ^&#123;|ℱ|P×256&#125;` (projected & concatenated) | `Q₀ ∈ ℝ^{M×256}` (top-M 2D anchor features as initial queries) | 2D proposal scoring + top-M selection only at training; inference uses fixed M=100 |
 | **Deformable Decoder (L layers)** | `Qₖ`, `Q^IMG`, 2D reference boxes `Bₖ²ᴰ` | `{(Qₖ, Bₖ²ᴰ)}_{k=0}ᴸ` (refined queries & 2D boxes) | Deep supervision on all layers (k=0…L); bipartite matching uses `Bₖ²ᴰ` |
 | **Up-to-scale 3D Box Head (Φ₃Dᵏ)** | `Qₖ`, `ρₜ` | `Bₖ³ᴰ = {(x̃,ỹ, d̃), (s̃_w,s̃_l,s̃_h), R₆D, σ}` → metric `Bₜ³ᴰ = ρₜ × (x̃,ỹ,exp(d̃), exp(s̃_w),...)` | All geometric attributes regressed in up-to-scale space; `ρₜ` applied *after* regression |
 
@@ -201,4 +201,4 @@ Up-to-scale head `Φ₃D²` outputs:
 [← Back to spatial-ai README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2608.12179 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2608.12179 -->"

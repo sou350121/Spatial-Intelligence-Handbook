@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VSLAM
 representation: 3DGS
 sensor: 4D-radar
 paradigm: 3R-SLAM-hybrid
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # DiffRadar: Differentiable Physics-Aware Radar SLAM with Gaussian Fields  
 > **发布时间**：2026/07/14  
@@ -136,7 +136,7 @@ Raw I/Q → [FMCW Signal Proc.]
 | **Latency per frame** | 「论文未报告」 | 全文未提 pipeline latency、端到端延迟或各 stage 耗时 |
 | **VRAM / GPU memory** | 「论文未报告」 | 未提及显存占用、模型大小、是否 CPU-only 可行 |
 | **Compute hardware** | 「论文未报告」 | 仅说 “commodity FMCW radar hardware”，未指定 GPU/CPU 型号（如 RTX 4090 / Jetson AGX Orin） |
-| **Throughput bottleneck** | UNVERIFIED — likely RA/DA rendering & VDRF association | Rendering involves per-primitive Gaussian eval + beam-wise sum; VDRF requires likelihood eval per primitive per frame → scales with #primitives (typically <500/frame per §7.4 ablation) |
+| **Throughput bottleneck** | UNVERIFIED — likely RA/DA rendering & VDRF association | Rendering involves per-primitive Gaussian eval + beam-wise sum; VDRF requires likelihood eval per primitive per frame → scales with #primitives (typically &lt;500/frame per §7.4 ablation) |
 | **Deployment constraint** | Requires FMCW radar w/ RA+DA output + GPU for real-time diff rendering | No quantization, ONNX export, or embedded deployment discussed |
 
 ---
@@ -201,7 +201,7 @@ Raw I/Q → [FMCW Signal Proc.]
    - *Method constraint*: VDRF uses single-Gaussian likelihood, not mixture model; `α_i` initialized from *single-detection SNR*, not cluster SNR.  
 
 3. **Pitfall #3：高速运动下 Doppler aliasing breaks `f̂_D` rendering**  
-   - *Derivation*: From §2 FMCW fundamentals `f_D = 2v/λ` → at `v=30 m/s` (108 km/h), `f_D ≈ 24 kHz`; if radar PRF < 48 kHz, Doppler folds → `f_D,meas` wraps, but Eq. (5) renders unfolded `f_D,i` → residual explodes.  
+   - *Derivation*: From §2 FMCW fundamentals `f_D = 2v/λ` → at `v=30 m/s` (108 km/h), `f_D ≈ 24 kHz`; if radar PRF &lt; 48 kHz, Doppler folds → `f_D,meas` wraps, but Eq. (5) renders unfolded `f_D,i` → residual explodes.  
    - *Method constraint*: DA renderer (Eq. 5) assumes unaliased Doppler; no phase-unwrapping or PRF-aware folding model in forward pass.
 
 ---
@@ -209,4 +209,4 @@ Raw I/Q → [FMCW Signal Proc.]
 [← Back to radar-slam README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.12265 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.12265 -->"

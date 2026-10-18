@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: multi-modal
 paradigm: hybrid
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 面向人机协作的增强现实接口：ROS 2 传感器流式框架的开发与基于 SLAM 算法的验证 (Augmented Reality Interfaces for Human-Robot Collaboration: Development of a ROS 2-Based Sensor Streaming Framework and Validation via SLAM Algorithms)
 
@@ -378,4 +378,4 @@ https://github.com/Unity-Technologies/ROS-TCP-Connector.git?path=/com.unity.robo
 
 > **Status**：v0.1 · 基于 arXiv 全文（arXiv:2609.31396v1，学士论文，全文已截断但仍含完整实验章节）· 未在真机复现的数字标 `UNVERIFIED`；§8 全部 pitfall 为推导性质（仓库 URL 未在文中给出），标注 `UNVERIFIED`。
 
-<!-- source: https://arxiv.org/abs/2609.31396 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2609.31396 -->"

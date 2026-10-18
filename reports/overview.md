@@ -14,7 +14,7 @@ These mirror VLA-Handbook's `reports/` layout. 管線程式 [`scripts/pulsar/`](
 
 > 日檔 / 週檔是逐日歸檔內容，不進 Mintlify 側欄逐頁列表，由本 landing page 串接。
 
-<!-- BEGIN PULSAR REPORT INDEX -->
+[//]: # "<!-- BEGIN PULSAR REPORT INDEX -->"
 
 ## 自动报告目录 (Report Archive)
 
@@ -57,4 +57,4 @@ These mirror VLA-Handbook's `reports/` layout. 管線程式 [`scripts/pulsar/`](
 
 完整归档：[GitHub reports](https://github.com/sou350121/Spatial-Intelligence-Handbook/tree/main/reports)。
 
-<!-- END PULSAR REPORT INDEX -->
+[//]: # "<!-- END PULSAR REPORT INDEX -->"

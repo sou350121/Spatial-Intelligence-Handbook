@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: n/a
 paradigm: learned
 time: feed-forward
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # B-spline 策略：用 B-spline 动作表示加速操作策略 (B-spline Policy: Accelerating Manipulation Policies via B-spline Action Representations)
 
@@ -297,4 +297,4 @@ PushT-speedup（Table 2b，avg score / avg time）：
 [← Back to manipulation-policy README](./README.md)
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.09648 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.09648 -->"

@@ -36,13 +36,11 @@ AXES = ["problem", "representation", "sensor", "paradigm", "time"]
 
 def parse_header(text: str) -> dict[str, str] | None:
     """Parse ontology-5axis header from beginning of file. Returns dict or None."""
-    if not text.lstrip().startswith(HEADER_MARKER):
+    from _ontology_header import get_header_block
+    header = get_header_block(text)
+    if header is None:
         return None
-    start = text.find(HEADER_MARKER)
-    end = text.find(HEADER_END, start + len(HEADER_MARKER))
-    if end < 0:
-        return None
-    block = text[start + len(HEADER_MARKER) : end]
+    block = header[len(HEADER_MARKER):-len(HEADER_END)]
     result = {}
     for line in block.splitlines():
         line = line.strip()

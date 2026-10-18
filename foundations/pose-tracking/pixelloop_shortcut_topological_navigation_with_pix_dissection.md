@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: scene-graph
 sensor: mono
 paradigm: hybrid
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # PixelLoop: Shortcut Topological Navigation with Pixel-Level Loops (PixelLoop)  
 > **发布时间**：2026/07/14  
@@ -44,7 +44,7 @@ PixelLoop 解决的是 *拓扑导航中“图结构失真”这一根本性瓶�
 | 模块 | 输入 | 输出 | 训练 vs 推理差异 |
 |------|------|------|------------------|
 | **MASt3R-based Pixel Graph Construction** | Sequence of RGB-D frames (offline) | Pixel-level graph `G = {N, E}` where `N` = matched pixels, `E` = intra-frame (EMST) & inter-frame (zero-cost) edges | Fully offline; no training — uses pretrained MASt3R |
-| **Loop Detection (SeqVLAD + UFM)** | Frame sequence → sliding 5-frame windows | Set `𝒞_cand` of candidate frame pairs `(i,j)` satisfying `cosine_sim > 0.4` & `|i−j| > 3`, then verified by `ν_{i,j} > 0.1` | Offline only; SeqVLAD is frozen; UFM is inference-only |
+| **Loop Detection (SeqVLAD + UFM)** | Frame sequence → sliding 5-frame windows | Set `𝒞_cand` of candidate frame pairs `(i,j)` satisfying `cosine_sim > 0.4` & `|i−j| > 3`, then verified by `ν_&#123;i,j&#125; > 0.1` | Offline only; SeqVLAD is frozen; UFM is inference-only |
 | **Pixel-Level Loop Closure Injection** | Verified pair `(I_i, I_j)` + MASt3R pixel matches | Dense zero-cost edges between all matched pixel pairs across `I_i` and `I_j` | No learning — deterministic graph surgery |
 | **WayPixel Costmap Generation** | Query image + updated graph `G'` | Dense 2D costmap (H×W), where each pixel’s cost = shortest-path distance to goal in `G'` | Runtime: Dijkstra on graph → rasterized onto query image coords |
 | **Controller (CARE-refined)** | WayPixel costmap + BEV history | 2D waypoint rollout (x,y,yaw in BEV) | Trained end-to-end (but architecture not detailed in paper); CARE module is reactive, rule-based |
@@ -87,16 +87,16 @@ Online Execution Phase:
 
 **目标**：最小化 costmap 与 ground-truth geodesic cost 的 MAE，即  
 \[
-\min_{\text{loop set } \mathcal{L}} \mathbb{E}_{\text{pixels}} \left[ \left| \text{Costmap}_{\mathcal{L}}(p) - d_{\text{geo}}(p, \text{goal}) \right| \right]
+\min_&#123;\text&#123;loop set &#125; \mathcal&#123;L&#125;&#125; \mathbb&#123;E&#125;_&#123;\text&#123;pixels&#125;&#125; \left[ \left| \text&#123;Costmap&#125;_&#123;\mathcal&#123;L&#125;&#125;(p) - d_&#123;\text&#123;geo&#125;&#125;(p, \text&#123;goal&#125;) \right| \right]
 \]
 
 **公式（Loop Closure Edge Set）**：  
 \[
-\mathcal{E}_{\text{loop}} = \bigcup_{(i,j) \in \mathcal{C}_{\text{verified}}} \left\{ (p_i, p_j) \mid p_i \in \text{MatchedPixels}(I_i),\, p_j \in \text{MatchedPixels}(I_j),\, \text{UFM covisibility}(p_i,p_j) = 1 \right\}
+\mathcal&#123;E&#125;_&#123;\text&#123;loop&#125;&#125; = \bigcup_&#123;(i,j) \in \mathcal&#123;C&#125;_&#123;\text&#123;verified&#125;&#125;&#125; \left\{ (p_i, p_j) \mid p_i \in \text&#123;MatchedPixels&#125;(I_i),\, p_j \in \text&#123;MatchedPixels&#125;(I_j),\, \text&#123;UFM covisibility&#125;(p_i,p_j) = 1 \right\}
 \]
 
 **变量说明**：  
-- `𝒞_verified`: 经 SeqVLAD（sim > 0.4）和 UFM（ν_{i,j} > 0.1）双重验证的帧对集合  
+- `𝒞_verified`: 经 SeqVLAD（sim > 0.4）和 UFM（ν_&#123;i,j&#125; > 0.1）双重验证的帧对集合  
 - `MatchedPixels(I_i)`: MASt3R 在 `I_i` 中输出的、成功匹配到至少一其他帧的像素集合  
 - `UFM covisibility(p_i,p_j) = 1`: UFM 对像素 `p_i` 在 `I_j` 中的 visibility confidence ≥ 0.9，且反向亦然  
 
@@ -130,7 +130,7 @@ Online Execution Phase:
 | **Inference latency** | 未报告 | “WayPixel costmap generation” 未量化 Dijkstra 在 pixel-graph 上的 runtime |
 | **VRAM / Memory** | 未报告 | Pixel graph size scales with #matched pixels — likely ~GB-level for 100m trajectory, but no number given |
 | **Throughput (FPS)** | 未报告 | Controller inference speed not measured or reported |
-| **Deployment constraints** | ✅ CPU/GPU agnostic (MASt3R & UFM are PyTorch) <br> ❌ Requires dense depth estimation (MASt3R input) <br> ❌ No real-time loop detection — all loops detected offline | Paper states “real-world deployment”, but no hardware specs (Jetson? ROS2? Latency budget?) |
+| **Deployment constraints** | ✅ CPU/GPU agnostic (MASt3R & UFM are PyTorch) <br /> ❌ Requires dense depth estimation (MASt3R input) <br /> ❌ No real-time loop detection — all loops detected offline | Paper states “real-world deployment”, but no hardware specs (Jetson? ROS2? Latency budget?) |
 
 > **Status**: All engineering metrics are `「论文未报告」`
 
@@ -142,7 +142,7 @@ Online Execution Phase:
 - **评测设置**：  
   - **Success criterion**: 到达 goal node **≤0.5m** 内，**≤750 steps**  
   - **Collision avoidance**: 统一使用 CARE [17] 模块（相同参数）  
-  - **Stuck recovery**: 若 15 步位移 <10cm → 触发 45° in-place rotation（基于 top-down depth）  
+  - **Stuck recovery**: 若 15 步位移 &lt;10cm → 触发 45° in-place rotation（基于 top-down depth）  
 - **指标**（全部 verbatim from paper）：  
   - `SR` (Success Rate)  
   - `SPL-A` (Success weighted by Path Length over *all* episodes)  
@@ -223,4 +223,4 @@ Online Execution Phase:
 [← Back to navigation README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.12811 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.12811 -->"

@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: n/a
 sensor: IMU
 paradigm: learned
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # HuMBLE 人类动驱动行为学习的具身行走 (HuMBLE: Human Motion-Driven Behavior Learning for Embodied Locomotion)
 
@@ -322,4 +322,4 @@ $$r_&#123;\text&#123;goal&#125;&#125; = r_&#123;\text&#123;cmd&#125;&#125; + r_&
 
 > **Status**：v0.1 · 基于 arXiv 2610.10489v1 全文撰写 · 未在真机复现的数字标 `UNVERIFIED`（如"策略推理 1.1 ms"来自论文实测，但本笔记作者未独立复现）
 
-<!-- source: https://arxiv.org/abs/2610.10489 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2610.10489 -->"

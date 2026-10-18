@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VIO
 representation: mesh
 sensor: multi-modal
 paradigm: geometric
 time: fixed-lag
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # DefVINS：面向可形变场景的视觉-惯性里程计 (DefVINS: Visual–Inertial Odometry for Deformable Scenes)
 
@@ -344,4 +344,4 @@ $$\mathcal{L}_{i,\mathrm{photo}}=\big(128-1.02\cdot120+5\big)^2=(128-122.4+5)^2=
 > **Status**：v0.1 · 基于 arXiv 全文（截断版本）· 未在真机复现的数字标 `UNVERIFIED`
 > **零捏造声明**：§4 全部量化指标（延迟/帧率/内存/硬件）论文未报告，已逐项标注；§5 中 VIMandala 真实实验数值在本文截断范围内未报告，已明确标注；TABLE I 数字逐字抄录自论文，未做任何四舍五入或推断填值；§3 玩具数值为自造演示设定，已加警示。
 
-<!-- source: https://arxiv.org/abs/2601.00702 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2601.00702 -->"

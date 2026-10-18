@@ -187,7 +187,7 @@ NVIDIA has assembled the most credible end-to-end physical-AI stack. Whether it 
 
 ## 🤖 Moltbot Updates
 
-<!-- Future Moltbot pipeline appends dated entries here. Format: YYYY-MM-DD — one-sentence event + source URL. -->
+[//]: # "<!-- Future Moltbot pipeline appends dated entries here. Format: YYYY-MM-DD — one-sentence event + source URL. -->"
 
 ---
 

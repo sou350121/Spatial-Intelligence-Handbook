@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: multi-modal
 paradigm: 3R-SLAM-hybrid
 time: temporal-transformer-rolling
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # PanoWorld: Real-World Panoramic Generation  
 > **发布时间**：2026/07/10  
@@ -186,4 +186,4 @@ PanoWorld 解决的是全景视频生成中“**物理一致性崩塌**”这一
 [← Back to 3R-SLAM-hybrid README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.09661 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.09661 -->"

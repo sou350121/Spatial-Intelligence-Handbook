@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: n/a
 sensor: n/a
 paradigm: hybrid
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 遏制 LLM 多机器人系统中被操纵声明引发的行为级联 (Containing Behavioral Cascades from Manipulated Claims in LLM-Powered Multi-Robot Systems)
 
@@ -333,4 +333,4 @@ D_m(\pi)=\sum_{i=0}^{N-1}\max\!\left(0,\,c(\pi_i)-c(\pi_i^{\mathrm{nom}})\right)
 
 > **Status**：v0.1 · 基于 arXiv 全文（arXiv:2609.30523v1）· 未在真机复现的数字标 `UNVERIFIED`；本文所有 SOC / Makespan / Coverage / CCR 数值均逐字取自 Table II、Table III 与正文描述。论文为纯仿真研究，未报告任何延迟 / 显存 / FPS / 硬件型号。
 
-<!-- source: https://arxiv.org/abs/2609.30523 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2609.30523 -->"

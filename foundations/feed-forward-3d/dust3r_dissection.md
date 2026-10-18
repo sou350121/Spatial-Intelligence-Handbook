@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: FeedForward3D (pair-wise unconstrained 3D reconstruction)
 representation: Pointmap pair (per-pixel 3D in shared frame) + relative pose + depth
 sensor: 2-view RGB (uncalibrated)
 paradigm: Learned-EndToEnd-Pairwise
 time: FeedForward-OneShot (per pair) + per-scene global alignment
 ref: ../../cheat-sheet/ontology.md §5.2
--->
+-->"
 
 # DUSt3R 解构 (DUSt3R Dissection — CVPR 2024)
 

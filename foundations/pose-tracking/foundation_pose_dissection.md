@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Object 6-DoF pose (foundation)
 representation: Mesh template + RGBD features
 sensor: RGBD + Object mesh
 paradigm: Learned + DiffRender refine
 time: Online
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # FoundationPose (新物体 6D 位姿，无需逐物体训练)
 
@@ -127,7 +127,7 @@ Multi-object 不批处理则线性 scale. 蒸馏后 Orin 上单物体 30 Hz trac
 
 **赢：** 几分钟内 onboard 新 SKU；中度遮挡鲁棒；无 CAD 物体的 mesh-free 路径.
 
-**败于：** 无纹理的严重对称（旋转歧义固有）；透明 / 镜面物体（depth sensor 先失败）；物体 <~10 mm `UNVERIFIED`；无干净 2D 检测的重杂乱.
+**败于：** 无纹理的严重对称（旋转歧义固有）；透明 / 镜面物体（depth sensor 先失败）；物体 &lt;~10 mm `UNVERIFIED`；无干净 2D 检测的重杂乱.
 
 ### 6.x GitHub 实地失败（atlas 联动）
 
@@ -196,7 +196,7 @@ Multi-object 不批处理则线性 scale. 蒸馏后 Orin 上单物体 30 Hz trac
 ### 8.6 Mesh / 输入资产门槛：单位 / 对齐 / mask 三大坑
 
 - **GitHub-validated**：[#44 (closed, 35c — top thread)](https://github.com/NVlabs/FoundationPose/issues/44) 是 repo 最常被引用的"先看这条"，用户 savidini 总结三大坑 — (1) **mesh 必须米单位**（不是 mm，违反默认）、(2) RGB & depth 必须对齐、(3) intrinsics K 矩阵格式；[#83 (closed, 16c)](https://github.com/NVlabs/FoundationPose/issues/83)、[#60 (closed, 10c)](https://github.com/NVlabs/FoundationPose/issues/60)、[#32 (closed, 10c)](https://github.com/NVlabs/FoundationPose/issues/32) "model-free 怎么转 ycb-video 格式" 反复出现 — 卖点是 mesh-free 但 issue 区落地为 "要么扫 mesh 要么没法用"。
-- **实地后果**：onboarding 一个新物体 80% 时间花在资产对齐而非 pose 本身。低-poly CAD 通常 OK；过粗（< 100 face）或 normals 反向会让 scorer 退化但不会立刻报错，**silent failure 模式**。
+- **实地后果**：onboarding 一个新物体 80% 时间花在资产对齐而非 pose 本身。低-poly CAD 通常 OK；过粗（&lt; 100 face）或 normals 反向会让 scorer 退化但不会立刻报错，**silent failure 模式**。
 
 ### 8.7 光照 / 杂乱 / Tracking 失稳：score 涨不等于对
 

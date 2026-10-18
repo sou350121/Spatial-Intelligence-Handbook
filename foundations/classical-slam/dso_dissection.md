@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Direct VO (photometric) — no loop closure, no global map
 representation: Sparse photometric points (~2000 active) + inverse depth + sliding window
 sensor: Monocular RGB (photometric-calibrated; rolling shutter not supported)
 paradigm: Geometric-Direct + Photometric BA + joint geometry/motion/photometric calibration
 time: Fixed-lag Smoother (sliding window ~7 KFs)
 ref: ../../cheat-sheet/ontology.md §2 (Direct VO) · §5.1 (BA) · §7 (DSO row, TRL 🔬)
--->
+-->"
 
 # DSO Dissection (Direct Sparse Odometry 解构)
 
@@ -235,7 +235,7 @@ GitHub 站点信号：
 - **大基线 / 快速旋转** —— direct image alignment 收敛半径远小于 ORB 描述子匹配；快速旋转直接 lose tracking。
 - **闭环场景** —— 永远不会发生 →  漂移单调累积。回到起点的累积 yaw / position 误差不会被修。
 - **多 session** —— 没有 Atlas。tracking lost = session 结束。
-- **低帧率 (<10 fps)** —— photometric assumption 要求帧间 brightness 平滑过渡。
+- **低帧率 (&lt;10 fps)** —— photometric assumption 要求帧间 brightness 平滑过渡。
 
 ### 6.1 Hidden Assumptions（隐含假设）
 
@@ -273,7 +273,7 @@ GitHub 站点信号：
 
 **读者实务含义**：
 1. DSO 是 *2016 论文实现*，不是 *2026 活跃产品* —— 选它等于选 Docker 锁 + 自维内存安全 patch + 自做光度标定。
-2. 工作包络：**global-shutter mono** + **已光度标定 dataset / 自标定鼓励** + **慢速运动 < 1 rad/s** + **室内** + **静态场景**。任一项偏离都进 #259/#260/#263/#269 已知坑。
+2. 工作包络：**global-shutter mono** + **已光度标定 dataset / 自标定鼓励** + **慢速运动 &lt; 1 rad/s** + **室内** + **静态场景**。任一项偏离都进 #259/#260/#263/#269 已知坑。
 3. 真产品 candidate 应该是 **ORB-SLAM3**（多 session + IMU）或 **DROID-SLAM**（learned BA, GPU 必备）或 **3R-SLAM Hybrid**（feed-forward + classical backend）。DSO 留作历史 + 光度法 baseline。
 
 ---

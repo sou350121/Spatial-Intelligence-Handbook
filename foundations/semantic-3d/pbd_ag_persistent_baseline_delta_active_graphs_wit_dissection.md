@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: scene-graph
 sensor: RGBD
 paradigm: 3R-SLAM-hybrid
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # PBD-AG：面向长时程服务机器人的持久基线-增量主动图与不确定性感知巡检 (PBD-AG: Persistent Baseline-Delta Active Graphs with Uncertainty-Aware Inspection for Long-Horizon Service Robots)
 
@@ -429,4 +429,4 @@ $$\ell_i^{t}=\ell_i^{t-1}+\eta_o O_i^{t}+\eta_c K_i^{t}-\underbrace{\eta_m U_i^{
 > **Status**：v0.1 · 基于 arXiv 全文（v2, 2026-08-12）· 未在真机复现的数字标 `UNVERIFIED`
 > **Zero-fabrication 声明**：§4 latency/VRAM/FPS/硬件型号全文缺失，已标「论文未报告」；§5 所有数据集名、阈值、指标数字均逐字取自全文；§8 无 repo URL，pitfall 为 §6 失败模式 + 方法约束推导，未经 issue 验证。
 
-<!-- source: https://arxiv.org/abs/2608.10449 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2608.10449 -->"

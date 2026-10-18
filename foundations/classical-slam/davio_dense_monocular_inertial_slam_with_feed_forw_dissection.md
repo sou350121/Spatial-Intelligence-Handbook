@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VSLAM
 representation: pointmap
 sensor: multi-modal
 paradigm: hybrid
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # DAVIO：前馈初始化与位姿条件化稠密建图的单目-惯性 SLAM (DAVIO: Dense Monocular–Inertial SLAM with Feed-Forward Initialization and Pose-Conditioned Mapping)
 
@@ -56,7 +56,7 @@ DAVIO 是三段流水线（Fig. 2）：
 | 滤波器接力（§IV-C） | 精化状态 + 缓冲 IMU | 全新 OpenVINS 实例 | 推理（未改动 OpenVINS 初始化入口） | 回放 ≤8 s；连续 5 个状态落在 0.15 s 内；候选 3 s 失败则弃，最多 5 个候选 |
 | 条件化子图（§V-A） | 图像 + 校正内参 K + 滤波器度量位姿 | 子图位姿 `Q_j=T_{MS_j}`、残差对数深度尺度 `λ_j` | 推理 | 度量基线 >5 cm；拟合 RMSE ≤15 cm；`|log ŝ_j|≤0.3` |
 | 帧尺度 & 共享图像（§V-B） | XFeat/LighterGlue 匹配（相邻 1–2 位） | 逐帧尺度 `s_ji` | 推理 | 8 轮深度归一化重加权 LS；每轮投影到 `Σ log s_ji = 0` |
-| 子图图（§V-C） | 相邻 + 重访（<8 m 且 ≥5 s）对应 | 图位姿 + `λ_j` | 推理 | PnP RANSAC（≥50 匹配、≥30 内点、内点率 ≥0.25、2 px）；漂移门控 |
+| 子图图（§V-C） | 相邻 + 重访（&lt;8 m 且 ≥5 s）对应 | 图位姿 + `λ_j` | 推理 | PnP RANSAC（≥50 匹配、≥30 内点、内点率 ≥0.25、2 px）；漂移门控 |
 | 融合 & 实时轨迹（§V-D） | 子图归档 | 4 cm 体素地图 + `T^{live}_{MI}(t)` | 推理 | 最 24 个常驻子图；10% 相对深度重观测；修正变化 >5 cm 或 2° 时按 1 传感器秒插值 |
 
 ### 1.2 关键机制
@@ -180,7 +180,7 @@ E = Σ_{ℰo} ρ(‖W_o r^o_ab‖) + Σ_{ℰp} (1/N_ab) Σ_k ρ(‖W_abk r^p_abk
 - **8 s 缓冲 + ≤5 候选**：这是"启动不丢测量"的代价——回放必须在墙钟上跑得比实时快，否则 3 s 超时门会不断弃候选。对高采样率 IMU 而言这条时间约束很硬（论文未给 IMU 频率，标注 `UNVERIFIED`）。
 - **≤24 常驻子图**：0.5 s/子图 ⇒ 约 12 s 地图常驻；超限即驱逐，驱逐后"first retained node is fixed at its current state"（gauge 重置）。
 - **只优化 translation + yaw + λ_j**：计算量小、且保留滤波器观测到的 roll/pitch，代价是 roll/pitch 误差无法被图修正。
-- **重访检索引擎门**：<8 m 且 ≥5 s，配合 PnP RANSAC + 多项一致性测试，抑制了错误回环，代价是短/慢序列可能一个重访都不触发。
+- **重访检索引擎门**：&lt;8 m 且 ≥5 s，配合 PnP RANSAC + 多项一致性测试，抑制了错误回环，代价是短/慢序列可能一个重访都不触发。
 
 ---
 
@@ -196,7 +196,7 @@ E = Σ_{ℰo} ρ(‖W_o r^o_ab‖) + Σ_{ℰp} (1/N_ab) Σ_k ρ(‖W_abk r^p_abk
 - **causal**：DAVIO 在发布时间点能拿到的最新地图修正；**final**：最后一次图更新后重导出的轨迹。
 - **匹配位姿类**（隔离建图层）：ScaRF-SLAM 的已释出 mapper 离线跑在 DAVIO 的 OpenVINS 位姿上、同一 DA3-Base checkpoint。
 - **端到端类**：ORB-SLAM3（单目-惯性，EuRoC 官方配置，3 次）；MASt3R-Fusion（EuRoC 单目-惯性配置，隔帧）；VGGT-SLAM2（默认参数/关键帧，并额外给一个全局 Sim(3) 拟合到参考——"which favors it"）。
-- **指标**：启动沿用 [13]——132 个十秒窗口/初始化器（MH 67、Vicon 65）；窗口内发布的轨迹 ATE <0.5 m 记为成功；`T_f` 为首次发布状态的传感器时刻（无则记 10 s），`T_q` 额外把每次失败罚 10 s。ATE 为一次无尺度刚体对齐后的平移 RMSE。Coverage 为发布位姿覆盖比例（每位姿最多计 0.1 s）。表面度量只评参考相机路径可见的参考点；precision/recall/F@10 用 10 cm 阈值。地图在 ORI 上 2 cm 导出、EuRoC 上 4 cm；ScaRF 的 EuRoC 点云体素化到一致；ScaRF chunk evaluator 用 10 m chunk + 3 cm 阈值。
+- **指标**：启动沿用 [13]——132 个十秒窗口/初始化器（MH 67、Vicon 65）；窗口内发布的轨迹 ATE &lt;0.5 m 记为成功；`T_f` 为首次发布状态的传感器时刻（无则记 10 s），`T_q` 额外把每次失败罚 10 s。ATE 为一次无尺度刚体对齐后的平移 RMSE。Coverage 为发布位姿覆盖比例（每位姿最多计 0.1 s）。表面度量只评参考相机路径可见的参考点；precision/recall/F@10 用 10 cm 阈值。地图在 ORI 上 2 cm 导出、EuRoC 上 4 cm；ScaRF 的 EuRoC 点云体素化到一致；ScaRF chunk evaluator 用 10 m chunk + 3 cm 阈值。
 
 **关键数值（逐字抄录）**：
 
@@ -329,7 +329,7 @@ E = Σ_{ℰo} ρ(‖W_o r^o_ab‖) + Σ_{ℰp} (1/N_ab) Σ_k ρ(‖W_abk r^p_abk
 
 4. **【重访门控导致短/慢序列"零修正"】**
    - 依据 §V-C："revisits retrieved within 8 m and at least 5 s apart"，且点群只有在"drift > 约束不确定度"时才移动位姿；§7-D 消融显示"去掉重访 = 固定图位姿 = ATE 0.158 m"。
-   - 机械链条：<8 m 且 ≥5 s 的空间-时间门 + PnP RANSAC ≥50 匹配/≥30 内点/≥0.25 内点率/2 px + 三一致性测试 → 在**短序列或慢速手持**场景下可能一个重访都不被接纳，此时子图图**退化为纯尺度图**，最终 ATE 与未修正里程计相同——用户在短录制上会观察到"图没起作用"。
+   - 机械链条：&lt;8 m 且 ≥5 s 的空间-时间门 + PnP RANSAC ≥50 匹配/≥30 内点/≥0.25 内点率/2 px + 三一致性测试 → 在**短序列或慢速手持**场景下可能一个重访都不被接纳，此时子图图**退化为纯尺度图**，最终 ATE 与未修正里程计相同——用户在短录制上会观察到"图没起作用"。
 
 5. **【常驻子图驱逐会重置 gauge】**
    - 依据 §V-C："at most 24 resident submaps"、"after eviction the first retained node is fixed at its current state"，以及 §V-C 的 `Σ_{j>0} ρ(|λ_j−λ_0|/0.10)` 尺度锚在 `λ_0` 上。
@@ -342,4 +342,4 @@ E = Σ_{ℰo} ρ(‖W_o r^o_ab‖) + Σ_{ℰp} (1/N_ab) Σ_k ρ(‖W_abk r^p_abk
 > **Status**：v0.1 · 基于 arXiv 全文（arXiv:2609.27702v1，已截断）· 未在真机复现的数字标 `UNVERIFIED`
 > 反捏造声明：§4 的延迟/FPS/VRAM 占用/吞吐均**「论文未报告」**；§5 全部数据集名与指标数值逐字来自全文；§8 无 `github.com` 仓库信号，全部 pitfall 为推导、未经 issue 验证。
 
-<!-- source: https://arxiv.org/abs/2609.27702 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2609.27702 -->"

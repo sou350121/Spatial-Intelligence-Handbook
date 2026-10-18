@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: depth
 representation: feature-grid
 sensor: RGBD
 paradigm: learned
 time: feed-forward
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # JustDepth: Real-Time Radar-Camera Depth Estimation with Single-Scan LiDAR Supervision  
 > **发布时间**：2026/07/24  
@@ -219,4 +219,4 @@ Image Encoder (ResNet)     Radar Encoder (1D Conv)
 [← Back to depth README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.22172 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.22172 -->"

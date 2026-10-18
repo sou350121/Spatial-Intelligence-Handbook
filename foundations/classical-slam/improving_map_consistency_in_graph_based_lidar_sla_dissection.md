@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VSLAM
 representation: pointmap
 sensor: LiDAR
 paradigm: geometric
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 改进图优化式激光雷达 SLAM 中的地图一致性：信息感知里程计与回溯式闭环检测 (Improving Map Consistency in Graph-Based LiDAR SLAM Through Information-Aware Odometry and Retroactive Loop Closure)  
 > **发布时间**：2026/07/15  
@@ -54,7 +54,7 @@ ref: ../../cheat-sheet/ontology.md §5
 | **Local Info Matrix Estimator** | 收敛位姿 Tₜᵒ，ICP 目标函数 χ(T) | 6×6 正定信息矩阵 Λ_odo = H⁺ | *离线拟合*：线性回归拟合扰动下的 χ 值；**推理时仅需 20 次扰动+ICP 评估（≈3ms）** |  
 | **Hierarchical Front-End** | 所有历史 submap & local map | 验证通过的 (submap_k, submap_r) 对 + 精配位姿 Tₖᵣ + 信息矩阵 Λ_lc + fitness sᵣₖ | *纯在线构建*：τ_sub=25m / τ_loc=100m 触发分裂；Hausdorff 距离筛选对应 submap 对 |  
 | **Retroactive Loop Closure** | 优化后的全局位姿图 ℊ，所有历史 submap 轨迹 Γᵏˢᵘᵇ | 新增闭环边 ℰ_retro ⊂ ℰ_lc | *后处理阶段*：仅在 pose graph 收敛后运行；基于几何重叠（非外观）触发 |  
-| **Pose Graph Optimizer** | ℰ_odo（带 Λ_odo）、ℰ_lc（带 Λ_lc）、ℰ_retro（带 Λ_lc） | 全局优化位姿 {Tᵢ} | *标准 g2o/GTSAM*；关键改进：所有边均带**各向异性信息矩阵**，非固定权重 |  
+| **Pose Graph Optimizer** | ℰ_odo（带 Λ_odo）、ℰ_lc（带 Λ_lc）、ℰ_retro（带 Λ_lc） | 全局优化位姿 &#123;Tᵢ&#125; | *标准 g2o/GTSAM*；关键改进：所有边均带**各向异性信息矩阵**，非固定权重 |  
 
 ### 1.2 关键机制  
 ⚡ **Eureka Moment：**  
@@ -137,7 +137,7 @@ ref: ../../cheat-sheet/ontology.md §5
 **设定**：一个极简 2D 场景（为可视化），当前帧 𝒫ₜ∗ 含 3 个点：[(0,0), (1,0), (0,1)]；局部地图 𝒬 含 3 个点：[(0.1,0.1), (1.1,0.1), (0.1,1.1)]。真实位姿 Tₜᵒ = 旋转 0° + 平移 (0.1,0.1)。  
 
 1. **ICP 收敛**：KISS-ICP 得到 Tₜᵒ，χ(Tₜᵒ) = 0.03（残差和）。  
-2. **扰动采样**：取 M=6 个平移扰动 δξ_tr,m ∈ {±0.05, ±0.05, 0}（简化），计算 bₘ：  
+2. **扰动采样**：取 M=6 个平移扰动 δξ_tr,m ∈ &#123;±0.05, ±0.05, 0&#125;（简化），计算 bₘ：  
    - δξ = (+0.05,+0.05) → χ = 0.08 → b = 0.05  
    - δξ = (−0.05,−0.05) → χ = 0.06 → b = 0.03  
    - ...（其余略）  
@@ -172,8 +172,8 @@ ref: ../../cheat-sheet/ontology.md §5
 | 项目 | 内容 |  
 |------|------|  
 | **数据集** | **KITTI odometry benchmark**（原文 IV-A 明确列出）、**MulRan**（§IV-A）、**Newer College**（§IV-A）；**未提 N3V/Technicolor** |  
-| **评测指标** | • **全局轨迹**：Absolute Trajectory Error (ATE) —— 标准 RMSE over full sequence<br>• **局部地图一致性**：**Revisit Map Consistency (RMC) protocol**（本文新提）：<br>  &nbsp;&nbsp;- 在 ground-truth revisit 区域提取两帧点云 P₁, P₂<br>  &nbsp;&nbsp;- 计算配准后重叠区域的 **Chamfer Distance (CD)** 和 **Overlap Ratio (OR)**<br>  &nbsp;&nbsp;- CD↓ & OR↑ ⇒ 一致性好（原文 Fig. 4, Table II） |  
-| **评测设置关键条件** | • 所有方法使用**相同 KISS-ICP 里程计**（消除了里程计差异干扰）<br>• Loop closure detection thresholds tuned per dataset（§IV-A）<br>• RMC 评估仅在**人工标注的 revisit 区域**进行（非全图） |  
+| **评测指标** | • **全局轨迹**：Absolute Trajectory Error (ATE) —— 标准 RMSE over full sequence<br />• **局部地图一致性**：**Revisit Map Consistency (RMC) protocol**（本文新提）：<br />  &nbsp;&nbsp;- 在 ground-truth revisit 区域提取两帧点云 P₁, P₂<br />  &nbsp;&nbsp;- 计算配准后重叠区域的 **Chamfer Distance (CD)** 和 **Overlap Ratio (OR)**<br />  &nbsp;&nbsp;- CD↓ & OR↑ ⇒ 一致性好（原文 Fig. 4, Table II） |  
+| **评测设置关键条件** | • 所有方法使用**相同 KISS-ICP 里程计**（消除了里程计差异干扰）<br />• Loop closure detection thresholds tuned per dataset（§IV-A）<br />• RMC 评估仅在**人工标注的 revisit 区域**进行（非全图） |  
 
 > ✅ **Verification**: “KITTI”, “MulRan”, “Newer College”, “ATE”, “Chamfer Distance”, “Overlap Ratio” 均**逐字出自原文 IV-A / IV-C**。
 
@@ -237,4 +237,4 @@ ref: ../../cheat-sheet/ontology.md §5
 [← Back to lidar-slam README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.13516 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.13516 -->"

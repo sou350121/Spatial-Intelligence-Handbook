@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: reconstruction
 representation: 3DGS
 sensor: mono
 paradigm: geometric
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # E3DGS: Unified Geometric–Photometric Equivariance for 3D Gaussian Splatting via Color-as-Geometry Embedding  
 > **发布时间**：2026/07/17  
@@ -39,7 +39,7 @@ E3DGS 解决的是3DGS表征学习中的**根本性表示错配（representation
 
 | 模块 | 输入 | 输出 | 训练 vs 推理差异 |
 |------|------|------|------------------|
-| **Unified Matrix Lifting** | 3DGS primitive ℊᵢ = (μᵢ, Σᵢ, αᵢ, {fᵢ,ℓ⁽ᶜ⁾}ₗ₌₀²) | Hᵢ ∈ 𝔤𝔩(3)⁵ × sᵢ ∈ ℝ⁵ | 无差异；纯解析映射，无可训练参数 |
+| **Unified Matrix Lifting** | 3DGS primitive ℊᵢ = (μᵢ, Σᵢ, αᵢ, &#123;fᵢ,ℓ⁽ᶜ⁾&#125;ₗ₌₀²) | Hᵢ ∈ 𝔤𝔩(3)⁵ × sᵢ ∈ ℝ⁵ | 无差异；纯解析映射，无可训练参数 |
 | **ReLN Backbone** | (H, s) —— 矩阵token序列 + 标量token | (H′, s′) —— 等变特征 + 任务标量 | 全部层Ad-equivariant；s用于gating H，不破坏equivariance |
 | **Invariant Readout** | H′, s′ | scalar prediction (e.g., class logits) or equivariant output (e.g., dynamics ΔM) | 读出头本身不equivariant；但输入H′保证其预测对旋转鲁棒 |
 | **Equivariant Projector** | masked H′ | reconstructed H̃ (for MAE) | 使用B̃-contraction生成invariant scalars → gating → matrix reconstruction |
@@ -167,7 +167,7 @@ ReLN-Attention / ReLN-LayerNorm / ReLN-Linear
 
 ### 隐含假设 (Hidden Assumptions)  
 1. **Global centering**：要求所有primitives共享同一质心（μ̄ᵢ = μᵢ − 1/N∑ⱼμⱼ），对大规模场景或动态添加primitives不鲁棒；  
-2. **SPD covariance**：log(Σ)要求Σ严格正定，对退化/flat Gaussians（如Σ rank < 3）未定义；  
+2. **SPD covariance**：log(Σ)要求Σ严格正定，对退化/flat Gaussians（如Σ rank &lt; 3）未定义；  
 3. **Real SH basis & degree ≤2**：依赖特定real-SH convention（implementation convention in Appendix A）；SH₃+需更大carrier，本文未实现；  
 4. **No occlusion modeling**：lifting assumes full visibility of each Gaussian；遮挡下的appearance变化未被equivariance覆盖。
 
@@ -201,4 +201,4 @@ ReLN-Attention / ReLN-LayerNorm / ReLN-Linear
 [← Back to 3DGS README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.15536 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.15536 -->"

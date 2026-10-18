@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Stereo depth (foundation)
 representation: Disparity / depth map
 sensor: Stereo RGB
 paradigm: Learned-Foundation (stereo)
 time: FeedForward-OneShot
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # FoundationStereo (FoundationStereo 立体匹配基础模型解构 — NVIDIA 2024)
 

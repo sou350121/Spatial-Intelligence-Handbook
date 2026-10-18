@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: n/a
 sensor: IMU
 paradigm: geometric
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # Lost in Time? Continuous Symmetry and Identifiability in Aided Inertial Navigation with Unknown Measurement Delays  
 > **发布时间**：2026/07/04  
@@ -47,7 +47,7 @@ ref: ../../cheat-sheet/ontology.md §5
 |------|------|------|------------------|
 | **SGal(3) state representation** | IMU angular rate ω(t), specific force a(t), time t | X(t) ∈ ℝ⁵ˣ⁵ (rotation C, velocity v, position r, time t) | 无训练；纯解析建模；推理即 Lie group integration |
 | **Delayed measurement model** | Aiding sensor output yₖ (e.g., GNSS position), delay τ | yₖ = h(X(tₖ−τ), τ) | 无学习；h 是几何投影（如 C₀⁻¹(r(tₖ−τ)−r₀)）；τ 是待估参数 |
-| **Identifiability analyzer** | Trajectory X(t) over [tₛ, tₛ+T], measurement times {tₖ} | Boolean: “locally identifiable?” + symmetry orbit ○𝒳⋆ ⊂ ℙ | 纯符号/代数推导；不依赖数据拟合；输出是轨迹几何分类 |
+| **Identifiability analyzer** | Trajectory X(t) over [tₛ, tₛ+T], measurement times &#123;tₖ&#125; | Boolean: “locally identifiable?” + symmetry orbit ○𝒳⋆ ⊂ ℙ | 纯符号/代数推导；不依赖数据拟合；输出是轨迹几何分类 |
 
 ### 1.2 关键机制  
 **⚡ Eureka Moment：**  
@@ -80,7 +80,7 @@ NO  → locally identifiable
 > **Unidentifiability ⇔ ∃ ξ ∈ 𝔰𝔤𝔞𝔩(3), ξ ≠ 0, s.t. ∀t: d/dt [h(exp(−tξ)·X(t), τ)] = 0**  
 > *直觉：存在一个“invisible motion mode”（伽利略变换），它沿轨迹滑动却不改变任何延迟观测值。*
 
-**目标**：判定参数元组 𝒳⋆ = (X₀, τ, b_g, b_a) 是否 locally identifiable from discrete measurements {yₖ = h(X(tₖ−τ), τ)}.
+**目标**：判定参数元组 𝒳⋆ = (X₀, τ, b_g, b_a) 是否 locally identifiable from discrete measurements &#123;yₖ = h(X(tₖ−τ), τ)&#125;.
 
 **公式**（Theorem 1 + Definition 4）：  
 𝒳⋆ 不可辨识 ⇔ ∃ 光滑单参数族 𝒮_α : ℙ → ℙ, α ∈ (−ε, ε), 满足：  
@@ -126,7 +126,7 @@ NO  → locally identifiable
 - **数据组成**：论文未使用真实/仿真数据集；全部分析基于**解析轨迹模型**（如 Section VI-D 的 helical motion: r(t) = [R cos(ωt), R sin(ωt), vt]ᵀ）  
 - **评测设置**：  
   - 观察区间 [tₛ, tₛ+T]，其中 tₛ ≥ τ_u（τ_u 为延迟上界）  
-  - 测量时间点 {t₁,…,tₙ} 任意离散采样  
+  - 测量时间点 &#123;t₁,…,tₙ&#125; 任意离散采样  
   - 评判标准：**是否存在非平凡 𝒮_α 使 yₖ 不变**（定义 1–3）  
 - 所有指标（如 “larger class of uninformative trajectories”）均为**定性比较**，无量化 benchmark 数字；**论文未报告任何数值指标**  
 
@@ -185,4 +185,4 @@ NO  → locally identifiable
 [← Back to navigation README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.03699 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.03699 -->"

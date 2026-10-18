@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Unified world model (4D recon + action-conditioned video + planning)
 representation: 4D point cloud + video latent + action trajectory
 sensor: Multi-view RGB (training pure synthetic, zero-shot transfer claim)
 paradigm: Generative-VideoWorldModel + geometry-aware (diffusion transformer with 3D state)
 time: Online rollout (sample-step iterative)
 ref: ../../cheat-sheet/ontology.md §5.3
--->
+-->"
 
 # Aether 解构 (Aether: Geometric-Aware Unified World Modeling — Dissection)
 
@@ -153,7 +153,7 @@ Action latent（raymap）**单独**以 50% 概率独立 mask，让模型同时�
 - **GitHub-validated**：repo 在 2025 年从 `OpenRobotLab/Aether` 迁移到 `InternRobotics/Aether`（项目组织重命名/合并），**两个 URL 当前都 resolve 但官方 README 指向 InternRobotics**——任何引用旧 OpenRobotLab URL 的教程/论文需核对。详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
 - **GitHub-validated**：repo 显示 ~595★ / open issues = 0（2026-05 实地查证）。Issue tracker 异常安静**两种解读**：(a) 工具稳定零 bug——unlikely given 5B model 复杂度；(b) **没有人真在严肃用它**——更可能，因为 (1) A100-80GB 推理门槛劝退社区，(2) ICCV 2025 Outstanding 标牌带来"被引"而非"被用"。
 - **GitHub-validated**：**至今无任何独立第三方报告"用 Aether 训出/部署了机器人 policy"**——与 Cosmos §4.y 同等空白，但 Aether 更新、用户基数更小，复现尚未发生。这与 ICCV Outstanding 标牌的 implication 形成张力：**peer review 认可的论文 ≠ 工程现实落地**。详见 [`github_failure_atlas.md`](./github_failure_atlas.md)。
-- **未验证主张警告**：论文 zero-shot benchmark 数字（depth Abs Rel / δ<1.25 vs DUSt3R/MASt3R/MonST3R/VGGT 等）在 issue tracker 内**无第三方复现讨论线索**。与 Cosmos-Reason2 #52（官方数字第三方验不出）同等风险——peer-reviewed 不保证可复现。
+- **未验证主张警告**：论文 zero-shot benchmark 数字（depth Abs Rel / δ&lt;1.25 vs DUSt3R/MASt3R/MonST3R/VGGT 等）在 issue tracker 内**无第三方复现讨论线索**。与 Cosmos-Reason2 #52（官方数字第三方验不出）同等风险——peer-reviewed 不保证可复现。
 
 **Interview Tip**：被问 Aether 时，答"ICCV 2025 Outstanding 的形式化里程碑——把 generative-video 与 feed-forward-3D 两条谱系第一次合流，靠 raymap-as-action 这个表示创新；但 (a) 纯合成训练 zero-shot 真实迁移的端到端验证缺失，(b) 第三方独立复现/部署报告为零，(c) A100-80GB 推理门槛让社区试不动。读论文学表示设计，别拿它当今天能落地的组件"。这把"读 paper 拿奖"与"用 paper 干活"两群人分开。
 

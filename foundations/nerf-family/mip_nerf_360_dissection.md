@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: NVS unbounded scene
 representation: NeRF + IPE (integrated positional encoding)
 sensor: RGB + poses
 paradigm: Hybrid-DiffRender
 time: PerScene-Optimization
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # Mip-NeRF 360 解构 (Mip-NeRF 360: Unbounded Anti-Aliased Neural Radiance Fields)
 

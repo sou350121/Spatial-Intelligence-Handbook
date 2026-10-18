@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VO
 representation: n/a
 sensor: 4D-radar
 paradigm: geometric
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 稠密软加权雷达自速度估计 (Dense Soft Weighting for Radar Ego-Velocity Estimation)
 
@@ -54,7 +54,7 @@ DSW 站在"检测器先行"和"学习稠密"两条路的中间：既不设检测
 
 | 模块 | 输入 | 输出 | 训练/推理差异 |
 |---|---|---|---|
-| FMCW 前端（ADC 解码、MIMO reshape、Range/Doppler FFT、TDM 解复用、beamforming） | 原始 ADC / IQ 帧 $[N\cdot2]$ | 稠密功率张量 $\mathcal{P}=|\mathrm{RDA}|^2\in\mathbb{R}^{D\times B\times R}$，$B=B_\alpha B_\beta$ | 无训练；beamforming 用芯片 TX/RX 布局（chip-aware），非通用变换 |
+| FMCW 前端（ADC 解码、MIMO reshape、Range/Doppler FFT、TDM 解复用、beamforming） | 原始 ADC / IQ 帧 $[N\cdot2]$ | 稠密功率张量 $\mathcal{P}=\vert\mathrm{RDA}\vert^2\in\mathbb{R}^{D\times B\times R}$，$B=B_\alpha B_\beta$ | 无训练；beamforming 用芯片 TX/RX 布局（chip-aware），非通用变换 |
 | 单元置信权重（Eq.4–6） | 单元 $i=(d_i,r_i)$ 的 beam 谱 $S_i(b)$ | $w_i=u_i v_i\in[0,1]$ | 无训练；$\tau=200,\kappa=0.5$ 全数据集固定，无 per-platform 调参 |
 | 每 cell LOS 与鲁棒速度估计（Eq.7–10） | $\{\hat b_i\}$、$\{w_i\}$、$\{d_i\}$ | $\hat{\mathbf v}^R\in\mathbb{R}^3$ | 无训练；峰位三点抛物线插值做 sub-bin 角度精化；1 次 Cauchy IRLS |
 | 协方差装配（Eq.11–14） | 加权法方程 + 角度方差 + 多普勒分辨率 | $\bm\Sigma_v^R\in\mathbb{R}^{3\times3}$ | 无训练；闭式，含 WLS/角度/多普勒三项 |
@@ -275,4 +275,4 @@ $$\hat{\mathbf v}=-\begin{bmatrix}1.20&0.30\\0.30&0.35\end{bmatrix}^{-1}\begin{b
 [← Back to 4D-Radar / Radar Odometry README](./README.md)
 > **Status**：v0.1 · 基于 arXiv 全文 · §4 延迟/硬件数字逐字取自 Table 3/§4.2；§5 数据集与指标逐字取自 Table 1/2 与正文；未在真机复现的数字标 `UNVERIFIED`（本文未出现此类自造数字，§3 玩具例子为明确标注的示范设定）；§8 无官方 repo 信号，pitfall 由失败模式 + 方法约束推导，未经验证。
 
-<!-- source: https://arxiv.org/abs/2607.26980 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.26980 -->"

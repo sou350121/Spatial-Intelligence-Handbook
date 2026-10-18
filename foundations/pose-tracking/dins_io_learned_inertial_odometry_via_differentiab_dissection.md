@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VO
 representation: n/a
 sensor: IMU
 paradigm: hybrid
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # DINS-IO: Learned Inertial Odometry via Differentiable INS Consistency  
 > **发布时间**：2026/07/22  
@@ -49,7 +49,7 @@ DINS-IO 不是“又一个黑箱回归器”，而是把经典导航学中的 **
 |------|------|------|------------------|
 | **High-Freq Velocity Net** | `[B, T, C, W]` IMU+attitude（W=100Hz） | `v_pred^b ∈ ℝ^{B×(T·W)×3}` body-frame velocity per sample | 训练：batched window；推理：streaming GRU step + patch re-expansion（权重共享） |
 | **Differentiable INS Solver** | `v_pred^b`, `R[k]`, `f^b[k]`, `g^n`, Δt | scalar `ℒ_INS = ∥H_full X⋆ − z_full∥² / M` | 完全解析求解（式10），梯度经 `X⋆` 和 `z_full` 反传至 `v_pred^b`；无采样/迭代 |
-| **LoRA Calibration Head** | `v_pred^b`（pretrained），`v_gt^b`（labeled subset） | fine-tuned `v_pred^b` with metric scale | 仅更新 regression head 中 LoRA adapter（<10% 参数）；冻结 backbone & temporal model |
+| **LoRA Calibration Head** | `v_pred^b`（pretrained），`v_gt^b`（labeled subset） | fine-tuned `v_pred^b` with metric scale | 仅更新 regression head 中 LoRA adapter（&lt;10% 参数）；冻结 backbone & temporal model |
 
 ### 1.2 关键机制  
 **⚡ Eureka Moment：**  
@@ -125,7 +125,7 @@ Raw IMU + Attitude (R[k])
 | **步数（training）** | `UNVERIFIED` | 未说明 epoch 数或 total steps |
 | **内存（VRAM）** | `UNVERIFIED` | 未报告 batch size / GPU mem usage；MetaFormer + GRU + dense head 推测中等显存占用 |
 | **吞吐（FPS）** | `UNVERIFIED` | 未报告 throughput；但输入为 100Hz IMU，目标输出同频，理论上限 ≥100 Hz |
-| **部署约束** | ✅ Streaming GRU forward<br>✅ Weight-sharing train/inference<br>❌ Requires external AHRS (`R[k]`) | 必须接入独立姿态估计算法（如 Madgwick / Mahony filter），不可端到端 |
+| **部署约束** | ✅ Streaming GRU forward<br />✅ Weight-sharing train/inference<br />❌ Requires external AHRS (`R[k]`) | 必须接入独立姿态估计算法（如 Madgwick / Mahony filter），不可端到端 |
 
 > ⚠️ 注意：所有工程数字均 **未在论文中出现**，故严格标记 `UNVERIFIED` —— 这是铁律。
 
@@ -150,7 +150,7 @@ Raw IMU + Attitude (R[k])
 
 | 能力 | 描述 | 证据 |
 |------|------|------|
-| ✅ 学习运动方向与时间轮廓 | Stage 1 在 TLIO/Tango 上 median direction error 为 14.0°/21.1°，>69% 样本 <30° | Table 1, Figure 3 |
+| ✅ 学习运动方向与时间轮廓 | Stage 1 在 TLIO/Tango 上 median direction error 为 14.0°/21.1°，>69% 样本 &lt;30° | Table 1, Figure 3 |
 | ✅ 抗长时漂移（方向稳定） | 方向误差不随时间恶化，轨迹形状/heading 重建准确 | "The direction error stays low throughout a sequence rather than degrading over time" |
 | ✅ 少样本标定高效 | 用少量 labeled trajectory 即可 calibrate metric scale | "a handful of labeled trajectories suffice" |
 
@@ -199,4 +199,4 @@ Raw IMU + Attitude (R[k])
 [← Back to VO README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.20232 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.20232 -->"

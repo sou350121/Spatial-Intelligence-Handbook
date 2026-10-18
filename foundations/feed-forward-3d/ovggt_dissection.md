@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Online Streaming Feed-Forward 3D with O(1) bounded memory (StreamVGGT memory disaster fix)
 representation: Compressed KV cache (Self-Selective Caching + Dynamic Anchor Protection) — geometrically critical tokens protected
 sensor: Mono RGB video stream (任意长度)
 paradigm: Learned + Streaming + Constant-cost KV eviction（training-free post-hoc wrapper on StreamVGGT）
 time: Online feed-forward streaming with O(1) per-frame memory (independent of sequence length)
 ref: ../../cheat-sheet/ontology.md §5.2 / §13
--->
+-->"
 
 # OVGGT 解构 (OVGGT — O(1) Constant-Cost Streaming Visual Geometry Transformer)
 

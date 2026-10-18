@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: n/a
 paradigm: learned
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 弥合现实差距：灵巧力控抓取与操作的全状态零样本 Sim-to-Real 部署 (Closing the Reality Gap: Zero-Shot Sim-to-Real Deployment for Dexterous Force-Based Grasping and Manipulation)
 
@@ -313,4 +313,4 @@ ref: ../../cheat-sheet/ontology.md §5
 
 > **Status**：v0.1 · 基于 arXiv 全文（arXiv:2607.04940v1，正文截断至 IV Conclusion，含 Table I–V 与 Fig. 1–9 描述）· 论文未报告任何延迟/显存/吞吐/硬件型号数字，相关格位已标注「论文未报告」· §8 pitfalls 未经 issue 验证（论文未提供 repo 链接）· §3 为玩具数值，非论文实测
 
-<!-- source: https://arxiv.org/abs/2607.04940 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.04940 -->"

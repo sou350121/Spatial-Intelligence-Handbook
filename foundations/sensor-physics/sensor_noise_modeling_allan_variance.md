@@ -45,7 +45,7 @@
 
 | 噪声类型 | Allan plot 斜率 | 物理来源 | 工程影响 |
 |---|---|---|---|
-| **Quantization noise** | -1 | ADC 量化、digital readout | 极短 τ < 数据率 |
+| **Quantization noise** | -1 | ADC 量化、digital readout | 极短 τ &lt; 数据率 |
 | **Angle / Velocity Random Walk (ARW / VRW)** | **-1/2** | 白噪声积分 | IMU pre-integration 短时累积 |
 | **Bias Instability (BI)** | **0 (谷底)** | 1/f flicker, slow drift | 中时尺度（10–1000 s）主导，决定 ZUPT 周期 |
 | **Rate Random Walk (RRW)** | **+1/2** | 温度漂、应力释放 | 长时间无 reference 时不可救 |
@@ -123,7 +123,7 @@ Setup: BMI270 IMU @ 200 Hz, 100 秒静止采集 → 20000 sample
 
 **步骤**：
 
-1. 计算 cluster size τ = {0.005, 0.01, 0.02, ..., 50} s（每 τ 取数倍数据）
+1. 计算 cluster size τ = &#123;0.005, 0.01, 0.02, ..., 50&#125; s（每 τ 取数倍数据）
 2. 对每个 τ 切块 + 计算 Allan variance
 3. log-log plot：
 
@@ -201,7 +201,7 @@ PSD 与 Allan variance 是**同一信息的两种表示**（傅里叶对偶）�
 
 **温度不稳定.** Sensor 周围温度漂会被读成 RRW，混淆真实噪声特性。Allan 实验需 ±0.5°C 稳定环境。
 
-**采样率不足.** ARW 估计需要 τ < Nyquist 限。200 Hz 采样不能估 τ &lt; 0.005 s 的噪声。
+**采样率不足.** ARW 估计需要 τ &lt; Nyquist 限。200 Hz 采样不能估 τ &lt; 0.005 s 的噪声。
 
 **振动 / 共振.** 实验台振动让 Allan plot 上出现 spike → 误判为 BI 或 RRW。需做隔振。
 

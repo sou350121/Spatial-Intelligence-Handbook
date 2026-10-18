@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: multi-modal
 paradigm: learned
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # The Curse of Precision: A Data Scaling Law for High-Precision Robotic Manipulation  
 > **发布时间**：2026/07/25  
@@ -82,13 +82,13 @@ ref: ../../cheat-sheet/ontology.md §5
 - **目标**：对固定目标成功率（如 SR=0.9），求最小 *N* 使策略达标  
 - **公式**：log(*N*) = *m* · 1/(*P* − *c*) + *n*  
 - **变量说明**：  
-  - *N*: 所需演示轨迹数（整数，实验中取 {200, 500, 1000, 2000}）  
+  - *N*: 所需演示轨迹数（整数，实验中取 &#123;200, 500, 1000, 2000&#125;）  
   - *P*: 任务精度阈值（mm），如 Peg Insertion 中 peg-hole clearance  
-  - *c*: **极限精度**（mm），拟合参数，*c* < *P* 必须成立（否则分母≤0）  
+  - *c*: **极限精度**（mm），拟合参数，*c* &lt; *P* 必须成立（否则分母≤0）  
   - *m*, *n*: 任务/系统相关系数（Table II 给出）  
 - **直觉**：  
   - 分母 (*P*−*c*) 表示“精度余量”；余量越小，数据成本越陡峭  
-  - *c* = 2.35mm（baseline Peg）意味着：即使无限数据，该系统也无法稳定完成 <2.35mm clearance 的插入  
+  - *c* = 2.35mm（baseline Peg）意味着：即使无限数据，该系统也无法稳定完成 &lt;2.35mm clearance 的插入  
   - *c* 下降 1mm → 在 *P*=3mm 时，log(*N*) 减少 *m*/(3−*c*) − *m*/(3−(*c*−1))，即数据需求指数级压缩  
 
 ---
@@ -200,4 +200,4 @@ log₁₀(*N*) = 28.62 / (3.0 − 2.35) + 7.42 = 28.62 / 0.65 + 7.42 ≈ 44.03 +
 [← Back to manipulation README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.23108 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.23108 -->"

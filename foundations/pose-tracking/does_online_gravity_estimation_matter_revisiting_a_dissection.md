@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VIO
 representation: n/a
 sensor: multi-modal
 paradigm: geometric
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 在线重力估计真的必要吗？重审 LiDAR-Inertial Odometry 中的一个"沉默设计分歧" (Does Online Gravity Estimation Matter? Revisiting a Silent Design Split in LiDAR-Inertial Odometry)
 
@@ -317,4 +317,4 @@ $\varepsilon = 2^\circ$ 时：
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 > **UNVERIFIED 清单**：§3 全部玩具数值（1°/2° 三角函数推导、$T$ 扫描表）为示范性计算，非论文测量；§4 中的 CPU/GPU 型号、绝对延迟、内存/VRAM、FPS/吞吐均**论文未报告**；§8 全部 pitfall 为**推导**，未经 repo issue 验证（论文仅在摘要中以纯文本给出一处 `github.com` 字符串，未确认超链接或活跃 issue 流）。§5/§6/§7 中的所有数字与数据集名均逐字取自全文。
 
-<!-- source: https://arxiv.org/abs/2609.13675 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2609.13675 -->"

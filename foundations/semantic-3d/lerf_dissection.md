@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Open-vocabulary 3D
 representation: NeRF + CLIP feature field
 sensor: RGB + CLIP
 paradigm: Hybrid + Distillation
 time: PerScene-Optimization
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # LERF 解构 (LERF: Language Embedded Radiance Fields — Dissection)
 
@@ -152,7 +152,7 @@ LERF 正好坐在 manipulation 策略想抓语义的位置上。集成故事：
 
 - ⭐ 727 · 🟡 12 open issues · last push **2024-07-09**（>10 个月）· last release n/a
 - **Stale 程度：📖 archive-grade** — 不是 abandoned（issue 区还有人开），但是 maintenance-frozen
-- Top thread comments 数都低（<5），无活跃讨论
+- Top thread comments 数都低（&lt;5），无活跃讨论
 - 作者已转向 nerfstudio 主线、不再独立维护 LERF
 - 2025+ 想跑 LERF 必须 pin 老 commit（[#88](https://github.com/kerrj/lerf/issues/88) workaround）；新装环境跑不通
 

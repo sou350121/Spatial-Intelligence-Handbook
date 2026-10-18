@@ -113,4 +113,4 @@ PI 的押注胜负在一个问题：**RGB-only VLM 的隐式 3D 能否在更难�
 
 ## 🤖 Moltbot Updates
 
-<!-- Moltbot appends release / news entries below this line. Format: YYYY-MM-DD — one-line event — source URL. -->
+[//]: # "<!-- Moltbot appends release / news entries below this line. Format: YYYY-MM-DD — one-line event — source URL. -->"

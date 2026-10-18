@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: NVS / Reconstruction
 representation: Multi-resolution hash grid + tiny MLP
 sensor: RGB + poses
 paradigm: Hybrid (explicit hash + MLP decoder)
 time: PerScene-Optimization (秒級)
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # Instant-NGP 解构 (Instant Neural Graphics Primitives with a Multiresolution Hash Encoding)
 
@@ -49,7 +49,7 @@ NeRF (ECCV) ► Plenoxels    ► Instant-NGP (SIGGRAPH) ► NerfAcc          ►
 
 > **Hash collision 不是 bug — 是 feature. MLP 学会消歧冲突的特征，所以每级小 hash table 就够；信任网络自行清理.**
 
-粗级，grid 能装进 table（无冲突）。细级，table < grid → 冲突不可避免。渲染 loss 自然把细级容量分配到*重要*空间位置（射线终止处），忽略空区冲突. **hash function 无需优化；基于 xor 的空间 hash 即可.**
+粗级，grid 能装进 table（无冲突）。细级，table &lt; grid → 冲突不可避免。渲染 loss 自然把细级容量分配到*重要*空间位置（射线终止处），忽略空区冲突. **hash function 无需优化；基于 xor 的空间 hash 即可.**
 
 ### 1.3 Flow diagram
 
@@ -170,7 +170,7 @@ Table 内存: `L × T × F × 4 ≈ 67 MB`. MLP &lt;1 MB.
 
 | # | Pitfall | Evidence | Severity | Workaround |
 |---|---|---|---|---|
-| 1 | **GCC 14 编译失败** — pybind11 模板实例化对 GCC 14 更严类型检查不兼容 | [#1603](https://github.com/NVlabs/instant-ngp/issues/1603): "return type 'struct pybind11::detail::initimpl::factory<...>' is incomplete" 在 `pybind11.h:1894` 中 `ngp::EEditingKernel` enum 绑定处；GCC 13 通过 | 🔴 | 降级到 GCC 13；或升级 vendored pybind11；尚无官方 patch |
+| 1 | **GCC 14 编译失败** — pybind11 模板实例化对 GCC 14 更严类型检查不兼容 | [#1603](https://github.com/NVlabs/instant-ngp/issues/1603): "return type 'struct pybind11::detail::initimpl::factory&lt;...>' is incomplete" 在 `pybind11.h:1894` 中 `ngp::EEditingKernel` enum 绑定处；GCC 13 通过 | 🔴 | 降级到 GCC 13；或升级 vendored pybind11；尚无官方 patch |
 | 2 | **Arch Linux / 现代发行版 cmake build 失败** — pybind11 模板歧义 | [#1613](https://github.com/NVlabs/instant-ngp/issues/1613): "ambiguous template instantiation for 'struct pybind11::detail::initimpl::factory…'" 在 `pybind11/pybind11.h:2884` + `src/python_api.cu:311` (`ETrainMode` enum)；Arch Linux 2026-02 报告 | 🔴 | 钉旧 toolchain（GCC 12/13 + 较旧 pybind11）；或用 conda 隔离编译环境 |
 | 3 | **Windows COLMAP PATH 把 RAM 吃爆 → 系统蓝屏（0x00000116 video TDR）** | [#1606](https://github.com/NVlabs/instant-ngp/issues/1606): "trigger memory overflow on your system causing the OS to emergency shutdown because the RAM was consumed" — COLMAP batch launcher 在 PATH 上递归触发自身 | 🔴 | Windows 上**不要把 COLMAP 内置 launcher 加 PATH**；用 conda / 显式路径调用 |
 | 4 | **数据集 >42 张图卡死在 95% (41/43)** — 进度条静默挂起 | [#1596](https://github.com/NVlabs/instant-ngp/issues/1596): "Cannot load NeRF dataset with more than 42 images" — `PROGRESS [...] 95% (41/43)` 后冻结；二进制 release 与 master 自编译都复现 | 🟠 | 拆数据集分批；或检查是否触发 file-descriptor 上限（`ulimit -n`） |

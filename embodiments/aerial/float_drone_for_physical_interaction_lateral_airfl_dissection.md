@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: n/a
 sensor: multi-modal
 paradigm: geometric
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # FLOAT Drone 面向物理交互：侧向气流抑制、力旋量建模与自适应控制 (FLOAT Drone for Physical Interaction: Lateral Airflow Reduction, Wrench Modeling, and Adaptive Control)
 
@@ -196,7 +196,7 @@ $$\mathbf{w}_{\mathcal{L}_1}(s)=-\mathbf{C}(s)\hat{\bm{\sigma}}(s),\qquad \mathb
 
 **评测项与结果（数字逐字取自论文）**：
 
-- **CFD 力匹配对比**（§III-C）：同 8-inch 三叶桨；舵面 200mm×100mm×2mm，中心在桨轴上、桨心下方 100mm；测量平面距桨轴 120mm；桨速固定 10000 rpm；δ 从 0° 到 45°，步长 5°；最大力匹配误差 <0.5%；代表性工况 F_x/F_z=0.35。非零侧向力工况（δ=10°~45°）平均**目标朝向质量流量降低 58.5%、法向动量通量积分降低 49.4%**。
+- **CFD 力匹配对比**（§III-C）：同 8-inch 三叶桨；舵面 200mm×100mm×2mm，中心在桨轴上、桨心下方 100mm；测量平面距桨轴 120mm；桨速固定 10000 rpm；δ 从 0° 到 45°，步长 5°；最大力匹配误差 &lt;0.5%；代表性工况 F_x/F_z=0.35。非零侧向力工况（δ=10°~45°）平均**目标朝向质量流量降低 58.5%、法向动量通量积分降低 49.4%**。
 - **桨-舵耦合 CFD**（§IV-B）：桨速 10000 rpm，~10 N 推力，−0.15 N·m 桨力矩；δ 从 0° 扫到 90°；侧向力在约 **40°** 达峰后下降；竖直力损失随舵偏增大。
 - **气动模型辨识**（§IV-C）：油门 40%–60%、舵偏 0°–45°；F_z 与 τ_z 约 **600 个稳态样本**；水平力只辨识 x 轴，y 轴由几何对称得到；微分测量法分离上下舵面贡献；拟合 **R²>0.93**。
 - **3D 轨迹跟踪（Table II，8 字形、最大平移速度 1 m/s、加速度 0.51 m/s²）**：
@@ -221,7 +221,7 @@ $$\mathbf{w}_{\mathcal{L}_1}(s)=-\mathbf{C}(s)\hat{\bm{\sigma}}(s),\qquad \mathb
 ## 6 · 能力与失败模式
 
 **能做**：
-- 在几乎不倾斜机身（滚转/俯仰 <2.3°）的情况下产生最大 5.42 N 水平力（≈0.3 倍自重）；欠驱动多旋翼要达到同样水平力需约 17° 机身倾斜。
+- 在几乎不倾斜机身（滚转/俯仰 &lt;2.3°）的情况下产生最大 5.42 N 水平力（≈0.3 倍自重）；欠驱动多旋翼要达到同样水平力需约 17° 机身倾斜。
 - 6-DoF 全驱飞行的轨迹与姿态解耦跟踪（8 字轨迹位置 RMSE 13.8mm）。
 - 拒绝地效、突加载荷、长时漂移等扰动（两分钟悬停平均高度误差 −3.33mm）。
 - 2 cm 间隙内插钩、拉、推抽屉（最大姿态偏差 3.41°，离轴误差 ≤12.2mm）。
@@ -289,4 +289,4 @@ $$\mathbf{w}_{\mathcal{L}_1}(s)=-\mathbf{C}(s)\hat{\bm{\sigma}}(s),\qquad \mathb
 
 > **Status**：v0.1 · 基于 arXiv 全文（arXiv:2607.04260v1，正文含 §I–§VII 与 Table I–III、Fig. 1–18）· 本文所有实验数字均逐字取自论文正文；**无公开数据集、无官方代码仓库**；论文未报告的数字已在 §4 标注「论文未报告」；§3 玩具例子的数值为演示性构造（非论文实测）；§8 pitfalls 为基于 §6 失败模式与方法约束的推断，未经 issue 验证。
 
-<!-- source: https://arxiv.org/abs/2607.04260 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.04260 -->"

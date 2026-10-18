@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: BEV
 sensor: LiDAR
 paradigm: geometric
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # CorrelationFlow: A Training-Free Geometric Approach for LiDAR Scene Flow Estimation  
 > **发布时间**：2026/07/31  
@@ -38,8 +38,8 @@ LiDAR 场景流长期被“监督训练+自监督损失”范式垄断，导致�
 
 | 模块 | 输入 | 输出 | 训练-推理差异 |
 |------|------|------|----------------|
-| **BEV Occupancy Projection** | ego-motion-compensated point cloud 𝒫ₜ, quantization factor *s* | binary image **Iₜ** ∈ {0,1}ᴴˣᵂ | 无训练；纯几何投影（Eq.2）；输出分辨率由 *s* 决定 |
-| **Spatio-temporal Clustering (CC)** | union of **Iₜ** and **Iₜ₊₁**, 8-connectivity | set of clusters {𝒢ⁱ = 𝒫ₜⁱ ∪ 𝒫ₜ₊₁ⁱ} | 无训练；connected-component labeling on concatenated BEV; 参数自由（vs DBSCAN ε） |
+| **BEV Occupancy Projection** | ego-motion-compensated point cloud 𝒫ₜ, quantization factor *s* | binary image **Iₜ** ∈ &#123;0,1&#125;ᴴˣᵂ | 无训练；纯几何投影（Eq.2）；输出分辨率由 *s* 决定 |
+| **Spatio-temporal Clustering (CC)** | union of **Iₜ** and **Iₜ₊₁**, 8-connectivity | set of clusters &#123;𝒢ⁱ = 𝒫ₜⁱ ∪ 𝒫ₜ₊₁ⁱ&#125; | 无训练；connected-component labeling on concatenated BEV; 参数自由（vs DBSCAN ε） |
 | **NCC-based Flow Estimation** | cluster point clouds 𝒫ₜⁱ, 𝒫ₜ₊₁ⁱ | scene flow vector **fₜ→ₜ₊₁ⁱ** ∈ ℝ³ | 无训练；NCC peak search over full displacement grid (Eq.5–6); deterministic |
 | **CorrelationFlow-Keypoints (sparse variant)** | single sweep pair (no history), boundary keypoints | sparse-to-dense flow via descriptor matching | 无训练；轻量 occupancy descriptor on object boundary; avoids full NCC grid search |
 
@@ -66,12 +66,12 @@ Iₜ, Iₜ₊₁ ∈ {0,1}ᴴˣᵂ
 ## 2 · 数学核心  
 
 📌 **Napkin Formula**:  
-**fₜ→ₜ₊₁ ≈ s · [argmax_{u} NCC(Iₜ, Iₜ₊₁(·−u)) − center_of_Iₜ]**  
+**fₜ→ₜ₊₁ ≈ s · [argmax_&#123;u&#125; NCC(Iₜ, Iₜ₊₁(·−u)) − center_of_Iₜ]**  
 *直觉：运动 = 找到让前帧模板在后帧上“最像”的贴图位置，缩放回米制*
 
 **目标**：估计刚体对象 𝒪 的 3D 位移 **f** = [fₓ, f_y, f_z]ᵀ  
 **公式链**：  
-1. BEV 投影：**u** = ⌊(pₓ,p_y) − (pₓ⁻,p_y⁻) / s⌋ → **Iₜ**, **Iₜ₊₁** ∈ {0,1}ᴴˣᵂ  
+1. BEV 投影：**u** = ⌊(pₓ,p_y) − (pₓ⁻,p_y⁻) / s⌋ → **Iₜ**, **Iₜ₊₁** ∈ &#123;0,1&#125;ᴴˣᵂ  
 2. BEV 平移映射：**f** → **Δ** = ⌊[fₓ,f_y]ᵀ / s⌋ ∈ ℤ² (Eq.4)  
 3. NCC 目标函数（Eq.5）：  
   R(uₓ,u_y) = Σ Iₜ(r,c)·Iₜ₊₁(ũ_y+r, ũ_x+c) / [√ΣIₜ² · √ΣIₜ₊₁²]  
@@ -99,7 +99,7 @@ Iₜ, Iₜ₊₁ ∈ {0,1}ᴴˣᵂ
 - 模板 **Iₜ** 尺寸 3×3，滑窗遍历 **Iₜ₊₁** 每个位置  
 - 在 u = [1,1]（即中心偏移 [1,1]）处：  
   Iₜ 与 Iₜ₊₁ 的重叠区域全 1 → numerator = 4, denominator = √4·√4 = 4 → R=1.0  
-- 其他位置 R < 1 → **u*** = [1,1]  
+- 其他位置 R &lt; 1 → **u*** = [1,1]  
 - center_of_Iₜ = [1,1] (⌊3/2⌋=1) → **Δ** = [1,1] − [1,1] = [0,0] ❌  
 → *Wait!* 实际 **Iₜ₊₁** 是 **Iₜ** 平移 [1,−1]，但在索引坐标系中：  
 - 若 **Iₜ** 左上角为 (0,0)，则 **Iₜ₊₁** 的非零块位于 (1,0) to (2,1)  
@@ -116,7 +116,7 @@ Iₜ, Iₜ₊₁ ∈ {0,1}ᴴˣᵂ
 | **延迟** | 论文未报告 | 全局 NCC 搜索复杂度 O(HW·H′W′)，典型 BEV 200×200 → 4e4 × 4e4 = 1.6e9 次乘加；未提 GPU 加速或近似策略 |
 | **步数** | 1 forward pass | 无迭代优化；纯前向 pipeline（Alg.3） |
 | **内存** | UNVERIFIED | 主要占用：BEV 图像存储（2 × H × W × 1 byte）、NCC 响应图（H × W × 4 bytes float）；H=W=200 → ~320KB 图像 + ~160KB 响应图 |
-| **吞吐** | 论文未报告 | 受限于 NCC 计算；CPU 实现预计 < 1 FPS；GPU 可用 cuFFT 加速但未提及 |
+| **吞吐** | 论文未报告 | 受限于 NCC 计算；CPU 实现预计 &lt; 1 FPS；GPU 可用 cuFFT 加速但未提及 |
 | **部署约束** | 无硬件型号报告 | 依赖 OpenCV/Numpy；无 ONNX/TFLite 导出；Keypoints variant 更适合嵌入式（但未给轻量级指标） |
 
 ---
@@ -138,7 +138,7 @@ Iₜ, Iₜ₊₁ ∈ {0,1}ᴴˣᵂ
 
 | 能力 | 具体表现 |
 |------|----------|
-| ✅ **稀疏物体鲁棒** | 连通域聚类不依赖点密度，对远距车辆（<5 pts）仍可形成 cluster（IV-A） |
+| ✅ **稀疏物体鲁棒** | 连通域聚类不依赖点密度，对远距车辆（&lt;5 pts）仍可形成 cluster（IV-A） |
 | ✅ **长距泛化** | 在 Argoverse2 多域测试中 “degrades most gracefully at long range”（Abstract） |
 | ✅ **零训练开销** | 无参数、无梯度、无 GPU 训练需求；部署即用 |
 
@@ -166,7 +166,7 @@ Iₜ, Iₜ₊₁ ∈ {0,1}ᴴˣᵂ
 
 **面试 Tip**：  
 *Q: “Why not just use ICP?”*  
-→ *A: ICP minimizes point-to-point distance, but LiDAR sparsity makes correspondence ambiguous — especially for distant objects with <10 points. CorrelationFlow sidesteps correspondence entirely: it treats the object as a rigid shape, and matches shapes (via BEV occupancy), not points. That’s why it works where ICP fails — and why it needs no tuning.*  
+→ *A: ICP minimizes point-to-point distance, but LiDAR sparsity makes correspondence ambiguous — especially for distant objects with &lt;10 points. CorrelationFlow sidesteps correspondence entirely: it treats the object as a rigid shape, and matches shapes (via BEV occupancy), not points. That’s why it works where ICP fails — and why it needs no tuning.*  
 
 ---
 
@@ -175,7 +175,7 @@ Iₜ, Iₜ₊₁ ∈ {0,1}ᴴˣᵂ
 **官方 repo 未在论文中给出**（全文无 `github.com` 链接；arXiv PDF 无 hyperlink）→ 以下 pitfall 由 §6 失败模式推导（未经 issue 验证）：  
 
 1. **`ValueError: cluster too small for NCC`**  
- → 由 §6 隐含假设 #2（BEV topology preservation）触发：当 object 高度 < *s*（如锥桶），BEV 投影为单点 → **Iₜ** 尺寸 1×1 → NCC 分母为 0 或未定义；Alg.1 未做最小 cluster size check。  
+ → 由 §6 隐含假设 #2（BEV topology preservation）触发：当 object 高度 &lt; *s*（如锥桶），BEV 投影为单点 → **Iₜ** 尺寸 1×1 → NCC 分母为 0 或未定义；Alg.1 未做最小 cluster size check。  
 
 2. **`IndexError: index out of bounds in sectional view rotation`**  
  → 由 §6 失败模式 “垂直运动主导失效” + 方法约束 “rotation by −θ before X-Z projection”：若 [fₓ,f_y]≈[0,0]（静止物体），θ=atan2(0,0) → NaN → rotation matrix invalid → array indexing crash。  
@@ -188,4 +188,4 @@ Iₜ, Iₜ₊₁ ∈ {0,1}ᴴˣᵂ
 [← Back to lidar-sceneflow README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.29237 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.29237 -->"

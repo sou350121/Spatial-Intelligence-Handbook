@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Spatial reasoning (depth-aware VLM)
 representation: Image + depth conditioned QA
 sensor: RGB + Depth
 paradigm: Learned-VLM (depth-aware)
 time: FeedForward
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # SpatialBot 解构 (SpatialBot: Precise Spatial Understanding with Vision Language Models — Dissection)
 

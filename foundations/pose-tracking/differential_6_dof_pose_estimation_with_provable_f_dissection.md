@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: pose
 representation: n/a
 sensor: mono
 paradigm: geometric
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 微分6-DOF位姿估计：具备可证明一阶抗相机标定误差能力 (Differential 6-DOF Pose Estimation with Provable First-Order Immunity to Camera Calibration Errors)  
 > **发布时间**：2026/08/05  
@@ -141,8 +141,8 @@ ref: ../../cheat-sheet/ontology.md §5
 
 | 项目 | 内容 | 来源验证 |
 |------|------|-----------|
-| **数据组成** | • **合成数据**：Monocular & Binocular 模拟（Sec IV-A/B）<br>• **真实数据**：结构位移实验（Sec IV-C），含振动台微位移、热变形测量 | ✅ 全文多次提及 “Numerical Simulations for Monocular Vision”, “Real-World Validation” |
-| **评测设置** | • **指标**：Rotation RMSE (arcsec), Translation RMSE (mm)<br>• **条件**：5个控制点，图像噪声 `0.5-pixel`（高斯）<br>• **对比基线**：PnP (EPnP, RPnP), gPnP (GPnP, UPnP), CPnP | ✅ “With five control points and 0.5-pixel image noise…” 明确写出；RMSE数值 `10.09″`, `3.70 mm` 等均**逐字复制**自原文 |
+| **数据组成** | • **合成数据**：Monocular & Binocular 模拟（Sec IV-A/B）<br />• **真实数据**：结构位移实验（Sec IV-C），含振动台微位移、热变形测量 | ✅ 全文多次提及 “Numerical Simulations for Monocular Vision”, “Real-World Validation” |
+| **评测设置** | • **指标**：Rotation RMSE (arcsec), Translation RMSE (mm)<br />• **条件**：5个控制点，图像噪声 `0.5-pixel`（高斯）<br />• **对比基线**：PnP (EPnP, RPnP), gPnP (GPnP, UPnP), CPnP | ✅ “With five control points and 0.5-pixel image noise…” 明确写出；RMSE数值 `10.09″`, `3.70 mm` 等均**逐字复制**自原文 |
 
 ---
 
@@ -211,4 +211,4 @@ ref: ../../cheat-sheet/ontology.md §5
 [← Back to pose README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2608.04673 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2608.04673 -->"

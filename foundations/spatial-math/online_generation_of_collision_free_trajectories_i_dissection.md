@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: n/a
 sensor: n/a
 paradigm: geometric
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 动态环境中在线无碰撞轨迹生成 (Online Generation of Collision-Free Trajectories in Dynamic Environments)
 
@@ -385,4 +385,4 @@ adjusted success = 1 - ‖q_end - q_goal‖ / ‖q_start - q_goal‖ ∈ [0,1]
 
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2603.00759 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2603.00759 -->"

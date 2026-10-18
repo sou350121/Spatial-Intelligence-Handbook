@@ -3,8 +3,8 @@ from pathlib import Path
 import re
 
 REPO=Path(__file__).resolve().parents[2]
-START='<!-- BEGIN PULSAR REPORT INDEX -->'
-END='<!-- END PULSAR REPORT INDEX -->'
+START='[//]: # "<!-- BEGIN PULSAR REPORT INDEX -->"'
+END='[//]: # "<!-- END PULSAR REPORT INDEX -->"'
 
 
 def render(repo):
@@ -17,6 +17,8 @@ def render(repo):
 
 
 def update(text,block):
+    from _mdx_safe import compatible_comments
+    text=compatible_comments(text)
     if START not in text and END not in text:return text.rstrip()+'\n\n'+block+'\n'
     if text.count(START)!=1 or text.count(END)!=1 or text.index(START)>text.index(END):raise ValueError('Malformed managed report index markers')
     a=text.index(START);b=text.index(END)+len(END)

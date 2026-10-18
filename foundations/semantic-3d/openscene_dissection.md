@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Open-vocabulary 3D segmentation
 representation: Voxel + CLIP feature cloud
 sensor: RGBD + CLIP teacher
 paradigm: Zero-shot CLIP fusion (no per-scene 訓練)
 time: Streaming / Batch
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # OpenScene 解构 (OpenScene: 3D Scene Understanding with Open Vocabularies — Dissection)
 

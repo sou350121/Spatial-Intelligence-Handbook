@@ -124,10 +124,36 @@ class Workflow(unittest.TestCase):
 
 
 class MdxAndArchive(unittest.TestCase):
+    def test_old_and_new_ontology_formats_have_identical_values(self):
+        sys.path.insert(0,str(rd.REPO/'scripts'))
+        import query_ontology as query
+        from _ontology_header import format_header
+        block='<!-- ontology-5axis\nproblem: reconstruction\nrepresentation: 3dgs\nsensor: mono\nparadigm: learned\ntime: streaming\n-->'
+        self.assertEqual(query.parse_header(block),query.parse_header(format_header(block)))
+        self.assertIsNone(query.parse_header(format_header(block.replace('sensor: mono\n',''))))
+
+    def test_invalid_metadata_wrappers_are_rejected(self):
+        sys.path.insert(0,str(rd.REPO/'scripts'))
+        from _ontology_header import get_header_block
+        for s in ['<!-- ontology-5axis\nproblem: x', '[//]: # "<!-- ontology-5axis\nproblem: x\n-->', '[//]: # "<!-- wrong-marker -->"']:
+            self.assertIsNone(get_header_block(s))
     def test_ontology_and_source_metadata_comments_are_preserved(self):
         from _mdx_safe import safe_markdown
         s='<!-- ontology-5axis\nproblem: reconstruction\n-->\nText <1000\n<!-- source: https://arxiv.org/abs/2610.12345 -->\n'
-        self.assertEqual(safe_markdown(s),s.replace('Text <1000','Text &lt;1000'))
+        actual=safe_markdown(s)
+        self.assertIn('<!-- ontology-5axis\nproblem: reconstruction\n-->',actual)
+        self.assertIn('[//]: # "<!-- source: https://arxiv.org/abs/2610.12345 -->"',actual)
+        self.assertIn('Text &lt;1000',actual)
+        self.assertEqual(safe_markdown(actual),actual)
+
+    def test_existing_math_is_not_rewritten(self):
+        from _mdx_safe import safe_markdown
+        s='Inline $o_{s,t}<\\tau$ and block\n$$\nx_{t+1}={A}x_t\n$$\n'
+        self.assertEqual(safe_markdown(s),s)
+
+    def test_html_line_breaks_keep_their_meaning(self):
+        from _mdx_safe import safe_markdown
+        self.assertEqual(safe_markdown('first<br>second'), 'first<br />second')
     def test_less_than_number_is_rendered_as_text(self):
         from _mdx_safe import safe_markdown
         self.assertEqual(safe_markdown('若在 <1000 帧有效。'), '若在 &lt;1000 帧有效。')

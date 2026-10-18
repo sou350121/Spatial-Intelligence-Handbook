@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: reconstruction
 representation: implicit-sdf
 sensor: mono
 paradigm: n/a
 time: temporal-transformer-rolling
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # SM4RT: Learning Structured Motion Geometry for 4D Reconstruction (SM4RT)  
 > **发布时间**：2026/07/24  
@@ -40,12 +40,12 @@ SM4RT 解决的是单目视频 4D 重建中长期被忽略的**物理结构性�
 | 模块 | 输入 | 输出 | 训练 vs 推理差异 |
 |------|------|------|------------------|
 | **Scene Geometry Branch** | 单目视频 𝑰 ∈ ℝ^(S×H×W×3) | 每帧深度 𝑫, 相机内参 𝐊, 外参 [𝐑∣𝐭], 源帧点云 𝑷⁰ | 训练时监督 depth/cam/scale；推理时直接输出，无迭代 |
-| **Motion Geometry Encoder** | 几何分支中间 token {𝑮ᵢ′}₄ + 时间嵌入 motion tokens 𝒎 | 运动 token 序列 𝒎 ∈ ℝ^(N×d) | 仅训练时注入几何参考；推理时固定结构 |
-| **Motion Geometry Decoder** | 𝒎 + 𝑮₀′ | (1) Base Head → 𝐖 ∈ ℝ^(H×W×N)（SparseMax 稀疏化）<br>(2) Motion Head → {𝝃ᵢ,ₜ} ∈ ℝ^(N×S×6)（ twist 序列） | SparseMax 在训练/推理均启用；twist 解码为 MLP，无后处理 |
-| **SoM Synthesis** | 𝐖, {𝝃ᵢ,ₜ}, 𝑷⁰ | ∀u,t: 𝒑ᵤ,ₜ = Exp(∑ᵢ wᵤ,ᵢ 𝝃ᵢ,ₜ)^ ∧ · 𝒑ᵤ,₀ | 全部计算在 GPU 上完成；Exp 使用 PyTorch3D 实现 |
+| **Motion Geometry Encoder** | 几何分支中间 token &#123;𝑮ᵢ′&#125;₄ + 时间嵌入 motion tokens 𝒎 | 运动 token 序列 𝒎 ∈ ℝ^(N×d) | 仅训练时注入几何参考；推理时固定结构 |
+| **Motion Geometry Decoder** | 𝒎 + 𝑮₀′ | (1) Base Head → 𝐖 ∈ ℝ^(H×W×N)（SparseMax 稀疏化）<br />(2) Motion Head → &#123;𝝃ᵢ,ₜ&#125; ∈ ℝ^(N×S×6)（ twist 序列） | SparseMax 在训练/推理均启用；twist 解码为 MLP，无后处理 |
+| **SoM Synthesis** | 𝐖, &#123;𝝃ᵢ,ₜ&#125;, 𝑷⁰ | ∀u,t: 𝒑ᵤ,ₜ = Exp(∑ᵢ wᵤ,ᵢ 𝝃ᵢ,ₜ)^ ∧ · 𝒑ᵤ,₀ | 全部计算在 GPU 上完成；Exp 使用 PyTorch3D 实现 |
 
 ### 1.2 关键机制  
-⚡ **Eureka Moment：Motion is geometry — not a field over space-time, but a low-rank decomposition in the Lie algebra 𝔰𝔢(3), where assignment map 𝐖 binds points to kinematic entities, and twist sequences {𝝃ᵢ,ₜ} encode their rigid evolution.**  
+⚡ **Eureka Moment：Motion is geometry — not a field over space-time, but a low-rank decomposition in the Lie algebra 𝔰𝔢(3), where assignment map 𝐖 binds points to kinematic entities, and twist sequences &#123;𝝃ᵢ,ₜ&#125; encode their rigid evolution.**  
 
 ### 1.3 信息流 ASCII 图  
 
@@ -81,18 +81,18 @@ SoM Synthesis: ∀u,t: Ξᵤ,ₜ = ∑ᵢ wᵤ,ᵢ ξᵢ,ₜ ∈ 𝔰𝔢(3) →
 
 **公式**（Eq.4 & Eq.7）：  
 \[
-\bm{\Xi}_{u,t} = \sum_{i=1}^{N} w_{u,i}\, \bm{\xi}_{i,t} \in \mathfrak{se}(3), \quad 
-\bm{p}_{u,t} = \mathrm{Exp}(\hat{\bm{\Xi}}_{u,t})\, \bm{p}_{u,0}
+\bm&#123;\Xi&#125;_&#123;u,t&#125; = \sum_&#123;i=1&#125;^&#123;N&#125; w_&#123;u,i&#125;\, \bm&#123;\xi&#125;_&#123;i,t&#125; \in \mathfrak&#123;se&#125;(3), \quad 
+\bm&#123;p&#125;_&#123;u,t&#125; = \mathrm&#123;Exp&#125;(\hat&#123;\bm&#123;\Xi&#125;&#125;_&#123;u,t&#125;)\, \bm&#123;p&#125;_&#123;u,0&#125;
 \]
 
 **变量说明**：  
-- \(w_{u,i}\)：像素 u 对 motion base i 的软分配权重（∑ᵢ wᵤ,ᵢ = 1，SparseMax 强制稀疏）  
-- \(\bm{\xi}_{i,t} = [\bm{\rho}_{i,t}, \bm{\phi}_{i,t}] \in \mathbb{R}^6\)：base i 在帧 t 的 twist（平移+旋转）  
-- \(\hat{\bm{\xi}} = \begin{bmatrix}[\bm{\phi}]_\times & \bm{\rho} \\ \mathbf{0}^\top & 0\end{bmatrix}\)：𝔰𝔢(3) 矩阵形式  
-- \(\mathrm{Exp}(\cdot)\)：指数映射，将无穷小 twist 转为有限 SE(3) 变换  
+- \(w_&#123;u,i&#125;\)：像素 u 对 motion base i 的软分配权重（∑ᵢ wᵤ,ᵢ = 1，SparseMax 强制稀疏）  
+- \(\bm&#123;\xi&#125;_&#123;i,t&#125; = [\bm&#123;\rho&#125;_&#123;i,t&#125;, \bm&#123;\phi&#125;_&#123;i,t&#125;] \in \mathbb&#123;R&#125;^6\)：base i 在帧 t 的 twist（平移+旋转）  
+- \(\hat&#123;\bm&#123;\xi&#125;&#125; = \begin&#123;bmatrix&#125;[\bm&#123;\phi&#125;]_\times & \bm&#123;\rho&#125; \\ \mathbf&#123;0&#125;^\top & 0\end&#123;bmatrix&#125;\)：𝔰𝔢(3) 矩阵形式  
+- \(\mathrm&#123;Exp&#125;(\cdot)\)：指数映射，将无穷小 twist 转为有限 SE(3) 变换  
 
 **直觉**：  
-不是让每个像素“自己学怎么动”，而是学习“谁和谁一起动”（𝐖）+ “这群人整体怎么动”（{𝝃ᵢ,ₜ}）。就像导演调度演员群组，而非逐帧手调每个演员关节。
+不是让每个像素“自己学怎么动”，而是学习“谁和谁一起动”（𝐖）+ “这群人整体怎么动”（&#123;𝝃ᵢ,ₜ&#125;）。就像导演调度演员群组，而非逐帧手调每个演员关节。
 
 ---
 
@@ -101,19 +101,19 @@ SoM Synthesis: ∀u,t: Ξᵤ,ₜ = ∑ᵢ wᵤ,ᵢ ξᵢ,ₜ ∈ 𝔰𝔢(3) →
 设输入视频 S=3 帧，H=W=2（极简），N=2 motion bases（背景 + 前景物体）：  
 
 - Source frame points（unprojected）：  
-  \( \bm{p}_{0,0} = [0,0,1]^\top,\ \bm{p}_{1,0} = [1,0,1]^\top,\ \bm{p}_{2,0} = [0,1,1]^\top,\ \bm{p}_{3,0} = [1,1,1]^\top \)  
+  \( \bm&#123;p&#125;_&#123;0,0&#125; = [0,0,1]^\top,\ \bm&#123;p&#125;_&#123;1,0&#125; = [1,0,1]^\top,\ \bm&#123;p&#125;_&#123;2,0&#125; = [0,1,1]^\top,\ \bm&#123;p&#125;_&#123;3,0&#125; = [1,1,1]^\top \)  
 
 - Learned assignment 𝐖（after SparseMax）：  
-  \( w_{0,1}=1.0,\ w_{1,1}=1.0,\ w_{2,2}=1.0,\ w_{3,2}=1.0 \) → pixels 0,1 → base 1（background）；2,3 → base 2（object）  
+  \( w_&#123;0,1&#125;=1.0,\ w_&#123;1,1&#125;=1.0,\ w_&#123;2,2&#125;=1.0,\ w_&#123;3,2&#125;=1.0 \) → pixels 0,1 → base 1（background）；2,3 → base 2（object）  
 
 - Learned twist sequences（简化为纯旋转）：  
-  \( \bm{\xi}_{1,1} = [0,0,0,0,0,\pi/4],\ \bm{\xi}_{1,2} = [0,0,0,0,0,\pi/2] \) （background rotates slowly）  
-  \( \bm{\xi}_{2,1} = [0,0,0,0,0,\pi],\ \bm{\xi}_{2,2} = [0,0,0,0,0,3\pi/2] \) （object rotates fast）  
+  \( \bm&#123;\xi&#125;_&#123;1,1&#125; = [0,0,0,0,0,\pi/4],\ \bm&#123;\xi&#125;_&#123;1,2&#125; = [0,0,0,0,0,\pi/2] \) （background rotates slowly）  
+  \( \bm&#123;\xi&#125;_&#123;2,1&#125; = [0,0,0,0,0,\pi],\ \bm&#123;\xi&#125;_&#123;2,2&#125; = [0,0,0,0,0,3\pi/2] \) （object rotates fast）  
 
 - Compute target frame 1 position for pixel 2：  
-  \( \bm{\Xi}_{2,1} = w_{2,2} \bm{\xi}_{2,1} = [0,0,0,0,0,\pi] \)  
-  \( \hat{\bm{\Xi}}_{2,1} = \begin{bmatrix} 0&-\pi&0\\ \pi&0&0\\ 0&0&0\\ 0&0&0&0 \end{bmatrix} \) → Exp yields rotation matrix R_z(π)  
-  \( \bm{p}_{2,1} = R_z(\pi) \cdot [0,1,1]^\top = [0,-1,1]^\top \)  
+  \( \bm&#123;\Xi&#125;_&#123;2,1&#125; = w_&#123;2,2&#125; \bm&#123;\xi&#125;_&#123;2,1&#125; = [0,0,0,0,0,\pi] \)  
+  \( \hat&#123;\bm&#123;\Xi&#125;&#125;_&#123;2,1&#125; = \begin&#123;bmatrix&#125; 0&-\pi&0\\ \pi&0&0\\ 0&0&0\\ 0&0&0&0 \end&#123;bmatrix&#125; \) → Exp yields rotation matrix R_z(π)  
+  \( \bm&#123;p&#125;_&#123;2,1&#125; = R_z(\pi) \cdot [0,1,1]^\top = [0,-1,1]^\top \)  
 
 ✅ 同属 base 2 的像素 2 和 3 严格共享相同旋转，保证刚体一致性 —— 这是点级位移法无法保证的。
 
@@ -208,4 +208,4 @@ SoM Synthesis: ∀u,t: Ξᵤ,ₜ = ∑ᵢ wᵤ,ᵢ ξᵢ,ₜ ∈ 𝔰𝔢(3) →
 [← Back to reconstruction README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.22534 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.22534 -->"

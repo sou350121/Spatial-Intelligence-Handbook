@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VIO
 representation: voxel
 sensor: multi-modal
 paradigm: geometric
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # FIRE-LIVWO：失效免疫的毫米波雷达增强型 LiDAR-惯性-视觉-轮速里程计 (FIRE-LIVWO: Robust LiDAR-Inertial-Visual-Wheel Odometry via Failure-Immune mmWave Radar Enhancement)
 
@@ -359,4 +359,4 @@ $$\mathcal O_V=\bar t=\frac{0.01+0.02+0.03+0.02}{4}=0.02\le 0.4\ \Rightarrow\ \m
 
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2609.05325 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2609.05325 -->"

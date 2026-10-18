@@ -161,7 +161,7 @@ Stack architecture stable through 2027. Feed-forward 3D (VGGT-class) enters as r
 
 ## 🤖 Moltbot Updates
 
-<!-- Future Moltbot pipeline appends dated entries here. Format: YYYY-MM-DD — one-sentence event + source URL. -->
+[//]: # "<!-- Future Moltbot pipeline appends dated entries here. Format: YYYY-MM-DD — one-sentence event + source URL. -->"
 
 ---
 

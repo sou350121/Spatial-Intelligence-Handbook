@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: VIO (教學 baseline)
 representation: 15-state / 21-state vector + covariance
 sensor: IMU + Camera
 paradigm: Filter-EKF
 time: Filter-Streaming
 ref: ../../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # 从零手写 EKF — 15-state 与 21-state Augmented (EKF from Scratch — 15-state & 21-state Augmented Dissection)
 

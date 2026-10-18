@@ -105,4 +105,4 @@ Marble 在 2024 年末以**面向消费者的 3D 场景生成器**上线 —— 
 
 ## 🤖 Moltbot Updates
 
-<!-- Moltbot appends release / news entries below this line. Format: YYYY-MM-DD — one-line event — source URL. -->
+[//]: # "<!-- Moltbot appends release / news entries below this line. Format: YYYY-MM-DD — one-line event — source URL. -->"

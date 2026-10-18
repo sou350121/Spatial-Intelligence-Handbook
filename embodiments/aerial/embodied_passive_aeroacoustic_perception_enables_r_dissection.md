@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: tracking
 representation: n/a
 sensor: n/a
 paradigm: learned
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # Embodied Passive Aeroacoustic Perception Enables Relative Sensing and Pursuit Between Aerial Robots (arXiv:2608.00401)  
 > **发布时间**：2026/08/01  
@@ -79,13 +79,13 @@ Conf-KF: if σ² < τ, fuse with follower’s IMU-predicted motion prior
 
 **公式**：  
 \[
-\min_{\theta,\,r,\,\sigma^2} \mathbb{E}\left[ \underbrace{\|\theta - \hat{\theta}\|^2}_{\text{bearing error}} + \underbrace{\|r - \hat{r}\|^2}_{\text{range error}} + \lambda \cdot \underbrace{\sigma^2}_{\text{confidence penalty}} \right]
+\min_&#123;\theta,\,r,\,\sigma^2&#125; \mathbb&#123;E&#125;\left[ \underbrace&#123;\|\theta - \hat&#123;\theta&#125;\|^2&#125;_&#123;\text&#123;bearing error&#125;&#125; + \underbrace&#123;\|r - \hat&#123;r&#125;\|^2&#125;_&#123;\text&#123;range error&#125;&#125; + \lambda \cdot \underbrace&#123;\sigma^2&#125;_&#123;\text&#123;confidence penalty&#125;&#125; \right]
 \]  
-其中 \(\hat{\theta}, \hat{r}, \sigma^2\) 由 SonicNet 输出，\(\sigma^2\) 用于 Conf-KF 的观测更新增益 \(K_k = P_{k|k-1} H^\top (H P_{k|k-1} H^\top + \sigma^2 I)^{-1}\)。  
+其中 \(\hat&#123;\theta&#125;, \hat&#123;r&#125;, \sigma^2\) 由 SonicNet 输出，\(\sigma^2\) 用于 Conf-KF 的观测更新增益 \(K_k = P_&#123;k|k-1&#125; H^\top (H P_&#123;k|k-1&#125; H^\top + \sigma^2 I)^&#123;-1&#125;\)。  
 
 **变量说明**：  
-- \(BPF_\ell = N_{b,\ell} \Omega_\ell / 60\)：leader 的桨叶通过频率（Hz），\(N_{b,\ell}=2\)  
-- \(BPF_f = N_{b,f} \Omega_f / 60\)：follower 的 BPF，\(N_{b,f}=3\) → \(\Delta f \approx 100\text{–}300\text{ Hz}\) at typical RPM  
+- \(BPF_\ell = N_&#123;b,\ell&#125; \Omega_\ell / 60\)：leader 的桨叶通过频率（Hz），\(N_&#123;b,\ell&#125;=2\)  
+- \(BPF_f = N_&#123;b,f&#125; \Omega_f / 60\)：follower 的 BPF，\(N_&#123;b,f&#125;=3\) → \(\Delta f \approx 100\text&#123;–&#125;300\text&#123; Hz&#125;\) at typical RPM  
 - \(IPD(f)\)：频率 \(f\) 处两麦克风信号的相位差 → 主要编码 bearing（低频主导）  
 - \(ILD(f)\)：频率 \(f\) 处两麦克风信号的幅值比 → 主要编码 range（高频衰减快，但 ILD 对距离敏感）  
 
@@ -192,4 +192,4 @@ At 360 Hz:
 [← Back to spatial-perception README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2608.00401 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2608.00401 -->"

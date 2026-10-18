@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: mesh
 sensor: LiDAR
 paradigm: geometric
 time: feed-forward
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # FGGS-LiDAR: Ultra-Fast, GPU-Accelerated Simulation from General 3DGS Models to LiDAR  
 > **发布时间**：2026/08/04  
@@ -192,7 +192,7 @@ V(i,j,k) = V_occ(i,j,k) ∧ ¬Int(i,j,k)                             (Eq.10)
 | **GS2Mesh [27]** | `{μ_i, Σ_i, α_i}` + COLMAP poses + depth maps | ❌ | ✅ | ❌ | UNVERIFIED |  
 | **MILo [28]** | Same as GS2Mesh | ❌ | ✅ | ❌ | UNVERIFIED |  
 | **LiDAR-RT [25]** | `{μ_i, Σ_i, α_i}` + LiDAR intensity/drop labels | ✅ | ❌ | ❌ | UNVERIFIED |  
-| **Isaac Sim** | Mesh or USD | ❌ | ❌ | ✅ (but slower) | <50 (Table I: 4096 envs → 95ms → ~10.5 FPS) |  
+| **Isaac Sim** | Mesh or USD | ❌ | ❌ | ✅ (but slower) | &lt;50 (Table I: 4096 envs → 95ms → ~10.5 FPS) |  
 
 **面试 Tip**：  
 > *“被问：为什么不用NeRF或直接微调3DGS做LiDAR？答：NeRF隐式场ray marching太慢（O(N_vox)），而微调3DGS需LiDAR监督且破坏原资产——FGGS-LiDAR是唯一‘零修改、零监督、零位姿’的即插即用方案，把3DGS从‘画廊展品’变成‘机器人训练场’。”*
@@ -210,8 +210,8 @@ V(i,j,k) = V_occ(i,j,k) ∧ ¬Int(i,j,k)                             (Eq.10)
 - Issues tab → **0 open issues, 0 closed issues**（全新发布，尚无社区报告）  
 
 ⚠️ **因此，以下pitfall由 §6 失败模式 + 方法约束机械推导（未经issue验证）**：  
-1. **`CUDA out of memory` on A10 (24GB)**：Table II显示peak mem=22GB，A10仅24GB且系统预留≈2GB → 实际可用<22GB，触发OOM（对应 §6 隐含假设3：GPU内存充足）  
-2. **`Empty mesh` for sparse 3DGS**：若输入3DGS仅含<500高斯（如toy scene），`θ=0.3`下`D(v)`全<θ → `V_occ`全0 → TSDF无输入 → Marching Cubes输出空mesh（对应 §6 不能做：“极端稀疏3DGS”）  
+1. **`CUDA out of memory` on A10 (24GB)**：Table II显示peak mem=22GB，A10仅24GB且系统预留≈2GB → 实际可用&lt;22GB，触发OOM（对应 §6 隐含假设3：GPU内存充足）  
+2. **`Empty mesh` for sparse 3DGS**：若输入3DGS仅含&lt;500高斯（如toy scene），`θ=0.3`下`D(v)`全&lt;θ → `V_occ`全0 → TSDF无输入 → Marching Cubes输出空mesh（对应 §6 不能做：“极端稀疏3DGS”）  
 3. **`NaN in TSDF` when `r < h`**：TSDF截断半径`r`若设为0.001m但`h=0.1m`，`δ(x)=p(x)·v_min`中`v_min=0.1`导致`p(x)=0`时`δ=0`，`clip(0,-r,r)=0`无问题；但若`r`过小致`p(x)`溢出整数范围 → `δ(x)`溢出 → `ϕ(x)` NaN（对应 §6 隐含假设3：`h`必须适配`r`）
 
 ---
@@ -219,4 +219,4 @@ V(i,j,k) = V_occ(i,j,k) ∧ ¬Int(i,j,k)                             (Eq.10)
 [← Back to lidar-simulation README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2509.17390 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2509.17390 -->"

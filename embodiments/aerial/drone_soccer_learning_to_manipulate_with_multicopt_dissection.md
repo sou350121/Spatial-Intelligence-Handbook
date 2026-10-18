@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: n/a
 sensor: n/a
 paradigm: learned
 time: feed-forward
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 用旋翼下洗流操纵物体：Drone Soccer (Drone Soccer: Learning to Manipulate with Multicopter Downwash)
 
@@ -187,12 +187,14 @@ $$s=\begin{bmatrix}z_m & \vec s^{\,\top} & v_m^{\top} & \omega_m^{\top} & (p_b-p
 $$a=\begin{bmatrix}\Delta x_m & \Delta y_m & z_m\end{bmatrix} \tag{11}$$
 
 **奖励**：
-$$\begin{aligned}
+$$
+\begin{aligned}
 \mathcal R(s,a,s')=\ & w_v\frac{s'_{17:18}}{\lVert s'_{17:18}\rVert}\cdot s'_{14:15}
 + w_p\big(G(s'_{17:18})-G(s_{17:18})\big)\\
 &+ w_r H(\epsilon_g-\lVert s'_{17:18}\rVert)-w_c H(\epsilon_z-s'_1)\\
 &- w_c H(\epsilon_b-\lVert s'_{12:13}\rVert)-w_s L(a)
-\end{aligned} \tag{12}$$
+\end{aligned} \tag{12}
+$$
 $$L(a)=\lVert (p_m+a)-(p_{m,prev}+a_{prev})\rVert \tag{13}$$
 
 状态索引与奖励项的对应（这是读懂奖励的关键）：
@@ -401,4 +403,4 @@ $$a=\frac{0.195}{0.148}=1.32\ \mathrm{m/s^2}$$
 
 > **Status**：v0.1 · 基于 arXiv 全文（含 HTML 渲染版，正文截断于 Discussion）· 未在真机复现的数字标 `UNVERIFIED`；§3 的数值为明确标注的玩具设定，非论文报告值。
 
-<!-- source: https://arxiv.org/abs/2609.38588 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2609.38588 -->"

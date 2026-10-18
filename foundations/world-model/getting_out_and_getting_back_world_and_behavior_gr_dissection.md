@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: n/a
 paradigm: learned
 time: feed-forward
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 世界与行为接地：Real2Sim2Real 协同训练中的双重对齐 (Getting Out and Getting Back: World and Behavior Grounding in Real2Sim2Real Co-Training)
 
@@ -261,4 +261,4 @@ behavior 主效应: [(b+d) − (a+c)]/2 = 10   (a=NW,NB; b=NW,BG; c=WG,NB; d=WG,
 [← Back to Real2Sim2Real / Robot Learning README](./README.md)
 > **Status**：v0.1 · 基于 arXiv 全文（截断版，附录 A/E 缺失）· 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2610.00821 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2610.00821 -->"

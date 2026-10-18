@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: navigation
 representation: sparse
 sensor: IMU
 paradigm: hybrid
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # Continuous-Time Gaussian Belief Trees for Motion Planning (arXiv:2607.02884v1)  
 > **发布时间**：2026/07/03  
@@ -130,7 +130,7 @@ d/dt 𝔼[h(x(t))] ≤ -ρ·𝔼[h(x(t))]  ∀t ∈ [t₀,t₁],  for some ρ > 
 | 项目 | 内容 | 依据 |
 |------|------|------|
 | **数据集** | **论文未报告具体数据集名称**；描述为 “multiple benchmark environments” including “narrow-passage scenarios” | Sec V-B: “We evaluate the proposed method across multiple benchmark environments.” |
-| **评测设置** | • 对比基线：discrete-time GBT variants<br>• 指标：success rate, chance constraint violation rate (for state & control)<br>• 场景：narrow passages where discrete-time methods fail due to inter-sample violations | Sec V-B, V-C, Abstract: “results show [...] robust enforcement of chance constraints, including in narrow-passage scenarios where discrete-time counterparts fail” |
+| **评测设置** | • 对比基线：discrete-time GBT variants<br />• 指标：success rate, chance constraint violation rate (for state & control)<br />• 场景：narrow passages where discrete-time methods fail due to inter-sample violations | Sec V-B, V-C, Abstract: “results show [...] robust enforcement of chance constraints, including in narrow-passage scenarios where discrete-time counterparts fail” |
 | **指标数字** | **论文未报告任何具体数值**（如 success rate=92.3%, violation rate=0.8%）；仅定性称 “high success rates” and “robust enforcement” | 全文无数字表格或量化结果句；V-C 仅说 “Monte-Carlo Simulations confirm theoretical guarantees” |
 
 ---
@@ -186,4 +186,4 @@ d/dt 𝔼[h(x(t))] ≤ -ρ·𝔼[h(x(t))]  ∀t ∈ [t₀,t₁],  for some ρ > 
 [← Back to navigation README](./README.md)  
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.02884 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.02884 -->"

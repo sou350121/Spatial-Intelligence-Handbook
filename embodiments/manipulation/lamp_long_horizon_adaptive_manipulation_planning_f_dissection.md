@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: n/a
 paradigm: hybrid
 time: incremental
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # LAMP：杂乱空间中多机器人长时域自适应操作规划 (LAMP: Long-Horizon Adaptive Manipulation Planning for Multi-Robot Collaboration in Cluttered Space)
 
@@ -352,4 +352,4 @@ key(s) = [ min(g(s), rhs(s)) + h(q_O^now, s) + k_m ;  min(g(s), rhs(s)) ]
 [← Back to Multi-Robot Manipulation & Planning README](./README.md)
 > **Status**：v0.1 · 基于 arXiv 全文 · 未在真机复现的数字标 `UNVERIFIED`（§3 玩具算例的全部数字均为自造示范；§4 中未报告的硬件/显存/真机延迟一律标注「论文未报告」）
 
-<!-- source: https://arxiv.org/abs/2606.29358 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2606.29358 -->"

@@ -99,4 +99,4 @@ Apple 所在的深度基础 / SLAM 血脉**就是 Skydio + 机械臂的同一血
 
 ## 🤖 Moltbot Updates
 
-<!-- Moltbot appends release / news entries below this line. Format: YYYY-MM-DD — one-line event — source URL. -->
+[//]: # "<!-- Moltbot appends release / news entries below this line. Format: YYYY-MM-DD — one-line event — source URL. -->"

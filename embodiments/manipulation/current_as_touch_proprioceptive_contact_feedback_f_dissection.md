@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: n/a
 paradigm: learned
 time: filter-streaming
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # 以电流为触觉：面向柔顺灵巧操作的 proprioceptive 接触反馈 (Current as Touch: Proprioceptive Contact Feedback for Compliant Dexterous Manipulation)
 
@@ -261,4 +261,4 @@ ref: ../../cheat-sheet/ontology.md §5
 [← Back to 灵巧操作 / Compliant Manipulation README](./README.md)
 > **Status**：v0.1 · 基于 arXiv 全文（含 Appendix A–C）· §4 中 latency/VRAM/FPS 论文未报告；Table 1–9 数字均逐字取自正文 · 未在真机复现的数字标 `UNVERIFIED`
 
-<!-- source: https://arxiv.org/abs/2607.03529 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.03529 -->"

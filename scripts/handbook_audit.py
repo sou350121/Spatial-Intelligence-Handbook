@@ -538,6 +538,7 @@ def check_9_ontology_5axis_header(repo_root: Path) -> CheckResult:
 
     解 ontology v2 → 落地驗證：每篇 dissection 必須宣告自己在 5 軸上的座標。
     """
+    from _ontology_header import get_header_block
     required_axes = ["problem", "representation", "sensor", "paradigm", "time"]
     HEADER_MARKER = "<!-- ontology-5axis"
     HEADER_END = "-->"
@@ -549,15 +550,10 @@ def check_9_ontology_5axis_header(repo_root: Path) -> CheckResult:
     missing_axes = []
     for d in dissections:
         text = d.read_text(encoding="utf-8")
-        if not text.lstrip().startswith(HEADER_MARKER):
+        header_block = get_header_block(text)
+        if header_block is None:
             missing_header.append(str(d.relative_to(repo_root)))
             continue
-        # Parse header block
-        end_idx = text.find(HEADER_END, len(HEADER_MARKER))
-        if end_idx < 0:
-            missing_header.append(str(d.relative_to(repo_root)) + " (未閉合 -->)")
-            continue
-        header_block = text[: end_idx + len(HEADER_END)]
         # Each required axis must appear as key:
         missing = [ax for ax in required_axes if f"{ax}:" not in header_block]
         if missing:

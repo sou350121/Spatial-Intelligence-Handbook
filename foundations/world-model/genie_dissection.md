@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: World model (action-conditioned video gen)
 representation: Latent video tokens
 sensor: Video
 paradigm: Generative-VideoWorldModel (action-conditioned)
 time: FeedForward (action-conditioned); Real-time 24 fps (Genie 3)
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # Genie / Genie 2 / Genie 3 解构 (Genie / Genie 2 / Genie 3 — DeepMind, Dissection)
 
@@ -14,7 +14,7 @@ ref: ../../cheat-sheet/ontology.md §7
 > - **720p @ 24 fps real-time navigable**
 > - **Multi-minute scene consistency**
 >
-> 大幅改善 §4 failure table 的「each step >50ms」rated as `Medium`：Genie 3 達 24 fps real-time，**接近 MPC 可用**（每步 ~42 ms < 50 ms threshold）。Weights 仍 closed (Hard blocker 不變)。詳見 ontology §5.3 / §9.5 ("Genie 2/3 ★ updated")。
+> 大幅改善 §4 failure table 的「each step >50ms」rated as `Medium`：Genie 3 達 24 fps real-time，**接近 MPC 可用**（每步 ~42 ms &lt; 50 ms threshold）。Weights 仍 closed (Hard blocker 不變)。詳見 ontology §5.3 / §9.5 ("Genie 2/3 ★ updated")。
 >
 > 同期 peer：**GAIA-3 (Wayve 2026)** — closed-loop driving evaluation；**Aether (OpenRobotLab ICCV 2025 Outstanding)** — geometry-aware unified world modeling。
 
@@ -164,7 +164,7 @@ Genie 2 声称的 1 分钟 rollout 伴随 cherry-pick 注释，从未被宣称�
 
 解锁项：(1) **grounded 潜在动作标签** —— 用少量已知动作视频（teleop / sim GT）有监督训 LAM；(2) **3D-consistent dynamics** —— 把 Genie tokenizer 与 3DGS 或 feed-forward 3D 耦合，几何不再漂；(3) **每步 &lt;50 ms** —— MPC 必需，Genie 2 远高于此 `UNVERIFIED`，**Genie 3 (Aug 2025) 24 fps ≈ 42 ms 已達門檻** (見頂部 STALE notice)；(4) **开源权重** —— 没有它，社区会一直拿 UniSim clone 顶上。
 
-- ✅ **VERIFIED 2025-08 Genie 3**: 预测 "每步 <50 ms" 已部分达成 — Genie 3 11B autoregressive 在 720p @ 24 fps real-time 运行 (~42 ms/step < 50 ms threshold)。权重仍封闭（Hard blocker 未解）。
+- ✅ **VERIFIED 2025-08 Genie 3**: 预测 "每步 &lt;50 ms" 已部分达成 — Genie 3 11B autoregressive 在 720p @ 24 fps real-time 运行 (~42 ms/step &lt; 50 ms threshold)。权重仍封闭（Hard blocker 未解）。
 
 **Falsifiable prediction:** 在 2027-12 之前，**不会有任何公开 manipulation 策略在真机评估中把 Genie 血统模型作 online MPC rollout 引擎、并以 >10% 优势胜过非 rollout VLA 基线**。胜利会先落在 offline dream-based pretraining（Dreamer 风格），horizon 问题在那里被绕开。任何缺乏真硬件对比的"Genie 当 live planner"标题应当下注反方。
 

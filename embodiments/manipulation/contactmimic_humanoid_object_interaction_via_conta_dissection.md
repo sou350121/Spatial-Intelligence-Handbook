@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: n/a
 representation: n/a
 sensor: n/a
 paradigm: learned
 time: per-scene
 ref: ../../cheat-sheet/ontology.md §5
--->
+-->"
 
 # ContactMimic：通过接触控制实现人形机器人物体交互 (ContactMimic: Humanoid Object Interaction via Contact Control)
 
@@ -317,4 +317,4 @@ $\mathrm{TPR}=1$，$\mathrm{TNR}=1/6\approx0.167$ → $r^{\text{lm}}=\tfrac12(1+
 
 > **Status**：v0.1 · 基于 arXiv 全文（截断版）· 未在真机复现的数字标 `UNVERIFIED`；§4 中标注"论文未报告"的项为全文确实缺失，非估算。Table 3 除 `Pick up box` 行外未逐格转写，因正文 HTML 下标渲染导致列对齐歧义。
 
-<!-- source: https://arxiv.org/abs/2607.08742 -->
+[//]: # "<!-- source: https://arxiv.org/abs/2607.08742 -->"

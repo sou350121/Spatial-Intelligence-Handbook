@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Open-vocabulary 3D (text query)
 representation: 3DGS + CLIP feature field (per-Gaussian)
 sensor: RGB + CLIP teacher
 paradigm: Hybrid + Feature distillation
 time: PerScene-Optimization
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # LangSplat 解构 (LangSplat: 3D Language Gaussian Splatting — Dissection)
 

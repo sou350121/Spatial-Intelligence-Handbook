@@ -1,11 +1,11 @@
-<!-- ontology-5axis
+[//]: # "<!-- ontology-5axis
 problem: Object 6-DoF pose (unseen)
 representation: Rendered template hypothesis
 sensor: RGB + Mesh
 paradigm: Learned-Coarse + DiffRender-Refine
 time: Online
 ref: ../../cheat-sheet/ontology.md §7
--->
+-->"
 
 # MegaPose: Novel-Object Pose via Render-and-Compare (新物体位姿，渲染对比法)
 

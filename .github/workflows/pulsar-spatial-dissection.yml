@@ -81,6 +81,8 @@ jobs:
             exit 1
           fi
 
+          bash scripts/pulsar/check-site-mdx.sh
+
           git config user.name "Pulsar Bot"
           git config user.email "noreply@anthropic.com"
           git add -A
