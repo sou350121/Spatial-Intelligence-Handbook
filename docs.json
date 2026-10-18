@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 125 dissection / 146 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 128 dissection / 149 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -111,6 +111,7 @@
               "foundations/feed-forward-3d/mast3r_dissection.md",
               "foundations/feed-forward-3d/ovggt_dissection.md",
               "foundations/feed-forward-3d/pi3_dissection.md",
+              "foundations/feed-forward-3d/sharper_frames_worse_rooms_viewpoint_coverage_domi_dissection.md",
               "foundations/feed-forward-3d/streamsplat_streaming_feed_forward_3d_gaussian_spl_dissection.md",
               "foundations/feed-forward-3d/streamvggt_dissection.md",
               "foundations/feed-forward-3d/vggt_covisibility_probing_dissection.md",
@@ -167,6 +168,7 @@
               "foundations/pose-tracking/fire_livwo_robust_lidar_inertial_visual_wheel_odom_dissection.md",
               "foundations/pose-tracking/foundation_pose_dissection.md",
               "foundations/pose-tracking/github_failure_atlas.md",
+              "foundations/pose-tracking/human_pose_estimation_by_probabilistic_mixtures_of_dissection.md",
               "foundations/pose-tracking/humble_human_motion_driven_behavior_learning_for_e_dissection.md",
               "foundations/pose-tracking/lost_in_time_continuous_symmetry_and_identifiabili_dissection.md",
               "foundations/pose-tracking/megapose_dissection.md",
@@ -248,6 +250,7 @@
             "pages": [
               "foundations/vlm-spatial-reasoning/overview.md",
               "foundations/vlm-spatial-reasoning/3dsrbench_dissection.md",
+              "foundations/vlm-spatial-reasoning/agentic_robot_creation_through_generation_verifica_dissection.md",
               "foundations/vlm-spatial-reasoning/containing_behavioral_cascades_from_manipulated_cl_dissection.md",
               "foundations/vlm-spatial-reasoning/github_failure_atlas.md",
               "foundations/vlm-spatial-reasoning/rebase_reference_background_subspace_elimination_f_dissection.md",
