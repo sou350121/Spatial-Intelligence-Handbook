@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 131 dissection / 152 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 133 dissection / 153 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -113,6 +113,7 @@
               "foundations/feed-forward-3d/mast3r_dissection.md",
               "foundations/feed-forward-3d/ovggt_dissection.md",
               "foundations/feed-forward-3d/pi3_dissection.md",
+              "foundations/feed-forward-3d/pointwalker_mapless_quadruped_locomotion_directly__dissection.md",
               "foundations/feed-forward-3d/sharper_frames_worse_rooms_viewpoint_coverage_domi_dissection.md",
               "foundations/feed-forward-3d/streamsplat_streaming_feed_forward_3d_gaussian_spl_dissection.md",
               "foundations/feed-forward-3d/streamvggt_dissection.md",
@@ -321,7 +322,8 @@
                 "pages": [
                   "embodiments/aerial/obstacle-avoidance/overview.md",
                   "embodiments/aerial/obstacle-avoidance/mosaic_an_extensible_framework_for_composing_rule__dissection.md",
-                  "embodiments/aerial/obstacle-avoidance/safer_trajectory_planning_with_cbf_guided_diffusio_dissection.md"
+                  "embodiments/aerial/obstacle-avoidance/safer_trajectory_planning_with_cbf_guided_diffusio_dissection.md",
+                  "embodiments/aerial/obstacle-avoidance/self_crystallizing_behavior_trees_amortizing_found_dissection.md"
                 ]
               },
               {
