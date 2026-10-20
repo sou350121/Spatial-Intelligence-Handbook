@@ -5,10 +5,10 @@
 <br/>
 
 [![GitHub guide](https://img.shields.io/badge/docs-GitHub-0EA5E9?style=flat-square&logo=github&logoColor=white)](./ONBOARDING.md)
-[![Atlas](https://img.shields.io/badge/paper_atlas-3543_records-38BDF8?style=flat-square)](./reports/atlas/overview.md)
+[![Atlas](https://img.shields.io/badge/paper_atlas-3665_records-38BDF8?style=flat-square)](./reports/atlas/overview.md)
 [![Daily pipeline](https://img.shields.io/badge/pipeline-daily_arxiv-0369A1?style=flat-square)](./reports/spatial-daily/)
 [![Audit](https://github.com/sou350121/Spatial-Intelligence-Handbook/actions/workflows/audit.yml/badge.svg)](https://github.com/sou350121/Spatial-Intelligence-Handbook/actions)
-[![Dissections](https://img.shields.io/badge/dissections-125-1f6feb?style=flat-square)](./crossing/failure-modes-atlas/)
+[![Dissections](https://img.shields.io/badge/dissections-133-1f6feb?style=flat-square)](./crossing/failure-modes-atlas/)
 [![Ontology](https://img.shields.io/badge/ontology-5--axis_v3.2-475569?style=flat-square)](./cheat-sheet/ontology.md)
 [![License](https://img.shields.io/badge/license-CC_BY_4.0-475569?style=flat-square)](./LICENSE)
 
@@ -36,7 +36,21 @@ manipulation 圈的 SLAM 综述里没有 outdoor,AD 圈的 BEV 综述里没有 m
 - [CBF-guided diffusion 安全轨迹规划](./embodiments/aerial/obstacle-avoidance/safer_trajectory_planning_with_cbf_guided_diffusio_dissection.md)：本篇仅覆盖已核查的 v1，不将后续版本的结果混入。
 - [报告归档](./reports/README.md) 与各目录 README 提供 GitHub 导航；根入口以本仓为准。
 
-> 统计快照：2026-10-18。`foundations/` 为 146 篇（排除 README、overview 与 github_failure_atlas）；全仓有 125 个 `*_dissection.md` 文件。Atlas 的 3,543 条记录是坐标源条目数，包含不同评级，不等于精选深度文章数。
+> 统计快照：2026-10-20。`foundations/` 为 153 篇（排除 README、overview 与 github_failure_atlas）；全仓有 133 个 `*_dissection.md` 文件。Atlas 的 3,665 条记录是坐标源条目数，包含不同评级，不等于精选深度文章数。
+
+## 持续更新与本地检索
+
+正文以 GitHub 本仓为入口，按各目录 README 浏览或使用仓库搜索。维护服务器另提供 Spatial 与 VLA 的永久正文检索，每小时 07、22、37、52 分核对 GitHub 已发布版本；草稿不进入已发布正文索引。原有近 60 日情报检索继续保留，文件路径与版本引用用于回查来源。
+
+| 工作 | 计划触发时间（北京时间） | 阅读或验收入口 |
+|---|---|---|
+| 服务器 RSS / 评分 / 热点 / SOTA | 每日 08:00 / 08:35 / 09:00 / 10:00 | [每日归档](./reports/spatial-daily/) · [Atlas](./reports/atlas/overview.md) |
+| GitHub 每日精选 / 深度解析 | 工作日 08:30 / 每日 14:00 | [Actions](https://github.com/sou350121/Spatial-Intelligence-Handbook/actions) · [报告目录](./reports/README.md) |
+| GitHub 周度侦察 | 每周五 10:00 | [周报归档](./reports/weekly/) |
+| 已发布版本与本地全文索引 | 每小时 07、22、37、52 分 | 维护服务器的独立全文检索入口；索引不调用模型 API |
+| 共享服务器巡检 / 运维快照 | 巡检每小时 07、22、37、52 分及每日 18:45；快照每周日 06:05 | GitHub Issues 故障通知；快照后立即隔离还原核验 |
+
+时间表示计划触发，不保证届时已有新文章。生成与核验沿用现有 DeepSeek；来源不足、版本不明或质量检查未通过时保留失败状态，不降低门槛。服务器沿用有界漏跑补救，不需要电脑或 Codex 常开，不使用 Telegram。运维快照保留在同一台服务器，尚不属于异地备份。计划核对日期：2026-10-20。
 
 ## The Atlas — a map, not a list
 
@@ -44,7 +58,7 @@ manipulation 圈的 SLAM 综述里没有 outdoor,AD 圈的 BEV 综述里没有 m
 
 Atlas 按 problem / representation / sensor / paradigm / time 五轴组织论文记录。完整坐标和评级以 JSONL 为准；按时间比较时，应区分来源日期、历史补录及未标注项，不能把静态示意图当实时趋势。
 
-当前快照有 **3,543 条记录**；阅读入口见上方 overview。实际方法取舍仍需回到对应文章、论文与实验条件。
+当前快照有 **3,665 条记录**；阅读入口见上方 overview。实际方法取舍仍需回到对应文章、论文与实验条件。
 
 ## Where to start
 
