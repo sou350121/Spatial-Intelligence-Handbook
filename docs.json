@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 133 dissection / 153 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 135 dissection / 154 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -168,6 +168,7 @@
               "foundations/pose-tracking/differential_6_dof_pose_estimation_with_provable_f_dissection.md",
               "foundations/pose-tracking/dins_io_learned_inertial_odometry_via_differentiab_dissection.md",
               "foundations/pose-tracking/does_online_gravity_estimation_matter_revisiting_a_dissection.md",
+              "foundations/pose-tracking/dsm_free_uav_visual_localization_via_latent_depth__dissection.md",
               "foundations/pose-tracking/fire_livwo_robust_lidar_inertial_visual_wheel_odom_dissection.md",
               "foundations/pose-tracking/foundation_pose_dissection.md",
               "foundations/pose-tracking/github_failure_atlas.md",
@@ -350,6 +351,7 @@
                   "embodiments/aerial/vio/overview.md",
                   "embodiments/aerial/vio/droid_slam_dissection.md",
                   "embodiments/aerial/vio/ekf_from_scratch_dissection.md",
+                  "embodiments/aerial/vio/foundationvio_enforcing_metric_scale_in_feed_forwa_dissection.md",
                   "embodiments/aerial/vio/github_failure_atlas.md",
                   "embodiments/aerial/vio/openvins_dissection.md",
                   "embodiments/aerial/vio/vins_mono_fusion_dissection.md"
