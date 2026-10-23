@@ -4,6 +4,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import urllib.error
 from pathlib import Path
 from unittest.mock import patch
 
@@ -55,7 +56,7 @@ class Placement(unittest.TestCase):
                 patch.object(wd, 'numeric_grounding_issues', return_value=[])]
 
     def test_missing_fulltext_is_nonfatal_and_spends_no_llm_call(self):
-        with patch.object(wd, 'fetch_fulltext', side_effect=RuntimeError('HTTP Error 404: Not Found')), \
+        with patch.object(wd, 'fetch_fulltext', side_effect=urllib.error.HTTPError('https://arxiv.org/html/2610.12345', 404, 'Not Found', {}, None)), \
              patch.object(rd, 'classify_zone') as classify:
             self.assertIsNone(rd.write_one(self.CAND, '', False)); classify.assert_not_called()
 
