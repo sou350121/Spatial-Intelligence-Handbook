@@ -16,6 +16,7 @@ import datetime
 import json
 import re
 import sys
+import urllib.error
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -127,11 +128,15 @@ def write_one(cand: dict, api_key: str, dry: bool) -> str | None:
         # holding less of the paper than the writer reports every correctly-copied
         # fact from the tail as a fabrication; that is exactly what stalled this
         # pipeline (see write_dissection.factcheck).
-        title, verify_text = wd.fetch_fulltext(aid, cap=wd.VERIFY_CAP)
-        text = verify_text[:wd.FULLTEXT_CAP]
-    except Exception as e:
+        fulltext = wd.fetch_fulltext(aid, cap=wd.VERIFY_CAP)
+    # urllib documents URLError (including HTTPError) for unavailable sources;
+    # opening/reading can also raise TimeoutError directly. Other errors are
+    # extraction/programming failures and must propagate, not skip a candidate.
+    except (urllib.error.URLError, TimeoutError) as e:
         print(f"  skip {aid}: full text fetch failed ({e})", file=sys.stderr)
         return None
+    title, verify_text = fulltext
+    text = verify_text[:wd.FULLTEXT_CAP]
     zone = classify_zone(title0, axes, api_key)
     if zone not in available_zones():
         raise ValueError('Invalid or unindexed destination: ' + zone)
