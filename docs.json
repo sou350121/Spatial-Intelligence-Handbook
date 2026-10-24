@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 139 dissection / 156 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 142 dissection / 159 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -98,7 +98,8 @@
               "foundations/depth-foundation/metric3d_dissection.md",
               "foundations/depth-foundation/moge_dissection.md",
               "foundations/depth-foundation/streamtto_efficient_online_test_time_optimization__dissection.md",
-              "foundations/depth-foundation/the_midas_touch_for_metric_depth_interpretable_met_dissection.md"
+              "foundations/depth-foundation/the_midas_touch_for_metric_depth_interpretable_met_dissection.md",
+              "foundations/depth-foundation/which_depth_estimator_for_jetson_agx_orin_a_2026_b_dissection.md"
             ]
           },
           {
@@ -193,6 +194,7 @@
               "foundations/semantic-3d/generative_semantic_scene_completion_dissection.md",
               "foundations/semantic-3d/github_failure_atlas.md",
               "foundations/semantic-3d/langsplat_dissection.md",
+              "foundations/semantic-3d/layered_risk_mapping_for_autonomous_patient_transp_dissection.md",
               "foundations/semantic-3d/lerf_dissection.md",
               "foundations/semantic-3d/openscene_dissection.md",
               "foundations/semantic-3d/pbd_ag_persistent_baseline_delta_active_graphs_wit_dissection.md",
@@ -249,6 +251,7 @@
               "foundations/spatial-math/rotation_reps_in_deep_learning_primer.md",
               "foundations/spatial-math/se3_equivariance_in_networks_primer.md",
               "foundations/spatial-math/se3_so3_lie_groups_primer.md",
+              "foundations/spatial-math/vamp_mr_vector_accelerated_motion_planning_and_exe_dissection.md",
               "foundations/spatial-math/where_to_touch_how_to_contact_a_hierarchical_rl_mp_dissection.md"
             ]
           },
