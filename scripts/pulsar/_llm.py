@@ -1,58 +1,19 @@
 #!/usr/bin/env python3
-"""Shared LLM transport for the Pulsar spatial pipeline — DeepSeek → qwen.
+"""DeepSeek-only transport for the Pulsar spatial pipeline.
 
-WHY THIS FILE EXISTS
-Four scripts each carried a private copy of `call_qwen` (rate.py,
-collect_curated.py, run_weekly.py, write_dissection.py). They shared one
-single point of failure and no fallback, so when this repo's
-DASHSCOPE_API_KEY Actions secret was revoked they all died the same death at
-once — and rate.py's per-paper except-branch turned that into a *committed*
-report: `reports/spatial-daily/2026-08-31..09-07.md` each list 80 papers as
-`⚡0 · 🔧0 · 📖80`, every line reading
-`_(rating error: qwen all 3 attempts failed: HTTP Error 401: Unauthorized)_`.
-One transport, one fallback policy, one place to fix.
+Only complete assistant text is usable. Failures return bounded codes, never
+provider bodies, model text, caller labels, keys or raw exception messages.
+Retries and backoff share one caller timeout. The per-request HTTP helper guards
+redirects and native socket operations; blocking DNS still needs the workflow's
+external hard timeout.
 
-PROVIDER ORDER
-  1. DeepSeek `deepseek-flash` (DEEPSEEK_API_KEY)
-  2. DashScope qwen            (DASHSCOPE_API_KEY, passed in by the caller)
-If DeepSeek fails for ANY reason — HTTP error, empty body, truncation, or an
-HTTP 200 whose body will not yield the JSON the caller asked for — we degrade
-to qwen. If qwen is unavailable too, we raise LLMError. We never return
-something that merely looks like an answer.
-
-DEEPSEEK FACTS THIS TRANSPORT IS BUILT AROUND
-All measured 2026-09-10 against this repo's own RATING_PROMPT_SYSTEM, on the
-first 5 papers of reports/spatial-daily/2026-09-07.md.
-
-*   **Never send `response_format={"type":"json_object"}`.** On a batched
-    ~50-item rating prompt it scored 1/5 valid JSON: DeepSeek emits a literal
-    `{"type": "json_object"}` line *before* the real payload. `json_schema`
-    strict mode answers "unavailable". This transport therefore sends no
-    `response_format` to either provider; the prompt asks for JSON and
-    `require_json` + `salvage_json()` enforce it. (qwen3.5-plus is 5/5 either
-    way, so dropping it costs the fallback nothing and keeps one payload shape.)
-*   **`max_tokens` is a reasoning budget, not an output cap**, and the
-    reasoning is billed against it. Starve it and reasoning eats the whole
-    budget, leaving truncated JSON. Measured here per paper:
-        think-on, max_tokens=65536   → 5/5 valid, ⚡2 🔧1 📖2, avg  8.3 s
-        "thinking":{"type":"disabled"} → 5/5 valid, ⚡0 🔧3 📖2, avg  1.0 s
-    Reasoning is what buys the rating quality (without it every ⚡ collapses to
-    🔧/📖 with ~100-token reasons), so it stays ON and every DeepSeek call gets
-    the full DEEPSEEK_MAX_TOKENS floor no matter what the caller asked for.
-    `reasoning_effort` does not work; `"thinking":{"type":"disabled"}` is the
-    only real off switch and we deliberately do not use it.
-*   **HTTP 200 with an unparseable body is a real, observed failure mode.**
-    `require_json` makes it a provider failure that falls back to qwen, rather
-    than a parse error that silently stamps 📖 on everything.
-*   Cost note only, no action taken: DeepSeek peak pricing is UTC 01:00-04:00
-    and 06:00-10:00 Mon-Fri, which is exactly when the daily (00:30 UTC),
-    weekly (02:00 UTC) and dissection (06:00 UTC) workflows run. Deliberately
-    NOT rescheduled — arxiv announcement timing drives the schedule.
-
-Pure stdlib + urllib, to match the rest of the pipeline (no openai SDK).
+DeepSeek keeps its 65,536-token reasoning floor and receives no response_format.
+The legacy qwen kwargs remain accepted solely for caller compatibility.
 """
 from __future__ import annotations
+import http.client
 import json
+import math
 import os
 import re
 import sys
@@ -63,70 +24,130 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from _config import (
-    DASHSCOPE_BASE_URL, DEEPSEEK_MAX_TOKENS, DEEPSEEK_MODEL, DEEPSEEK_URL,
-    LLM_MODEL, LLM_PROVIDER, LLM_RETRY, LLM_RETRY_BACKOFF, LLM_TIMEOUT,
+    DEEPSEEK_MAX_TOKENS, DEEPSEEK_MODEL, DEEPSEEK_URL,
+    LLM_PROVIDER, LLM_RETRY, LLM_RETRY_BACKOFF, LLM_TIMEOUT,
 )
+from _deepseek_http import deepseek_opener
 
-# Model id that answered the most recent successful call — for report banners,
-# so a report never claims to have been written by a model that never ran.
 LAST_MODEL = ""
+_DEEPSEEK_DESTINATION = "https://api.deepseek.com/chat/completions"
+_MAX_RESPONSE_BYTES = 2_000_000
+_TRANSIENT_HTTP = (408, 429, 500, 502, 503, 504)
 
 
 class LLMError(RuntimeError):
-    """Every provider in the chain failed. Callers must treat this as fatal."""
+    """DeepSeek did not produce a usable answer. Callers must treat this as fatal."""
 
 
 def deepseek_key() -> str:
     return os.environ.get("DEEPSEEK_API_KEY", "").strip()
 
 
-def _post(url: str, api_key: str, payload: dict, timeout: int, label: str) -> dict:
-    """POST one chat-completions payload. Returns {ok: bool, content|error}.
+def _deepseek_model(model) -> bool:
+    return isinstance(model, str) and re.fullmatch(
+        r"deepseek-[A-Za-z0-9][A-Za-z0-9._-]*", model) is not None
 
-    Retries 429/5xx. Never raises — the caller decides whether to fall back.
-    """
-    data = json.dumps(payload).encode("utf-8")
+
+def _post(url: str, api_key: str, payload: dict, timeout: int, label: str) -> dict:
+    """Return {ok: bool, content|error}; retry transient failures within one budget."""
+    if url != _DEEPSEEK_DESTINATION:
+        return {"ok": False, "error": "invalid_destination"}
+    if not isinstance(payload, dict) or not _deepseek_model(payload.get("model")):
+        return {"ok": False, "error": "invalid_model"}
+    if not isinstance(api_key, str) or not api_key.strip():
+        return {"ok": False, "error": "missing_deepseek_key"}
+    try:
+        budget = float(timeout)
+        if not math.isfinite(budget) or budget <= 0:
+            return {"ok": False, "error": "timeout_exhausted"}
+        deadline = time.monotonic() + budget
+        data = json.dumps(payload).encode("utf-8")
+    except Exception:
+        return {"ok": False, "error": "invalid_request"}
+
     for attempt in range(LLM_RETRY):
-        # Rebuild the Request every attempt: a consumed urllib Request cannot
-        # be replayed (the original four copies all shared one Request object
-        # across retries, so retry 2 and 3 were replaying a spent body).
-        req = urllib.request.Request(url, data=data, method="POST", headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}",
-        })
+        if time.monotonic() >= deadline:
+            return {"ok": False, "error": "timeout_exhausted"}
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as r:
-                obj = json.loads(r.read().decode("utf-8", "replace"))
-            choice = (obj.get("choices") or [{}])[0] or {}
-            content = ((choice.get("message") or {}).get("content") or "")
-            if not content.strip():
-                # A reasoning model can burn its entire budget thinking and
-                # still come back finish_reason=stop with empty content.
-                return {"ok": False, "error": "empty_content"}
-            if choice.get("finish_reason") == "length":
-                # Truncated JSON parses as garbage; without this check the
-                # caller silently downgrades every item instead of falling back.
-                return {"ok": False, "error": "truncated_output"}
-            return {"ok": True, "content": content}
-        except urllib.error.HTTPError as e:
-            detail = ""
+            # Fresh request and opener, with only this call's remaining budget.
+            req = urllib.request.Request(url, data=data, method="POST", headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}",
+            })
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return {"ok": False, "error": "timeout_exhausted"}
+            opener = deepseek_opener(remaining)
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return {"ok": False, "error": "timeout_exhausted"}
+            with opener.open(req, timeout=remaining) as response:
+                if response.status != 200:
+                    return {"ok": False, "error": "unexpected_http_status"}
+                raw = bytearray()
+                while True:
+                    if time.monotonic() >= deadline:
+                        return {"ok": False, "error": "timeout_exhausted"}
+                    # One sentinel byte detects overflow without an unbounded read.
+                    chunk = response.read(min(65_536, _MAX_RESPONSE_BYTES + 1 - len(raw)))
+                    if time.monotonic() >= deadline:
+                        return {"ok": False, "error": "timeout_exhausted"}
+                    raw.extend(chunk)
+                    if len(raw) > _MAX_RESPONSE_BYTES:
+                        return {"ok": False, "error": "response_too_large"}
+                    if not chunk:
+                        break
+            if time.monotonic() >= deadline:
+                return {"ok": False, "error": "timeout_exhausted"}
             try:
-                detail = e.read().decode("utf-8", "replace")[:200]
+                obj = json.loads(raw.decode("utf-8"))
+            except (ValueError, UnicodeError, RecursionError):
+                return {"ok": False, "error": "malformed_response"}
+            if (not isinstance(obj, dict) or "error" in obj
+                    or not isinstance(obj.get("choices"), list)
+                    or len(obj["choices"]) != 1
+                    or not isinstance(obj["choices"][0], dict)):
+                return {"ok": False, "error": "malformed_response"}
+            choice = obj["choices"][0]
+            if choice.get("finish_reason") != "stop":
+                return {"ok": False, "error": "unfinished_response"}
+            message = choice.get("message")
+            if (not isinstance(message, dict)
+                    or message.get("role", "assistant") != "assistant"
+                    or message.get("tool_calls") or message.get("function_call")
+                    or message.get("refusal")):
+                return {"ok": False, "error": "malformed_response"}
+            content = message.get("content")
+            if not isinstance(content, str) or not content.strip():
+                return {"ok": False, "error": "empty_content"}
+            if time.monotonic() >= deadline:
+                return {"ok": False, "error": "timeout_exhausted"}
+            return {"ok": True, "content": content}
+        except urllib.error.HTTPError as error:
+            # Never read error bodies, even for retryable statuses.
+            code = error.code
+            try:
+                error.close()
             except Exception:
                 pass
-            if e.code in (408, 429, 500, 502, 503, 504) and attempt < LLM_RETRY - 1:
-                print(f"  WARN {label}: HTTP {e.code}, retry {attempt + 1}/{LLM_RETRY}",
-                      file=sys.stderr)
-                time.sleep(LLM_RETRY_BACKOFF * (attempt + 1))
-                continue
-            return {"ok": False, "error": f"HTTP {e.code}", "detail": detail}
-        except Exception as e:  # URLError, timeout, malformed envelope
-            if attempt < LLM_RETRY - 1:
-                print(f"  WARN {label}: {str(e)[:120]}, retry {attempt + 1}/{LLM_RETRY}",
-                      file=sys.stderr)
-                time.sleep(LLM_RETRY_BACKOFF * (attempt + 1))
-                continue
-            return {"ok": False, "error": str(e)[:200]}
+            safe_code = code if type(code) is int and 100 <= code <= 599 else None
+            failure = "http_" + str(safe_code) if safe_code is not None else "http_error"
+            retryable = safe_code in _TRANSIENT_HTTP
+        except (urllib.error.URLError, OSError, http.client.HTTPException):
+            failure = "network_error"
+            retryable = True
+        except Exception:
+            return {"ok": False, "error": "transport_error"}
+
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return {"ok": False, "error": "timeout_exhausted"}
+        if not retryable or attempt == LLM_RETRY - 1:
+            return {"ok": False, "error": failure}
+        delay = LLM_RETRY_BACKOFF * (attempt + 1)
+        if delay >= remaining:
+            return {"ok": False, "error": "timeout_exhausted"}
+        time.sleep(delay)
     return {"ok": False, "error": "max_retries"}
 
 
@@ -230,80 +251,43 @@ def chat(messages: list[dict], *, temperature: float = 0.2,
          max_tokens: int | None = None, timeout: int = LLM_TIMEOUT,
          require_json: str | None = None, qwen_key: str = "",
          qwen_model: str = "", label: str = "llm") -> str:
-    """DeepSeek first, qwen fallback. Returns the assistant text.
+    """Return DeepSeek assistant text, or raise a content-free LLMError.
 
-    require_json — "object" | "array" | None. When set, a response that yields
-    no such JSON counts as a PROVIDER FAILURE (triggering the fallback), not as
-    a parse error for the caller to paper over.
-    max_tokens   — applies to the qwen leg only; DeepSeek always gets
-                   DEEPSEEK_MAX_TOKENS (see the module docstring).
-    qwen_key     — the caller's DASHSCOPE_API_KEY; "" disables the fallback.
-    qwen_model   — override LLM_MODEL on the fallback leg (write_dissection
-                   --model). Must exist in the catalog of DASHSCOPE_BASE_URL.
-    Raises LLMError when no provider produced a usable answer.
+    require_json retains established salvage and serialization behavior.
+    max_tokens, qwen_key and qwen_model remain accepted legacy arguments;
+    DeepSeek always receives at least its 65,536-token reasoning floor.
     """
     global LAST_MODEL
-    errors: list[str] = []
-    qmodel = qwen_model or LLM_MODEL
-
-    if LLM_PROVIDER == "deepseek":
-        ds_key = deepseek_key()
-        if not ds_key:
-            errors.append("deepseek: DEEPSEEK_API_KEY not set")
-            print(f"  WARN {label}: DEEPSEEK_API_KEY not set — trying {qmodel} only",
-                  file=sys.stderr)
-        else:
-            res = _post(DEEPSEEK_URL, ds_key, {
-                "model": DEEPSEEK_MODEL,
-                "messages": messages,
-                "temperature": temperature,
-                # Deliberately NOT the caller's max_tokens: theirs is an output
-                # cap (40 for run_dissection.classify_zone, 800 for
-                # write_dissection.factcheck), DeepSeek's is a reasoning
-                # budget. Honouring a small one leaves reasoning no room and
-                # returns truncated garbage. See the module docstring.
-                "max_tokens": DEEPSEEK_MAX_TOKENS,
-                # No "response_format" here, on purpose. See the module docstring.
-            }, timeout, f"{label}/deepseek")
-            if res["ok"] and require_json and salvage_json(res["content"], require_json) is None:
-                # HTTP 200, non-empty, not truncated — and still unusable.
-                # Treat it as a failure so we degrade to qwen instead of
-                # letting a placeholder through.
-                res = {"ok": False, "error": "unparseable_json_body",
-                       "detail": res["content"][:160].replace("\n", " ")}
-            if res["ok"]:
-                LAST_MODEL = DEEPSEEK_MODEL
-                return _finish(res["content"], require_json)
-            errors.append(f"deepseek({DEEPSEEK_MODEL}): {res['error']} {res.get('detail', '')}".strip())
-            print(f"  WARN {label}: deepseek failed ({res['error']}) — "
-                  f"falling back to {qmodel}", file=sys.stderr)
-
-    if not qwen_key:
-        # Degrade honestly rather than pretending to work. A missing or dead
-        # DashScope key is exactly how 8 days of placeholder reports got
-        # committed; the caller now gets an exception it can turn into a red run.
-        errors.append(f"qwen({qmodel} @ {DASHSCOPE_BASE_URL}): DASHSCOPE_API_KEY not set")
-        raise LLMError(f"{label}: no usable LLM provider — " + " | ".join(errors))
-
-    payload: dict = {"model": qmodel, "messages": messages, "temperature": temperature}
-    if max_tokens:
-        payload["max_tokens"] = max_tokens
-    res = _post(f"{DASHSCOPE_BASE_URL}/chat/completions", qwen_key, payload,
-                timeout, f"{label}/qwen")
-    if res["ok"] and require_json and salvage_json(res["content"], require_json) is None:
-        res = {"ok": False, "error": "unparseable_json_body",
-               "detail": res["content"][:160].replace("\n", " ")}
-    if res["ok"]:
-        LAST_MODEL = qmodel
-        return _finish(res["content"], require_json)
-    errors.append(f"qwen({qmodel} @ {DASHSCOPE_BASE_URL}): "
-                  f"{res['error']} {res.get('detail', '')}".strip())
-    raise LLMError(f"{label}: all providers failed — " + " | ".join(errors))
+    if LLM_PROVIDER != "deepseek":
+        raise LLMError("deepseek: unsupported_provider")
+    if not _deepseek_model(DEEPSEEK_MODEL):
+        raise LLMError("deepseek: invalid_model")
+    if DEEPSEEK_URL != _DEEPSEEK_DESTINATION:
+        raise LLMError("deepseek: invalid_destination")
+    ds_key = deepseek_key()
+    if not ds_key:
+        raise LLMError("deepseek: missing_deepseek_key")
+    res = _post(DEEPSEEK_URL, ds_key, {
+        "model": DEEPSEEK_MODEL,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max(65_536, DEEPSEEK_MAX_TOKENS),
+    }, timeout, label)
+    if not res["ok"]:
+        raise LLMError("deepseek: " + res["error"])
+    if require_json and salvage_json(res["content"], require_json) is None:
+        raise LLMError("deepseek: unparseable_json_body")
+    result = _finish(res["content"], require_json)
+    LAST_MODEL = DEEPSEEK_MODEL
+    return result
 
 
 def active_model() -> str:
-    """Model that actually answered, for report banners. Falls back to the
-    configured primary before any call has been made."""
+    """Return the last successful model, or the configured DeepSeek model."""
     if LAST_MODEL:
         return LAST_MODEL
-    return DEEPSEEK_MODEL if (LLM_PROVIDER == "deepseek" and deepseek_key()) else LLM_MODEL
+    if LLM_PROVIDER != "deepseek":
+        raise LLMError("deepseek: unsupported_provider")
+    if not _deepseek_model(DEEPSEEK_MODEL):
+        raise LLMError("deepseek: invalid_model")
+    return DEEPSEEK_MODEL
