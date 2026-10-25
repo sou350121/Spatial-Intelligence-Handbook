@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 142 dissection / 159 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 145 dissection / 162 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -184,7 +184,8 @@
               "foundations/pose-tracking/react_a_fully_spiking_state_space_model_for_real_t_dissection.md",
               "foundations/pose-tracking/siamese_to_transformer_sot_dissection.md",
               "foundations/pose-tracking/sort_bytetrack_mot_dissection.md",
-              "foundations/pose-tracking/tracking_taxonomy_primer.md"
+              "foundations/pose-tracking/tracking_taxonomy_primer.md",
+              "foundations/pose-tracking/vtap_gripper_synergizing_fingertip_sensing_and_a_v_dissection.md"
             ]
           },
           {
@@ -277,7 +278,9 @@
               "foundations/world-model/genie_dissection.md",
               "foundations/world-model/getting_out_and_getting_back_world_and_behavior_gr_dissection.md",
               "foundations/world-model/github_failure_atlas.md",
+              "foundations/world-model/learning_forward_reverse_skills_from_a_single_unfi_dissection.md",
               "foundations/world-model/marble_decision_view.md",
+              "foundations/world-model/memoguard_an_adaptive_runtime_for_guarding_against_dissection.md",
               "foundations/world-model/nvidia_cosmos_dissection.md",
               "foundations/world-model/panoworld_real_world_panoramic_generation_dissection.md"
             ]
