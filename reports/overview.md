@@ -20,6 +20,7 @@ These mirror VLA-Handbook's `reports/` layout. 管線程式 [`scripts/pulsar/`](
 
 | 类型 | 日期 | 报告 |
 |---|---|---|
+| 日报 | 2026-10-30 | [阅读](./spatial-daily/2026-10-30.md) |
 | 日报 | 2026-10-28 | [阅读](./spatial-daily/2026-10-28.md) |
 | 日报 | 2026-10-27 | [阅读](./spatial-daily/2026-10-27.md) |
 | 日报 | 2026-10-26 | [阅读](./spatial-daily/2026-10-26.md) |
@@ -33,7 +34,6 @@ These mirror VLA-Handbook's `reports/` layout. 管線程式 [`scripts/pulsar/`](
 | 日报 | 2026-10-15 | [阅读](./spatial-daily/2026-10-15.md) |
 | 日报 | 2026-10-12 | [阅读](./spatial-daily/2026-10-12.md) |
 | 日报 | 2026-10-09 | [阅读](./spatial-daily/2026-10-09.md) |
-| 日报 | 2026-10-08 | [阅读](./spatial-daily/2026-10-08.md) |
 | 周报 | 2026-W43 | [阅读](./weekly/2026-W43.md) |
 | 周报 | 2026-W42 | [阅读](./weekly/2026-W42.md) |
 | 周报 | 2026-W41 | [阅读](./weekly/2026-W41.md) |
@@ -48,13 +48,13 @@ These mirror VLA-Handbook's `reports/` layout. 管線程式 [`scripts/pulsar/`](
 | 周报 | 2026-W30 | [阅读](./weekly/2026-W30.md) |
 | 周报 | 2026-W29 | [阅读](./weekly/2026-W29.md) |
 | 周报 | 2026-W28 | [阅读](./weekly/2026-W28.md) |
+| 产业信号 | 2026-10-30 | [阅读](./curated-signal/2026-10-30.md) |
 | 产业信号 | 2026-10-29 | [阅读](./curated-signal/2026-10-29.md) |
 | 产业信号 | 2026-10-28 | [阅读](./curated-signal/2026-10-28.md) |
 | 产业信号 | 2026-10-27 | [阅读](./curated-signal/2026-10-27.md) |
 | 产业信号 | 2026-10-26 | [阅读](./curated-signal/2026-10-26.md) |
 | 产业信号 | 2026-10-23 | [阅读](./curated-signal/2026-10-23.md) |
 | 产业信号 | 2026-10-22 | [阅读](./curated-signal/2026-10-22.md) |
-| 产业信号 | 2026-10-21 | [阅读](./curated-signal/2026-10-21.md) |
 
 完整归档：[GitHub reports](https://github.com/sou350121/Spatial-Intelligence-Handbook/tree/main/reports)。
 
