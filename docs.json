@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 157 dissection / 170 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 158 dissection / 170 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -341,6 +341,7 @@
                   "embodiments/aerial/obstacle-avoidance/a_hybrid_sampling_based_trajectory_planner_with_ga_dissection.md",
                   "embodiments/aerial/obstacle-avoidance/ai_augmented_model_predictive_control_for_safe_and_dissection.md",
                   "embodiments/aerial/obstacle-avoidance/disturbance_aware_flight_for_aerial_robots_in_narr_dissection.md",
+                  "embodiments/aerial/obstacle-avoidance/faro_feasibility_aware_robot_motion_optimization_dissection.md",
                   "embodiments/aerial/obstacle-avoidance/improving_autonomous_nano_drones_performance_via_a_dissection.md",
                   "embodiments/aerial/obstacle-avoidance/mate_bt_a_behavior_tree_based_framework_for_hierar_dissection.md",
                   "embodiments/aerial/obstacle-avoidance/mosaic_an_extensible_framework_for_composing_rule__dissection.md",
