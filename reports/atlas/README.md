@@ -4,7 +4,7 @@
 > The point is not the list — it is the **drift**: watch where mass accumulates on the
 > paradigm axis (geometric → … → world-model-as-policy) as the field moves.
 
-**Coverage:** 4109 papers · 2026-07-08 → 2026-10-30 · ⚡ 324 · 🔧 2600 · 📖 1185
+**Coverage:** 4169 papers · 2026-07-08 → 2026-11-02 · ⚡ 327 · 🔧 2650 · 📖 1192
 
 > Seed corpus — grows every weekday as the daily pipeline runs. Machine-readable source: [`atlas.jsonl`](./atlas.jsonl).
 
@@ -16,13 +16,13 @@ _The money axis. Ordered classical → frontier; read the mass migrating rightwa
 
 ```
 axis value                 count
-geometric                  ██████·················· 257
-learned                    ███████████████████····· 857
-hybrid                     ████████████············ 564
-generative                 ██████·················· 250
+geometric                  ██████·················· 262
+learned                    ███████████████████····· 869
+hybrid                     █████████████··········· 577
+generative                 ██████·················· 253
 3R-SLAM-hybrid             ························ 15
-VLA                        ████████████████████████ 1084
-world-model-as-policy      █████████··············· 400
+VLA                        ████████████████████████ 1104
+world-model-as-policy      █████████··············· 406
 ```
 
 ### Paradigm drift by week
@@ -32,44 +32,44 @@ the lower rows getting heavier week over week. (`·` = 0; **total** = weekly sam
 
 > Historical recovery: 317 late-imported records count toward total coverage and axis distributions, but are excluded from weekly drift and recent frontier picks. `date` is the handbook ingestion date; original submission dates are in `published_at`.
 
-| paradigm \ week | W37 | W38 | W39 | W40 | W41 | W42 | W43 | W44 |
+| paradigm \ week | W38 | W39 | W40 | W41 | W42 | W43 | W44 | W45 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| geometric | 12 | 31 | 28 | 13 | 13 | 8 | 18 | 24 |
-| learned | 45 | 56 | 50 | 51 | 50 | 26 | 84 | 76 |
-| hybrid | 22 | 41 | 44 | 38 | 34 | 17 | 60 | 30 |
-| generative | 18 | 20 | 18 | 13 | 11 | 13 | 24 | 8 |
-| 3R-SLAM-hybrid | · | · | · | 1 | · | 1 | · | · |
-| VLA | 37 | 82 | 95 | 96 | 87 | 65 | 111 | 82 |
-| world-model-as-policy | 12 | 31 | 38 | 28 | 28 | 23 | 34 | 23 |
-| **total** | **146** | **261** | **273** | **240** | **223** | **153** | **331** | **243** |
+| geometric | 31 | 28 | 13 | 13 | 8 | 18 | 24 | 5 |
+| learned | 56 | 50 | 51 | 50 | 26 | 84 | 76 | 12 |
+| hybrid | 41 | 44 | 38 | 34 | 17 | 60 | 30 | 13 |
+| generative | 20 | 18 | 13 | 11 | 13 | 24 | 8 | 3 |
+| 3R-SLAM-hybrid | · | · | 1 | · | 1 | · | · | · |
+| VLA | 82 | 95 | 96 | 87 | 65 | 111 | 82 | 21 |
+| world-model-as-policy | 31 | 38 | 28 | 28 | 23 | 34 | 23 | 6 |
+| **total** | **261** | **273** | **240** | **223** | **153** | **331** | **243** | **60** |
 
 ## Time axis — batch → streaming frontier
 
 ```
 axis value                 count
-filter-streaming           █████████████··········· 500
-fixed-lag                  █······················· 26
-incremental                ████████████············ 456
-per-scene                  ███████████████████····· 748
-feed-forward               ████████████████████████ 948
-temporal-transformer-rolling █████████████··········· 499
+filter-streaming           █████████████··········· 509
+fixed-lag                  █······················· 29
+incremental                ███████████············· 466
+per-scene                  ███████████████████····· 752
+feed-forward               ████████████████████████ 975
+temporal-transformer-rolling ████████████············ 505
 ```
 
 ## Problem axis — what is being solved
 
 ```
 axis value                 count
-VLA                        ████████████████████████ 1346
-navigation                 ███████████············· 622
-spatial-reasoning          ██████·················· 318
-reconstruction             █████··················· 257
-pose                       ███····················· 187
-tracking                   ██······················ 119
+VLA                        ████████████████████████ 1370
+navigation                 ███████████············· 638
+spatial-reasoning          ██████·················· 323
+reconstruction             █████··················· 259
+pose                       ███····················· 189
+tracking                   ██······················ 121
 mapping                    █······················· 78
-VSLAM                      █······················· 70
+VSLAM                      █······················· 71
 depth                      █······················· 52
-VIO                        █······················· 50
-occupancy                  ························ 19
+VIO                        █······················· 52
+occupancy                  ························ 20
 SfM                        ························ 14
 VO                         ························ 10
 ```
@@ -78,26 +78,26 @@ VO                         ························ 10
 
 ```
 axis value                 count
-feature-grid               ████████████████████████ 882
-scene-graph                █████████··············· 323
-pointmap                   ███████················· 241
-sparse                     ██████·················· 203
-3DGS                       █████··················· 197
-mesh                       ███····················· 116
-BEV                        ███····················· 99
-voxel                      ██······················ 67
-implicit-sdf               █······················· 39
+feature-grid               ████████████████████████ 897
+scene-graph                █████████··············· 325
+pointmap                   ███████················· 243
+sparse                     ██████·················· 207
+3DGS                       █████··················· 198
+mesh                       ███····················· 120
+BEV                        ███····················· 100
+voxel                      ██······················ 69
+implicit-sdf               █······················· 38
 NeRF                       █······················· 30
-HD-map                     ························ 14
+HD-map                     ························ 15
 ```
 
 ## Sensor axis
 
 ```
 axis value                 count
-mono                       ████████████████████████ 1323
-multi-modal                ██████████████████······ 969
-RGBD                       ███████················· 369
+mono                       ████████████████████████ 1337
+multi-modal                ██████████████████······ 990
+RGBD                       ███████················· 377
 LiDAR                      █······················· 82
 event                      █······················· 41
 IMU                        █······················· 40
@@ -110,6 +110,10 @@ sonar                      ························ 10
 
 ## ⚡ Leading edge (recent frontier-paradigm breakthroughs)
 
+- **[CausalWAM: Learning the Causes of Actions in World Action Models](https://arxiv.org/abs/2610.42096)** — `world-model-as-policy` · 2026-11-02
+  - _在 world action model 上引入稀疏路由的可識別性理論，證明 action head 僅依賴 action-relevant latent causes（可識別到 permutation），无需时序依赖假设，开辟了 WAM 中 causal-identifiability 的新方法轴。_
+- **[RoboArchitect: Automating the Design of Robotic Agents with Persistent Memory](https://arxiv.org/abs/2610.42141)** — `VLA` · 2026-11-02
+  - _首次把「agent harness（控制代碼＋持久記憶）」本身當作可被 coding model 觀測 rollout、診斷失敗並迭代演化的搜尋對象，而非微調 policy 權重——開了『自動設計 agent 架構而非策略』這條新軸，並讓記憶隨演化累積（如抓取深度經驗）遷移到新場景。_
 - **[ELEVATE: Agentic Controller Acquisition from Task Failure for Quadrupedal Manipulation](https://arxiv.org/abs/2610.38388)** — `VLA` · 2026-10-30
   - _把「任務失敗訊號→偵測能力缺口→coding agent 自動設計並精煉 RL 問題（reward/curriculum/termination）→驗證後併入能力庫再組合重試」閉環打通，使 agent 的動作空間可自我擴張而非受限於固定控制器庫，是既有 VLA/任務規劃 agent 做不到的新方法軸，且免真機訓練零樣本遷移到四足機械臂。_
 - **[E0.5: From Reconstructive to Future-Predictive 3D Foundations for Robotic World-Action Modeling](https://arxiv.org/abs/2610.36011)** — `world-model-as-policy` · 2026-10-28
@@ -122,10 +126,6 @@ sonar                      ························ 10
   - _開了一條測試時記憶轉向（test-time training）的新軸：把原始人類影片以自監督視頻預測吸收進凍結世界-動作模型內的輕量 KV 記憶，並用配對人-機數據元訓練對齊，首次做到無機器人動作、無標註、無微調即可將 RFM 轉向新任務變體，解了以往必須額外示範或 fine-tune 才能適應的行為轉向問題。_
 - **[Do VLAs Know They Will Fail? Interpretable Success and Failure Patterns in Physical AI Systems](https://arxiv.org/abs/2610.32208)** — `VLA` · 2026-10-26
   - _首次證明 VLA（OpenVLA）動作模型的 SAE 稀疏激活本身攜帶「結果可預測」訊號，能在機器人進入不可逆狀態前於內部特徵層做失敗預測，並把特徵激活變化定位到具體行為階段、用 VLM 產生可驗證的行為描述——開的是「VLA 內省/可監控表徵」這條新軸，而非再刷一個策略指標。_
-- **[ViT-H: Generative Video-To-Humanoid Control with Motion Tracking Feedback](https://arxiv.org/abs/2610.32966)** — `generative` · 2026-10-26
-  - _以 diffusion 直接從影片生成人形參考動作，並用下游追蹤結果做 DPO 後訓練，繞過 reconstruction-retargeting 管線，讓 reference motion 的可執行性首次成為可直接優化的目標，開出 generation-and-tracking 新軸。_
-- **[UniFlowWAM: A Unified World-Action Model with Visual Semantics and 4D Geometry](https://arxiv.org/abs/2610.30991)** — `world-model-as-policy` · 2026-10-23
-  - _把 3D scene flow 從「旁路模組／額外預測頭」升格為與視覺、動作對等的第三模態，用模態對稱 diffusion transformer（每模態一 expert + joint attention）配合十種 target/condition/absent 角色網格，讓同一模型同時當 policy、前向／逆向動力學與未來特徵／4D 流預測器——開了一條「幾何流作為 policy 內生模態」的世界-動作模型軸，而非又在既有 VLA 上加一個輔助 head。_
 
 ---
 
