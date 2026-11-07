@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 165 dissection / 175 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 166 dissection / 176 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -97,6 +97,7 @@
               "foundations/depth-foundation/justdepth_real_time_radar_camera_depth_estimation__dissection.md",
               "foundations/depth-foundation/metric3d_dissection.md",
               "foundations/depth-foundation/moge_dissection.md",
+              "foundations/depth-foundation/stereoflow_progressive_stereo_matching_with_stereo_dissection.md",
               "foundations/depth-foundation/streamtto_efficient_online_test_time_optimization__dissection.md",
               "foundations/depth-foundation/the_midas_touch_for_metric_depth_interpretable_met_dissection.md",
               "foundations/depth-foundation/which_depth_estimator_for_jetson_agx_orin_a_2026_b_dissection.md"
