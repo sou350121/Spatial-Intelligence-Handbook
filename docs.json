@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 168 dissection / 178 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 169 dissection / 179 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -253,6 +253,7 @@
               "foundations/spatial-math/contact_based_optimization_for_collision_free_moti_dissection.md",
               "foundations/spatial-math/cross_domain_math_inspirations.md",
               "foundations/spatial-math/effective_parameters_real_behavior_renormalization_dissection.md",
+              "foundations/spatial-math/embodying_multi_hand_manipulation_policies_by_sear_dissection.md",
               "foundations/spatial-math/equibim_learning_symmetry_equivariant_policy_for_b_dissection.md",
               "foundations/spatial-math/impedance_control_of_ship_borne_manipulators_via_o_dissection.md",
               "foundations/spatial-math/imu_preintegration_math.md",
