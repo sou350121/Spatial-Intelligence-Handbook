@@ -50,13 +50,13 @@ These mirror VLA-Handbook's `reports/` layout. 管線程式 [`scripts/pulsar/`](
 | 周报 | 2026-W30 | [阅读](./weekly/2026-W30.md) |
 | 周报 | 2026-W29 | [阅读](./weekly/2026-W29.md) |
 | 周报 | 2026-W28 | [阅读](./weekly/2026-W28.md) |
+| 产业信号 | 2026-11-10 | [阅读](./curated-signal/2026-11-10.md) |
 | 产业信号 | 2026-11-09 | [阅读](./curated-signal/2026-11-09.md) |
 | 产业信号 | 2026-11-06 | [阅读](./curated-signal/2026-11-06.md) |
 | 产业信号 | 2026-11-05 | [阅读](./curated-signal/2026-11-05.md) |
 | 产业信号 | 2026-11-04 | [阅读](./curated-signal/2026-11-04.md) |
 | 产业信号 | 2026-11-02 | [阅读](./curated-signal/2026-11-02.md) |
 | 产业信号 | 2026-10-30 | [阅读](./curated-signal/2026-10-30.md) |
-| 产业信号 | 2026-10-29 | [阅读](./curated-signal/2026-10-29.md) |
 
 完整归档：[GitHub reports](https://github.com/sou350121/Spatial-Intelligence-Handbook/tree/main/reports)。
 
