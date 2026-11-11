@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Spatial Intelligence Handbook",
-  "description": "Spatial AI for manipulation / aerial / driving / marine — 171 dissection / 181 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
+  "description": "Spatial AI for manipulation / aerial / driving / marine — 172 dissection / 182 篇深度解析 / 5-axis ontology v3.2 / GitHub-validated atlas",
   "colors": {
     "primary": "#0EA5E9",
     "light": "#38BDF8",
@@ -194,6 +194,7 @@
               "foundations/pose-tracking/quanta_perception_as_probabilistic_events_dissection.md",
               "foundations/pose-tracking/raft_optical_flow.md",
               "foundations/pose-tracking/react_a_fully_spiking_state_space_model_for_real_t_dissection.md",
+              "foundations/pose-tracking/redirectmimic_local_motion_content_redaction_for_h_dissection.md",
               "foundations/pose-tracking/siamese_to_transformer_sot_dissection.md",
               "foundations/pose-tracking/sort_bytetrack_mot_dissection.md",
               "foundations/pose-tracking/tracking_taxonomy_primer.md",
