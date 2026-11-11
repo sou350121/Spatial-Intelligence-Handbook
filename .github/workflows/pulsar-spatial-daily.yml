@@ -31,13 +31,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0  # need full history to pull/rebase
+
+      - name: Check whether today is already published
+        id: published
+        run: |
+          DATE=$(date -u +%F)
+          REPORT="reports/spatial-daily/${DATE}.md"
+          if [ -s "$REPORT" ] &&
+             [ "$(git log -1 --format=%s -- "$REPORT")" = "auto(pulsar): spatial daily ${DATE}" ] &&
+             grep -q '^> Pulsar pipeline auto-generated\.' "$REPORT" &&
+             grep -q 'https://arxiv.org/abs/' "$REPORT"; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Run Pulsar pipeline
+        if: steps.published.outputs.current != 'true'
         env:
           # DeepSeek is primary; DASHSCOPE stays as the qwen fallback.
           # Either alone is enough to run — scripts/pulsar/_llm.py logs
@@ -67,6 +81,7 @@ jobs:
       # full-handbook audit runs afterwards as an informational signal only; the
       # separate audit.yml workflow remains the real gate for content PRs/pushes.
       - name: Commit + push (if changed)
+        if: steps.published.outputs.current != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
