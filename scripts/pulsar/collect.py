@@ -18,6 +18,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
+from _arxiv_announcement import fetch_announcement_xml
 from _config import (
     ARXIV_FEEDS, KEYWORDS_A, KEYWORDS_B_BOOST, KEYWORDS_C_REJECT,
     DEDUP_FILE, DEDUP_WINDOW_DAYS, SKIP_WEEKENDS, today_str, is_dry_run,
@@ -148,18 +149,14 @@ def collect_today() -> list[dict]:
     for c, n in cat_counts.items():
         print(f"    {c}: {n}", file=sys.stderr)
 
-    # Every feed empty on a weekday is an infrastructure failure, never a quiet
-    # news day -- arxiv announces tens to hundreds of items per category per
-    # weekday. Raising here is what turns a silent outage into a sentinel issue;
-    # returning [] instead lets run_daily.py exit 0 with "no new papers", which
-    # is exactly how 2026-09-08 and 09-09 passed unnoticed on the sibling repo.
-    if all_papers == []:
-        _host = list(ARXIV_FEEDS.values())[0].rsplit("/", 1)[0] if ARXIV_FEEDS else "?"
-        raise RuntimeError(
-            "all %d arxiv feeds returned zero items (feed host %s is likely "
-            "retired or blocking this runner; check the HTTP lines above)"
-            % (len(ARXIV_FEEDS), _host)
-        )
+    if not all_papers:
+        expected = datetime.date.fromisoformat(today) - datetime.timedelta(days=1)
+        print(f"  RSS empty; verifying official arXiv edition {expected}", file=sys.stderr)
+        for category in ARXIV_FEEDS:
+            papers = parse_arxiv_rss(fetch_announcement_xml(category, expected, datetime.date.fromisoformat(today)))
+            for paper in papers:
+                paper["category"] = category
+            all_papers.extend(papers)
 
     # Within-day dedup across feeds: arxiv cross-lists the same paper under
     # multiple categories (e.g. cs.RO AND cs.CV), so the raw union double-counts
