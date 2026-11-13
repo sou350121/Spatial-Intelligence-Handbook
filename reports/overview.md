@@ -34,6 +34,7 @@ These mirror VLA-Handbook's `reports/` layout. 管線程式 [`scripts/pulsar/`](
 | 日报 | 2026-10-23 | [阅读](./spatial-daily/2026-10-23.md) |
 | 日报 | 2026-10-22 | [阅读](./spatial-daily/2026-10-22.md) |
 | 日报 | 2026-10-21 | [阅读](./spatial-daily/2026-10-21.md) |
+| 周报 | 2026-W46 | [阅读](./weekly/2026-W46.md) |
 | 周报 | 2026-W45 | [阅读](./weekly/2026-W45.md) |
 | 周报 | 2026-W44 | [阅读](./weekly/2026-W44.md) |
 | 周报 | 2026-W43 | [阅读](./weekly/2026-W43.md) |
